@@ -5,8 +5,8 @@
 !!
 Submodule (CFML_Maths) CFML_Math_002
  Contains
- 
-    !!---- 
+
+    !!----
     !!---- CO_PRIME
     !!----
     !!----    Provides the value .TRUE. if the array V contains co-prime
@@ -16,7 +16,7 @@ Submodule (CFML_Maths) CFML_Math_002
     !!----
     !!---- 27/03/2019
     !!
-    Module Pure Function Co_Prime(v,imax) result(cop)    
+    Module Pure Function Co_Prime(v,imax) result(cop)
        !---- Arguments ----!
        integer, dimension(:),           intent(in) :: v          ! Input vector of numbers
        integer,               optional, intent(in) :: imax       ! Maximun prime number to be tested
@@ -66,7 +66,7 @@ Submodule (CFML_Maths) CFML_Math_002
 
        return
     End Function Co_Prime
-    
+
     !!----
     !!---- CO_PRIME_VECTOR
     !!----
@@ -74,12 +74,12 @@ Submodule (CFML_Maths) CFML_Math_002
     !!----
     !!----     It uses the list of the first thousand prime numbers.
     !!----
-    !!----     Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in 
+    !!----     Updated: January 2012 (JRC), copied from Nodal_Indices (Laue_Mod) in
     !!----              July 2013 (JRC)
     !!----
     !!---- 27/03/2019
     !!----
-    Module Subroutine Co_Prime_Vector(V,Cop,IFact)    
+    Module Subroutine Co_Prime_Vector(V,Cop,IFact)
        !---- Arguments ----!
        integer, dimension(:),           intent(in)  :: V              ! input integer vector
        integer, dimension(:),           intent(out) :: Cop            ! Output co-prime vector
@@ -91,7 +91,7 @@ Submodule (CFML_Maths) CFML_Math_002
        !> Init
        cop=v
        if (present(ifact)) ifact=1
-       
+
        n=1
        max_ind=maxval(abs(cop))
 
@@ -124,5 +124,5 @@ Submodule (CFML_Maths) CFML_Math_002
 
        return
     End Subroutine Co_Prime_vector
- 
+
 End Submodule CFML_Math_002

@@ -12,7 +12,7 @@ SubModule (CFML_gSpaceGroups) SPG_036
    !!---- vectors perpendicular to that axis, perpAxis, computes the basis
    !!---- bx,by,bz which gives the smallest unit cell
    !!
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Subroutine Get_Pseudo_Standard_Base(W,perpAxis,bz,bx,by)
        !---- Arguments ----!
@@ -95,6 +95,6 @@ SubModule (CFML_gSpaceGroups) SPG_036
              by(:) = byAux(:,imin)
        end select
 
-   End Subroutine Get_Pseudo_Standard_Base  
-   
-End SubModule SPG_036   
+   End Subroutine Get_Pseudo_Standard_Base
+
+End SubModule SPG_036

@@ -7,7 +7,7 @@ SubModule (CFML_gSpaceGroups) SPG_032
    !!---- it returns shift = .true. P is used to express G and G_ in a
    !!---- primitive basis
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
       !---- Arguments ----!
@@ -26,18 +26,18 @@ SubModule (CFML_gSpaceGroups) SPG_032
       type(rational), dimension(:,:), allocatable :: U,D,T,V
       type(rational), dimension(:,:), allocatable :: b,x
 
-      !> Init 
+      !> Init
       call Rational_Identity_Matrix(P)
       call Rational_Identity_Matrix(identity)
       shift      = .true.
-      
+
       P(1:3,1:3) = P_
       do i = 1 , ng
          Gx(:,:,i)  = G(i)%Mat
          Gt(:,:,i)  = G_(i)%Mat
       end do
       Pinv=Rational_Inverse_Matrix(P)
-      
+
       !> Transform generators to a primitive setting
       do i = 1 , ng
          Gt(:,:,i) = matmul(Gt(:,:,i),P)
@@ -95,5 +95,5 @@ SubModule (CFML_gSpaceGroups) SPG_032
 
       return
    End Subroutine Get_Origin_Shift
-   
-End Submodule SPG_032    
+
+End Submodule SPG_032

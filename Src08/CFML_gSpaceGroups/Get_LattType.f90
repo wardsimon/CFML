@@ -1,12 +1,12 @@
 SubModule (CFML_gSpaceGroups) SPG_041
-   Contains   
-   
-   !!---- 
+   Contains
+
+   !!----
    !!---- GET_LATTICE_TYPE
    !!----
    !!---- Returns the lattice type symbol from lattice centring vectors
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_Lattice_Type_L(N, Latc) Result(lattyp)
       !---- Arguments ----!
@@ -47,7 +47,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
          lattyp="P"
          return
       end if
-      
+
       if (nlat > 3) then  !non conventional centring
          lattyp="Z"
          Err_CFML%Ierr = 1
@@ -73,43 +73,43 @@ SubModule (CFML_gSpaceGroups) SPG_041
                select case (j)
                   case (1)
                      latt_a=.true.
-                  
+
                   case (2)
                      latt_b=.true.
-                  
+
                   case (3)
                      latt_c=.true.
-                  
+
                   case (4)
                      latt_i=.true.
-                  
+
                   case (5,6)
                      latt_r=.true.
-                  
+
                   case (7,8)
                      latt_s=.true.
-                  
+
                   case (9,10)
                      latt_h=.true.
                end select
                exit
             end if
          end do
-         
+
          if (sum(latt_given) == 0) then
             latt_z = .true.
             exit
          end if
       end do
 
-      !> Lattice Type 
+      !> Lattice Type
       if (latt_z) then
          lattyp  = "Z"
          Err_CFML%Ierr = 1
          Err_CFML%Msg = "Get_Lattice_Type@SPACEG: Unable to identify lattice type."
          return
       end if
-      
+
       if ( (latt_a .and. latt_b .and. latt_c) .or. (latt_a .and. latt_b) .or. &
            (latt_a .and. latt_c) .or. (latt_b .and. latt_c) ) then
          latt_f=.true.
@@ -131,7 +131,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
 
       return
    End Function Get_Lattice_Type_L
-   
+
    !!----
    !!---- GET_LATTICE_TYPE_FROM_MAT
    !!----
@@ -140,7 +140,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
    !!---- the primitive vectors of the lattice expressed in the
    !!---- standard basis.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_Lattice_Type_from_MAT(M) Result(lattyp)
       !---- Arguments ----!
@@ -156,16 +156,16 @@ SubModule (CFML_gSpaceGroups) SPG_041
       logical                        :: newt
       logical,        dimension(3)   :: isOrigin
       logical                        :: pout
-      
+
       !> ==== Debug ====
       pout = .false.
       pout = (pout .or. CFML_DEBUG)
       !> ===============
-      
+
       !> Init
       Call Clear_Error()
       lattyp=" "
-      
+
       Minv=Rational_Inverse_Matrix(M)
       det = rational_determ(Minv)
       det = (1//1) / det
@@ -180,7 +180,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
       if ( nLatticePoints > 1 ) then
          if (pout) write(*,'(8x,a,i2,1x,a)') " => Standard lattice is non primitive.",&
                    nLatticePoints,"lattice points in the unit cell"
-         
+
          nCentringVectors = 0
          Maux             = Minv ! Maux stores lattice points inside the unit cell
          isOrigin         = .True.
@@ -188,7 +188,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
             do j = 1 , 3
                if (mod(Maux(i,j)%Numerator,Maux(i,j)%Denominator) == 0) then ! integer component
                   Maux(i,j) = 0 // 1
-                  
+
                else ! fractional component
                   n = Maux(i,j)%Numerator / Maux(i,j)%Denominator
                   Maux(i,j) = Maux(i,j) - (n//1)
@@ -197,7 +197,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
                end if
             end do
          end do
-         
+
          do i = 1 , 3
             if ( .not. isOrigin(i) ) then
                t = Maux(:,i) ! t is a centring vector
@@ -211,22 +211,22 @@ SubModule (CFML_gSpaceGroups) SPG_041
                end if
             end if
          end do
-         
+
          if (nCentringVectors > 0) then
             lattyp=Get_Lattice_Type(nCentringVectors,latc)
-         
+
          else
             lattyp = "P"
          end if
          if (Err_CFML%Ierr /= 0) return
          if (pout) write(*,'(12x,2a)') "Lattice type: ",lattyp
-      
+
       else
          if (pout) write(*,'(8x,a)') " => Standard lattice is primitive "
          lattyp = "P"
       end if
    End Function Get_Lattice_Type_from_MAT
-   
+
    !!----
    !!---- GET_MAGNETIC_LATTICE_TYPE
    !!----
@@ -245,13 +245,13 @@ SubModule (CFML_gSpaceGroups) SPG_041
       integer,          dimension(9)   :: latt_given
       type(rational),   dimension(3,9) :: lattice
 
-      !> Init 
+      !> Init
       Call Clear_Error()
-      
+
       G%shu_lat(:)=" "
       if (G%num_lat > 0) then
          G%shu_lat(1)=Get_Lattice_Type(G%num_Lat,G%Lat_tr)
-      
+
       else
           G%shu_lat(1) = "P"
       end if
@@ -319,70 +319,70 @@ SubModule (CFML_gSpaceGroups) SPG_041
                   Err_CFML%Msg = "Get_Magnetic_Lattice_Type@SPACEG: Primitive lattice with more than one anti-translation."
                   return
                end if
-               
+
                if (latt__a) then
                   G%shu_lat(2) = "a"
                   return
-               
+
                else if (latt__b) then
                   G%shu_lat(2) = "b"
                   return
-               
+
                else if (latt__c) then
                   G%shu_lat(2) = "c"
                   return
-               
+
                else if (latt_a) then
                   G%shu_lat(2) = "A"
                   return
-               
+
                else if (latt_b) then
                   G%shu_lat(2) = "B"
-               
+
                else if (latt_c) then
                   G%shu_lat(2) = "C"
                   return
-               
+
                else if (latt_i) then
                   G%shu_lat(2) = "I"
                end if
-              
+
             case ("A")
                if (latt__a .or. latt_i) then
                   G%shu_lat(2) = "a"
-               
+
                else if (latt__b .or. latt__c) then
                   G%shu_lat(2) = "b"
-               
+
                else if (latt_b .or. latt_c) then
                   G%shu_lat(2) = "B"
                end if
-            
+
             case ("C")
                if (latt__a .or. latt__b) then
                   G%shu_lat(2) = "a"
-               
+
                else if (latt__c .or. latt_i) then
                   G%shu_lat(2) = "c"
-               
+
                else if (latt_a .or. latt_b) then
                   G%shu_lat(2) = "A"
                end if
-            
+
             case ("I")
                if (latt__a .or. latt_a) then
                   G%shu_lat(2) = "a"
-               
+
                else if (latt__b .or. latt_b) then
                   G%shu_lat(2) = "b"
-               
+
                else if (latt__c .or. latt_c) then
                   G%shu_lat(2) = "c"
                end if
-            
+
             case ("F")
                if (latt__a .or. latt__b .or. latt__c .or. latt_i) G%shu_lat(2) = "S"
-              
+
             case ("R")
                if (latt__c .or. latt_r) G%shu_lat(2) = "I"
          end select
@@ -393,7 +393,7 @@ SubModule (CFML_gSpaceGroups) SPG_041
          Err_CFML%Msg = "Get_Magnetic_Lattice_Type@SPACEG: Unable to identify lattice type."
       end if
    End Subroutine Get_Magnetic_Lattice
-   
+
    !!----
    !!---- GET_LATTICE_TYPE_FROM_GENER
    !!----    Return the Lattice type symbol from  a list of generators
@@ -405,46 +405,46 @@ SubModule (CFML_gSpaceGroups) SPG_041
       integer,                        intent(in) :: Ngen
       character(len=*), dimension(:), intent(in) :: Gen
       character(len=:), allocatable              :: Latt
-      
+
       !---- Local Variables ----!
       integer                                     :: n, nt
       type(Symm_Oper_Type)                        :: Op
       type(rational), dimension(3,3)              :: Identidad
       type(rational), dimension(:,:), allocatable :: Tr
-       
-      
+
+
       !> Init
       Latt=" "
       if (ngen <=0 ) return
-      
+
       call Rational_Identity_Matrix(identidad)
-      
+
       nt=0
       do n=1,ngen
-         Op=Get_Op_from_Symb(gen(n)) 
+         Op=Get_Op_from_Symb(gen(n))
          if (Op%Time_Inv /= 1) cycle
          if (.not. Rational_Equal(Op%Mat(1:3,1:3),identidad)) cycle
          if (.not. Rational_Is_NullVector(Op%Mat(1:3,4))) nt=nt+1
-      end do   
-      
+      end do
+
       if (nt ==0) then
          Latt="P"
          return
       end if
-      
+
       if (allocated(Tr)) deallocate(Tr)
       allocate(Tr(3,nt))
       nt=0
       do n=1,ngen
-         Op=Get_Op_from_Symb(gen(n)) 
+         Op=Get_Op_from_Symb(gen(n))
          if (Op%Time_Inv /= 1) cycle
          if (.not. Rational_Equal(Op%Mat(1:3,1:3),identidad)) cycle
          if (rational_Is_NullVector(Op%Mat(1:3,4))) cycle
          nt=nt+1
          Tr(:,nt)=Op%Mat(1:3,4)
-      end do 
+      end do
       Latt=Get_Lattice_Type_L(Nt, Tr)
-      
+
    End Function Get_Lattice_Type_from_Gener
-    
-End SubModule SPG_041    
+
+End SubModule SPG_041

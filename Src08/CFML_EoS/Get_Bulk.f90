@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_007
    Contains
-   
+
    !!----
    !!---- GET_K
    !!----    Returns the value of K (or M if linear) at P and T
@@ -38,7 +38,7 @@ SubModule (CFML_EoS) EoS_007
       real(kind=cp),intent(in)        :: t       ! Tenperature
       type(Eos_Type),intent(in)       :: Eospar  ! Eos Parameters
       real(kind=cp)                   :: kp
-      
+
       !---- Local Variables ----!
       real(kind=cp)                   :: v
 
@@ -162,4 +162,4 @@ SubModule (CFML_EoS) EoS_007
       end select
    End Function Get_Kpp0_T
 
-End SubModule EoS_007   
+End SubModule EoS_007

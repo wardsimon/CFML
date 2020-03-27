@@ -7,7 +7,7 @@ SubModule (CFML_gSpaceGroups) SPG_040
     !!---- Finds the smallest set of integers for the direction given by v.
     !!---- It assumes denominators in v have no prime numbers greater than 97.
     !!----
-    !!---- 22/04/2019 
+    !!---- 22/04/2019
     !!
     Module Subroutine Smallest_Integral_Vector(v)
        !---- Arguments ----!
@@ -34,5 +34,5 @@ SubModule (CFML_gSpaceGroups) SPG_040
           end do
        end do
     End Subroutine Smallest_Integral_Vector
-    
-End Submodule SPG_040    
+
+End Submodule SPG_040

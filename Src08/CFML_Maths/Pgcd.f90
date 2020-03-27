@@ -31,12 +31,12 @@ Submodule (CFML_Maths) CFML_Math_003
           u=v
           v=m
        end do
-       
+
        mcd=v
 
        return
     End Function Gcd
-    
+
     !!----
     !!---- Function LCM(i,j) result(mcm)
     !!----    integer, intent(in) :: i
@@ -57,12 +57,12 @@ Submodule (CFML_Maths) CFML_Math_003
 
        !> Init
        mcm=0
-       
+
        t=gcd(a,b)
        if (t /=0) mcm=(a*b)/t
-       
+
        return
     End Function Lcm
-    
+
 End Submodule CFML_Math_003
 

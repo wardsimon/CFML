@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Maths) CFML_Math_005
  Contains
- 
+
     !!----
     !!---- OUTERPROD_R
     !!----    Computes the outer product (tensorial product) of two
@@ -15,9 +15,9 @@ Submodule (CFML_Maths) CFML_Math_005
     !!----    It uses the intrinsic Fortran 90 function SPREAD.
     !!----    Taken from Numerical Recipes.
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Outerprod(a,b)  Result(c)    
+    Module Pure Function Outerprod(a,b)  Result(c)
        !---- Arguments ----!
        real(kind=cp),dimension(:),intent(in)    :: a,b
        real(kind=cp),dimension(size(a),size(b)) :: c
@@ -26,5 +26,5 @@ Submodule (CFML_Maths) CFML_Math_005
 
        return
     End Function Outerprod
- 
+
 End Submodule CFML_Math_005

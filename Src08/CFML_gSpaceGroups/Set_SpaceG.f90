@@ -1011,6 +1011,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       call Group_Constructor(l_gen,SpaceG)
       SpaceG%init_label=Str
       if (Err_CFML%Ierr /= 0) return
+      if(n_it /= 0) SpaceG%spg_symb= str_HM_std(1:1)//l_case(str_HM_std(2:))
       if(len_trim(str_hall) /= 0) SpaceG%Hall=str_hall
 
       Select Case (SpaceG%Num_lat)

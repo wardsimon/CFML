@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_Messages) Wait
    Contains
-   
+
    !!----
    !!---- WAIT_MESSAGE
    !!----
    !!----    Similar to Pause for Console version
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Wait_Message(Mess)
       !---- Argument ----!
@@ -21,5 +21,5 @@ SubModule (CFML_Messages) Wait
       read(unit=*,fmt="(a)") car
 
    End Subroutine Wait_Message
-   
-End SubModule Wait  
+
+End SubModule Wait

@@ -1,13 +1,13 @@
 SubModule (CFML_gSpaceGroups) SPG_034
-   
+
    Contains
-   
-   !!----   
+
+   !!----
    !!---- GET_HM_STANDARD
    !!----
    !!---- Returns the Herman-Maugin symbol for the standard
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_HM_Standard(NumSpg) Result(SymbolHM)
        !---- Arguments ----!
@@ -22,7 +22,7 @@ SubModule (CFML_gSpaceGroups) SPG_034
        SymbolHM=" "
        if (numSpg < 0 .or. numSpg > 230) return
 
-       !> Load Table 
+       !> Load Table
        call Set_Spgr_Info()
 
        i=1
@@ -31,7 +31,7 @@ SubModule (CFML_gSpaceGroups) SPG_034
              call Get_Separator_Pos(spgr_info(i)%HM,':',posSep,n)
              if (n == 0) then
                 symbolHM = spgr_info(i)%HM
-              
+
              else ! Origin choice 2
                 symbolHM = spgr_info(i+1)%HM
              end if
@@ -40,5 +40,5 @@ SubModule (CFML_gSpaceGroups) SPG_034
           i = i + 1
        end do
    End Function Get_HM_Standard
-   
-End Submodule SPG_034    
+
+End Submodule SPG_034

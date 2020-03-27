@@ -1,13 +1,13 @@
 !!----
-SubModule (CFML_DiffPatt) RPatt_FREE 
+SubModule (CFML_DiffPatt) RPatt_FREE
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_FREE
    !!--++
    !!--++    Read a pattern for Free
    !!--++
-   !!--++ 30/04/2019 
+   !!--++ 30/04/2019
    !!
    Module Subroutine Read_Pattern_Free(Filename,Pat,ext)
       !---- Arguments ----!
@@ -216,5 +216,5 @@ SubModule (CFML_DiffPatt) RPatt_FREE
 
       close(unit=i_dat)
    End Subroutine Read_Pattern_Free
-   
-End SubModule RPatt_FREE   
+
+End SubModule RPatt_FREE

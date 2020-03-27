@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -61,7 +61,7 @@
     integer, parameter, public :: BVS_ANIONS_N  =14   ! Number of anions known in BVS Table in O"Keefe, Breese, Brown
     integer, parameter, public :: BVS_SPECIES_N =247  ! Maximum Number of species in BVS_Table
     integer, parameter, public :: SBVS_SPECIES_N=168  ! Maximum Number of species in SBVS_Table
-    
+
     character(len=*), parameter, public, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS = ["O-2 "]          ! Anions known from Stefan Adams and R. Prasada Rao
     character(len=*), parameter, public, dimension(BVS_ANIONS_N)  :: BVS_ANIONS  = ["O-2 ","F-1 ",&  ! Anions known from O'Keefe, Bresse, Brown
                                                                                     "CL-1","BR-1",&
@@ -70,7 +70,7 @@
                                                                                     "N-3 ","P-3 ",&
                                                                                     "AS-3","H-1 ",&
                                                                                     "O-1 ","SE-1"]
-                                              
+
     character(len=*), parameter, public, dimension(0:35) :: REF_BVS = [                      &
          "Unknown                                                                         ", &  !0
          "Brown and Altermatt, (1985), Acta Cryst. B41, 244-247 (empirical)               ", &  !1
@@ -107,17 +107,17 @@
          "J.Rodriguez-Carvajal, Private communication                                     ", &  !32
          "S. Adams and R. Prasada Rao, (2011) Phys. Status Solidi A 208, No. 8, 1746-1753 ", &  !33
          "S. Adams (2013),  Structure and Bonding (eds. Brown & Poeppelmeier) 158, 91-128 ", &  !34
-         "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "]    !35                                                                                
-    
+         "Adams S, Moretsky O and Canadell E (2004) Solid State Ionics 168, 281-290       "]    !35
+
     real(kind=cp), parameter, public, dimension(BVEL_ANIONS_N) :: BVEL_ANIONS_RION = [1.40]             ! Radii Ionic for Anions in BVEL
     real(kind=cp), parameter, public, dimension(BVS_ANIONS_N)  :: BVS_ANIONS_RION  = [1.40,1.19,1.67, & ! Ionic Radii for Anions
                                                                                       1.95,2.16,1.84, &
                                                                                       1.98,2.21,1.71, &
                                                                                       2.12,2.22,2.08, &
-                                                                                      1.35,1.80] 
-                         
+                                                                                      1.35,1.80]
+
     !---- Types Definitions ----!
-    
+
     !!----
     !!---- TYPE :: Atomic_Properties_Type
     !!--..
@@ -134,20 +134,20 @@
         real(kind=cp)    :: Rc   =0.0_cp ! Covalent radius
         real(kind=cp)    :: sigma=0.0_cp ! Softness
     End Type Atomic_Properties_Type
-    
+
     !!----
     !!---- TYPE :: BVEL_PAR_TYPE
     !!--..
     !!
     Type, public :: Bvel_Par_Type
-       character(len=5)                       :: symb    =" "   !Symbol of the cation                                
-       real(kind=cp),dimension(BVEL_ANIONS_N) :: Avcoor  =0.0   !Average cation coordination number                  
-       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rzero   =0.0   !Modified Bond-Valence parameter R0                  
-       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rcutoff =0.0   !Cutoff distance in Angstroms                        
-       real(kind=cp),dimension(BVEL_ANIONS_N) :: Dzero   =0.0   !First Morse potential parameter (eV)                
-       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rmin    =0.0   !Second Morse potential parameter (Angstroms)        
+       character(len=5)                       :: symb    =" "   !Symbol of the cation
+       real(kind=cp),dimension(BVEL_ANIONS_N) :: Avcoor  =0.0   !Average cation coordination number
+       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rzero   =0.0   !Modified Bond-Valence parameter R0
+       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rcutoff =0.0   !Cutoff distance in Angstroms
+       real(kind=cp),dimension(BVEL_ANIONS_N) :: Dzero   =0.0   !First Morse potential parameter (eV)
+       real(kind=cp),dimension(BVEL_ANIONS_N) :: Rmin    =0.0   !Second Morse potential parameter (Angstroms)
        real(kind=cp),dimension(BVEL_ANIONS_N) :: alpha   =0.0   !Third Morse potential parameter (1/b) (Angstroms^-1)
-       integer      ,dimension(BVEL_ANIONS_N) :: refnum  =0     !Pointer to reference paper                          
+       integer      ,dimension(BVEL_ANIONS_N) :: refnum  =0     !Pointer to reference paper
     End Type Bvel_Par_Type
 
     !!----
@@ -155,27 +155,27 @@
     !!--..
     !!
     Type, public :: Bvs_Par_Type
-       character(len=4)                      :: Symb   =" "    ! Chemical symbol                         
-       real(kind=cp),dimension(BVS_ANIONS_N) :: d0     =0.0    ! D0 Parameter                            
-       real(kind=cp),dimension(BVS_ANIONS_N) :: b_par  =0.0    ! B Parameter                             
-       integer      ,dimension(BVS_ANIONS_N) :: refnum =0      ! Integer pointing to the reference paper 
-    End Type Bvs_Par_Type 
-    
+       character(len=4)                      :: Symb   =" "    ! Chemical symbol
+       real(kind=cp),dimension(BVS_ANIONS_N) :: d0     =0.0    ! D0 Parameter
+       real(kind=cp),dimension(BVS_ANIONS_N) :: b_par  =0.0    ! B Parameter
+       integer      ,dimension(BVS_ANIONS_N) :: refnum =0      ! Integer pointing to the reference paper
+    End Type Bvs_Par_Type
+
     !!----
     !!---- TYPE :: sBVS_PAR_TYPE
     !!--..
     !!
     Type, public :: sBvs_Par_Type
-       character(len=4)                      :: Symb   =" "    ! Chemical symbol                         
-       real(kind=cp),dimension(BVS_ANIONS_N) :: d0     =0.0    ! D0 Parameter                            
-       real(kind=cp),dimension(BVS_ANIONS_N) :: b_par  =0.0    ! B Parameter                             
+       character(len=4)                      :: Symb   =" "    ! Chemical symbol
+       real(kind=cp),dimension(BVS_ANIONS_N) :: d0     =0.0    ! D0 Parameter
+       real(kind=cp),dimension(BVS_ANIONS_N) :: b_par  =0.0    ! B Parameter
        real(kind=cp),dimension(bvs_anions_n) :: cn     =0.0    ! Preferred Coordination
        real(kind=cp),dimension(bvs_anions_n) :: ctoff  =0.0    ! Cutoff distance
-       integer      ,dimension(BVS_ANIONS_N) :: refnum =0      ! Integer pointing to the reference paper 
+       integer      ,dimension(BVS_ANIONS_N) :: refnum =0      ! Integer pointing to the reference paper
     End Type sBvs_Par_Type
-    
+
     !---- Variables ----!
-    
+
     real(kind=cp), public, allocatable, dimension(:,:) :: Table_Alpha    ! Matrix N_Species x N_Species of Alpha (equivalent to 1/b in BVS) parameters for BVEL
     real(kind=cp), public, allocatable, dimension(:,:) :: Table_Avcoor   ! Matrix N_Species x N_Species of Average coordination parameters for BVEL
     real(kind=cp), public, allocatable, dimension(:,:) :: Table_b        ! Matrix N_Species x N_Species of B parameters for BVS
@@ -185,11 +185,11 @@
     real(kind=cp), public, allocatable, dimension(:,:) :: Table_RMin     ! Matrix N_Species x N_Species of RMin for BVS
     real(kind=cp), public, allocatable, dimension(:,:) :: Table_RZero    ! Matrix N_Species x N_Species of RZero for BVS
     real(kind=dp), public, allocatable, dimension(:)   :: PaulingX       ! Table of electronegativities
-    
+
     integer, public, allocatable, dimension(:,:) :: Table_ref              ! Matrix N_Species x N_Species with references for BVS parameters
     integer, public, allocatable, dimension(:,:) :: Common_OxStates_Table  ! Tables of Common Oxidation States
     integer, public, allocatable, dimension(:,:) :: OxStates_Table         ! Tables of Oxidation States
-    
+
     Type(Atomic_Properties_Type), public, allocatable, dimension(:) :: Ap_Table
     Type(Bvel_Par_Type),          public, allocatable, dimension(:) :: BVEL_Table
     Type(Bvs_Par_Type),           public, allocatable, dimension(:) :: BVS_Table
@@ -198,37 +198,37 @@
     Interface
        Module Subroutine Set_Atomic_Properties_Table()
        End Subroutine Set_Atomic_Properties_Table
-       
+
        Module Subroutine Set_BVEL_Table()
        End Subroutine Set_BVEL_Table
-       
+
        Module Subroutine Set_BVS_Table()
        End Subroutine Set_BVS_Table
-       
+
        Module Subroutine Set_Common_Oxidation_States_Table()
        End Subroutine Set_Common_Oxidation_States_Table
-       
+
        Module Subroutine Set_Oxidation_States_Table()
        End Subroutine Set_Oxidation_States_Table
-       
+
        Module Subroutine Set_Pauling_Electronegativity()
        End Subroutine Set_Pauling_Electronegativity
-       
+
        Module Subroutine Set_SBVS_Table()
        End Subroutine Set_SBVS_Table
-    
+
        Module Subroutine Remove_Atomic_Properties_Table()
        End Subroutine Remove_Atomic_Properties_Table
-       
+
        Module Subroutine Remove_BVEL_Table()
        End Subroutine Remove_BVEL_Table
-       
+
        Module Subroutine Remove_BVS_Table()
        End Subroutine Remove_BVS_Table
-       
+
        Module Subroutine Remove_sBVS_Table()
        End Subroutine Remove_sBVS_Table
-       
+
     End Interface
-    
+
  End Module CFML_BVS_Tables

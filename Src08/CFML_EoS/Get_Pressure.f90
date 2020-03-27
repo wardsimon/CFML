@@ -4,7 +4,7 @@
 !!----
 SubModule (CFML_EoS) EoS_001
    Contains
-   
+
    !!----
    !!---- GET_PRESSURE
    !!----     Returns value of pressure (P) at (V,T) for EoS Model defined in EoSPar variable
@@ -163,7 +163,7 @@ SubModule (CFML_EoS) EoS_001
          first=.false.
       end do
    End Function Get_Pressure
-   
+
    !!----
    !!---- GET_PRESSURE_ESD
    !!----    Gets the partial derivatives of P with respect to the EoS
@@ -323,7 +323,7 @@ SubModule (CFML_EoS) EoS_001
       integer,                 intent(in) :: Xtype   ! =0 when X=V, =1 for X=K (isothermal)  =2 for adiabatic
       real(kind=cp), optional, intent(in) :: Pest    ! Approx pressure: needed if transitions
       real(kind=cp)                       :: p
-      
+
       !---- Local Variables ----!
       integer       :: itype
 
@@ -347,5 +347,5 @@ SubModule (CFML_EoS) EoS_001
             p=0.0_cp
       end select
    End Function Get_Pressure_X
-   
-End SubModule EoS_001   
+
+End SubModule EoS_001

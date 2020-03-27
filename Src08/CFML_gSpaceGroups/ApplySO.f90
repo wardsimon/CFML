@@ -15,12 +15,12 @@ SubModule (CFML_gSpaceGroups) Spg_101
 
       !---- Local Variables ----!
       type(rational), dimension(4) :: tr
-      
+
       tr(1:3)=v
       tr(4)=1_LI//1_LI
-      
+
       tr=matmul(Op%Mat,Tr)
       S=tr(1:3)
    End Function Apply_OP
-    
-End SubModule Spg_101   
+
+End SubModule Spg_101

@@ -80,5 +80,5 @@ SubModule (CFML_EoS) EoS_006
       vvo=v/get_volume(0.0_cp,t,e)     ! vv0 is V(P,T)/V(0,T) or a(P,T)/a(0,T)
       s=strain(vvo,e)                  ! cubes vv0 on input if linear
    End Function Strain_EOS
-   
-End SubModule EoS_006   
+
+End SubModule EoS_006

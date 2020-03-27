@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_Reflections) RFL_004
    Contains
-   
+
    !!----
    !!---- H_MULT
    !!----    Calculate the multiplicity of the reflection
@@ -26,7 +26,7 @@ SubModule (CFML_Reflections) RFL_004
 
       !> Init
       N=0
-      
+
       n=1
       Dd=size(h)
       ng=SpG%numops
@@ -37,7 +37,7 @@ SubModule (CFML_Reflections) RFL_004
             Mat=SpG%Op(i)%Mat(1:Dd,1:Dd)
             k=matmul(h,Mat)
             esta=.false.
-            
+
             do j=1,n
                if (h_equal(k,klist(:,j)) .or. h_equal(-k,klist(:,j))) then
                   esta=.true.
@@ -45,7 +45,7 @@ SubModule (CFML_Reflections) RFL_004
                end if
             end do
             if (esta) cycle
-            
+
             n=n+1
             klist(:,n) = k
          end do
@@ -54,5 +54,5 @@ SubModule (CFML_Reflections) RFL_004
          n=n*2
       end if
    End Function H_Mult
-   
-End SubModule RFL_004   
+
+End SubModule RFL_004

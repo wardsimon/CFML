@@ -117,16 +117,71 @@
       real(kind=cp),    dimension(3)            :: t
       character(len=6), dimension(8)            :: sgen,msgen
       character(len=20)                         :: spg_symb
-      character(len=60),dimension(2*SpG%numops) :: op_symb
+      character(len=40),dimension(SpG%Multip)   :: op_symb
+      logical,          dimension(SpG%Multip)   :: done
 
-      e_numops=SpG%Numops
-      if(SpG%centred /= 1) e_numops=2*e_numops
+      point_op=0; done=.false.
+      if(len_trim(SpG%SPG_Symb) == 0) then
+        spg_symb= Get_HM_Compact_HM(SpG%BNS_symb)
+      else
+        spg_symb=adjustl(SpG%SPG_Symb)
+      end if
+      spg_symb(2:)=l_case(spg_symb(2:))
+      !write(*,"(a)") " => Symbol of the space group without lattice: "//trim(spg_symb)
+      i=index(spg_symb,":")
+      if( i /= 0) spg_symb=spg_symb(1:i-1) !Remove ":"
+      i=index(spg_symb,"/")
+      if( i /= 0) spg_symb(i:i)=" "  !Remove "/"
+      spg_symb=adjustl(spg_symb(2:)) !Remove lattice symbol
+
+      call get_words(spg_symb,sgen,n)
+
+      m=0
+      do i=1,n
+        if(sgen(i)(1:1) == "1") cycle
+        m=m+1
+        msgen(m)=sgen(i)
+      end do
+      do i=1,m
+        sgen(i)=msgen(i)
+      end do
+
+      ngen = m
+      List_Symb(1:m)=sgen(1:m)
+      !Remove the second number for screw axes and replace it by positive rotation
+      do j=1,ngen
+        do i=1,11
+          if(trim(sgen(j)) == screw(i)) then
+            sgen(j)= rm_screw(i)//"+"
+            exit
+          end if
+        end do
+      end do
+
+
+      do j=1,ngen   !Look always for positive roto-inversions
+          if(sgen(j)(1:1) == "-") then
+            sgen(j)= trim(sgen(j))//"+"
+            exit
+          end if
+      end do
+
+      do j=1,ngen   !Look always for positive roto-inversions
+          if(index(sgen(j),"+") /= 0) cycle
+          if(sgen(j)(1:1) == "3" .or. sgen(j)(1:1) == "4".or. sgen(j)(1:1) == "6") then
+            sgen(j)= trim(sgen(j))//"+"
+          end if
+      end do
+
+      write(*,"(10a)") " => Final Symbol to be analysed: ",(trim(sgen(j))//" ",j=1,ngen)
+
       op_symb(1)="1"
-      do i=2,e_Numops
+      do i=2,SpG%Multip
          s=SpG%Op(i)%Mat(1:3,1:3)
          t=SpG%Op(i)%Mat(1:3,4)
          op_symb(i) = Symmetry_Symbol(s,t)
       end do
+      done=.false.
 
       Select Case(SpG%CrystalSys)
 
@@ -144,83 +199,98 @@
             gen(1)="-x,-y,-z,1"
           end if
 
-        Case("Monoclinic")
+        Case("Monoclinic","Orthorhombic")
 
-          if(SpG%centred == 1) then
-            ngen=1
-            do i=2,e_Numops
-              j=index(op_symb(i)," ")
-              List_Symb(1)=op_symb(i)(1:j-1)
-              Select Case(trim(List_Symb(1)))
-                Case("2") !Determine if it is a screw axis
-                  if(index(Spg%BNS_Symb,"2_1") /= 0) then
-                    List_symb(1) ="21"
-                  else
-                    List_symb(1) ="2"
-                  end if
-              End Select
-              gen(1)=SpG%Symb_Op(i)
-              point_op(1)=i
-              exit
-            end do
+          do j=1,ngen
+             do i=2,SpG%Multip
+               if(done(i)) cycle
+               if(index(op_symb(i),trim(sgen(j))) /= 0 ) then
+                 Select Case(j)
+                   Case(1)
+                      if(trim(sgen(j)) == "2" .and. index(op_symb(i),"x,") /= 0) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_x"
+                      else if(trim(sgen(j)) /= "2" .and. index(op_symb(i),",y,x") /= 0) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_x"
+                      end if
+                   Case(2)
+                      if(trim(sgen(j)) == "2" .and. index(op_symb(i),",y,") /= 0) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_y"
+                      else if(trim(sgen(j)) /= "2" .and. index(op_symb(i),"x,") /= 0 .and. index(op_symb(i),",z") /= 0) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_y"
+                      end if
+                   Case(3)
+                      if(trim(sgen(j)) == "2" .and. index(op_symb(i),",z") /= 0) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_z"
+                      else if(trim(sgen(j)) /= "2" .and. index(op_symb(i),"x,y,") /= 0 ) then
+                        point_op(j)=i
+                        done(i)=.true.
+                        List_Symb(j)=trim(List_Symb(j))//"_z"
+                      end if
+                 End Select
+                 exit
+               end if
+             end do
+          end do
 
-          else
-
-              j=index(op_symb(2)," ")
-              List_Symb(1)=op_symb(i)(1:j-1)
-              Select Case(trim(List_Symb(1)))
-                Case("2") !Determine if it is a screw axis
-                  if(index(Spg%BNS_Symb,"2_1") /= 0) then
-                    List_symb(1) ="21"
-                  else
-                    List_symb(1) ="2"
-                  end if
-              End Select
-              gen(1)=SpG%Symb_Op(2)
-              point_op(1)=2
-
-              j=index(op_symb(4)," ")
-              List_Symb(2)=op_symb(4)(1:j-1)
-              gen(2)=SpG%Symb_Op(4)
-              point_op(2)=4
-
+          if(any(point_op(1:ngen) == 0)) then !Look for unidentified operators (glide planes in monoclinic or orthorhombic systems)
+              do j=1,ngen
+                 i=point_op(j)
+                 if(i == 0) then
+                   do i=2,SpG%Multip
+                     if(done(i)) cycle
+                     if(index(op_symb(i),"a") /= 0) then
+                          point_op(j)=i
+                          done(i)=.true.
+                          List_Symb(j)=trim(List_Symb(j))//"-a"
+                          exit
+                     else if(index(op_symb(i),"b") /= 0) then
+                          point_op(j)=i
+                          done(i)=.true.
+                          List_Symb(j)=trim(List_Symb(j))//"-b"
+                          exit
+                     else if(index(op_symb(i),"c") /= 0) then
+                          point_op(j)=i
+                          done(i)=.true.
+                          List_Symb(j)=trim(List_Symb(j))//"-c"
+                          exit
+                     else if(index(op_symb(i),"d") /= 0) then
+                          point_op(j)=i
+                          done(i)=.true.
+                          List_Symb(j)=trim(List_Symb(j))//"-d"
+                          exit
+                     else if(index(op_symb(i),"g") /= 0) then
+                          point_op(j)=i
+                          done(i)=.true.
+                          List_Symb(j)=trim(List_Symb(j))//"-g"
+                          exit
+                     end if
+                   end do
+                 end if
+              end do
           end if
 
-        Case("Orthorhombic")
-
-           if(SpG%centred == 1) then
-             m=2
-           else
-             m=Spg%Numops+1
-           end if
-           ngen=3
-           n=0
-           do i=m,e_Numops
-             n=n+1
-             j=index(op_symb(i)," ")
-             List_Symb(n)=op_symb(i)(1:j-1)
-             gen(n)=SpG%Symb_Op(i)
-             point_op(n)=i
-             if(n == 3) exit
-           end do
-
         Case("Trigonal")
-
-           if(SpG%centred == 1) then
-             m=2
-           else
-             m=Spg%Numops+1
-           end if
-           n=0
-           do i=m,e_Numops
-             n=n+1
-             j=index(op_symb(i)," ")
-             List_Symb(n)=op_symb(i)(1:j-1)
-             gen(n)=SpG%Symb_Op(i)
-             point_op(n)=i
-             if(n == 3) exit
-           end do
-
+          do i=2,SpG%Multip
+            if(index(op_symb(i),trim(sgen(1))) /= 0 ) then
+              point_op(1)=i
+              done(i)=.true.
+              !Determination of the direction of ternary axis
+              if(index(op_symb(i),",z") /= 0 ) then
+              else if(index(op_symb(i),"x,x,x") /= 0 ) then
+              end if
+              exit
+            end if
+          end do
         Case("Tetragonal")
         Case("Hexagonal")
         Case("Cubic")
@@ -252,13 +322,13 @@
       integer,                        intent(out) :: ngen
       character(len=*), dimension(:), intent(out) :: List_symb
       !--- Local variables ---!
-      integer                                   :: i,j,n,m,e_numops
+      integer                                   :: i,j,n,m,dir
       integer,          dimension(3,3)          :: s
       real(kind=cp),    dimension(3)            :: t
       character(len=6), dimension(8)            :: sgen,msgen
       character(len=20)                         :: spg_symb
-      character(len=60),dimension(2*SpG%numops) :: op_symb
-      logical,          dimension(2*SpG%numops) :: done
+      character(len=60),dimension(SpG%Multip)   :: op_symb
+      logical,          dimension(SpG%Multip)   :: done
       character(len=2), dimension(11)           :: screw=(/"21","31","32","41","42","43","61","62","63","64","65"/)
       character(len=1), dimension(11)           :: rm_screw=(/"2","3","3","4","4","4","6","6","6","6","6"/)
 
@@ -270,16 +340,13 @@
       end if
       spg_symb(2:)=l_case(spg_symb(2:))
       !write(*,"(a)") " => Symbol of the space group without lattice: "//trim(spg_symb)
-      e_numops=SpG%Numops
-      if(SpG%centred /= 1) e_numops=2*e_numops
       i=index(spg_symb,":")
       if( i /= 0) spg_symb=spg_symb(1:i-1) !Remove ":"
       i=index(spg_symb,"/")
       if( i /= 0) spg_symb(i:i)=" "  !Remove "/"
       spg_symb=adjustl(spg_symb(2:)) !Remove lattice symbol
-      call get_words(spg_symb,sgen,n)
 
-      List_Symb(1:n)=sgen(1:n)
+      call get_words(spg_symb,sgen,n)
 
       m=0
       do i=1,n
@@ -292,32 +359,47 @@
       end do
 
       ngen = m
-      !Remove the second number for screw axes
+      List_Symb(1:m)=sgen(1:m)
+      !Remove the second number for screw axes and replace it by positive rotation
       do j=1,ngen
         do i=1,11
           if(trim(sgen(j)) == screw(i)) then
-            sgen(j)= rm_screw(i)
+            sgen(j)= rm_screw(i)//"+"
             exit
           end if
         end do
       end do
 
-      !write(*,"(10a)") " => Final Symbol to be analysed: ",(trim(sgen(j))//" ",j=1,ngen)
 
+      do j=1,ngen   !Look always for positive roto-inversions
+          if(sgen(j)(1:1) == "-") then
+            sgen(j)= trim(sgen(j))//"+"
+            exit
+          end if
+      end do
+
+      do j=1,ngen   !Look always for positive roto-inversions
+          if(index(sgen(j),"+") /= 0) cycle
+          if(sgen(j)(1:1) == "3" .or. sgen(j)(1:1) == "4".or. sgen(j)(1:1) == "6") then
+            sgen(j)= trim(sgen(j))//"+"
+          end if
+      end do
+
+      write(*,"(10a)") " => Final Symbol to be analysed: ",(trim(sgen(j))//" ",j=1,ngen)
 
       op_symb(1)="1"
-      do i=2,e_Numops
+      do i=2,SpG%Multip
          s=SpG%Op(i)%Mat(1:3,1:3)
          t=SpG%Op(i)%Mat(1:3,4)
          op_symb(i) = Symmetry_Symbol(s,t)
-         !write(*,"(i5,a)") i,"   "//trim(op_symb(i))
       end do
       done=.false.
 
       do j=1,ngen
-        do i=2,e_Numops
-          !write(*,"(a)") trim(sgen(j))//"   "//trim(op_symb(i))
+        !write(*,"(a)")  "  => Looking for generator   "//trim(sgen(j))
+        do i=2,SpG%Multip
           if(done(i)) cycle
+          !write(*,"(i4,a)") i,"     "//trim(op_symb(i))
           if(index(op_symb(i),trim(sgen(j))) /= 0 ) then
             point_op(j)=i
             done(i)=.true.
@@ -326,12 +408,118 @@
         end do
       end do
 
+      if(any(point_op(1:ngen) == 0)) then !Look for unidentified operators (glide planes in monoclinic or orthorhombic systems)
+        if(SpG%crystalsys == "Monoclinic" .or. SpG%crystalsys == "Orthorhombic") then
+          do j=1,ngen
+             i=point_op(j)
+             if(i == 0) then
+               do i=2,SpG%Multip
+                 if(done(i)) cycle
+                 if(index(op_symb(i),"a") /= 0) then
+                      point_op(j)=i
+                      done(i)=.true.
+                      List_Symb(j)=trim(List_Symb(j))//"-a"
+                      exit
+                 else if(index(op_symb(i),"b") /= 0) then
+                      point_op(j)=i
+                      done(i)=.true.
+                      List_Symb(j)=trim(List_Symb(j))//"-b"
+                      exit
+                 else if(index(op_symb(i),"c") /= 0) then
+                      point_op(j)=i
+                      done(i)=.true.
+                      List_Symb(j)=trim(List_Symb(j))//"-c"
+                      exit
+                 else if(index(op_symb(i),"d") /= 0) then
+                      point_op(j)=i
+                      done(i)=.true.
+                      List_Symb(j)=trim(List_Symb(j))//"-d"
+                      exit
+                 end if
+               end do
+             end if
+          end do
+        end if
+      end if
+      !Check the direction of the principal rotation axis if it exist
+      dir=0
+      if(index(sgen(1),"3")/=0 .or. index(sgen(1),"4")/=0 .or. index(sgen(1),"6")/=0) then
+        j=point_op(1)
+        if(index(op_symb(j),"x") /= 0) then
+          dir=1
+        else if(index(op_symb(j),"y") /= 0) then
+          dir=2
+        else if(index(op_symb(j),"z") /= 0) then
+          dir=3
+        end if
+      end if
+
+      if(any(point_op(1:ngen) == 0)) then !Look for unidentified operators (glide planes at faces)
+        do j=1,ngen
+           i=point_op(j)
+           if(i == 0) then
+             do i=2,SpG%Multip
+               if(done(i)) cycle
+               if(index(op_symb(i),"g") /= 0) then  !assume that it is a glide plane "g" perpendicular to c
+                  if(index(op_symb(i),"x,y,0") /= 0 .and. dir == 3) then  !assume that it is a glide plane "g" perpendicular to c
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-gc0"
+                    exit
+                  else if(index(op_symb(i),"0,y,z") /= 0 .and. dir == 1) then !assume that it is a glide plane "g" perpendicular to a or containing y and z
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-ga0"
+                    exit
+                  else if(index(op_symb(i),"x,0,z") /= 0  .and. dir == 2) then !assume that it is a glide plane "g" perpendicular to b or containing x and z
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-gb0"
+                    exit
+                  end if
+               end if
+             end do
+           end if
+        end do
+      end if
+
+      if(any(point_op(1:ngen) == 0)) then !Look for unidentified operators (glide planes out of faces)
+        do j=1,ngen
+           i=point_op(j)
+           if(i==0) then
+             do i=2,SpG%Multip
+               if(done(i)) cycle
+               if(index(op_symb(i),"g") /= 0) then  !assume that it is a glide plane "g" perpendicular to c
+                  if(index(op_symb(i),"x,y,") /= 0 ) then  !assume that it is a glide plane "g" perpendicular to c
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-gc"
+                    exit
+                  else if(index(op_symb(i),",y,z") /= 0 ) then !assume that it is a glide plane "g" perpendicular to a or containing y and z
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-ga"
+                    exit
+                  else if(index(op_symb(i),"x,") /= 0 .and. index(op_symb(i),",z") /= 0) then !assume that it is a glide plane "g" perpendicular to b or containing x and z
+                    point_op(j)=i
+                    done(i)=.true.
+                    List_Symb(j)=trim(List_Symb(j))//"-gb"
+                    exit
+                  end if
+               end if
+             end do
+           end if
+        end do
+      end if
+
+      n=0
       do j=1,ngen
         i=point_op(j)
-        !write(*,"(i5,a)") i,"  "//sgen(j)//"   "//trim(SpG%Symb_Op(i))
-        gen(j)=SpG%Symb_Op(i)
+        if(i == 0) cycle
+        n=n+1
+        gen(n)=SpG%Symb_Op(i)
       end do
-
+      ngen=n
     End Subroutine Get_Generators_From_SpGSymbol
 
     Subroutine Get_Symbol_SSG_from_Operators()
@@ -362,9 +550,8 @@
       type(SpG_Type),dimension(12)    :: Grpk
       logical                         :: ext=.true.
       integer,           dimension(:),allocatable :: order,point_op
-      character(len=60), dimension(:),allocatable :: gen
-      character(len=4),  dimension(6) :: list_symb_or
-      character(len=4),  dimension(6) :: list_symb_gk
+      character(len=40), dimension(:),allocatable :: gen
+      character(len=6),  dimension(6) :: list_symb_gk
 
       do
         write(*,"(a)",advance="no") " => Enter the number (or the symbol) of a space group: "
@@ -397,28 +584,14 @@
         call Write_SpaceGroup_Info(intSpG)
         call get_Order(intSpG, maxorder, order)
         if(allocated(point_op)) deallocate(point_op)
-        allocate(point_op(2*intSpG%numops))
+        allocate(point_op(intSpG%multip))
         if(allocated(gen)) deallocate(gen)
-        allocate(gen(2*intSpG%numops))
-        !call Get_Generators_From_SpGSymbol(intSpG,gen,point_op,ngen)
-
-        call Get_Generators_From_SpGSymbol(SpG,gen,point_op,ngen,list_symb_or)
-        n=0
-        do i=1,ngen
-           do j=2,2*intSpG%Numops
-             if(trim(gen(i)) == trim(intSpG%Symb_Op(j))) then
-              n=n+1
-              point_op(n)=j
-              list_symb_gk(n)=list_symb_or(i)
-              exit
-             end if
-           end do
-        end do
-        ngen=n
-        do i=1,ngen
-          j=point_op(i)
-          gen(i)=intSpG%Symb_Op(j)
-        end do
+        allocate(gen(intSpG%Multip))
+        call Get_Generators_From_SpGSymbol(intSpG,gen,point_op,ngen,list_symb_gk)
+        !do i=1,ngen
+        !  j=point_op(i)
+        !  gen(i)=intSpG%Symb_Op(j)
+        !end do
 
         write(*,"(//a,i2)")  "  VISIBLE GENERATORS OF SPACE GROUP: ",ngen
         do i=1,ngen

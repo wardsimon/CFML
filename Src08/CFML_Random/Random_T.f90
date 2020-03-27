@@ -13,7 +13,7 @@ SubModule (CFML_Random) RandomGen08
    !!----    Subroutine generates a random variate from a
    !!----    t distribution using kinderman and monahan"s ratio method.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_T(M) Result(Fn_Val)
       !---- Arguments ----!
@@ -66,5 +66,5 @@ SubModule (CFML_Random) RandomGen08
 
       return
    End Function Random_T
-   
-End SubModule RandomGen08  
+
+End SubModule RandomGen08

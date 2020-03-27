@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Trace
  Contains
- 
+
     !!----
     !!---- TRACE_C
     !!----    Calculates the trace of a complex nxn array
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Trace_C(a) Result(b)    
+    Module Pure Function Trace_C(a) Result(b)
        !---- Argument ----!
        complex(kind=cp), dimension(:,:), intent(in) :: a
        complex(kind=cp)                             :: b
@@ -28,14 +28,14 @@ Submodule (CFML_Maths) Trace
 
        return
     End Function Trace_C
- 
-    !!---- 
+
+    !!----
     !!---- TRACE_I
     !!----    Calculates the trace of an integer 3x3 array
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Trace_I(a) Result(b)    
+    Module Pure Function Trace_I(a) Result(b)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: a
        integer                             :: b
@@ -51,14 +51,14 @@ Submodule (CFML_Maths) Trace
 
        return
     End Function Trace_I
- 
+
     !!----
     !!---- TRACE_R
     !!----    Calculates the trace of a real 3x3 array
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Trace_R(a) Result(b)    
+    Module Pure Function Trace_R(a) Result(b)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: a
        real(kind=cp)                             :: b
@@ -74,6 +74,6 @@ Submodule (CFML_Maths) Trace
 
        return
     End Function Trace_R
- 
-   
+
+
 End Submodule Trace

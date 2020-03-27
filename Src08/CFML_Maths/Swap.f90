@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Swap
  Contains
- 
+
     !!----
     !!---- SWAP_C
     !!----    Swap the contents of a and b
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_C(a,b)    
+    Module Elemental Subroutine Swap_C(a,b)
        !---- Arguments ----!
        complex(kind=cp), intent(in out) :: a
        complex(kind=cp), intent(in out) :: b
@@ -26,14 +26,14 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_C
- 
+
     !!----
     !!---- SWAP_I
     !!----    Swap the contents of a and b
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_I(A,B)    
+    Module Elemental Subroutine Swap_I(A,B)
        !---- Arguments ----!
        integer , intent(in out) :: a
        integer , intent(in out) :: b
@@ -47,14 +47,14 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_I
- 
+
     !!----
     !!---- SWAP_R
     !!----    Swap the contents of a and b
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_R(A,B)    
+    Module Elemental Subroutine Swap_R(A,B)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -68,14 +68,14 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_R
-    
+
     !!----
     !!---- SWAP_MASKED_C
     !!----    Swap the contents of a and b if mask=.true.
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_C(A,B,Mask)    
+    Module Elemental Subroutine Swap_Masked_C(A,B,Mask)
        !---- Arguments ----!
        complex(kind=cp), intent(in out) :: a
        complex(kind=cp), intent(in out) :: b
@@ -92,14 +92,14 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_Masked_C
-    
+
     !!----
     !!---- SWAP_MASKED_I
     !!----    Swap the contents of a and b if mask=.true.
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_I(A,B,Mask)    
+    Module Elemental Subroutine Swap_Masked_I(A,B,Mask)
        !---- Arguments ----!
        integer, intent(in out) :: a
        integer, intent(in out) :: b
@@ -116,14 +116,14 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_Masked_I
-    
+
     !!----
     !!---- SWAP_MASKED_R
     !!----    Swap the contents of a and b if mask=.true.
     !!----
-    !!---- 29/03/2019 
+    !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_R(A,B,Mask)    
+    Module Elemental Subroutine Swap_Masked_R(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -140,5 +140,5 @@ Submodule (CFML_Maths) Swap
 
        return
     End Subroutine Swap_Masked_R
-    
+
 End Submodule Swap

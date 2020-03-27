@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -72,45 +72,45 @@
        Module Subroutine Close_Scroll_Window()
           !---- Arguments ----!
        End Subroutine Close_Scroll_Window
-       
+
        Module Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
           !---- Arguments ----!
-          character(len=*),            intent(in) :: Mess         
-          integer, optional,           intent(in) :: iunit        
-          Character(Len =*), Optional, Intent(In) :: Routine      
-          Logical,           Optional, Intent(In) :: Fatal        
+          character(len=*),            intent(in) :: Mess
+          integer, optional,           intent(in) :: iunit
+          Character(Len =*), Optional, Intent(In) :: Routine
+          Logical,           Optional, Intent(In) :: Fatal
        End Subroutine Error_Message
-       
+
        Module Subroutine Info_Message(Mess, iunit)
           !---- Arguments ----!
-          character(len=*), intent(in)           :: Mess        
-          integer,          intent(in), optional :: iunit       
+          character(len=*), intent(in)           :: Mess
+          integer,          intent(in), optional :: iunit
        End Subroutine Info_Message
-       
+
        Module Subroutine Question_Message(Mess, Title)
           !---- Argument ----!
-          character (len=*),           intent(in) :: Mess        
-          character (len=*), optional, intent(in) :: Title    
+          character (len=*),           intent(in) :: Mess
+          character (len=*), optional, intent(in) :: Title
        End Subroutine Question_Message
-       
+
        Module Subroutine Stop_Message(Mess, Title)
           !---- Argument ----!
-          character (len=*),           intent(in) :: Mess      
-          character (len=*), optional, intent(in) :: Title    
-       End Subroutine Stop_Message 
-       
+          character (len=*),           intent(in) :: Mess
+          character (len=*), optional, intent(in) :: Title
+       End Subroutine Stop_Message
+
        Module Subroutine Warning_Message(Mess, Iunit)
           !---- Arguments ----!
-          character(len=*), intent(in) :: Mess             
-          integer, optional,intent(in) :: iunit           
+          character(len=*), intent(in) :: Mess
+          integer, optional,intent(in) :: iunit
        End Subroutine Warning_Message
-       
+
        Module Subroutine Write_Scroll_Text(Mess,ICmd)
           !---- Argument ----!
-          character(len=*), intent(in) :: Mess      
-          integer, optional,intent(in) :: ICmd      
+          character(len=*), intent(in) :: Mess
+          integer, optional,intent(in) :: ICmd
        End Subroutine Write_Scroll_Text
-    
+
     End Interface
 
  End Module CFML_Messages

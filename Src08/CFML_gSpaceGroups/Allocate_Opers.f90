@@ -1,6 +1,6 @@
 SubModule (CFML_gSpaceGroups) SPG_007
    Contains
-   
+
    !!----
    !!---- ALLOCATE_OP
    !!----
@@ -10,19 +10,19 @@ SubModule (CFML_gSpaceGroups) SPG_007
       !---- Arguments ----!
       integer,              intent(in)     :: d
       type(Symm_Oper_Type), intent(in out) :: Op
-      
-      
+
+
       if (allocated(Op%Mat)) deallocate(Op%Mat)
       allocate(Op%Mat(d,d))
-       
+
       !>Inititalize to identity matrix
       call Set_Identity_Matrix(d)
-      
+
       Op%Mat=Identity_Matrix
       Op%time_inv=1
       Op%dt=1
    End Subroutine Allocate_OP
-   
+
    !!----
    !!---- ALLOCATE_OPERATORS
    !!----
@@ -35,17 +35,17 @@ SubModule (CFML_gSpaceGroups) SPG_007
       integer,                                         intent(in)     :: d     ! Dimension
       integer,                                         intent(in)     :: Nmax  ! is the expected maximum number of operators
       type(Symm_Oper_Type), dimension(:), allocatable, intent(in out) :: Op
-      
+
       !---- Local Variables ----!
       integer :: i
-      
+
       !> Init
       if(allocated(Op)) deallocate(Op)
       allocate(Op(NMax))
-      
+
       do i=1, NMax
          call Allocate_Op(d,Op(i))
       end do
    End Subroutine Allocate_Operators
-   
+
 End SubModule SPG_007

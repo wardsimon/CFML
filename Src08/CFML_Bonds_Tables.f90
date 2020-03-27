@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -62,13 +62,13 @@
 
     real(kind=cp), public, allocatable, dimension(:,:,:) :: Bond_Length_Table ! Bonds length between type of atoms. Order by Z
 
-    
+
     !---- Overlapp ----!
     Interface  Get_Bonds_Table
        Module Procedure Get_Bonds_Table_Symbol
        Module Procedure Get_Bonds_Table_Z
     End Interface
-    
+
     Interface
        Module Function Get_Bonds_Table_Symbol(Symb1,Symb2) Result(Bonds)
           !---- Arguments ----!
@@ -76,20 +76,20 @@
           character(len=*),           intent(in)  :: Symb2
           real(kind=cp), dimension(3)             :: Bonds
        End Function Get_Bonds_Table_Symbol
-       
+
        Module Function Get_Bonds_Table_Z(Z1,Z2) Result(Bonds)
           !---- Arguments ----!
           integer,                    intent(in)  :: Z1
           integer,                    intent(in)  :: Z2
           real(kind=cp),dimension(3)              :: Bonds
        End Function Get_Bonds_Table_Z
-       
+
        Module Subroutine Remove_Bonds_Table()
        End Subroutine Remove_Bonds_Table
-       
+
        Module Subroutine Set_Bonds_Table()
        End Subroutine Set_Bonds_Table
-       
+
     End Interface
 
  Contains

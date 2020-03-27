@@ -6,30 +6,30 @@ Submodule (CFML_Rational) Operator_LT
 
  Contains
     !!----
-    !!---- RATIONAL_LT 
+    !!---- RATIONAL_LT
     !!----
-    !!---- 08/04/2019 
+    !!---- 08/04/2019
     !!
     Module Elemental Function Rational_LT(R, S) Result(Res)
-       !---- Arguments ----! 
+       !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
        logical                     :: res
-       
+
        !---- Local Variables ----!
        type(rational) :: r_simple, s_simple
 
        r_simple = rational_simplify(r)
        s_simple = rational_simplify(s)
-      
+
        res = r_simple%numerator * s_simple%denominator < &
            & s_simple%numerator * r_simple%denominator
-           
-       return    
+
+       return
     End Function Rational_Lt
-    
+
     !!----
-    !!---- RATIONAL_INTEGER_LT 
+    !!---- RATIONAL_INTEGER_LT
     !!----
     !!----
     !!
@@ -38,18 +38,18 @@ Submodule (CFML_Rational) Operator_LT
        type(rational),  intent (in) :: r
        integer(kind=LI),intent (in) :: i
        logical                      :: res
-       
+
        !---- Local Variables ----!
        type(rational) :: r_simple
 
        r_simple = rational_simplify(r)
        res = r_simple%numerator < i * r_simple%denominator
-      
+
        return
     End Function Rational_Integer_LT
-    
+
     !!----
-    !!---- INTEGER_RATIONAL_LT 
+    !!---- INTEGER_RATIONAL_LT
     !!----
     !!---- 08/04/2019
     !!
@@ -58,14 +58,14 @@ Submodule (CFML_Rational) Operator_LT
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: r
        logical                      :: res
-       
+
        !---- Local Variables ----!
        type(rational) :: r_simple
-      
+
        r_simple = rational_simplify(r)
        res = i * r_simple%denominator < r_simple%numerator
-       
+
        return
     End Function Integer_Rational_Lt
-    
-End Submodule Operator_LT 
+
+End Submodule Operator_LT

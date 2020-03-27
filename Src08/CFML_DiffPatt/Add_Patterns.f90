@@ -7,9 +7,9 @@ Submodule (CFML_DiffPatt) AddPatt
     !!----
     !!---- Add Patterns
     !!----
-    !!---- 30/04/2019 
+    !!---- 30/04/2019
     !!
-    Module Subroutine Add_Patterns(Patterns, N, Active, Pat, VNorm) 
+    Module Subroutine Add_Patterns(Patterns, N, Active, Pat, VNorm)
         !---- Arguments ----!
         class(DiffPat_Type), dimension(:), intent(in)  :: Patterns
         integer,                           intent(in)  :: N

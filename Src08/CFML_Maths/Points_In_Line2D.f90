@@ -11,9 +11,9 @@ Submodule (CFML_Maths) CFML_Math_008
     !!----    by X1 and Xn with equal distance between them. XP contains
     !!----    X1,X2,.....,XN points.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Subroutine Points_In_Line2D(X1, XN, N, XP)    
+    Module Pure Subroutine Points_In_Line2D(X1, XN, N, XP)
        !---- Arguments ----!
        real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
        real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
@@ -115,5 +115,5 @@ Submodule (CFML_Maths) CFML_Math_008
 
        return
     End Subroutine Points_In_Line2D
- 
+
 End Submodule CFML_Math_008

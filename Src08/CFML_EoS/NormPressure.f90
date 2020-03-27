@@ -171,6 +171,5 @@ SubModule (CFML_EoS) EoS_005
             p=3.0_cp*f*s*exp(3.0_cp*s)
       end select
    End Function Pressure_F
-   
-End SubModule EoS_005   
-   
+
+End SubModule EoS_005

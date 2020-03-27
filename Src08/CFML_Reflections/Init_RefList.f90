@@ -3,12 +3,12 @@
 !!----
 SubModule (CFML_Reflections) RFL_011
    Contains
-   
+
    !!----
    !!---- INITIALIZE_REFLIST()
    !!----    Initialize the Reflection List Variable
    !!----
-   !!---- 24/06/2019 
+   !!---- 24/06/2019
    !!
    Module Subroutine Initialize_RefList(N, Reflex)
       !---- Arguments ----!
@@ -22,11 +22,11 @@ SubModule (CFML_Reflections) RFL_011
       select case (n)
          case (0)
              reflex%Nref=0
-             
+
          case (1:)
             reflex%Nref=n
             allocate(reflex%ref(n))
-            
+
             associate (r => reflex%ref)
                select type (r)
                  class is (Refl_Type)
@@ -36,9 +36,9 @@ SubModule (CFML_Reflections) RFL_011
                        r(i)%s     =0.0_cp
                        r(i)%Imag  =0
                        r(i)%Pcoeff=0
-                    end do 
-               end select     
-                    
+                    end do
+               end select
+
                select type (r)
                  class is (SRefl_Type)
                     do i=1,n
@@ -50,8 +50,8 @@ SubModule (CFML_Reflections) RFL_011
                        r(i)%B    =0.0_cp
                        r(i)%W    =1.0_cp
                     end do
-               end select  
-               
+               end select
+
                select type (r)
                  type is (MRefl_Type)
                     do i=1,n
@@ -61,9 +61,9 @@ SubModule (CFML_Reflections) RFL_011
                     end do
                end select
             end associate
-            
-      end select         
-      
+
+      end select
+
    End Subroutine Initialize_RefList
-    
-End SubModule RFL_011   
+
+End SubModule RFL_011

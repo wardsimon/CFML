@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_Eos) EoS_022
    Contains
-   
+
    !!--++
    !!--++ SET_CROSS_NAMES
    !!--++
@@ -610,5 +610,5 @@ SubModule (CFML_Eos) EoS_022
             eospar%comment(27) = 'Power law term, high phase'
       end select
    End Subroutine Set_Transition_Names
-   
-End SubModule EoS_022   
+
+End SubModule EoS_022

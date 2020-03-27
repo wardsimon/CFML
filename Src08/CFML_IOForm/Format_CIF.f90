@@ -3,13 +3,13 @@
 !!----
 SubModule (CFML_IOForm) IOF_003
    Contains
-   
-   
+
+
    !!----
    !!---- Read_Cif_Atom
    !!----    Obtaining Atoms parameters from Cif file. A control error is present.
    !!----
-   !!---- 26/06/2019 
+   !!---- 26/06/2019
    !!
    Module Subroutine Read_Cif_Atom(lines,n_ini,n_end, At_List)
       !---- Arguments ----!
@@ -32,26 +32,26 @@ SubModule (CFML_IOForm) IOF_003
       real(kind=cp), dimension(1)     :: vet1,vet2
       integer,       dimension(1)     :: ivet
       type(atlist_type)               :: Atm
-      
+
       type (atm_type)                 :: atm1
       type (atm_std_type)             :: atm2
       type (matm_std_type)            :: atm3
       type (atm_ref_type)             :: atm4
-      
+
       class(atm_type), allocatable    :: atm5
 
       !> Init
       call clear_error()
       call allocate_atom_list(0,At_List)
       call allocate_atom_list(n_end-n_ini+1,Atm)
-      
+
       lugar=0
       num_ini=n_ini
-      
+
       !> Change of _atom_site by _atom_site_label in order to be able the reading
       !> the atoms positions even when the anisotropic parameters are given before
       call Read_Key_StrVal(lines,n_ini,n_end,"_atom_site_label",line)
-      
+
       !> Look for the possibility that _atom_site_label is not the first item in the loop
       do i=n_ini,num_ini,-1
          line=adjustl(lines(i))
@@ -122,7 +122,7 @@ SubModule (CFML_IOForm) IOF_003
          err_CFML%Msg="Read_Cif_Atom@CFML_IOFORM: Error reading atoms in CIF format!"
          return
       end if
-      
+
       nct=count(lugar > 0)
       nline_big=nline
       nline_ini=nline
@@ -137,7 +137,7 @@ SubModule (CFML_IOForm) IOF_003
             nline=i
             exit
          end if
-         
+
          n=n+1
 
          !> _atom_site_label
@@ -168,7 +168,7 @@ SubModule (CFML_IOForm) IOF_003
                at(n)%x(2)=vet1(1)
                call get_num(label(lugar(5)),vet1,ivet,iv)    ! _atom_site_fract_z
                at(n)%x(3)=vet1(1)
-               
+
             class is (atm_std_type)
                call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_fract_x
                at(n)%x(1)=vet1(1)
@@ -180,7 +180,7 @@ SubModule (CFML_IOForm) IOF_003
                at(n)%x(3)=vet1(1)
                at(n)%x_std(3)=vet2(1)
          end select
-         
+
          !> _atom_site_occupancy
          if (lugar(6) /= 0) then
             call get_numstd(label(lugar(6)),vet1,vet2,iv)
@@ -191,12 +191,12 @@ SubModule (CFML_IOForm) IOF_003
          select type (at => atm%atom)
             type is (atm_type)
                at(n)%occ=vet1(1)
-            
+
             class is (atm_std_type)
                at(n)%occ=vet1(1)
                at(n)%occ_std=vet2(1)
          end select
-         
+
          if (lugar(7) /= 0) then
             call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_U_iso_or_equiv
             select type (at => atm%atom)
@@ -207,7 +207,7 @@ SubModule (CFML_IOForm) IOF_003
                   at(n)%U_iso_std=vet2(1)
             end select
             atm%atom(n)%utype="U"
-            
+
          else if (lugar(8) /= 0) then
             call get_numstd(label(lugar(8)),vet1,vet2,iv)    ! _atom_site_B_iso_or_equiv
             select type (at => atm%atom)
@@ -231,7 +231,7 @@ SubModule (CFML_IOForm) IOF_003
       end do
 
       if (nline >= nline_big) nline_big=nline
-      
+
       !> Anisotropic
       nline_ini=num_ini !Changed to be able the reading of anisotropic parameters
                         !even if given before the coordinates
@@ -307,61 +307,61 @@ SubModule (CFML_IOForm) IOF_003
             do j=1,n
                if (atm%atom(j)%thtype == "ani") cycle ! already assigned
                if (trim(atm%atom(j)%lab) /= trim(label(lugar(1))) ) cycle
-               
+
                call get_numstd(label(lugar(2)),vet1,vet2,iv)    ! _atom_site_aniso_U_11
                select type (at => atm%atom)
-                  type is (atm_type) 
+                  type is (atm_type)
                      at(j)%u(1)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(1)    =vet1(1)
-                     at(j)%u_std(1)=vet2(1) 
+                     at(j)%u_std(1)=vet2(1)
                end select
-               
+
                call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_aniso_U_22
                select type (at => atm%atom)
-                  type is (atm_type) 
+                  type is (atm_type)
                      at(j)%u(2)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(2)    =vet1(1)
-                     at(j)%u_std(2)=vet2(1) 
+                     at(j)%u_std(2)=vet2(1)
                end select
-               
+
                call get_numstd(label(lugar(4)),vet1,vet2,iv)    ! _atom_site_aniso_U_33
                select type (at => atm%atom)
                   type is (atm_type)
-                     at(j)%u(3)    =vet1(1) 
+                     at(j)%u(3)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(3)    =vet1(1)
                      at(j)%u_std(3)=vet2(1)
                end select
-               
+
                call get_numstd(label(lugar(5)),vet1,vet2,iv)    ! _atom_site_aniso_U_12
                select type (at => atm%atom)
-                  type is (atm_type) 
+                  type is (atm_type)
                      at(j)%u(4)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(4)    =vet1(1)
                      at(j)%u_std(4)=vet2(1)
                end select
-                      
-               call get_numstd(label(lugar(6)),vet1,vet2,iv)    ! _atom_site_aniso_U_13       
+
+               call get_numstd(label(lugar(6)),vet1,vet2,iv)    ! _atom_site_aniso_U_13
                select type (at => atm%atom)
-                  type is (atm_type) 
+                  type is (atm_type)
                      at(j)%u(5)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(5)    =vet1(1)
                      at(j)%u_std(5)=vet2(1)
                end select
-               
+
                call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_aniso_U_23
                select type (at => atm%atom)
-                  type is (atm_type) 
+                  type is (atm_type)
                      at(j)%u(6)    =vet1(1)
                   class is (atm_std_type)
                      at(j)%u(6)    =vet1(1)
                      at(j)%u_std(6)=vet2(1)
                end select
-                      
+
                atm%atom(j)%thtype="ani"
                mm=mm+1
                exit
@@ -384,7 +384,7 @@ SubModule (CFML_IOForm) IOF_003
             exit
          end if
       end do
-      
+
       !> Swapping the orinal atom at the first position with the first having full occupation
       if (First /= 1) Then
          select type (at => atm%atom)
@@ -392,11 +392,11 @@ SubModule (CFML_IOForm) IOF_003
                atm1=at(1)
                at(1)=at(first)
                at(first)=atm1
-               
+
             type is (atm_std_type)
             type is (matm_std_type)
             type is (atm_ref_type)
-         end select      
+         end select
       end if
 
       !> Put the first atom the first having a full occupation factor 1.0
@@ -404,11 +404,11 @@ SubModule (CFML_IOForm) IOF_003
          call allocate_atom_list(n,At_list)
          at_list%atom=atm%atom(1:n)
       end if
-      
+
       call allocate_atom_list(0,Atm)
 
    End Subroutine Read_Cif_Atom
-   
+
    !!----
    !!---- Read_Cif_Cell
    !!----    Read Cell Parameters from CIF format
@@ -440,7 +440,7 @@ SubModule (CFML_IOForm) IOF_003
          vcell(1)=vet1(1)
          std(1)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       nline_ini=initl
@@ -449,7 +449,7 @@ SubModule (CFML_IOForm) IOF_003
          vcell(2)=vet1(1)
          std(2)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       nline_ini=initl
@@ -458,7 +458,7 @@ SubModule (CFML_IOForm) IOF_003
          vcell(3)=vet1(1)
          std(3)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       nline_ini=initl
@@ -467,7 +467,7 @@ SubModule (CFML_IOForm) IOF_003
          vcell(4)=vet1(1)
          std(4)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       nline_ini=initl
@@ -476,7 +476,7 @@ SubModule (CFML_IOForm) IOF_003
          vcell(5)=vet1(1)
          std(5)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       nline_ini=initl
@@ -485,22 +485,22 @@ SubModule (CFML_IOForm) IOF_003
          vcell(6)=vet1(1)
          std(6)=vet2(1)
       else
-         ierror=.true.   
+         ierror=.true.
       end if
 
       if (ierror) then
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Cell@CFML_IOForm: Problems reading cell parameters!"  
+         err_CFML%Msg="Read_CIF_Cell@CFML_IOForm: Problems reading cell parameters!"
          return
-      end if   
+      end if
       call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
    End Subroutine Read_Cif_Cell
-   
+
    !!----
    !!---- READ_CIF_WAVE
    !!----    Read Wavelength in CIF Format
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Wave(lines, n_ini, n_end, Wave)
       !---- Arguments ----!
@@ -521,17 +521,17 @@ SubModule (CFML_IOForm) IOF_003
       call read_key_value(lines,n_ini,n_end, "_diffrn_radiation_wavelength",vet,ivet,iv)
       if (iv == 1) then
          wave=vet(1)
-      else   
+      else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Wave@CFML_IOForm: Problems reading wavelenth value!" 
+         err_CFML%Msg="Read_CIF_Wave@CFML_IOForm: Problems reading wavelenth value!"
       end if
    End Subroutine Read_Cif_Wave
-   
+
    !!----
    !!---- READ_CIF_Z
    !!----    Unit formula from Cif file
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Z(lines, n_ini, n_end, Z)
       !---- Arguments ----!
@@ -548,16 +548,16 @@ SubModule (CFML_IOForm) IOF_003
       !> Init
       call clear_error()
       z=0
-      
+
       call read_key_value(lines,n_ini,n_end, "_cell_formula_units_Z",vet,ivet,iv)
       if (iv == 1) then
          z=vet(1)
-      else  
+      else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Z@CFML_IOForm: Problems reading Z value!" 
+         err_CFML%Msg="Read_CIF_Z@CFML_IOForm: Problems reading Z value!"
       end if
    End Subroutine Read_Cif_Z
-   
+
    !!----
    !!---- Read_Cif_ChemicalName
    !!----    Obtaining Chemical Name from Cif file
@@ -576,7 +576,7 @@ SubModule (CFML_IOForm) IOF_003
 
       !> Init
       ChemName=" "
-      
+
       call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_name_common",ChemName)
 
       if (len_trim(chemname) == 0) then
@@ -599,12 +599,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_ChemName
-   
+
    !!----
    !!---- READ_CIF_CONT
    !!----    Obtaining the chemical contents from Cif file
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
       !---- Arguments ----!
@@ -626,7 +626,7 @@ SubModule (CFML_IOForm) IOF_003
 
       !> Init
       call clear_error()
-      
+
       n_elem_type = 0
       elem_type   = " "
       if (present(n_elem)) n_elem = 0.0_cp
@@ -635,7 +635,7 @@ SubModule (CFML_IOForm) IOF_003
       if (len_trim(line) ==0) line=lines(n_ini+1)
       line=adjustl(line)
       if (line(1:1) == "?") return
-      
+
       np1=index(line,"'")
       np2=index(line,"'",back=.true.)
       nlabel=0
@@ -681,12 +681,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_Cont
-   
+
    !!----
    !!---- READ_CIF_PRESSURE
    !!----    Pressure and Sigma
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Pressure(lines,N_ini,N_End, P, SigP)
       !---- Arguments ----!
@@ -711,12 +711,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_Pressure
-   
+
    !!----
    !!---- Read_Cif_Title
    !!----    Obtaining Title from Cif file
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Title(lines,N_Ini,N_End,Title)
       !---- Arguments ----!
@@ -752,12 +752,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_Title
-   
+
    !!----
    !!---- READ_CIF_TEMP
    !!----    Temperature and Sigma in Kelvin
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Temp(lines,N_Ini,N_End,T,SigT)
       !---- Arguments ----!
@@ -782,12 +782,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_Temp
-   
+
    !!----
    !!---- Read_Cif_Hall
    !!----    Obtaining the Hall symbol of the Space Group
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Hall(lines, N_Ini, N_End, Hall)
       !---- Arguments ----!
@@ -799,11 +799,11 @@ SubModule (CFML_IOForm) IOF_003
       !---- Local variables ----!
       integer :: np1, np2
 
-      !> Init 
+      !> Init
       Hall=" "
       call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_space_group_name_Hall",hall)
       if (len_trim(Hall)==0) Hall=adjustl(lines(n_ini+1))
-      
+
       !> TR  feb. 2015 .(re-reading the same item with another name)
       if (len_trim(Hall) == 0) then
          call Read_Key_StrVal(lines,n_ini,n_end, "_space_group_name_Hall",hall)
@@ -829,12 +829,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_Hall
-   
+
    !!----
    !!---- READ_CIF_HM
    !!----    Obtaining the Herman-Mauguin symbol of Space Group
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_HM(lines, N_Ini, N_End, Spgr_Hm)
       !---- Arguments ----!
@@ -915,12 +915,12 @@ SubModule (CFML_IOForm) IOF_003
       end if
 
    End Subroutine Read_Cif_HM
-   
+
    !!----
    !!---- Read_Cif_Symm
    !!----    Obtaining Symmetry Operators from Cif file
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Cif_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
       !---- Arguments ----!
@@ -934,10 +934,10 @@ SubModule (CFML_IOForm) IOF_003
       character(len=132) :: line
       integer            :: i,np1,np2
 
-      !> Init 
+      !> Init
       n_oper=0
       oper_symm=" "
-      
+
       np1=n_ini
       call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_equiv_pos_as_xyz",line)
 
@@ -950,7 +950,7 @@ SubModule (CFML_IOForm) IOF_003
       if (len_trim(line) /=0) then
          line=adjustl(line)
 
-         if (line(1:1) /="#" .and. line(1:1) /= "?") then      
+         if (line(1:1) /="#" .and. line(1:1) /= "?") then
             np1=index(line,"'")
             np2=index(line,"'",back=.true.)
             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
@@ -970,7 +970,7 @@ SubModule (CFML_IOForm) IOF_003
       do i=n_ini+1,n_end
          line=adjustl(lines(i))
          if (len_trim(line) /=0) then
-            if (line(1:1) /="#" .and. line(1:1) /= "?") then      
+            if (line(1:1) /="#" .and. line(1:1) /= "?") then
                np1=index(line,"'")
                np2=index(line,"'",back=.true.)
                if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
@@ -992,12 +992,12 @@ SubModule (CFML_IOForm) IOF_003
       end do
 
    End Subroutine Read_Cif_Symm
-   
+
    !!----
    !!---- WRITE_CIF_POWDER_PROFILE
    !!----    Write a Cif Powder Profile file
    !!----
-   !!---- 28/06/2019 
+   !!---- 28/06/2019
    !!
    Module Subroutine Write_Cif_Powder_Profile(filename)
       !---- Arguments ----!
@@ -1048,18 +1048,18 @@ SubModule (CFML_IOForm) IOF_003
 
       close (unit=iunit)
    End Subroutine Write_Cif_Powder_Profile
-   
+
    !!----
    !!---- Write_Cif_Template
    !!----    Write a Cif File
-   !!----    
-   !!---- 28/06/2019 
+   !!----
+   !!---- 28/06/2019
    !!
    Module Subroutine Write_Cif_Template(filename, Cell, SpG, At_list, Type_data, Code)
       !---- Arguments ----!
       character(len=*),        intent(in) :: filename     ! Filename
       class(Cell_Type),        intent(in) :: Cell         ! Cell parameters
-      class(SpG_Type),         intent(in) :: SpG          ! Space group information 
+      class(SpG_Type),         intent(in) :: SpG          ! Space group information
       Type (AtList_Type),      intent(in) :: At_List      ! Atoms
       integer,                 intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
       character(len=*),        intent(in) :: Code         ! Code or name of the structure
@@ -1079,7 +1079,7 @@ SubModule (CFML_IOForm) IOF_003
       info=.false.
       iunit=0
 
-      !> Is this file opened? 
+      !> Is this file opened?
       inquire(file=trim(filename),opened=info)
       if (info) then
          inquire(file=trim(filename),number=iunit)
@@ -1092,7 +1092,7 @@ SubModule (CFML_IOForm) IOF_003
 
       !> Head Information
       select case (type_data)
-         case (0:1) 
+         case (0:1)
             write(unit=iunit,fmt="(a)") "##############################################################################"
             write(unit=iunit,fmt="(a)") "###    CIF submission form for molecular structure report (Acta Cryst. C)  ###"
             write(unit=iunit,fmt="(a)") "##############################################################################"
@@ -1101,8 +1101,8 @@ SubModule (CFML_IOForm) IOF_003
             write(unit=iunit,fmt="(a)") "data_global"
             write(unit=iunit,fmt="(a)") "#============================================================================="
             write(unit=iunit,fmt="(a)") " "
-         
-         case (2:)  
+
+         case (2:)
             write(unit=iunit,fmt="(a)") "##################################################################"
             write(unit=iunit,fmt="(a)") "###    CIF file from CrysFML, contains only structural data    ###"
             write(unit=iunit,fmt="(a)") "##################################################################"
@@ -1111,10 +1111,10 @@ SubModule (CFML_IOForm) IOF_003
       !> Processing Summary
       if (type_data < 2) then
          write(unit=iunit,fmt="(a)") "# PROCESSING SUMMARY (IUCr Office Use Only)"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_journal_data_validation_number      ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_journal_date_recd_electronic        ?"
          write(unit=iunit,fmt="(a)") "_journal_date_to_coeditor            ?"
@@ -1143,15 +1143,15 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_journal_paper_category              ?"
          write(unit=iunit,fmt="(a)") "_journal_suppl_publ_number           ?"
          write(unit=iunit,fmt="(a)") "_journal_suppl_publ_pages            ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Submission details
          write(unit=iunit,fmt="(a)") "# 1. SUBMISSION DETAILS"
          write(unit=iunit,fmt="(a)") " "
-         
+
          write(unit=iunit,fmt="(a)") "_publ_contact_author_name            ?   # Name of author for correspondence"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_address             # Address of author for correspondence"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1159,23 +1159,23 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_publ_contact_author_email           ?"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_fax             ?"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_phone           ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_contact_letter"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_requested_journal              ?"
          write(unit=iunit,fmt="(a)") "_publ_requested_coeditor_name        ?"
          write(unit=iunit,fmt="(a)") "_publ_requested_category             ?   # Acta C: one of CI/CM/CO/FI/FM/FO"
-         
+
          write(unit=iunit,fmt="(a)") "#=============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
-         !> Title  and Author List 
+
+         !> Title  and Author List
          write(unit=iunit,fmt="(a)") "# 3. TITLE AND AUTHOR LIST"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_section_title"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1183,11 +1183,11 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_publ_section_title_footnote"
          write(unit=iunit,fmt="(a)") ";"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "# The loop structure below should contain the names and addresses of all "
          write(unit=iunit,fmt="(a)") "# authors, in the required order of publication. Repeat as necessary."
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
          write(unit=iunit,fmt="(a)") "    _publ_author_name"
@@ -1198,14 +1198,14 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") ";"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Text
          write(unit=iunit,fmt="(a)") "# 4. TEXT"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_section_synopsis"
          write(unit=iunit,fmt="(a)") ";  ?"
@@ -1232,12 +1232,12 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_publ_section_acknowledgements"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
-         !> Identifier 
+
+         !> Identifier
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") "# If more than one structure is reported, the remaining sections should be "
          write(unit=iunit,fmt="(a)") "# completed per structure. For each data set, replace the '?' in the"
@@ -1256,10 +1256,10 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Chemical Data
          write(unit=iunit,fmt="(a)") "# 5. CHEMICAL DATA"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_chemical_name_systematic"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1274,7 +1274,7 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_chemical_melting_point           ?"
          write(unit=iunit,fmt="(a)") "_chemical_compound_source         ?       # for minerals and "
          write(unit=iunit,fmt="(a)") "                                          # natural products"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
          write(unit=iunit,fmt="(a)") "    _atom_type_symbol               "
@@ -1400,14 +1400,14 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_process_details       ?"
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_correction_T_min      ?"
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_correction_T_max      ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
 
          !> Experimental Data
          write(unit=iunit,fmt="(a)") "# 7. EXPERIMENTAL DATA"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_exptl_special_details"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1510,7 +1510,7 @@ SubModule (CFML_IOForm) IOF_003
         write(unit=iunit,fmt="(a)") "#============================================================================="
         write(unit=iunit,fmt="(a)") " "
 
-        !> Refinement Data 
+        !> Refinement Data
         write(unit=iunit,fmt="(a)") "# 8. REFINEMENT DATA"
 
         write(unit=iunit,fmt="(a)") " "
@@ -1557,17 +1557,17 @@ SubModule (CFML_IOForm) IOF_003
               write(unit=iunit,fmt="(a)") "# The following four items apply to angular dispersive measurements."
               write(unit=iunit,fmt="(a)") "# 2theta minimum, maximum and increment (in degrees) are for the "
               write(unit=iunit,fmt="(a)") "# intensities used in the refinement."
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_min         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_max         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_inc         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_wavelength               ?"
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "_pd_block_diffractogram_id        ?  # The id used for the block containing"
               write(unit=iunit,fmt="(a)") "                                     # the powder pattern profile (section 11)."
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "# Give appropriate details in the next two text fields."
               write(unit=iunit,fmt="(a)") " "
@@ -1621,7 +1621,7 @@ SubModule (CFML_IOForm) IOF_003
       write(unit=iunit,fmt="(a)") "#============================================================================="
       write(unit=iunit,fmt="(a)") " "
 
-      !> Atomic Coordinates and Displacement Parameters 
+      !> Atomic Coordinates and Displacement Parameters
       write(unit=iunit,fmt="(a)") "# 9. ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS"
 
       write(unit=iunit,fmt="(a)") " "
@@ -1652,13 +1652,13 @@ SubModule (CFML_IOForm) IOF_003
       aniso=.false.
       do i=1,At_List%natoms
          line=" "
-         line(2:)= At_list%Atom(i)%Lab//"  "//At_list%Atom(i)%SfacSymb 
-         
+         line(2:)= At_list%Atom(i)%Lab//"  "//At_list%Atom(i)%SfacSymb
+
          do j=1,3
             comm=string_numstd(At_list%Atom(i)%x(j),At_list%Atom(i)%x_std(j))
             line=trim(line)//" "//trim(comm)
          end do
-         
+
          comm=" "
          select case (At_List%Atom(i)%Thtype)
             case ('iso')
@@ -1667,40 +1667,40 @@ SubModule (CFML_IOForm) IOF_003
                   case ("U")
                      u=At_list%Atom(i)%U_iso
                      su=At_list%Atom(i)%U_iso_std
-                     
-                  case ("B")               
+
+                  case ("B")
                      u=At_list%Atom(i)%U_iso/(8.0*pi*pi)
                      su=At_list%Atom(i)%U_iso_std/(8.0*pi*pi)
-                     
-                  case ("beta") 
+
+                  case ("beta")
                      u=At_list%Atom(i)%U_iso
-                     su=At_list%Atom(i)%U_iso_std  
-               end select      
+                     su=At_list%Atom(i)%U_iso_std
+               end select
                comm=string_numstd(u,su)
-               
-            case ('ani')   
+
+            case ('ani')
                aniso=.true.
                adptyp='Uani'
                select case (trim(At_List%Atom(i)%UType))
                   case ("U")
                      ua=At_List%atom(i)%u
                      sua=At_List%atom(i)%u_std
-                     
-                  case ("B")               
+
+                  case ("B")
                      ua=At_List%atom(i)%u/(8.0*pi*pi)
                      sua=At_List%atom(i)%u_std/(8.0*pi*pi)
-                     
-                  case ("beta") 
+
+                  case ("beta")
                      aux=At_list%atom(i)%u
                      ua=get_U_from_Betas(aux,cell)
                      aux=At_list%atom(i)%u_std
                      sua=get_U_from_Betas(aux,cell)
-               end select 
+               end select
                u=(ua(1)+ua(2)+ua(3))/3.0
                su=(ua(1)+ua(2)+ua(3))/3.0
                com=string_numstd(u,su)
-    
-            case default   
+
+            case default
                adptyp='.'
          end select
          line=trim(line)//" "//trim(comm)
@@ -1709,7 +1709,7 @@ SubModule (CFML_IOForm) IOF_003
          line=trim(line)//" "//trim(comm)
          write(unit=iunit,fmt="(a)") trim(line)//" "//trim(adptyp)//" "//At_list%atom(i)%SfacSymb
       end do
-      
+
       if (aniso) then
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
@@ -1721,29 +1721,29 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_U_13  "
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_U_23  "
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_type_symbol"
-         
+
          do i=1,At_List%natoms
             if (At_List%Atom(i)%thtype /= "ani") cycle
-            
+
             line=" "
             line(2:)= At_list%Atom(i)%Lab
-            
+
             select case (trim(At_List%Atom(i)%UType))
                case ("U")
                   ua=At_List%atom(i)%u
                   sua=At_List%atom(i)%u_std
-                  
-               case ("B")               
+
+               case ("B")
                   ua=At_List%atom(i)%u/(8.0*pi*pi)
                   sua=At_List%atom(i)%u_std/(8.0*pi*pi)
-                  
-               case ("beta") 
+
+               case ("beta")
                   aux=At_list%atom(i)%u
                   ua=get_U_from_Betas(aux,cell)
                   aux=At_list%atom(i)%u_std
                   sua=get_U_from_Betas(aux,cell)
-            end select 
-            
+            end select
+
             do j=1,6
               comm=" "
               call setnum_std(ua(j),sua(j),comm)
@@ -1853,7 +1853,7 @@ SubModule (CFML_IOForm) IOF_003
 
       return
    End Subroutine Write_Cif_Template
-    
-   
-   
-End SubModule IOF_003   
+
+
+
+End SubModule IOF_003

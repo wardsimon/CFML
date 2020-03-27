@@ -1,13 +1,13 @@
 SubModule (CFML_DiffPatt) RPatt_Pan
- 
+
  Contains
- 
+
     !!--++
     !!--++ READ_PATTERN_PANALYTICAL_CSV
     !!--++
     !!--++    Read a pattern for Panalitical Format CSV
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_Panalytical_CSV(Filename,Pat)
        !---- Arguments ----!
@@ -31,7 +31,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_CSV@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -39,7 +39,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_CSV@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        !> Main Loop
        do
           read(unit=i_dat,fmt="(a)",IOSTAT=ier) line
@@ -53,19 +53,19 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
           if (line(1:7) == "Title 1") then
              pat%title=line(8:)
-             
+
           else if(line(1:19) =="K-Alpha1 wavelength") then
              read(unit=line(21:long),fmt=*, IOSTAT=ier) alpha1
              pat%wave(1) = alpha1
-          
+
           else if(line(1:19) =="K-Alpha2 wavelength") then
              read(unit=line(21:long),fmt=*, IOSTAT=ier) alpha2
              pat%wave(2) = alpha2
-          
+
           else if(line(1:23) =="Ratio K-Alpha2/K-Alpha1") then
              read(unit=line(25:long),fmt=*, IOSTAT=ier) ratio_I
              pat%wave(3) = ratio_I
-          
+
           else if(line(1:16) =="Data angle range") then
              read(unit=line(18:long),fmt=*)  pat%xmin  , pat%xmax
 
@@ -114,7 +114,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
        pat%npts = i
        pat%ymin=minval(pat%y(1:i))
        pat%ymax=maxval(pat%y(1:i))
-       
+
        !> Close unit
        close(unit=i_dat)
     End Subroutine Read_Pattern_Panalytical_CSV
@@ -124,7 +124,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
     !!--++
     !!--++    Read a pattern for Panalitical Format JCP
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_Panalytical_JCP(Filename, Pat)
        !---- Arguments ----!
@@ -147,7 +147,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -155,7 +155,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        k=0
        do
           k=k+1
@@ -195,7 +195,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
              read(unit=line(34:long),fmt=*, IOSTAT=ier) ratio_I
              if (ier /= 0) then
                 Err_CFML%IErr=1
-                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Ratio!" 
+                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Ratio!"
                 close(unit=i_dat)
                 return
              end if
@@ -205,7 +205,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
              read(unit=line(11:long),fmt=*, IOSTAT=ier) pat%xmin
              if (ier /= 0) then
                 Err_CFML%IErr=1
-                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Xmin!" 
+                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Xmin!"
                 close(unit=i_dat)
                 return
              end if
@@ -214,7 +214,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
              read(unit=line(11:long),fmt=*, IOSTAT=ier) pat%xmax
              if (ier /= 0) then
                 Err_CFML%IErr=1
-                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Xmax!" 
+                Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Xmax!"
                 close(unit=i_dat)
                 return
              end if
@@ -224,7 +224,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
              if (ier /= 0) then
                 Err_CFML%IErr=1
                 Err_CFML%Msg="Read_Pattern_Panalytical_JCP@DIFFPATT: Problems reading Step!"
-                close(unit=i_dat) 
+                close(unit=i_dat)
                 return
              end if
 
@@ -275,7 +275,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
     !!--++
     !!--++    Read a pattern for Panalitical Format UDF
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_Panalytical_UDF(Filename, Pat)
        !---- Arguments ----!
@@ -285,7 +285,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
        !---- Local Variables ----!
        character (len=132)                            :: line, newline
        integer                                        :: i, j, long, ier, n, nb_lignes, np
-       real(kind=cp)                                  :: alpha1, alpha2, ratio, step 
+       real(kind=cp)                                  :: alpha1, alpha2, ratio, step
        logical                                        :: info,title_given
 
        !> Init
@@ -298,7 +298,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_UDF@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -327,11 +327,11 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           if (line(1:12) =="LabdaAlpha1,") then
              read(unit=line(23:long-2),fmt=*, IOSTAT=ier) alpha1
              pat%wave(1)=  alpha1
-             
+
           else if(line(1:12) =="LabdaAlpha2,") then
              read(unit=line(23:long-2),fmt=*, IOSTAT=ier) alpha2
              pat%wave(2)=  alpha2
-             
+
           else if(line(1:13) =="RatioAlpha21,") then
              read(unit=line(14:long-2),fmt=*, IOSTAT=ier) ratio
              pat%wave(3)= ratio
@@ -395,7 +395,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
     !!--++
     !!--++    Read a pattern for Panalitical Format XRDML
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_Panalytical_XRDML(Filename,Pat)
        !---- Arguments ----!
@@ -411,7 +411,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
        !> Init
        call clear_error()
-       
+
        !> File exists?
        inquire(file=trim(filename),exist=info)
        if ( .not. info) then
@@ -419,7 +419,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_XRDML@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -427,7 +427,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           Err_CFML%Msg="Read_Pattern_Panalytical_XRDML@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        if (allocated(XRDML_line))             deallocate(XRDML_line)
        if (allocated(XRDML_intensities_line)) deallocate(XRDML_intensities_line)
 
@@ -445,7 +445,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           if (i1 /= 0) np=np+1
        end do
        rewind(unit=i_dat)
-       
+
        allocate(XRDML_intensities_line(np))
 
        !> Wavelengths (by JGP)
@@ -560,7 +560,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           end if
        end do
        pat%npts=i1
-       
+
        if (pat%npts <= 0) then
           Err_CFML%IErr=1
           Err_CFML%Msg="Read_Pattern_Panalytical_XRDML@DIFFPATT: Number of points!"
@@ -572,7 +572,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
        if (allocated(counts)) deallocate(counts)
        allocate(counts(pat%npts))
-       
+
        do i=1,np
           read(unit=XRDML_intensities_line(i), fmt=*, iostat=ier) counts(1:pat%npts)
           if (ier /= 0) then
@@ -583,7 +583,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
           end if
           pat%y(1:pat%npts)=pat%y(1:pat%npts)+counts(1:pat%npts)
        end do
-       
+
        step = (pat%xmax - pat%xmin) / real(pat%npts-1)
        do i=1,pat%npts
           pat%x(i)=pat%xmin+real(i-1)*step
@@ -595,9 +595,9 @@ SubModule (CFML_DiffPatt) RPatt_Pan
        if (allocated(XRDML_line))             deallocate(XRDML_line)
        if (allocated(XRDML_intensities_line)) deallocate(XRDML_intensities_line)
        if (allocated(counts))                 deallocate(counts)
-       
+
        !> Close
        close(unit=i_dat)
     End Subroutine Read_Pattern_Panalytical_XRDML
-    
-End Submodule RPatt_Pan 
+
+End Submodule RPatt_Pan

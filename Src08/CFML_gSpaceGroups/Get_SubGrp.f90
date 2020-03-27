@@ -1,6 +1,6 @@
 SubModule (CFML_gSpaceGroups) SPG_022
    Contains
-   
+
    !!----
    !!---- GET_SUBGROUPS
    !!----
@@ -25,10 +25,10 @@ SubModule (CFML_gSpaceGroups) SPG_022
       integer,                          intent(out) :: nsg
       integer,                 optional,intent(in)  :: indexg
       logical, dimension(:,:), optional,intent(out) :: point
-      
+
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc,maxg,ng,kb, nla, nop,ns_1,ns_2,n_nc_group 
-      logical  :: newg 
+      integer  :: i,L,j,k,d, nc,maxg,ng,kb, nla, nop,ns_1,ns_2,n_nc_group
+      logical  :: newg
       character (len=40), dimension(:),allocatable :: gen
       character (len=40), dimension(30)            :: gen_lat
       character (len=40)                           :: gen_cent
@@ -42,7 +42,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
       maxg=size(SubG)
       allocate(gen(SpG%multip))
       d=SpG%d
-      
+
       !> Construct first the generators of centring translations
       ng=0; nc=0
       nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
@@ -62,12 +62,12 @@ SubModule (CFML_gSpaceGroups) SPG_022
          end do
          nla=ng
       end if
-      
+
       !> First work with the Numops operators to determine the subgroups, the other subgroups
       !> will be obtained adding progressively the rest of generators (centre of symmetry and
       !> lattice centrings.
       L=0
-      
+
       !> Determine first the groups with only one rotational generator
       ng=1
       do i=2,SpG%numops
@@ -92,7 +92,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
          end if
       end do
       ns_1=L
-      
+
       !> Determine now the groups with two rotational generators
       if (SpG%numops > 2) then
          ng=2
@@ -142,7 +142,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
                   end if
                end do
                if (.not. newg) L=L-1
-         
+
             else
                L=L-1
             end if
@@ -192,7 +192,7 @@ SubModule (CFML_gSpaceGroups) SPG_022
             end do
          end do
       end if
-      
+
       if (present(indexg)) then
          k=0
          do L=1,nsg
@@ -202,19 +202,19 @@ SubModule (CFML_gSpaceGroups) SPG_022
                ind(k)=L
             end if
          end do
-        
+
          nsg=k
          if (nsg /= 0) then
             allocate(sG(nsg))
             do k=1,nsg
                sG(k)=SubG(ind(k))
             end do
-          
+
             do L=1,nsg
                SubG(L)=sG(L)
             end do
          end if
       end if
    End Subroutine Get_SubGroups
-   
-End SubModule SPG_022  
+
+End SubModule SPG_022

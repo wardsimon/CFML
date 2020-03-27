@@ -12,7 +12,7 @@ Submodule (CFML_Maths) CFML_Math_010
     !!----
     !!---- Update: February - 2005
     !!
-    Module Pure Function Vec_Length(G,Vec) Result(c)    
+    Module Pure Function Vec_Length(G,Vec) Result(c)
        !---- Arguments ----!
        real(kind=cp), intent(in)  , dimension(3,3)       :: G      ! Metric array
        real(kind=cp), intent(in)  , dimension(3  )       :: Vec    ! Vector
@@ -33,5 +33,5 @@ Submodule (CFML_Maths) CFML_Math_010
 
        return
     End Function Vec_Length
- 
+
 End Submodule CFML_Math_010

@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_025
    Contains
-   
+
    !!----
    !!---- CALC_CONLEV
    !!----    Performs the calculations of one confidence ellipse
@@ -107,7 +107,7 @@ SubModule (CFML_EoS) EoS_025
          end if
       end do
    End Subroutine Calc_Conlev
-   
+
    !!----
    !!---- WRITE_DATA_CONLEV
    !!----    Writes out confidence ellipse data to a file
@@ -136,7 +136,7 @@ SubModule (CFML_EoS) EoS_025
                                        trim(string_real(xyy(3,i),10))
       end do
    End Subroutine Write_Data_Conlev
-   
+
    !!----
    !!---- WRITE_INFO_CONLEV
    !!----    Writes out header info specific to a confidence ellipse
@@ -170,5 +170,5 @@ SubModule (CFML_EoS) EoS_025
 
 
    End Subroutine Write_Info_Conlev
-   
-End SubModule EoS_025   
+
+End SubModule EoS_025

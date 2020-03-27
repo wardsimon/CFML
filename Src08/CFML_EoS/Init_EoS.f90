@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_021
    Contains
-   
+
    !!----
    !!---- INIT_EOS_CROSS
    !!----    Initialize the EoS Type for P-T cross-terms
@@ -356,5 +356,5 @@ SubModule (CFML_EoS) EoS_021
 
       call Init_Eos_Shear(Eospar)              ! set up default values, names for specific shear model
    End Subroutine Init_EoS_Type
-   
-End SubModule EoS_021   
+
+End SubModule EoS_021

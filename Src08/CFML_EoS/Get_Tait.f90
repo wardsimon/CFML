@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_127
    Contains
-   
+
    !!--++
    !!--++ GET_TAIT
    !!--++
@@ -53,5 +53,5 @@ SubModule (CFML_EoS) EoS_127
 
       Vec(3)= (1.0_cp+kp+k0*kpp)/(kp*kp+kp-k0*kpp)
    End Function Get_Tait
-   
-End SubModule EoS_127   
+
+End SubModule EoS_127

@@ -8,7 +8,7 @@ SubModule (CFML_Profiles) PRF_021
    !!---- IKEDA_CARPENTER
    !!----
    !!----
-   !!---- U21/04/2019 
+   !!---- U21/04/2019
    !!
    Module Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
       !---- Arguments ---!
@@ -37,11 +37,11 @@ SubModule (CFML_Profiles) PRF_021
 
       return
    End Function Ikeda_Carpenter
-   
+
    !!----
    !!---- IKEDA_CARPENTER_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
       !---- Arguments ----!
@@ -87,6 +87,6 @@ SubModule (CFML_Profiles) PRF_021
 
       return
    End Subroutine Ikeda_Carpenter_Der
-   
-   
+
+
 End SubModule PRF_021

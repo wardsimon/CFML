@@ -4,11 +4,11 @@
 !!
 SubModule (CFML_gSpaceGroups) SPG_018
    Contains
-   
+
    !!----
    !!---- Get_OPS_from_Generators
    !!----
-   !!----    This subroutine assumes that Op contains the identity as the first operator, 
+   !!----    This subroutine assumes that Op contains the identity as the first operator,
    !!----    followed by few non-equal generators.
    !!----    The value of ngen includes also the identity
    !!----
@@ -20,7 +20,7 @@ SubModule (CFML_gSpaceGroups) SPG_018
       type(Symm_Oper_Type), dimension(:),             intent(in out) :: Ops
       integer,                                        intent(out)    :: multip
       integer, dimension(:,:), allocatable, optional, intent(out)    :: table
-      
+
       !--- Local variables ---!
       integer                                 :: i,j,k,n,nt,max_op
       type(Symm_Oper_Type)                    :: Opt
@@ -29,18 +29,18 @@ SubModule (CFML_gSpaceGroups) SPG_018
 
       !> Init
       call Clear_Error()
-      
+
       max_op=size(Ops)
       n=size(Ops(1)%Mat,dim=1)
       call allocate_op(n,Opt)
-      
+
       done=.false.
       done(1,:) = .true.
       done(:,1) = .true.
       tb(1,:) = [(i,i=1,max_op)] !It is supposed that the first generator is the identity
       tb(:,1) = [(i,i=1,max_op)]
       nt=ngen
-      
+
       !> Ensure that determinants of generators are calculated
       do i=1,ngen
          Ops(i)%dt=rational_determ(Ops(i)%Mat(1:3,1:3))
@@ -91,5 +91,5 @@ SubModule (CFML_gSpaceGroups) SPG_018
       end if
    End Subroutine Get_OPS_from_Generators
 
-End SubModule SPG_018  
-   
+End SubModule SPG_018
+

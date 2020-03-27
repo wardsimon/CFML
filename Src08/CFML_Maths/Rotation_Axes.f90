@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Rotation_Axes
  Contains
- 
+
     !!----
     !!---- ROTATION_OX
     !!----    X Rotation. Positive rotation is counter-clockwise
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OX(Vec,Angle) Result(Rvec)    
+    Module Pure Function Rotation_OX(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
        real(kind=cp),               intent(in) :: angle    ! Angle
@@ -37,14 +37,14 @@ Submodule (CFML_Maths) Rotation_Axes
 
        return
     End Function Rotation_OX
-    
+
     !!----
     !!----  ROTATION_OY
     !!----    Y Rotation. Positive rotation is counter-clockwise
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OY(Vec,Angle) Result(Rvec)    
+    Module Pure Function Rotation_OY(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec     ! Vector
        real(kind=cp),               intent(in) :: angle   ! Angle
@@ -69,14 +69,14 @@ Submodule (CFML_Maths) Rotation_Axes
 
        return
     End Function Rotation_OY
-    
+
     !!----
     !!----  ROTATION_OZ
     !!----    Z Rotation
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OZ(Vec,Angle) Result(Rvec)    
+    Module Pure Function Rotation_OZ(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
        real(kind=cp),               intent(in) :: angle    ! Angle
@@ -101,5 +101,5 @@ Submodule (CFML_Maths) Rotation_Axes
 
        return
     End Function Rotation_OZ
- 
+
 End Submodule Rotation_Axes

@@ -43,7 +43,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function U_Equiv
-    
+
     !!----
     !!---- FUNCTION GET_BETAS_FROM_B
     !!----
@@ -66,7 +66,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_Betas_from_B
-    
+
     !!----
     !!---- FUNCTION GET_U_FROM_B
     !!----
@@ -83,7 +83,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_U_from_B
-    
+
     !!----
     !!---- Function Get_B_from_Betas
     !!----
@@ -106,7 +106,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_B_from_Betas
-    
+
     !!----
     !!---- FUNCTION GET_BETAS_FROM_U
     !!----
@@ -129,7 +129,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_Betas_from_U
-    
+
     !!----
     !!---- Function Get_Betas_from_Biso
     !!----
@@ -168,7 +168,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_Betas_from_Biso
-    
+
     !!----
     !!---- FUNCTION GET_U_FROM_BETAS
     !!----
@@ -191,7 +191,7 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_U_from_Betas
-    
+
     !!----
     !!---- FUNCTION GET_B_FROM_U
     !!----
@@ -208,5 +208,5 @@ Submodule (CFML_Metrics) ThConversion
 
        return
     End Function Get_B_from_U
- 
+
 End Submodule ThConversion

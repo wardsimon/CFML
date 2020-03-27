@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) TOF_002
    !!----    Calculate de Profile of TOF according to Jorgensen
    !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Subroutine Tof_Jorgensen(Dt,Alfa,Beta,Sigma,Tof_Peak,Deriv)
       !---- Arguments ----!
@@ -29,7 +29,7 @@ SubModule (CFML_Profiles) TOF_002
 
       u=0.5*alfa*(alfa*sigma+2.0*dt)
       v=0.5*beta*(beta*sigma-2.0*dt)
-      
+
       !> To avoid pathological behaviour EXP(U) is calculated as
       !> {EXP(U/N)}^N using mutiplicative loops
       udiv=max(1,nint(exp_m*u))   !udiv=max(1,int(2.0*u))

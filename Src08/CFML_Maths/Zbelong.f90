@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Zbelong
  Contains
- 
+
     !!----
     !!---- ZBELONG_M
     !!----    Determines if a real array is an Integer matrix
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_M(A) Result(belong)    
+    Module Pure Function Zbelong_M(A) Result(belong)
        !---- Argument ----!
        real(kind=cp),   dimension(:,:), intent( in) :: a        ! Input array
        logical                                      :: belong
@@ -25,33 +25,33 @@ Submodule (CFML_Maths) Zbelong
 
        return
     End Function Zbelong_M
- 
+
     !!----
     !!---- ZBELONG_R
     !!----    Determines if a real number is an Integer
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_R(x) Result(belong)    
+    Module Pure Function Zbelong_R(x) Result(belong)
        !---- Argument ----!
        real(kind=cp), intent( in) :: x              ! Input number
        logical                    :: belong
 
        belong=.false.
        if (abs(real(nint (x))-x) > epss) return
-       
+
        belong=.true.
 
        return
     End Function Zbelong_R
- 
+
     !!----
     !!---- ZBELONG_V
     !!----    Determines if a real vector is an Integer vector
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_V(v) Result(belong)    
+    Module Pure Function Zbelong_V(v) Result(belong)
        !---- Argument ----!
        real(kind=cp),   dimension(:), intent( in) :: v      ! Input vector
        logical                                    :: belong
@@ -61,7 +61,7 @@ Submodule (CFML_Maths) Zbelong
        real(kind=cp),   dimension(size(v)) :: vec
 
        belong=.false.
-       
+
        vec= abs(real(nint (v))-v)
        do i=1,size(v)
           if (vec(i) > epss) return
@@ -70,5 +70,5 @@ Submodule (CFML_Maths) Zbelong
 
        return
     End Function Zbelong_V
-   
+
 End Submodule Zbelong

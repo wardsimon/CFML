@@ -2,8 +2,8 @@
 !!---- Program: Super Space Group Info (SSPG_INFO)
 !!----          Made after the Space Group Info program in  CFML.
 !!----          Restricted to Magnetic SSGs in particular.
-!!---- Author: 
-!!---- Revision: 
+!!---- Author:
+!!---- Revision:
 !!
 
 
@@ -16,7 +16,7 @@ Program SSPG_Info
 
   !---- Use Modules ----!
 
-  use CFML_Math_General,              only: Determinant, Equal_Matrix, & 
+  use CFML_Math_General,              only: Determinant, Equal_Matrix, &
                                             Equal_Vector, Modulo_Lat, Zbelong
   use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
                                             Write_SpaceGroup, Symmetry_Symbol, &
@@ -32,28 +32,28 @@ Program SSPG_Info
   use CFML_Rational_Arithmetic_test
   use Matrix_Mod
 
-  
+
    !---- Variables ----!
    implicit none
 
 
-   !---variables for  STEP 1: 
+   !---variables for  STEP 1:
    !                  Prompts the user to type a SG and a  k-vector
    !                  Computes the SG's Small Group (or Group of k)
-   !                  The single k has to be written as a general case 
-   !                  of several of them.   
+   !                  The single k has to be written as a general case
+   !                  of several of them.
    !
    character(len=20)             :: spgr
    type(Space_Group_type)        :: grp_espacial, SPGk_in, SPGk_out
    type(Group_k_Type)            :: Gk_out
-   character(len=1)              :: default_example ! len=1 ('y' or 'n')  
+   character(len=1)              :: default_example ! len=1 ('y' or 'n')
    real(kind=cp), dimension(3)   :: vec_k
    integer                       :: i,j,k
    integer                       :: size_Gk
 
 
    !---variables for  STEP 2:
-   !                  subroutine with all steps to create 
+   !                  subroutine with all steps to create
    !                  all the compatible SSGs with the initial SG+k
    !
    integer nkvecs
@@ -118,38 +118,38 @@ Program SSPG_Info
       WRITE(*,*) " setting and writing grp_espacial:"
       call Set_SpaceGroup(spgr, grp_espacial)
       call Write_SpaceGroup(grp_espacial, full=.true.)
-      size_Gk=grp_espacial%multip  
+      size_Gk=grp_espacial%multip
       SPGk_in=grp_espacial ! casting
-      
- 
+
+
 WRITE(*,*) " "
 WRITE(*,*) " ========================================================================"
 WRITE(*,*) " "
 WRITE(*,*) " STEP 2:  using Set_SSGs_from_Gkk"
 WRITE(*,*) " "
 
-      
+
 
 !--- the final goal is to write Set_SSGs_from_Gkk
 !    we adapt here the new parameters: nk, kv
-!  
+!
 !
 !--- CASE nk=1
 !write(*,*) "testing with 1 k-vec"
-!nkvecs=1 
-!if(allocated(kvecs)) deallocate(kvecs) 
+!nkvecs=1
+!if(allocated(kvecs)) deallocate(kvecs)
 !allocate(kvecs(3,nkvecs))
 !kvecs=0 ! init
-!kvecs(:,1)=vec_k 
+!kvecs(:,1)=vec_k
 
 
 !--- CASE nk>1
 write(*,*) "testing with 2 k-vecs"
-nkvecs=2 
-if(allocated(kvecs)) deallocate(kvecs) 
+nkvecs=2
+if(allocated(kvecs)) deallocate(kvecs)
 allocate(kvecs(3,nkvecs))
 kvecs=0 ! init
-kvecs(:,1)=vec_k 
+kvecs(:,1)=vec_k
 kvecs(:,2)=vec_k + [0.201, 0., 0.]
 
 
@@ -167,7 +167,7 @@ write(*,*) "final results:"
 write(*,*) "num of SSGSs", nSSGs
 do i=1, nSSGs
  call Write_SSG(SSGs_out(i),full=.true.)
-enddo 
+enddo
 !!
 !!---++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

@@ -6,7 +6,7 @@ Submodule (CFML_Rational) Operator_Divisor
 
  Contains
     !!----
-    !!---- RATIONAL_DIVIDE 
+    !!---- RATIONAL_DIVIDE
     !!----
     !!---- 08/04/2019
     !!
@@ -15,10 +15,10 @@ Submodule (CFML_Rational) Operator_Divisor
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
        type(rational)              :: res
-       
+
        !---- Local Variables ----!
        integer(kind=LI) :: denom
-      
+
        denom = r%denominator * s%numerator
        if (denom /= 0_LI) then
           res = r%numerator * s%denominator // denom
@@ -26,12 +26,12 @@ Submodule (CFML_Rational) Operator_Divisor
        else
           res=0_LI//1_LI
        end if
-       
+
        return
     End Function Rational_Divide
-    
+
     !!----
-    !!---- RATIONAL_INTEGER_DIVIDE 
+    !!---- RATIONAL_INTEGER_DIVIDE
     !!----
     !!---- 08/04/2019
     !!
@@ -40,19 +40,19 @@ Submodule (CFML_Rational) Operator_Divisor
        type(rational),  intent (in) :: r
        integer(kind=LI),intent (in) :: i
        type(rational)               :: res
-      
+
        if (i /= 0_LI) then
           res = r%numerator // (r%numerator*i)
           res=rational_simplify(res)
        else
           res=0_LI//1_LI
        end if
-       
+
        return
     End Function Rational_Integer_Divide
-    
+
     !!----
-    !!---- INTEGER_RATIONAL_DIVIDE 
+    !!---- INTEGER_RATIONAL_DIVIDE
     !!----
     !!---- 08/04/2019
     !!
@@ -61,15 +61,15 @@ Submodule (CFML_Rational) Operator_Divisor
        integer(kind=LI), intent(in) :: I
        type (rational),  intent(in) :: r
        type (rational)              :: res
-       
+
        if (r /= 0_LI/1_LI) then
           res= r%denominator // (r%numerator * i)
           res=rational_simplify(res)
        else
           res=0_LI//1_LI
        end if
-       
+
        return
     End Function Integer_Rational_Divide
- 
-End Submodule Operator_Divisor 
+
+End Submodule Operator_Divisor

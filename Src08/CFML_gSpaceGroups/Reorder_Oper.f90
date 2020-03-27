@@ -4,7 +4,7 @@
 !!
 SubModule (CFML_gSpaceGroups) SPG_009
    Contains
-   
+
    !!----
    !!---- REORDER_OPERATORS
    !!----
@@ -21,7 +21,7 @@ SubModule (CFML_gSpaceGroups) SPG_009
       type(rational),dimension(:,:),      intent(out)    :: aLat_tr
       type(rational),dimension(:),        intent(out)    :: centre_coord
       type(rational),dimension(:),        intent(out)    :: anticentre_coord
-      
+
       !--- Local variables ---!
       integer                          :: i,j,L,n,m,Ng,invt,i_centre,d
       real(kind=cp), dimension(multip) :: tr   !Sum of absolute values of Translations components associated to the array of operators
@@ -33,29 +33,29 @@ SubModule (CFML_gSpaceGroups) SPG_009
       real(kind=cp), parameter :: loc_eps=0.001_cp
       real(kind=cp)            :: tmin
       type(rational)           :: ZERO, ONE, ONE_HALF
-      
-      type(rational), dimension(:), allocatable :: atr,nulo 
+
+      type(rational), dimension(:), allocatable :: atr,nulo
 
       !> Init
       call clear_error()
       ZERO=0//1;  ONE=1//1; ONE_HALF=1//2
 
       !> dimension of the full square matrices
-      n=size(Op(1)%Mat,1)  
-      
+      n=size(Op(1)%Mat,1)
+
       !> dimension of the square matrix containing rotational operator
       d=n-1
       allocate(identity(d,d),invers(d,d),imat(d,d))
       call allocate_op(n,Op_identp)   ! {1|0}'
-      
+
       identity=ZERO; nul=.false.; mag_type=1
       do i=1,d
          Op_identp%Mat(i,i)=ONE
          identity(i,i)=ONE
       end do
       Op_identp%time_inv=-1
-      invers=-identity 
-      centred=1 
+      invers=-identity
+      centred=1
       anticentred=1
 
       !> Insertion sort putting the negative determinants at the bottom
@@ -73,7 +73,7 @@ SubModule (CFML_gSpaceGroups) SPG_009
             exit
          end if
       end do
-      
+
       if (j /= 0) Then
          if (Op(j)%time_inv < 0) then
             do i=2,Multip   !Nullify all primed operators
@@ -116,7 +116,7 @@ SubModule (CFML_gSpaceGroups) SPG_009
       end if
 
       !> Nullify operators deduced by lattice translations and centre of symmetry
-      do j=2,Multip-1   
+      do j=2,Multip-1
          if (nul(j)) cycle
 
          if (mag_type ==2) then
@@ -171,14 +171,14 @@ SubModule (CFML_gSpaceGroups) SPG_009
       if (allocated(atr)) deallocate(atr, nulo)
       allocate(atr(d), nulo(d))
       nulo=zero
-      
+
       do_ext: do j=2,Multip
          !if(nul(j)) cycle
          invt= Op(j)%time_inv
          imat=Op(j)%Mat(1:d,1:d)
          atr=Op(j)%Mat(1:d,n)
          !> Modification JGP
-         !if (rational_equal(identity,imat) .and. invt == -1) then 
+         !if (rational_equal(identity,imat) .and. invt == -1) then
              !if (rational_equal(atr,nulo)) cycle
          if (rational_equal(identity,imat) .and. invt == -1 .and. mag_type /= 2) then
             num_alat=num_alat+1
@@ -274,4 +274,4 @@ SubModule (CFML_gSpaceGroups) SPG_009
    End Subroutine Reorder_Operators
 
 End SubModule SPG_009
-   
+

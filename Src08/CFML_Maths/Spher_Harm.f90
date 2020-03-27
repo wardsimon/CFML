@@ -13,7 +13,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981).
     !!----    Only up to tenth order.
     !!----
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Elemental Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
        !---- Arguments ----!
@@ -89,7 +89,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    coefficients from F.M. Mueller and M.G. Priestley, Phys Rev 148, 638 (1966)
     !!-->>
     !!----
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
        !---- Arguments ----!
@@ -228,7 +228,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    only -1 <= n  and 0 <= l <= n+1
     !!-->>
     !!----
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Elemental Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
        !---- arguments ----!
@@ -288,7 +288,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    Real Spherical Harmonics: M.Kara & K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!----    Input spherical coordinates Theta & Phi in degrees
     !!----
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Elemental Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
        !---- Arguments ----!
@@ -334,7 +334,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    normalized to unit, this version calculates ylmp along the unit vector defined by
     !!----    the given vector that is not modified on output
     !!-->>
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
        !---- Arguments ----!
@@ -409,12 +409,12 @@ Submodule (CFML_Maths) SpherHarmon
        !---- Local Variables ----!
        integer                   :: i
        real(kind=dp),dimension(0:10,0:10,2) :: Clmp
-       
+
        if (l > 10 .or. m > 10 .or. m > l) then
           Dlmp=0.0_cp
           return
        end if
-       
+
        !> Assign values to the normalization constants
        Clmp = 0.0
        Clmp(  0,  0,  1)=     0.28209481_dp
@@ -553,7 +553,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----    Only up to tenth order Given in Table 4 of reference M.Kara &
     !!----    K. Kurki-Suonio, Acta Cryt. A37, 201 (1981)
     !!-->>
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Pure Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
        !---- Arguments ----!
@@ -564,7 +564,7 @@ Submodule (CFML_Maths) SpherHarmon
        !> Init
        lj=0
        ncoef=0
-       
+
        Select case (group)
           Case("23")
              ncoef=11
@@ -590,7 +590,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(2,10)=1
              lj(1,11)=10
              lj(2,11)=2
-             
+
           Case("m3","m-3")
              ncoef=7
              lj(1,1) =0
@@ -607,7 +607,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(2,6) =1
              lj(1,7) =10
              lj(2,7) =2
-             
+
           Case("432")
              ncoef=6
              lj(1,1) =0
@@ -622,7 +622,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(2,5) =2
              lj(1,6) =10
              lj(2,6) =1
-             
+
           Case("-43m")
              ncoef=8
              lj(1,1) =0
@@ -641,7 +641,7 @@ Submodule (CFML_Maths) SpherHarmon
              lj(2,7) =1
              lj(1,8) =10
              lj(2,8) =1
-             
+
           case("m3m","m-3m")
              ncoef=5
              lj(1,1) =0

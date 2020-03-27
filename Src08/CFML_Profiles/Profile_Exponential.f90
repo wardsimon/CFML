@@ -8,7 +8,7 @@ SubModule (CFML_Profiles) PRF_012
    !!---- EXPONENTIAL
    !!----
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Function Exponential(X,Par) Result (Ex_Val)
       !---- Arguments ----!
@@ -28,11 +28,11 @@ SubModule (CFML_Profiles) PRF_012
 
       return
    End Function Exponential
-   
+
    !!----
    !!---- EXPONENTIAL_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
       !---- Arguments ----!
@@ -59,5 +59,5 @@ SubModule (CFML_Profiles) PRF_012
 
       return
    End Subroutine Exponential_Der
-    
+
 End SubModule PRF_012

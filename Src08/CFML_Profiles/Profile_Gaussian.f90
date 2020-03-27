@@ -26,7 +26,7 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Function Gaussian
-   
+
    !!----
    !!---- Subroutine Gaussian_Der
    !!----
@@ -55,12 +55,12 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Subroutine Gaussian_Der
-   
+
    !!--++
    !!--++ GAUSSIAN
    !!--++    Return value of Gaussian at 'Pos' for peak at 'Pos0' and 'Gamma'
    !!--++
-   !!--++ 21/04/2019 
+   !!--++ 21/04/2019
    !!
    Module Subroutine Prof_Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
       !---- Arguments ----!
@@ -90,5 +90,5 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Subroutine Prof_Gaussian
-    
+
 End SubModule PRF_003

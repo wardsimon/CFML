@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_DiffPatt) RPatt_TimeVar
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_TIME_VARIABLE
    !!--++
    !!--++    Read a pattern for Time Variable
    !!--++
-   !!--++ 30/04/2019 
+   !!--++ 30/04/2019
    !!
    Module Subroutine Read_Pattern_TimeVar(Filename, Pat)
       !---- Arguments ----!
@@ -130,4 +130,4 @@ SubModule (CFML_DiffPatt) RPatt_TimeVar
       close(unit=i_dat)
    End subroutine Read_Pattern_TimeVar
 
-End SubModule RPatt_TimeVar   
+End SubModule RPatt_TimeVar

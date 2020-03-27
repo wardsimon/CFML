@@ -4,7 +4,7 @@
 !!
 SubModule (CFML_gSpaceGroups) SPG_015
    Contains
-   
+
    !!----
    !!---- GET_MULTIP_OP_TABLE
    !!----
@@ -18,11 +18,11 @@ SubModule (CFML_gSpaceGroups) SPG_015
       !---- Arguments ----!
       type(Symm_Oper_Type), dimension(:),   intent(in) :: Op
       integer, dimension(:,:), allocatable, intent(out):: Table
-      
+
       !---- Local Variables ----!
       integer:: i,j,m,Multip
       type(Symm_Oper_Type) :: Opm
-      
+
       multip=size(Op)
       allocate(Table(multip,multip))
 
@@ -42,5 +42,5 @@ SubModule (CFML_gSpaceGroups) SPG_015
       end do
    End Subroutine Get_Multip_OP_Table
 
-End SubModule SPG_015   
-   
+End SubModule SPG_015
+

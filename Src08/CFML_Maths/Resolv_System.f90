@@ -5,16 +5,16 @@
 !!
 Submodule (CFML_Maths) Resolv_System
  Contains
- 
+
     !!----
     !!---- RESOLV_SIST_1X2
     !!--<<
     !!----     w11 x1 + w12 x2  = t1
     !!----     x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Subroutine Resolv_Sist_1x2(w,t,ts,x,ix)    
+    Module Subroutine Resolv_Sist_1x2(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(2),         intent( in) :: w      ! Input vector
        real(kind=cp),                 intent( in) :: t      ! Input value
@@ -59,16 +59,16 @@ Submodule (CFML_Maths) Resolv_System
 
        return
     End Subroutine Resolv_Sist_1x2
-    
+
     !!----
     !!----  RESOLV_SIST_1X3
     !!--<<
     !!----    w11 x1 + w12 x2 + w13 x3 = t1
     !!----    x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Subroutine Resolv_Sist_1x3(w,t,ts,x,ix)    
+    Module Subroutine Resolv_Sist_1x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(3),         intent( in) :: w      ! Input vector
        real(kind=cp),                 intent( in) :: t      ! Input value
@@ -164,7 +164,7 @@ Submodule (CFML_Maths) Resolv_System
 
        return
     End Subroutine Resolv_Sist_1x3
-    
+
     !!----
     !!----  RESOLV_SIST_2X2
     !!--<<
@@ -172,9 +172,9 @@ Submodule (CFML_Maths) Resolv_System
     !!----     w21 x1 + w22 x2  = t2
     !!----     x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Subroutine Resolv_Sist_2x2(w,t,ts,x,ix)    
+    Module Subroutine Resolv_Sist_2x2(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(2,2),       intent( in) :: w       ! Input vector
        real(kind=cp),dimension(2),    intent( in) :: t       ! Input value
@@ -259,17 +259,17 @@ Submodule (CFML_Maths) Resolv_System
 
        return
     End Subroutine Resolv_Sist_2x2
-    
-    
+
+
     !!----
     !!---- RESOLV_SIST_2X3
     !!----     w11 x1 + w12 x2 + w13 x3 = t1
     !!----     w21 x1 + w22 x2 + w23 x3 = t2
     !!----     x_sol(i)= ts(i) + x(i) ix(i)
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Subroutine Resolv_Sist_2x3(w,t,ts,x,ix)    
+    Module Subroutine Resolv_Sist_2x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(2,3),          intent( in) :: w     ! Input vector
        real(kind=cp), dimension(2),      intent( in) :: t     ! Input value
@@ -747,7 +747,7 @@ Submodule (CFML_Maths) Resolv_System
 
        return
     End Subroutine Resolv_Sist_2x3
-    
+
     !!----
     !!---- RESOLV_SIST_3X3
     !!--<<
@@ -756,9 +756,9 @@ Submodule (CFML_Maths) Resolv_System
     !!----   w31 x1 + w32 x2 + w33 x3 = t3
     !!----   x_sol(i)= ts(i) + x(i) ix(i)
     !!-->>
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Subroutine Resolv_Sist_3x3(w,t,ts,x,ix)    
+    Module Subroutine Resolv_Sist_3x3(w,t,ts,x,ix)
        !---- Arguments ----!
        integer, dimension(3,3),          intent(in) :: w       ! Input vector
        real(kind=cp), dimension(3),      intent(in) :: t       ! Input value
@@ -991,5 +991,5 @@ Submodule (CFML_Maths) Resolv_System
 
        return
     End Subroutine Resolv_Sist_3x3
- 
+
 End Submodule Resolv_System

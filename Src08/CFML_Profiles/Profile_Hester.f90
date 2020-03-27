@@ -15,7 +15,7 @@ SubModule (CFML_Profiles) PRF_001
       Real(kind=cp), Intent(In)  :: twopsi
       Real(kind=cp), Intent(In)  :: twoth0
       Real(kind=cp)              :: dfunc
-     
+
       !--- Local variables
       Real(kind=cp) :: sintp        !Sin twopsi
       Real(kind=cp) :: sin2t,sin2t2,csp,csm,ssp,ssm,a,b ! sin2Theta, (sin2Theta)^2
@@ -35,10 +35,10 @@ SubModule (CFML_Profiles) PRF_001
          If (b <-1.0_cp) b=-1.0_cp
          dfunc=0.5_cp*(Asin(a)-Asin(b))
       End If
-      
+
       return
    End Function dfunc_int
-   
+
    !!----
    !!---- FUNCTION EXTRA_INT
    !!----
@@ -46,19 +46,19 @@ SubModule (CFML_Profiles) PRF_001
    !!----
    !!
    Module Pure Function extra_int(x) result(extra)
-      !---- Arguments ----! 
+      !---- Arguments ----!
       Real(kind=cp), Intent(In) :: x
       Real(kind=cp)             :: extra
-     
+
       !--- Local variables
       Real(kind=cp)             :: sinx
 
       sinx = Sin(x)
       extra = 0.25_cp*(Log(Abs(sinx+1.0_cp))-Log(Abs(sinx-1.0_cp)))
-      
+
       return
    End Function extra_int
-   
+
    !!----
    !!---- PROF_VAL
    !!----
@@ -74,24 +74,24 @@ SubModule (CFML_Profiles) PRF_001
    Module Subroutine Prof_Val( eta, gamma, asym1, asym2, twoth, twoth0, dprdt, dprdg,  &
                         dprde , dprds , dprdd , profval, use_asym, use_hps)
       !---- Arguments ----!
-      real(kind=cp),   Intent(In)    :: eta              ! mixing coefficient between Gaussian and Lorentzian                  
-      real(kind=cp),   Intent(In)    :: gamma            ! FWHM                                                                
-      real(kind=cp),   Intent(In)    :: asym1            ! s_l source width/detector distance or D_L+S_L if  use_hps is true   
-      real(kind=cp),   Intent(In)    :: asym2            ! d_l detector width/detector distance or D_L-S_L if  use_hps is true 
-      real(kind=cp),   Intent(In)    :: twoth            ! point at which to evaluate the profile                              
-      real(kind=cp),   Intent(In)    :: twoth0           ! two_theta value for peak                                            
-      real(kind=cp),   Intent(Out)   :: dprdt            ! derivative of profile wrt TwoTH0                                    
-      real(kind=cp),   Intent(Out)   :: dprdg            ! derivative of profile wrt Gamma                                     
-      real(kind=cp),   Intent(Out)   :: dprde            ! derivative of profile wrt Eta                                       
-      real(kind=cp),   Intent(Out)   :: dprds            ! derivative of profile wrt asym1                                     
-      real(kind=cp),   Intent(Out)   :: dprdd            ! derivative of profile wrt asym2                                     
-      real(kind=cp),   Intent(Out)   :: profval          ! Value of the profile at point twoth                                 
-      Logical,         Intent(In)    :: use_asym         ! true if asymmetry to be used                                        
-      Logical,         Intent(In)    :: use_hps          ! true if asym1=D_L+S_L and asym2=D_L-S_L  
-                                                         ! alse if asym1=D_L ans asym2=S_L                           
-      
+      real(kind=cp),   Intent(In)    :: eta              ! mixing coefficient between Gaussian and Lorentzian
+      real(kind=cp),   Intent(In)    :: gamma            ! FWHM
+      real(kind=cp),   Intent(In)    :: asym1            ! s_l source width/detector distance or D_L+S_L if  use_hps is true
+      real(kind=cp),   Intent(In)    :: asym2            ! d_l detector width/detector distance or D_L-S_L if  use_hps is true
+      real(kind=cp),   Intent(In)    :: twoth            ! point at which to evaluate the profile
+      real(kind=cp),   Intent(In)    :: twoth0           ! two_theta value for peak
+      real(kind=cp),   Intent(Out)   :: dprdt            ! derivative of profile wrt TwoTH0
+      real(kind=cp),   Intent(Out)   :: dprdg            ! derivative of profile wrt Gamma
+      real(kind=cp),   Intent(Out)   :: dprde            ! derivative of profile wrt Eta
+      real(kind=cp),   Intent(Out)   :: dprds            ! derivative of profile wrt asym1
+      real(kind=cp),   Intent(Out)   :: dprdd            ! derivative of profile wrt asym2
+      real(kind=cp),   Intent(Out)   :: profval          ! Value of the profile at point twoth
+      Logical,         Intent(In)    :: use_asym         ! true if asymmetry to be used
+      Logical,         Intent(In)    :: use_hps          ! true if asym1=D_L+S_L and asym2=D_L-S_L
+                                                         ! alse if asym1=D_L ans asym2=S_L
+
       !---- Local Variables ----!
-      
+
       !The variables below have the "save" attribute in order to save calculation
       !time when the subroutine is invoked for different points of the same peak
       real(kind=cp),save :: s_l , d_l, half_over_dl
@@ -107,7 +107,7 @@ SubModule (CFML_Profiles) PRF_001
       real(kind=cp),save :: apb2               ! (ApB) **2
       Integer,save       :: arraynum, ngt, ngt2, it
       Logical,save       :: s_eq_d
-      
+
       ! Variables not conserving their value between calls
       Integer       :: side, k
       real(kind=cp) :: tmp , tmp1 , tmp2  ! intermediate values
@@ -121,7 +121,7 @@ SubModule (CFML_Profiles) PRF_001
       real(kind=cp) :: sumwx
       real(kind=cp),parameter :: eps_close=0.00001
       logical       :: re_calculate
-      
+
       !> First simple calculation of Pseudo-Voigt if asymmetry is not used
       if (.not. use_asym .or. abs(twoth0-90.0) < 0.4) then
          call Psvoigtian(twoth,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
@@ -130,23 +130,23 @@ SubModule (CFML_Profiles) PRF_001
          dprdd = 0.0_cp
          return
       end if
-      
+
       !From here to the end of the procedure asymmetry is used.
-      
+
       !Make the calculations of some variables only if twoth0,asym1,asym2
       !are different from previous values. This save calculation time if the
       !different points of a peak are calculated sequentially for the same values
       !of twotheta and asymmetry parameters.
-      
+
       re_calculate= abs(twoth0_prev-twoth0) > eps .or.  &
                     abs(asym1_prev-asym1)   > eps .or.  &
                     abs(asym2_prev-asym2)   > eps
-      
+
       if (re_calculate) then
          twoth0_prev=twoth0
          asym1_prev=asym1
          asym2_prev=asym2
-      
+
          twoth0r=twoth0*to_rad
          cstwoth = Cos(twoth0r)
          If (use_hps .or. asym2 < eps) Then
@@ -158,7 +158,7 @@ SubModule (CFML_Profiles) PRF_001
          End If
          apb = s_l + d_l
          amb = s_l - d_l
-         
+
          !> Catch special case of S_L = D_L
          If (Abs(amb) <= eps) Then
             s_eq_d = .TRUE.
@@ -166,7 +166,7 @@ SubModule (CFML_Profiles) PRF_001
             s_eq_d = .FALSE.
          End If
          apb2 = apb*apb
-      
+
          tmp = Sqrt(1.0 + amb*amb)*cstwoth
          If ((Abs(tmp) > 1.0) .or. (Abs(tmp) <= Abs(cstwoth))) Then
             einfl = twoth0
@@ -180,14 +180,14 @@ SubModule (CFML_Profiles) PRF_001
          coseinfl = Cos(einflr)
          tmp2 = 1.0 + apb2
          tmp = Sqrt(tmp2) * cstwoth
-      
+
          !> If S_L or D_L are zero, set Einfl = 2theta
          !> If S_L equals D_L, set Einfl = 2theta
          If (abs(s_l) <= eps  .OR.  abs(d_l) <= eps  .OR. s_eq_d) then
             einfl = twoth0
             einflr=einfl*to_rad
          End if
-      
+
          If (Abs(tmp) <= 1.0) Then
             eminr = Acos(tmp)
             emin = eminr * to_deg
@@ -202,7 +202,7 @@ SubModule (CFML_Profiles) PRF_001
                eminr= pi
             End If
          End If
-      
+
          dfi_emin = dfunc_int(eminr,twoth0r)
          !
          !> Simplifications if S_L equals D_L
@@ -231,7 +231,7 @@ SubModule (CFML_Profiles) PRF_001
             End If
             df_dh_factor = df_dh_factor - 2.0_cp*half_over_dl * normv_analytic
          End If
-      
+
          arraynum = 1
          k = ctrl_nsteps * (twoth0 - emin)   ! Calculate the number of terms needed
          do
@@ -242,7 +242,7 @@ SubModule (CFML_Profiles) PRF_001
          ngt2 = ngt / 2
          it = fstterm(arraynum)-ngt2
       End if   !re_calculate
-      
+
       !> Clear terms needed for summations
       sumwg = 0.0_cp
       sumwrg = 0.0_cp
@@ -253,7 +253,7 @@ SubModule (CFML_Profiles) PRF_001
       sumwgdrdg = 0.0_cp
       sumwgdrde = 0.0_cp
       sumwx = 0.0_cp
-      
+
       !> Compute the convolution integral
       Do k = ngt2+1 , ngt
          Do side = 1,2
@@ -275,7 +275,7 @@ SubModule (CFML_Profiles) PRF_001
             Else
                f = 0.0_cp
             End If
-          
+
             !>  calculate G(Delta,2theta) , FCJ eq. 7a and 7b
             If ( Abs(delta - emin) > Abs(einfl - emin)) Then
                If (s_l > d_l) Then
@@ -286,7 +286,7 @@ SubModule (CFML_Profiles) PRF_001
             Else
                g = (-1.0 + apb * f) * rcosdelta
             End If
-            
+
             call Psvoigtian(twoth-delta+twoth0,twoth0,eta,gamma,dprdt,dprdg,dprde,tmp)
             sumwg = sumwg + wp(k+it) * g
             sumwrg = sumwrg + wp(k+it) * g * tmp
@@ -305,7 +305,7 @@ SubModule (CFML_Profiles) PRF_001
             sumwgdrde = sumwgdrde + wp(k+it) * g * dprde
          End Do  ! loop over left, right side of quadrature
       End Do
-      
+
       If (abs(sumwg) <= eps) then
          !sumwg = 1.0_cp
          profval = 0.0_cp
@@ -318,7 +318,7 @@ SubModule (CFML_Profiles) PRF_001
          dprdg = sumwgdrdg / sumwg
          dprde = sumwgdrde / sumwg
       end if
-      
+
       !>
       If (normv_analytic <= eps) then
          !normv_analytic=1.0_cp
@@ -328,13 +328,13 @@ SubModule (CFML_Profiles) PRF_001
          dprdd = sumwrdgda / sumwg - df_dh_factor*profval/normv_analytic - profval/d_l
          dprds = sumwrdgdb / sumwg - df_ds_factor*profval/normv_analytic
       end if
-      
+
       If (use_hps .or. asym2 < eps) Then
          dprds = 0.5_cp*(dprdd + dprds)  !S is really D+S
          dprdd = 0.5_cp*(dprdd - dprds)  !D is really D-S
       End If
-     
+
       Return
    End Subroutine Prof_Val
-   
+
 End SubModule PRF_001

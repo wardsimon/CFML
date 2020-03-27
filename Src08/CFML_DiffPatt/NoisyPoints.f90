@@ -1,7 +1,7 @@
 !!----
 SubModule (CFML_DiffPatt) NoisyPatt
    Contains
-   
+
    !!----
    !!---- DEL_NOISYPOINTS
    !!----
@@ -10,7 +10,7 @@ SubModule (CFML_DiffPatt) NoisyPatt
    !!---- If FileInfo is .true. then a file is created containing
    !!---- information about the elimination of noisy points
    !!----
-   !!---- 30/04/2019 
+   !!---- 30/04/2019
    !!
    Module Subroutine Del_NoisyPoints(Pat, NoisyP, FileInfo)
        !---- Arguments ----!
@@ -43,7 +43,7 @@ SubModule (CFML_DiffPatt) NoisyPatt
 
        if (info) then
           open(newunit=lun, file='Noisy_Points_Information.txt')
-          
+
           write(unit=lun,fmt='(a/)')  " => Analysis of Noisy points of Pattern "//trim(Pat%title)
           write(unit=lun,fmt='(/a/)') " => A Noisy point means the following:"
           write(unit=lun,fmt='(a/)')  "        NoMono .and. Iosci = .true. "
@@ -116,4 +116,4 @@ SubModule (CFML_DiffPatt) NoisyPatt
        Pat%y=yc
 
    End Subroutine Del_NoisyPoints
-End SubModule NoisyPatt   
+End SubModule NoisyPatt

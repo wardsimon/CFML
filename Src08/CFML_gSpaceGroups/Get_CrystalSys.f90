@@ -14,7 +14,7 @@ SubModule (CFML_gSpaceGroups) Spg_056
       type(Symm_Oper_Type), dimension(:), intent(in) :: Ops    ! Reduced operators (Numops)
       integer,                            intent(in) :: NOps   ! Numops
       character(len=:), allocatable                  :: Str
-      
+
       !---- Local variables ----!
       integer :: nrot_1, nrot_1b
       integer :: nrot_2, nrot_2b
@@ -30,7 +30,7 @@ SubModule (CFML_gSpaceGroups) Spg_056
          err_CFML%Ierr=1
          err_CFML%Msg="Get_Crystal_System_Num@GSPACEGROUPS: The symmetry operators is zero!"
          return
-      end if  
+      end if
 
       nrot_1  = 0
       nrot_2  = 0
@@ -73,49 +73,49 @@ SubModule (CFML_gSpaceGroups) Spg_056
          end select
       end do
 
-      !> Cubic 
+      !> Cubic
       if ( (nrot_3 + nrot_3b == 8) ) then
          n=7
          return
-      end if   
+      end if
 
       !> Hexagonal
       if ( (nrot_6 + nrot_6b == 2) ) then
          n=6
          return
-      end if   
+      end if
 
       !> Trigonal
       if ( (nrot_3 + nrot_3b == 2) ) then
          n=5
          return
-      end if   
+      end if
 
       !> Tetragonal
       if ( (nrot_4 + nrot_4b == 2) ) then
-         n=4 
+         n=4
          return
       end if
-               
-      !> Orthorhombic 
+
+      !> Orthorhombic
       if ( (nrot_2 + nrot_2b == 3) ) then
          n=3
          return
-      end if   
+      end if
 
       !> Monoclinic
       if ( (nrot_2 + nrot_2b == 1)  ) then
          n=2
          return
-      end if   
+      end if
 
-      !> Triclinic 
+      !> Triclinic
       if (n_m == 1) then
          n=1
-      end if  
+      end if
       str=SYS_CRY(n)
    End Function Get_Crystal_System_Str
-   
+
    !!----
    !!---- GET_CRYSTAL_SYSTEM_FROM_LAUE
    !!----
@@ -125,11 +125,11 @@ SubModule (CFML_gSpaceGroups) Spg_056
       !---- Arguments ----!
       character(len=*), intent(in)  :: Laue
       character(len=:), allocatable :: Str
-      
+
       !---- Local Variables ----!
       character(len=:), allocatable :: car
       integer                       :: n
-      
+
       car=pack_string(l_case(Laue))
       select case (trim(car))
          case ("m-3m","m-3","m3","m3m")
@@ -145,9 +145,9 @@ SubModule (CFML_gSpaceGroups) Spg_056
          case ("2/m")
             n=2
          case default
-            n=1                 
+            n=1
       end select
-      str=SYS_CRY(n) 
+      str=SYS_CRY(n)
    End Function Get_Crystal_System_from_Laue
-   
-End SubModule Spg_056   
+
+End SubModule Spg_056

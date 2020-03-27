@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_gSpaceGroups) SPG_004
    Contains
-   
+
    !!----
    !!---- REDUCED_TRANSLATION
    !!----
@@ -12,13 +12,13 @@ SubModule (CFML_gSpaceGroups) SPG_004
    Module Subroutine Reduced_Translation(Mat)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in out) :: Mat
-      
+
       !---- Local Variables ----!
       integer :: d,i,n,m
-      
+
       !> Init
       n=size(Mat,dim=1)
-      
+
       d=n-1
       do i=1,d
          if (Rational_Is_Integer(Mat(i,n))) then
@@ -33,5 +33,5 @@ SubModule (CFML_gSpaceGroups) SPG_004
          end if
       end do
    End Subroutine Reduced_Translation
-   
-End SubModule SPG_004  
+
+End SubModule SPG_004

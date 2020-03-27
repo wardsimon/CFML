@@ -5,12 +5,12 @@
 !!
 Submodule (CFML_Maths) CFML_Maths_012
  Contains
- 
+
     !!----
     !!---- Erfc_Deriv(X)
     !!----    Derivative of the complementary error function
     !!----
-    !!---- 09/04/2019 
+    !!---- 09/04/2019
     !!
     Module Elemental Function Erfc_Deriv(X) Result(Der)
        !---- Argument ----!

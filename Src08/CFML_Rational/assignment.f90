@@ -6,46 +6,46 @@ Submodule (CFML_Rational) Assign
 
  Contains
     !!----
-    !!---- ASSIGN_RATIONAL_INT_LI 
+    !!---- ASSIGN_RATIONAL_INT_LI
     !!----
-    !!---- 08/04/2019 
-    !! 
+    !!---- 08/04/2019
+    !!
     Module Elemental Subroutine Assign_Rational_Int_LI(Res, I)
        !---- Arguments ----!
        type(rational),   intent (out) :: res  ! volatile
        integer(kind=LI), intent (in)  :: i
-      
+
        res = i // 1_LI
-       
+
        return
     End Subroutine Assign_Rational_Int_LI
-    
+
     !!----
-    !!---- ASSIGN_RATIONAL_INT 
+    !!---- ASSIGN_RATIONAL_INT
     !!----
     !!---- 08/04/2019
-    !! 
+    !!
     Module Elemental Subroutine Assign_Rational_Int(Res, I)
        !---- Arguments ----!
        type(rational),  intent (out) :: res  ! volatile
        integer,         intent (in)  :: i
-      
+
        res = i // 1
-       
-       return 
+
+       return
     End Subroutine Assign_Rational_Int
-    
+
     !!----
-    !!---- SUBROUTINE ASSIGN_RATIONAL_REAL_CP 
+    !!---- SUBROUTINE ASSIGN_RATIONAL_REAL_CP
     !!----
     !!----
-    !! 
+    !!
     Module Elemental Subroutine Assign_Rational_Real_Cp(Res, Xr)
        !---- Arguments ----!
        type(rational), intent(out) :: res  ! volatile
        real(kind=cp),  intent (in) :: xr
-      
-       !---- Local variables ----!      
+
+       !---- Local variables ----!
        integer(kind=LI)                     :: maxden,ai,t,si
        integer(kind=LI), dimension(0:1,0:1) :: m
        real(kind=cp)                        :: x,rai,eps !,startx,er1,er2
@@ -54,7 +54,7 @@ Submodule (CFML_Rational) Assign
        m = 0; m(0,0)=1_LI; m(1,1)=1_LI
        si=sign(1.0,xr)
        x=abs(xr)
-      
+
        do
           ai=int(x)
           if ( m(1,0)*ai+m(1,1) > maxden) exit
@@ -67,55 +67,55 @@ Submodule (CFML_Rational) Assign
           if ( abs(x - rai) < eps) exit !division by zero
           x = 1.0_cp/(x - rai)
        end do
-      
+
        res= si*m(0,0)// m(1,0)
 
        return
     End Subroutine Assign_Rational_Real_CP
-    
+
     !!----
-    !!---- ASSIGN_INT_RATIONAL 
+    !!---- ASSIGN_INT_RATIONAL
     !!----
     !!---- 08/04/2019
-    !! 
+    !!
     Module Elemental Subroutine Assign_Int_Rational(I, Res)
        !---- Arguments ----!
        type(rational), intent (in)   :: res  !, volatile
        integer,        intent (out)  :: i
-      
+
        i= nint(real(res%numerator,kind=cp)/real(res%denominator,kind=cp))
-       
+
        return
     End Subroutine Assign_Int_Rational
-    
+
     !!----
-    !!---- ASSIGN_INT_LI_RATIONAL 
+    !!---- ASSIGN_INT_LI_RATIONAL
     !!----
     !!---- 08/04/2019
-    !! 
+    !!
     Module Elemental Subroutine Assign_Int_LI_Rational(I, Res)
        !---- Arguments ----!
        type(rational),  intent (in)   :: res  !, volatile
        integer(kind=LI),intent (out)  :: i
-      
+
        i= nint(real(res%numerator,kind=cp)/real(res%denominator,kind=cp))
-       
+
        return
     End Subroutine Assign_Int_LI_Rational
-    
+
     !!----
-    !!---- SUBROUTINE ASSIGN_REAL_RATIONAL_CP 
+    !!---- SUBROUTINE ASSIGN_REAL_RATIONAL_CP
     !!----
     !!----
-    !! 
+    !!
     Module Elemental Subroutine Assign_Real_Rational_CP(X, Res)
        !---- Arguments ----!
        type(rational), intent(in)   :: res
        real(kind=cp),  intent (out) :: x
-      
+
        x=real(res%numerator,kind=cp)/real(res%denominator,kind=cp)
-       
+
        return
     End Subroutine Assign_Real_Rational_CP
-    
+
 End Submodule Assign

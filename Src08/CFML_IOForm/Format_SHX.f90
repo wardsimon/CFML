@@ -3,12 +3,12 @@
 !!----
 SubModule (CFML_IOForm) IOF_001
    Contains
-   
+
    !!----
    !!---- READ_SHX_ATOM
    !!----    Obtaining Atoms parameters from Shelx file (.ins or .res)
    !!----
-   !!---- 26/06/2019 
+   !!---- 26/06/2019
    !!
    Module Subroutine Read_Shx_Atom(lines, n_ini, n_end, n_fvar, fvar, elem_type, cell, At_List)
       !---- Arguments ----!
@@ -26,17 +26,17 @@ SubModule (CFML_IOForm) IOF_001
       character(len=80)               :: line
       character(len=2)                :: el
       integer                         :: i, j, n, nc, iv
-      
+
       real(kind=cp)                   :: x, p, u
       real(kind=cp), dimension(15)    :: vet
       integer,       dimension(15)    :: ivet
-      
+
       type(atlist_type)               :: Atm
 
       !> Init
       call clear_error()
       call Allocate_Atom_List(0, At_list)
-      
+
       n=0
       call allocate_atom_list(n_end-n_ini+1,Atm)
 
@@ -59,12 +59,12 @@ SubModule (CFML_IOForm) IOF_001
                !> Label
                n=n+1
                atm%atom(n)%lab=label(1)(1:4)
-               
+
                !> Chemical Symbol
                call get_num(label(2),vet,ivet,iv)
                el=elem_type(ivet(1))
                atm%atom(n)%chemSymb=u_case(el(1:1))//l_case(el(2:2))
-               
+
                !> Coordinates
                call get_num(label(3),vet,ivet,iv)
                atm%atom(n)%x(1)=vet(1)
@@ -72,7 +72,7 @@ SubModule (CFML_IOForm) IOF_001
                atm%atom(n)%x(2)=vet(1)
                call get_num(label(5),vet,ivet,iv)
                atm%atom(n)%x(3)=vet(1)
-               
+
                !> Thermal
                atm%atom(n)%utype="U"
                atm%atom(n)%thtype="iso"
@@ -92,12 +92,12 @@ SubModule (CFML_IOForm) IOF_001
                !> Label
                n=n+1
                atm%atom(n)%lab=label(1)(1:4)
-               
+
                !> Chemical Symbol
                call get_num(label(2),vet,ivet,iv)
                el=elem_type(ivet(1))
                atm%atom(n)%chemSymb=u_case(el(1:1))//l_case(el(2:2))
-               
+
                !> Coordinates
                call get_num(label(3),vet,ivet,iv)
                atm%atom(n)%x(1)=vet(1)
@@ -106,15 +106,15 @@ SubModule (CFML_IOForm) IOF_001
                call get_num(label(5),vet,ivet,iv)
                atm%atom(n)%x(3)=vet(1)
 
-               !> Occupancy                
+               !> Occupancy
                call get_num(label(6),vet,ivet,iv)
                atm%atom(n)%occ=vet(1)
-               
+
                !> Thermal
                atm%atom(n)%utype="U"
                atm%atom(n)%thtype="iso"
 
-            case (7,8) ! Atomname Sfac X Y Z Occ Uiso   
+            case (7,8) ! Atomname Sfac X Y Z Occ Uiso
                !> TR: item 8 can be electronic density created by SHELXS
                call get_num(label(2),vet,ivet,iv)   ! Is Sfac integer?
                if (iv /= 1) cycle
@@ -132,12 +132,12 @@ SubModule (CFML_IOForm) IOF_001
                !> Label
                n=n+1
                atm%atom(n)%lab=label(1)(1:4)
-               
+
                !> Chemical Symbol
                call get_num(label(2),vet,ivet,iv)
                el=elem_type(ivet(1))
                atm%atom(n)%chemSymb=u_case(el(1:1))//l_case(el(2:2))
-               
+
                !> Coordinates
                call get_num(label(3),vet,ivet,iv)
                atm%atom(n)%x(1)=vet(1)
@@ -146,18 +146,18 @@ SubModule (CFML_IOForm) IOF_001
                call get_num(label(5),vet,ivet,iv)
                atm%atom(n)%x(3)=vet(1)
 
-               !> Occupancy                
+               !> Occupancy
                call get_num(label(6),vet,ivet,iv)
                atm%atom(n)%occ=vet(1)
-               
+
                !> U_iso
                call get_num(label(7),vet,ivet,iv)
                atm%atom(n)%U_iso=vet(1)
-               
+
                !> Thermal
                atm%atom(n)%utype="U"
                atm%atom(n)%thtype="iso"
-               
+
          case (9) ! Atomname Sfac X Y Z Occ U11 U22 = U33 U23 U13 U12
                call get_num(label(2),vet,ivet,iv)   ! Is Sfac integer?
                if (iv /= 1) cycle
@@ -179,12 +179,12 @@ SubModule (CFML_IOForm) IOF_001
                !> Label
                n=n+1
                atm%atom(n)%lab=label(1)(1:4)
-               
+
                !> Chemical Symbol
                call get_num(label(2),vet,ivet,iv)
                el=elem_type(ivet(1))
                atm%atom(n)%chemSymb=u_case(el(1:1))//l_case(el(2:2))
-               
+
                !> Coordinates
                call get_num(label(3),vet,ivet,iv)
                atm%atom(n)%x(1)=vet(1)
@@ -193,34 +193,34 @@ SubModule (CFML_IOForm) IOF_001
                call get_num(label(5),vet,ivet,iv)
                atm%atom(n)%x(3)=vet(1)
 
-               !> Occupancy                
+               !> Occupancy
                call get_num(label(6),vet,ivet,iv)
                atm%atom(n)%occ=vet(1)
-               
-               !> U's (U11 U22 U33 U12 U13 U23 ) 
+
+               !> U's (U11 U22 U33 U12 U13 U23 )
                call get_num(label(7),vet,ivet,iv)
                atm%atom(n)%U(1)=vet(1)
                call getnum(label(8),vet,ivet,iv)
                atm%atom(n)%U(2)=vet(1)
-               
+
                call getnum(lines(i+1),vet,ivet,iv)
                atm%atom(n)%U(3)=vet(1)
                atm%atom(n)%U(4)=vet(4)
                atm%atom(n)%U(5)=vet(3)
                atm%atom(n)%U(6)=vet(2)
-               
+
                !> Thermal
                atm%atom(n)%utype="U"
                atm%atom(n)%thtype="ani"
-               
+
             case default
                cycle
          end select
       end do
       if (n <= 0) return
-      
+
       !> Adjusting ...
-      call Allocate_Atom_List(n, At_list) 
+      call Allocate_Atom_List(n, At_list)
       At_List%atom=Atm%atom(1:n)
       call Allocate_Atom_List(0, Atm)
 
@@ -269,12 +269,12 @@ SubModule (CFML_IOForm) IOF_001
       end do
 
    End Subroutine Read_Shx_Atom
-   
+
    !!----
    !!---- READ_SHX_CELL
    !!----    Obtaining Cell Parameter from Shelx format
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Cell(lines, n_ini, n_end, Cell)
       !---- Arguments ----!
@@ -301,30 +301,30 @@ SubModule (CFML_IOForm) IOF_001
          vcell      = vet(2:7)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_Cell@CFML_IOForm: Problems reading cell parameters!"  
-         return 
+         err_CFML%Msg="Read_SHX_Cell@CFML_IOForm: Problems reading cell parameters!"
+         return
       end if
 
-      !> Z, STD 
+      !> Z, STD
       call read_key_value(lines,n_ini,n_end,"ZERR",vet,ivet,iv)
       if (iv == 7) then
          z_shx= ivet(1)
          std  = vet(2:7)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_Cell@CFML_IOForm: Problems reading sigma(cell) parameters!"  
-         return   
+         err_CFML%Msg="Read_SHX_Cell@CFML_IOForm: Problems reading sigma(cell) parameters!"
+         return
       end if
 
       call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
-      
+
    End Subroutine Read_Shx_Cell
-   
+
    !!----
    !!---- READ_SHX_FVAR
    !!----    Obtaining Fvar parameters from Shelx file (.ins or .res)
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Fvar(Lines,n_ini,n_end, n_fvar, fvar)
       !---- Arguments ----!
@@ -350,15 +350,15 @@ SubModule (CFML_IOForm) IOF_001
          fvar=vet(1:iv)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_FVar@CFML_IOForm: Problems reading the FVAR parameters!"   
+         err_CFML%Msg="Read_SHX_FVar@CFML_IOForm: Problems reading the FVAR parameters!"
       end if
    End Subroutine Read_Shx_Fvar
-   
+
    !!----
    !!---- READ_SHX_WAVE
    !!----    Obtaining wavelength Parameter from Shelx format
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Wave(lines, n_ini, n_end, Wave)
       !---- Arguments ----!
@@ -366,7 +366,7 @@ SubModule (CFML_IOForm) IOF_001
       integer,                         intent(in out) :: n_ini   ! Index to start
       integer,                         intent(in)     :: n_end   ! Index to Finish
       real(kind=cp),                   intent(out)    :: Wave    ! Wavelength
-      
+
       !---- Local Variables ----!
       integer                      :: iv
       integer,       dimension(10) :: ivet
@@ -381,16 +381,16 @@ SubModule (CFML_IOForm) IOF_001
          wave = vet(1)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_Wave@CFML_IOForm: Problems reading wavelength parameter!"  
-         return 
+         err_CFML%Msg="Read_SHX_Wave@CFML_IOForm: Problems reading wavelength parameter!"
+         return
       end if
    End Subroutine Read_Shx_Wave
-   
+
    !!----
    !!---- READ_SHX_Z
    !!----    Obtaining Cell Parameter from Shelx format
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Z(lines, n_ini, n_end, Z)
       !---- Arguments ----!
@@ -408,21 +408,21 @@ SubModule (CFML_IOForm) IOF_001
       Z=0.0_cp
       call clear_error()
 
-      !> Z 
+      !> Z
       call read_key_value(lines,n_ini,n_end,"ZERR",vet,ivet,iv)
       if (iv == 7) then
          z= vet(1)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_Z@CFML_IOForm: Problems reading Z value!"  
+         err_CFML%Msg="Read_SHX_Z@CFML_IOForm: Problems reading Z value!"
       end if
    End Subroutine Read_Shx_Z
-   
+
    !!----
    !!---- READ_SHX_TITL
    !!----    Obtaining Title from Shelx file
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Titl(lines,n_ini,n_end,Title)
       !---- Arguments ----!
@@ -435,7 +435,7 @@ SubModule (CFML_IOForm) IOF_001
       Title=" "
       call Read_Key_StrVal(lines,n_ini,n_end,"TITL",title)
    End Subroutine Read_Shx_Titl
-   
+
    !!----
    !!---- READ_SHX_LATT
    !!----    Obtaining lattice from Shelx file (.ins or .res)
@@ -445,7 +445,7 @@ SubModule (CFML_IOForm) IOF_001
    !!----       2=I                     5=A
    !!----       3=rhombohedral obverse  6=B
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Latt(lines,n_ini,n_end,latt)
       !---- Arguments ----!
@@ -461,17 +461,17 @@ SubModule (CFML_IOForm) IOF_001
 
       !> Init
       latt=1
-      
+
       call read_key_value(lines,n_ini,n_end,"LATT",vet,ivet,iv)
       if (iv == 1) latt = abs(ivet(1))
-      
+
    End Subroutine Read_Shx_Latt
-   
+
    !!----
    !!---- READ_SHX_CONT
    !!----    Obtaining Chemical contents from Shelx file (.ins or .res)
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Cont(lines,n_ini,n_end, n_elem_type, elem_type, n_elem)
       !---- Arguments ----!
@@ -500,8 +500,8 @@ SubModule (CFML_IOForm) IOF_001
          call get_words(line,elem_type,n_elem_type)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_CONT@CFML_IOForm: Problems reading the SFAC information!" 
-         return   
+         err_CFML%Msg="Read_SHX_CONT@CFML_IOForm: Problems reading the SFAC information!"
+         return
       end if
 
       if (present(n_elem)) then
@@ -510,18 +510,18 @@ SubModule (CFML_IOForm) IOF_001
             n_elem=vet
          else
             err_CFML%Ierr=1
-         err_CFML%Msg="Read_SHX_CONT@CFML_IOForm: Problems reading the UNITS!" 
+         err_CFML%Msg="Read_SHX_CONT@CFML_IOForm: Problems reading the UNITS!"
          return
-         end if   
+         end if
       end if
 
    End Subroutine Read_Shx_Cont
-   
+
    !!----
    !!---- Read_Shx_Symm
    !!----    Obtaining Symmetry Operators from Shelx file (.ins or .res)
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Read_Shx_Symm(lines,n_ini,n_end,n_oper,oper_symm)
       !---- Arguments ----!
@@ -553,12 +553,12 @@ SubModule (CFML_IOForm) IOF_001
       end do
       n_ini=nline
    End Subroutine Read_Shx_Symm
-    
+
    !!----
    !!---- WRITE_SHX_TEMPLATE
    !!----    Write a Shelx File
    !!----
-   !!---- 27/06/2019 
+   !!---- 27/06/2019
    !!
    Module Subroutine Write_Shx_Template(filename,code,title,lambda,z,cell,spg,At_List)
       !---- Arguments ----!
@@ -694,5 +694,5 @@ SubModule (CFML_IOForm) IOF_001
       write(unit=iunit,fmt="(a)") "END "
 
    End Subroutine Write_Shx_Template
-   
-End SubModule IOF_001   
+
+End SubModule IOF_001

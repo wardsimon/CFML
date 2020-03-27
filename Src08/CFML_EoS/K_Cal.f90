@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_009
    Contains
-   
+
    !!----
    !!---- K_CAL
    !!----    Returns value of K at this volume for EoS
@@ -152,12 +152,12 @@ SubModule (CFML_EoS) EoS_009
             pFG0=AFERMIGAS*(eospar%params(4)*vv0/vol)**1.66666667_cp
             c0=-1.0_cp*log(3.0_cp*K0/pFG0)           ! assumes V in A^3
             c2=1.5_cp*(Kp-3.0_cp)-c0
-            
+
             !> terms in pressure expression
             a=1.0_cp/x**5.0_cp*(1.0_cp-x)
             b=exp(c0*(1.0_cp-x))
             c=1.0_cp+c2*x*(1.0_cp-x)
-            
+
             !> derivatives
             da= -5.0_cp/x**6.0_cp +4.0_cp/x**5.0_cp
             db= -1.0_cp*c0*b
@@ -393,7 +393,7 @@ SubModule (CFML_EoS) EoS_009
             d2a= 30.0_cp/x**7.0_cp - 20.0_cp/x**6.0_cp
             d2b=c0*c0*b
             d2c=-2.0_cp*c2
-            
+
             !> collect terms: checked ok 25-Feb-2017
             group=(da*b*c+a*db*c+a*b*dc)
             dgroup=a*b*d2c + a*d2b*c + d2a*b*c + 2.0_cp*(a*db*dc + b*da*dc + c*da*db)
@@ -546,7 +546,7 @@ SubModule (CFML_EoS) EoS_009
           if(vlimitk > tiny(0.0_cp) .and. vlimitk < vlimit)vlimit=vlimitk
           plimit=get_pressure(vlimit,t,eospar)
           if(p0-2.0*delp < plimit)delp=0.2*abs(p0-plimit)
-      endif      
+      endif
 
       do j=-2,2,1
          p=p0+real(j)*delp                 ! apply shift to p
@@ -560,5 +560,5 @@ SubModule (CFML_EoS) EoS_009
       !> so kppc is already dMp/dP = Mpp
 
    End Function Kpp_Cal
-   
-End SubModule EoS_009   
+
+End SubModule EoS_009

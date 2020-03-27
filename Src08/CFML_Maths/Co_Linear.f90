@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Co_Linear
  Contains
- 
+
     !!----
     !!---- CO_LINEAR_C
     !!----    Determines if two complex vectors are co-linear
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Co_Linear_C(a,b,n) Result(co_linear)    
+    Module Function Co_Linear_C(a,b,n) Result(co_linear)
        !---- Argument ----!
        complex(kind=cp), dimension(:), intent(in) :: a,b    ! Complex vectors
        integer,              optional, intent(in) :: n      ! Dimension of the vectors
@@ -57,14 +57,14 @@ Submodule (CFML_Maths) Co_Linear
 
        return
     End Function Co_Linear_C
- 
+
     !!----
     !!---- CO_LINEAR_I
     !!----    Determines if two integer vectors are co-linear
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Co_Linear_I(a,b,n) Result(co_linear)    
+    Module Function Co_Linear_I(a,b,n) Result(co_linear)
        !---- Argument ----!
        integer, dimension(:),           intent(in) :: a,b        ! Input vectors
        integer,               optional, intent(in) :: n          ! Dimension of the vector
@@ -109,14 +109,14 @@ Submodule (CFML_Maths) Co_Linear
 
        return
     End Function Co_Linear_I
- 
+
     !!----
     !!---- CO_LINEAR_R
     !!----    Determines if two real vectors are co-linear
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Co_Linear_R(a,b,n) Result(co_linear)    
+    Module Function Co_Linear_R(a,b,n) Result(co_linear)
        !---- Argument ----!
        real(kind=cp), dimension(:),           intent(in) :: a,b        ! Input real vectors
        integer,                     optional, intent(in) :: n          ! Dimension of the vectors
@@ -145,7 +145,7 @@ Submodule (CFML_Maths) Co_Linear
              exit
           end if
        end do
-       
+
        if (ia /= ib) then
           co_linear=.false.
           return
@@ -162,5 +162,5 @@ Submodule (CFML_Maths) Co_Linear
 
        return
     End Function Co_Linear_R
- 
+
 End Submodule Co_Linear

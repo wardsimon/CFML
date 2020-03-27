@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -56,33 +56,33 @@
     Interface
        Module Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
           !---- Arguments ----!
-          Character(Len=*), Intent(In)           :: Mess      
-          Integer,          Intent(In), Optional :: Iunit     
-          Character(Len=*), Intent(In), Optional :: Routine   
-          Logical,          Intent(In), Optional :: Fatal     
+          Character(Len=*), Intent(In)           :: Mess
+          Integer,          Intent(In), Optional :: Iunit
+          Character(Len=*), Intent(In), Optional :: Routine
+          Logical,          Intent(In), Optional :: Fatal
        End Subroutine Error_Message
-  
+
        Module Subroutine Info_Message(Mess, iunit)
           !---- Arguments ----!
-          character(len=*), intent(in)           :: Mess   
-          integer,          intent(in), optional :: iunit 
+          character(len=*), intent(in)           :: Mess
+          integer,          intent(in), optional :: iunit
        End Subroutine Info_Message
-       
+
        Module Subroutine Print_Message(Mess)
           !---- Arguments ----!
           character(len=*),intent(in) ::  Mess
        End Subroutine Print_Message
-       
+
        Module Subroutine Wait_Message(Mess)
           !---- Argument ----!
           character(len=*), optional, intent(in) :: Mess
        End Subroutine Wait_Message
-    
+
        Module Subroutine Write_Scroll_Text(Mess)
           !---- Argument ----!
           character(len=*), intent(in) :: Mess
        End Subroutine Write_Scroll_Text
-    
+
     End Interface
-    
+
  End Module CFML_Messages

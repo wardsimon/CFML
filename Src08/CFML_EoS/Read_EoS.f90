@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_023
    Contains
-    
+
    !!----
    !!---- READ_EOS_DATAFILE
    !!----    General routine to read data for Eos
@@ -77,7 +77,7 @@ SubModule (CFML_EoS) EoS_023
       j=nlines
       call Read_Key_Str(flines, i, j, 'TScale', line,'#')
       if (len_trim(line) > 0) Ts=U_case(trim(adjustl(line)))
-      
+
       !> PScale
       i=1
       j=nlines
@@ -87,7 +87,7 @@ SubModule (CFML_EoS) EoS_023
           j=len_trim(line)
           if(j-i > 15)j=15
           dat%Pscale_name=line(1:j)
-      endif    
+      endif
 
       !> VScale
       i=1
@@ -98,8 +98,8 @@ SubModule (CFML_EoS) EoS_023
           j=len_trim(line)
           if(j-i > 15)j=15
           dat%Vscale_name=line(1:j)
-      endif    
-      
+      endif
+
       !> LScale
       i=1
       j=nlines
@@ -109,8 +109,8 @@ SubModule (CFML_EoS) EoS_023
           j=len_trim(line)
           if(j-i > 15)j=15
           dat%Lscale_name=line(1:j)
-      endif    
-      
+      endif
+
       !> DataType: sets idatatype for temporary use
       i=1
       j=nlines
@@ -455,7 +455,7 @@ SubModule (CFML_EoS) EoS_023
       call Read_Multiple_Eos_File(Fname,Eoslist)
 
       if (eoslist%n < 1) then
-         err_CFML%IErr=1 
+         err_CFML%IErr=1
          Err_CFML%Msg="No EoS found in EoS file "
       else
          EoS=Eoslist%eos(1)
@@ -701,6 +701,6 @@ SubModule (CFML_EoS) EoS_023
          call read_eos_in(flines(istart(i):istart(i+1)-1),eos)
          eoslist%eos(i)=eos
       end do
-   End Subroutine Read_Multiple_Eos_File 
-   
-End SubModule EoS_023   
+   End Subroutine Read_Multiple_Eos_File
+
+End SubModule EoS_023

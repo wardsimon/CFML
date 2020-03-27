@@ -6,7 +6,7 @@ SubModule (CFML_Messages) ScrollMsg
    !!----
    !!----    Close the Scroll Window
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Close_Scroll_Window()
 
@@ -16,13 +16,13 @@ SubModule (CFML_Messages) ScrollMsg
 
       return
    End Subroutine Close_Scroll_Window
-    
+
    !!----
    !!---- WRITE_SCROLL_TEXT
    !!----
    !!----    Print the string in a the window
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Write_Scroll_Text(Mess,ICmd)
       !---- Argument ----!
@@ -57,5 +57,5 @@ SubModule (CFML_Messages) ScrollMsg
 
       return
    End Subroutine Write_Scroll_Text
-       
-End SubModule ScrollMsg  
+
+End SubModule ScrollMsg

@@ -5,15 +5,15 @@
 !!
 Submodule (CFML_Maths) Cross_Product
  Contains
- 
-    !!---- 
+
+    !!----
     !!---- CROSS_PRODUCT_C
     !!----    Calculates the cross product of the complex vectors u and v
     !!----    Vectors, w = u x v, are given in cartesian components.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_C(u,v) Result(w)    
+    Module Pure Function Cross_Product_C(u,v) Result(w)
        !---- Argument ----!
        complex(kind=cp), dimension(3), intent( in) :: u  ! Vector 1
        complex(kind=cp), dimension(3), intent( in) :: v  ! Vector 2
@@ -25,15 +25,15 @@ Submodule (CFML_Maths) Cross_Product
 
        return
     End Function Cross_Product_C
- 
-    !!---- 
+
+    !!----
     !!---- CROSS_PRODUCT_R
     !!----    Calculates the cross product of vectors u and v
     !!----    Vectors, w= u x v, are given in cartesian components.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_R(u,v) Result(w)    
+    Module Pure Function Cross_Product_R(u,v) Result(w)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in) :: u   ! Vector 1
        real(kind=cp), dimension(3), intent( in) :: v   ! Vector 2
@@ -45,16 +45,16 @@ Submodule (CFML_Maths) Cross_Product
 
        return
     End Function Cross_Product_R
- 
-    !!---- 
+
+    !!----
     !!---- CROSS_PRODUCT_I
     !!----    Calculates the cross product of integer vectors u and v
     !!----    In the indices are givent w.r.t the direct lattice, the cross product
     !!----    are indices w.r.t. reciprocal lattice and viceversa.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_I(u,v) Result(w)    
+    Module Pure Function Cross_Product_I(u,v) Result(w)
        !---- Argument ----!
        integer, dimension(3), intent( in) :: u    ! Vector 1
        integer, dimension(3), intent( in) :: v    ! Vector 2
@@ -66,5 +66,5 @@ Submodule (CFML_Maths) Cross_Product
 
        return
     End Function Cross_Product_I
- 
+
 End Submodule Cross_Product

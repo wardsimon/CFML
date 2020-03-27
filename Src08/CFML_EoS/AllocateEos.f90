@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_020
    Contains
-   
+
    !!----
    !!---- ALLOCATE_EOS_DATA_LIST
    !!----    Allocation of objet E of eos_list_data_type.
@@ -69,7 +69,7 @@ SubModule (CFML_EoS) EoS_020
          call init_eos_type(e%eos(i))
       end do
    End Subroutine Allocate_EoS_List
-   
+
    !!----
    !!---- DEALLOCATE_EOS_DATA_LIST
    !!----    De-allocation of objet E of type eos_data_list.
@@ -101,5 +101,5 @@ SubModule (CFML_EoS) EoS_020
       if (allocated(E%eos)) deallocate (E%eos)
       E%n=0
    End Subroutine Deallocate_EoS_List
-   
-End SubModule EoS_020   
+
+End SubModule EoS_020

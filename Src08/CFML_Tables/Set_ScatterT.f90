@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_Scattering_Tables) Set_Routines
   Contains
-  
+
    !!----
    !!---- SET_CHEM_INFO
    !!----    Allocates and loads the table  chem_info(num_chem_info):
@@ -22,7 +22,7 @@ SubModule (CFML_Scattering_Tables) Set_Routines
    !!----       12: Neutron Absorption cross-section ( barns, for v= 2200m/s, l(A)=3.95/v (km/s) )
    !!-->>
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Set_Chem_Info()
 
@@ -278,7 +278,7 @@ SubModule (CFML_Scattering_Tables) Set_Routines
    !!-->>
    !!----    Set values for Delta-fp & Delta-fpp for the above wavelengths
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Set_Delta_Fp_Fpp()
 
@@ -489,7 +489,7 @@ SubModule (CFML_Scattering_Tables) Set_Routines
    !!----    Magnetic form factors <j0> P.J. Brown, ILL prep. SP.88BR5016
    !!----    (March 1988)
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Set_Magnetic_Form()
 
@@ -994,7 +994,7 @@ SubModule (CFML_Scattering_Tables) Set_Routines
    !!----    where s=sinTheta/Lambda
    !!-->>
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Set_Xray_Form()
 
@@ -1473,4 +1473,4 @@ SubModule (CFML_Scattering_Tables) Set_Routines
                                                     (/ 10.510900,  26.125700,   3.142360,  57.799698/),  0.003038) /)
       return
    End  Subroutine Set_Xray_Form
-End SubModule Set_Routines 
+End SubModule Set_Routines

@@ -3,14 +3,14 @@
 !!----
 SubModule (CFML_EoS) EoS_010
    Contains
-   
+
    !!--++
    !!--++ GET_PROPS_PTVTABLE
    !!--++   Returns the requested property at two of P,T,V from an eos loaded as a table of values
    !!--++   The volume values in the table are expected to be scaled to V=1.0 at Pref, Tref
    !!--++   and the true V0 is in eospar%params(1)
    !!--++
-   !!--++ 14/10/16  
+   !!--++ 14/10/16
    !!
    Module Function Get_Props_PTVTable(P,T,V,EosPar,Res) Result(Val)
       !---- Arguments ----!
@@ -203,7 +203,7 @@ SubModule (CFML_EoS) EoS_010
 
       v=v0*(1.0_cp+kp/k0*(p-eos%table%ptv(is+1,j,1)))**(-1.0_cp/kp)
    End Function Murn_Interpolate_PTVTable
-   
+
    !!--++
    !!--++ MURN_PTVTABLE
    !!--++   Calculate ....
@@ -254,5 +254,5 @@ SubModule (CFML_EoS) EoS_010
       !> adjust K now if im /= i; Kp should be constant for a Murn
       if (i /= im) eosm%params(2)=eosm%params(2)+eosm%params(3)*(eos%table%ptv(i,j,1)-eos%table%ptv(im,j,1))
    End Subroutine Murn_PTVTable
-   
-End SubModule EoS_010   
+
+End SubModule EoS_010

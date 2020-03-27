@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Maths) CFML_Math_004
  Contains
- 
+
     !!----
     !!---- POLY_LEGENDRE
     !!----    Compute the Associated Legendre Polynomial Pml(x).
@@ -14,9 +14,9 @@ Submodule (CFML_Maths) CFML_Math_004
     !!----         0 <= m <= l
     !!----        -1 <= x <= 1.
     !!----
-    !!---- 27/03/2019 
+    !!---- 27/03/2019
     !!
-    Module Elemental Function Poly_Legendre(L,M,X) Result(Plmx)    
+    Module Elemental Function Poly_Legendre(L,M,X) Result(Plmx)
        !---- Arguments ----!
        integer,      intent (in) :: l
        integer,      intent (in) :: m
@@ -63,5 +63,5 @@ Submodule (CFML_Maths) CFML_Math_004
 
        return
     End Function Poly_Legendre
-    
+
 End Submodule CFML_Math_004

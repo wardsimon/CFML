@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) TOF_003
    !!----    Calculate de Profile of TOF according to Jorgensen_Vondreele
    !!--..    Authors:J. Rodriguez-Carvajal and Laurent C Chapon
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Subroutine Tof_Jorgensen_Vondreele(Dt,Alfa,Beta,Gamma,Eta,Tof_Peak,Deriv)
       !---- Arguments ----!
@@ -105,7 +105,7 @@ SubModule (CFML_Profiles) TOF_003
          domg_t = norm*(alfa*omega-beta*omegb+(a-b)*denoinv)
          domg_a = norm*(2.0_dp*omeg/a2+deno*(y*omega+0.5_dp*a))
          domg_b = norm*(2.0_dp*omeg/b2+deno*(z*omegb+0.5_dp*b))
-         
+
          !>Multiply by Dsigma/Dgamma=gamma/4ln2
          domg_g = inv_8ln2 * norm * gamma * (a2*omega+b2*omegb+a*ca+b*cb)
       end if
@@ -137,5 +137,5 @@ SubModule (CFML_Profiles) TOF_003
 
       return
    End Subroutine Tof_Jorgensen_Vondreele
-   
+
 End SubModule TOF_003

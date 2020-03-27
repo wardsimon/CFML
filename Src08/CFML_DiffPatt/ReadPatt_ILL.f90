@@ -1,12 +1,12 @@
 SubModule (CFML_DiffPatt) RPatt_ILL
- 
+
  Contains
     !!--++
     !!--++ read_pattern_d1a_d2b
     !!--++
     !!--++    Read a pattern for D1A, D2B
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_D1A_D2B(Filename,Pat)
        !---- Arguments ----!
@@ -30,7 +30,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1A_D2B@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -38,7 +38,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1A_D2B@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        !> Title
        read(unit=i_dat,fmt="(a)",iostat=ier) txt1
        if (ier /= 0) then
@@ -120,22 +120,22 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        close(unit=i_dat)
     End Subroutine Read_Pattern_D1A_D2B
-    
+
     !!--++
     !!--++ READ_PATTERN_D1A_D2B_OLD
     !!--++
     !!--++    Read a pattern for D1A, D2B (Old Format)
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_D1A_D2B_OLD(Filename,Pat)
        !---- Arguments ----!
        character(len=*),        intent(in)  :: Filename      ! Path+Filename
        class(DiffPat_E_Type),   intent(out) :: Pat
-       
+
        !---- Local Variables ----!
        integer                                      :: ier,i,i_dat
        integer, dimension(:), allocatable           :: iww
@@ -152,7 +152,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1A_D2B_OLD@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -160,7 +160,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1A_D2B_OLD@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
 
        read(unit=i_dat,fmt=*,iostat=ier)pat%xmin,step,pat%xmax
        if (ier /= 0) then
@@ -201,16 +201,16 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        close(unit=i_dat)
     End Subroutine Read_Pattern_D1A_D2B_Old
-    
+
     !!--++
     !!--++ READ_PATTERN_D1B_D20
     !!--++
     !!--++    Read a pattern for D1B or D20
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_D1B_D20(Filename,Pat)
        !---- Arguments ----!
@@ -234,7 +234,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1B_D20@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -242,7 +242,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           Err_CFML%Msg="Read_Pattern_D1B_D20@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        do i=1,3
           read(unit=i_dat,fmt="(a)", iostat=ier)line
           if (ier /= 0 )then
@@ -277,7 +277,7 @@ SubModule (CFML_DiffPatt) RPatt_ILL
           close(unit=i_dat)
           return
        end if
-  
+
        !> Allocating memory
        call Allocate_Pattern(pat)
 
@@ -310,8 +310,8 @@ SubModule (CFML_DiffPatt) RPatt_ILL
        end do
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        close(unit=i_dat)
     End Subroutine Read_Pattern_D1B_D20
-    
-End SubModule RPatt_ILL 
+
+End SubModule RPatt_ILL

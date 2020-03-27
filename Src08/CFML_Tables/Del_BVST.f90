@@ -2,15 +2,15 @@
 !!----
 !!----
 SubModule (CFML_BVS_Tables) Del_Routines
-  
+
   Contains
-   
+
    !!----
    !!---- REMOVE_AP_TABLE
    !!----
    !!----    Deallocating Ap_Table
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Remove_Atomic_Properties_Table()
 
@@ -24,7 +24,7 @@ SubModule (CFML_BVS_Tables) Del_Routines
    !!----
    !!----    Deallocating BVEL_Table
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Remove_BVEL_Table()
 
@@ -38,7 +38,7 @@ SubModule (CFML_BVS_Tables) Del_Routines
    !!----
    !!----    Deallocating BVS_Table
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Remove_BVS_Table()
 
@@ -52,7 +52,7 @@ SubModule (CFML_BVS_Tables) Del_Routines
    !!----
    !!----    Deallocating sBVS_Table
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Remove_sBVS_Table()
 
@@ -60,5 +60,5 @@ SubModule (CFML_BVS_Tables) Del_Routines
 
       return
    End Subroutine Remove_sBVS_Table
-   
-End SubModule Del_Routines 
+
+End SubModule Del_Routines

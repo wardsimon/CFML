@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_Messages) Printing
    Contains
-   
+
    !!----
    !!---- Print_Message
    !!----
    !!----    Print an message on the screen
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Print_Message(Mess)
       !---- Arguments ----!
@@ -28,5 +28,5 @@ SubModule (CFML_Messages) Printing
       end if
 
    End Subroutine Print_Message
-   
-End SubModule Printing  
+
+End SubModule Printing

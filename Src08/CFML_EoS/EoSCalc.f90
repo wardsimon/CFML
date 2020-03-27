@@ -62,7 +62,7 @@ SubModule (CFML_EoS) EoS_030
             esd(6)=esd(6)/3.0_cp            ! alpha is 1/3 of p1
       end select
    End Subroutine EoS_Cal_Esd
-   
+
    !!--++
    !!--++ TRANSFORM_ESD
    !!--++   New generalised version for V,K,Kp,Kpp,dK/dT and alpha
@@ -139,4 +139,4 @@ SubModule (CFML_EoS) EoS_030
           end if
       end do
    End Subroutine Transform_Esd
-End SubModule EoS_030   
+End SubModule EoS_030

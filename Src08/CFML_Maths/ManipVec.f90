@@ -5,17 +5,17 @@
 !!
 Submodule (CFML_Maths) CFML_Math_007
  Contains
- 
+
     !!----
     !!---- SECOND_DERIVATIVE
     !!----    Calculate the second derivate of N Points
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Function Second_Derivative(x,y,n) Result(d2y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x     ! Vector xi
-       real(kind=cp), dimension(:), intent(in)  :: y     ! Vector Yi=F(xi) 
+       real(kind=cp), dimension(:), intent(in)  :: y     ! Vector Yi=F(xi)
        integer ,                    intent(in)  :: n     ! Dimension
        real(kind=cp), dimension(n)              :: d2y   ! Second derivate
 
@@ -47,14 +47,14 @@ Submodule (CFML_Maths) CFML_Math_007
 
        return
     End Function Second_Derivative
-    
-    !!---- 
+
+    !!----
     !!---- SMOOTHING_VEC
     !!----    Procedure to smooth the vector values
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Smoothing_Vec(Y, N, Niter) Result(Ys)    
+    Module Pure Function Smoothing_Vec(Y, N, Niter) Result(Ys)
        !---- Arguments ----!
        real(kind=cp),dimension(:),            intent(in) :: Y         !  In Out-> Array to be smoothed
        integer,                               intent(in) :: n         !  In -> Number of points
@@ -83,17 +83,17 @@ Submodule (CFML_Maths) CFML_Math_007
           datYs(n2+2)=((Y(n2+3)+Y(n2+1))*10.0+Y(n2)*5.0+Y(n2-1))/26.0
           datYs(n2+3)=(Y(n2+2)*10.0+Y(n2+1)*5.0+Y(n2))/16.0
        end do
-       
+
        Ys=datYs
 
        return
     End Function Smoothing_Vec
-    
+
     !!----
     !!---- SPLINT
     !!----    Spline Interpolation
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
        !---- Arguments ----!
@@ -108,9 +108,9 @@ Submodule (CFML_Maths) CFML_Math_007
        integer          :: klo, khi, k
        real(kind=cp)    :: h, a, b
 
-       !> Init 
+       !> Init
        yi=0.0_cp
-       
+
        klo=1
        khi=n
        do
@@ -134,12 +134,12 @@ Submodule (CFML_Maths) CFML_Math_007
 
        return
     End Function Spline_Interpol
-    
+
     !!----
     !!---- LINEAR_INTERPOL
     !!----    Simple Linear Interpolation
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Function Linear_Interpol(xi,x,y) Result(yi)
        !---- Arguments ----!
@@ -147,24 +147,24 @@ Submodule (CFML_Maths) CFML_Math_007
        real(kind=cp), dimension(:),intent(in)   :: x  ! Vector containing Xi points
        real(kind=cp), dimension(:),intent(in)   :: y  ! Vector Yi=F(xi)
        real(kind=cp)                            :: yi ! Output
-       
+
        !--- Local variables ---!
        integer       :: i,np
        real(kind=cp) :: slope
-       
+
        np=size(x)
        i=locate(x,xi,np)
        slope=(y(i+1)-y(i))/(x(i+1)-x(i))
        yi=(xi-x(i))*slope+y(i)
-       
+
        return
     End Function Linear_Interpol
-    
+
     !!----
     !!---- FIRST_DERIVATIVE
     !!----    Calculate the First derivate values of the N points
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Function First_Derivative(x,y,n) Result(d1y)
        !---- Arguments ----!
@@ -180,10 +180,10 @@ Submodule (CFML_Maths) CFML_Math_007
 
        !> Init
        d1y=0.0_cp
-       
+
        !> Calling the calculation of the second derivative
        d2y=second_derivative(x,y,n)
-       
+
        !> Calculation
        do i=1,n
          if (i /= n) then
@@ -191,7 +191,7 @@ Submodule (CFML_Maths) CFML_Math_007
          end if
          x0 = x(i) - step/2.0_cp
          y0 = spline_interpol(x0,x,y, d2y, n)
-         
+
          y1 = y0
          x0 = x(i) + step/2.0_cp
          y0 = spline_interpol(x0,x,y, d2y, n)
@@ -201,12 +201,12 @@ Submodule (CFML_Maths) CFML_Math_007
 
        return
     End Function First_Derivative
-    
+
     !!----
     !!---- SPLINE
     !!----    Second derivative for points using Spline
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Function Spline_D2Y(x,y,n,yp1,ypn) Result(Ys)
        !---- Arguments ----!
@@ -224,7 +224,7 @@ Submodule (CFML_Maths) CFML_Math_007
 
        !> Init
        Ys=0.0_cp
-       
+
        if (yp1 > huge(1.0_cp)) then
           ys(1)=0.0
           u(1)=0.0
@@ -254,5 +254,5 @@ Submodule (CFML_Maths) CFML_Math_007
 
        return
     End Function Spline_D2Y
- 
+
 End Submodule CFML_Math_007

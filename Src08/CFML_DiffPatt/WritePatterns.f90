@@ -6,7 +6,7 @@ Submodule (CFML_DiffPatt) WPatt
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
-    !!---- 01/05/2019 
+    !!---- 01/05/2019
     !!
     Module Subroutine Write_Pattern(Filename, Pat, Mode, excl, xmin, xmax)
        !---- Arguments ----!
@@ -15,23 +15,23 @@ Submodule (CFML_DiffPatt) WPatt
        character(len=*),               intent(in)    :: Mode         ! Format file
        logical, dimension(:),optional, intent(in)    :: excl         ! Exclusion zones
        real(kind=cp),        optional, intent(in)    :: xmin         ! Limits
-       real(kind=cp),        optional, intent(in)    :: xmax 
-       
+       real(kind=cp),        optional, intent(in)    :: xmax
+
        !---- Local Variables ----!
        integer          :: i2,i1,i0,ic
        character(len=3) :: car
-       
+
        !> Init
        call clear_error()
-       
+
        !> Check options
        i2=0; i1=0; i0=0
        if (present(excl)) i2=1
        if (present(xmin)) i1=1
        if (present(xmax)) i0=1
        ic=4*i2+2*i1+i0
-       
-        
+
+
        car=u_case(adjustl(mode))
        select case (car)
           case ('FRE')
@@ -52,8 +52,8 @@ Submodule (CFML_DiffPatt) WPatt
                    call Write_Pattern_FreeFormat(Filename,Pat,excl,xmin=xmin)
                 case (7)
                    call Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
-             end select  
-            
+             end select
+
           case ('XYS')
              select case (ic)
                 case (0)
@@ -72,8 +72,8 @@ Submodule (CFML_DiffPatt) WPatt
                    call Write_Pattern_XYSig(Filename,Pat,excl,xmin=xmin)
                 case (7)
                    call Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
-             end select 
-             
+             end select
+
           case ('INS')
              select case (ic)
                 case (0)
@@ -92,21 +92,21 @@ Submodule (CFML_DiffPatt) WPatt
                    call Write_Pattern_INSTRM5(Filename,Pat,excl,xmin=xmin)
                 case (7)
                    call Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax)
-             end select 
-             
+             end select
+
           case default
              Err_CFML%IErr=1
              Err_CFML%Msg="Write_Pattern@DIFFPATT: Type of format not available at this moment!"
-       end select  
-       
+       end select
+
     End Subroutine Write_Pattern
-    
+
     !!----
     !!---- WRITE_PATTERN_XYSIG
     !!----
     !!----    Write a pattern in X,Y,Sigma format
     !!----
-    !!---- 01/05/2019 
+    !!---- 01/05/2019
     !!
     Module Subroutine Write_Pattern_XYSig(Filename,Pat,excl,xmin,xmax)
        !---- Arguments ----!
@@ -114,23 +114,23 @@ Submodule (CFML_DiffPatt) WPatt
        class(DiffPat_Type),            intent(in) :: Pat          ! Pattern object
        logical, dimension(:),optional, intent(in) :: excl         ! Exclusion zones
        real(kind=cp),        optional, intent(in) :: xmin         ! Limits
-       real(kind=cp),        optional, intent(in) :: xmax    
+       real(kind=cp),        optional, intent(in) :: xmax
 
        !---- Local Variables ----!
        integer                :: i,n, ini,ifin,npoi, ier, i_dat
        character(len=256)     :: excluded
        character(len=6)       :: cellexc
-       
+
        !> Init
        call clear_error()
-       
+
        open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_CFML%IErr=1
           Err_CFML%Msg="Write_Pattern_XYSig@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        ini=1
        if (present(xmin)) then
           do i=1,Pat%npts
@@ -140,17 +140,17 @@ Submodule (CFML_DiffPatt) WPatt
              end if
           end do
        end if
-       
+
        ifin=Pat%npts
        if (present(xmax)) then
           do i=Pat%npts,1,-1
              if (pat%x(i) <= xmax) then
-                ifin=i 
+                ifin=i
                 exit
              end if
           end do
        end if
-       
+
        npoi=ifin-ini+1
        excluded=" "
        if (present(excl)) then
@@ -164,27 +164,27 @@ Submodule (CFML_DiffPatt) WPatt
           end do
           npoi=npoi-n
        end if
-       
+
        write(unit=i_dat,fmt="(a)")"XYDATA"
        write(unit=i_dat,fmt="(a)")"TITLE "//trim(pat%title)
        write(unit=i_dat,fmt="(a)")"COND: "//trim(pat%kindRad)//"-"//trim(pat%ScatVar)
-       
+
        select type (Pat)
           type is (DiffPat_Type)
              write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
              write(unit=i_dat,fmt="(a,i8)") "!N POINTS ",  npoi
-             
+
              if (index(U_case(pat%ScatVar),"THET") /= 0) then
                 write(unit=i_dat,fmt="(a,3f9.5)")"FILE: "//trim(filename)//"   Wavelengths: ",pat%wave(1:3)
-       
+
              else if (index(U_case(pat%ScatVar),"TOF") /= 0) then
                 write(unit=i_dat,fmt="(a,2f9.5)")"FILE: "//trim(filename)//"   TOF Dtt1, Dtt2: ",pat%wave(1:2)
-             
+
              else
                 write(unit=i_dat,fmt="(a)")"FILE: "//trim(filename)
              end if
-             
-          class is (DiffPat_E_Type)  
+
+          class is (DiffPat_E_Type)
              write(unit=i_dat,fmt="(a,2f10.3)") "TEMP", pat%tsample, pat%tset
              if (pat%ct_step) then
                 write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
@@ -193,10 +193,10 @@ Submodule (CFML_DiffPatt) WPatt
                 write(unit=i_dat,fmt="(a,2f8.4,i3,f8.5,a)") &
                       "INTER ", 1.0,1.0,0,0.0," <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
              end if
-             
+
              write(unit=i_dat,fmt="(a,f12.2,i8)") "! MONITOR & N POINTS ", pat%monitor, npoi
        end select
-       
+
        write(unit=i_dat,fmt="(a)") "! Scatt. Var., Profile Intensity, Standard Deviation "
        if (present(excl)) write(unit=i_dat,fmt="(a)") "! Excluded points (absent in the file):"//trim(excluded)
        write(unit=i_dat,fmt="(a,a10,a)") "!     ",pat%ScatVar,"        Y          Sigma "
@@ -207,14 +207,14 @@ Submodule (CFML_DiffPatt) WPatt
                 if (excl(i)) cycle
                 write(unit=i_dat,fmt="(3f14.5)") pat%x(i), pat%y(i),sqrt(pat%sigma(i))
              end do
-         
+
           else
              do i=ini,ifin
                 if (excl(i)) cycle
                 write(unit=i_dat,fmt="(3f14.5)") pat%x(i), pat%y(i), pat%sigma(i)
              end do
           end if
-       
+
        else
           if (pat%sigvar) then
              do i=ini,ifin
@@ -228,13 +228,13 @@ Submodule (CFML_DiffPatt) WPatt
        end if
        close(unit=i_dat)
     End Subroutine Write_Pattern_XYSig
-    
+
     !!----
     !!---- WRITE_PATTERN_FREEFORMAT
     !!----
     !!----    Write a pattern in Free Format (Instrm=0)
     !!----
-    !!---- 01/05/2019 
+    !!---- 01/05/2019
     !!
     Module Subroutine Write_Pattern_FreeFormat(Filename,Pat,excl,xmin,xmax)
        !---- Arguments ----!
@@ -248,14 +248,14 @@ Submodule (CFML_DiffPatt) WPatt
 
        !> Init
        call clear_error()
-       
+
        open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_CFML%IErr=1
           Err_CFML%Msg="Write_Pattern_FreeFormat@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        ini=1
        ifin=Pat%npts
        if (present(xmin)) then
@@ -274,10 +274,10 @@ Submodule (CFML_DiffPatt) WPatt
              end if
           end do
        end if
-       
+
        npoi=ifin-ini+1
        !> Replace the excluded points by the average of adjacent non-excluded points
-       if (present(excl)) then 
+       if (present(excl)) then
           do i=ini+1,ifin-1
              if (excl(i)) then
                 do j=max(i-1,ini),1,-1
@@ -312,7 +312,7 @@ Submodule (CFML_DiffPatt) WPatt
        end do
        close(unit=i_dat)
     End Subroutine Write_Pattern_FreeFormat
-    
+
     !!----
     !!---- WRITE_PATTERN_INSTRM5
     !!----
@@ -324,7 +324,7 @@ Submodule (CFML_DiffPatt) WPatt
     !!----    otherwise they are calculated from the number of counts and the
     !!----    values of the normalisation monitor and the used monitor.
     !!----
-    !!---- 01/05/2019 
+    !!---- 01/05/2019
     !!
     Module Subroutine Write_Pattern_INSTRM5(Filename,Pat,excl,xmin,xmax,var)
        !---- Arguments ----!
@@ -337,24 +337,24 @@ Submodule (CFML_DiffPatt) WPatt
 
        !---- Local Variables ----!
        integer   :: i,j,ier,i_dat,ini,ifin, npoi,jmin,jmax
-  
+
        !> Init
        call clear_error()
-       
+
        select type (Pat)
           type is (DiffPat_Type)
              Err_CFML%IErr=1
              ERR_CFML%Msg="Write_Pattern_INSTRM5@DIFFPATT: Pattern class is not compatible!"
              return
        end select
-       
+
        open(newunit=i_dat,file=trim(filename),status="replace",action="write",iostat=ier)
        if (ier /= 0 ) then
           Err_CFML%IErr=1
           ERR_CFML%Msg="Write_Pattern_INSTRM5@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        ifin=Pat%npts
        ini=1
        if (present(xmin)) then
@@ -373,10 +373,10 @@ Submodule (CFML_DiffPatt) WPatt
              end if
           end do
        end if
-       
+
        npoi=ifin-ini+1
        !>Replace the excluded points by the average of adjacent non-excluded points
-       if (present(excl)) then 
+       if (present(excl)) then
           do i=ini+1,ifin-1
              if (excl(i)) then
                 do j=max(i-1,ini),1,-1
@@ -417,7 +417,7 @@ Submodule (CFML_DiffPatt) WPatt
        end select
        Write(unit=i_dat,fmt="(3F12.5)")  Pat%x(ini),Pat%x(ini+1)-Pat%x(ini),Pat%x(ifin)
        Write(unit=i_dat,fmt="(8F14.2)")  Pat%y(ini:ifin)
-       
+
        if (present(var)) then
           if (pat%sigvar) then
              Write(unit=i_dat,fmt="(8F14.2)")  sqrt(Pat%sigma(ini:ifin))
@@ -427,5 +427,5 @@ Submodule (CFML_DiffPatt) WPatt
        end if
        close(unit=i_dat)
     End Subroutine Write_Pattern_INSTRM5
- 
-End Submodule WPatt 
+
+End Submodule WPatt

@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_011
    Contains
-   
+
    !!--++
    !!--++ PTHERMAL
    !!--++  Calculate Pthermal from eosparameters at temperature T
@@ -45,7 +45,7 @@ SubModule (CFML_EoS) EoS_011
             factor=1.0
             if (index(U_case(eospar%pscale_name),'GPA') > 0)  factor=1.0E-9
             if (index(U_case(eospar%pscale_name),'KBAR') > 0) factor=1.0E-8
-            
+
             if (VscaleMGD(eospar)) factor=factor*1.0E+6     !test for cm3/mol or equivalent in eos%vscale_name
 
             pth=pth*factor
@@ -54,29 +54,29 @@ SubModule (CFML_EoS) EoS_011
             pth=0.0_cp
       end select
    End Function Pthermal
-   
+
    !!----
    !!---- VSCALEMGD
    !!----
-   !!---- 31/05/2019 
+   !!---- 31/05/2019
    !!
    Module Function VscaleMGD(E) Result(MGD)
       !---- Arguments ----!
-      type(Eos_Type), intent(in)  :: E          ! EoS    
-      logical                     :: MGD        ! .true. if e%vscale_name is cm3/mol           
-   
+      type(Eos_Type), intent(in)  :: E          ! EoS
+      logical                     :: MGD        ! .true. if e%vscale_name is cm3/mol
+
       !---- Local Variables ----!
       character(len=len(e%vscale_name)) :: vname
 
       !> Init
-      MGD=.false.  
-      
+      MGD=.false.
+
       vname=adjustl(U_case(e%vscale_name))
       if(len_trim(vname) == 0) return
 
       if (index(vname,'CM') > 0 .and. index(vname,'3') > 0 .and. index(vname,'MOL') > 0) MGD=.true.
    End Function VscaleMGD
-   
+
    !!--++
    !!--++ ETHDEBYE
    !!--++   Calculates the Debye thermal Energy in Jmol(-1)
@@ -132,5 +132,5 @@ SubModule (CFML_EoS) EoS_011
             end if
       end select
    End Function Get_DebyeT
-   
-End SubModule EoS_011   
+
+End SubModule EoS_011

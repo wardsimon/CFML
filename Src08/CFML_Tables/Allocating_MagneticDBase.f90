@@ -3,18 +3,18 @@
 !!----
 !!----
 SubModule (CFML_Magnetic_Database) MagDB_001
-   Contains 
+   Contains
    !!----
    !!---- ALLOCATE MAG_DBASE
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Subroutine Allocate_Magnetic_DBase()
       !---- Arguments ----!
 
       !> Check
       if (Magnetic_DBase_allocated) return
-      
+
       if (.not. allocated(point_op_label))             Allocate(point_op_label(48))
       if (.not. allocated(point_op_xyz))               Allocate(point_op_xyz(48))
       if (.not. allocated(point_op_matrix))            Allocate(point_op_matrix(3,3,48))
@@ -58,20 +58,20 @@ SubModule (CFML_Magnetic_Database) MagDB_001
       if (.not. allocated(wyckoff_og_fract_denom))     Allocate(wyckoff_og_fract_denom (96,27,magcount))
       if (.not. allocated(wyckoff_og_xyz))             Allocate(wyckoff_og_xyz(3,3,96,27,magcount))
       if (.not. allocated(wyckoff_og_mag))             Allocate(wyckoff_og_mag(3,3,96,27,magcount))
-      
+
       Magnetic_DBase_allocated=.true.
    End Subroutine Allocate_Magnetic_DBase
-   
+
    !!----
    !!---- DEALLOCATE_MAG_DBASE
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Subroutine Deallocate_Magnetic_DBase()
       !---- Arguments ----!
-    
+
       if (.not. Magnetic_DBase_allocated) return
-    
+
       if (allocated(point_op_label))            deAllocate(point_op_label)
       if (allocated(point_op_xyz))              deAllocate(point_op_xyz)
       if (allocated(point_op_matrix))           deAllocate(point_op_matrix)
@@ -115,8 +115,8 @@ SubModule (CFML_Magnetic_Database) MagDB_001
       if (allocated(wyckoff_og_fract_denom))    deAllocate(wyckoff_og_fract_denom)
       if (allocated(wyckoff_og_xyz))            deAllocate(wyckoff_og_xyz)
       if (allocated(wyckoff_og_mag))            deAllocate(wyckoff_og_mag)
-    
+
       Magnetic_DBase_allocated=.false.
    End Subroutine Deallocate_Magnetic_DBase
-   
+
 End Submodule MagDB_001

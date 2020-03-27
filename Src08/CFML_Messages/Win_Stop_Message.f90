@@ -1,7 +1,7 @@
 !!----
 SubModule (CFML_Messages) StoppingMess
    Contains
-   
+
    !!----
    !!---- SUBROUTINE STOP_MESSAGE
    !!----
@@ -24,5 +24,5 @@ SubModule (CFML_Messages) StoppingMess
 
       return
    End Subroutine Stop_Message
-   
-End SubModule StoppingMess   
+
+End SubModule StoppingMess

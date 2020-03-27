@@ -43,5 +43,5 @@ SubModule (CFML_EoS) EoS_012
             val=0.0
       end select
    End Function Get_Property_X
-   
-End SubModule EoS_012   
+
+End SubModule EoS_012

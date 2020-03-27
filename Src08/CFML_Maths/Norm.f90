@@ -5,14 +5,14 @@
 !!
 Submodule (CFML_Maths) Norm
  Contains
- 
-    !!---- 
+
+    !!----
     !!---- NORM_I
     !!----    Calculate the Norm of a vector
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Norm_I(X,G) Result(R)    
+    Module Pure Function Norm_I(X,G) Result(R)
        !---- Arguments ----!
        integer,       dimension(:),   intent(in) :: x    ! Input vector
        real(kind=cp), dimension(:,:), intent(in) :: g    ! Metric array
@@ -26,14 +26,14 @@ Submodule (CFML_Maths) Norm
 
        return
     End Function Norm_I
- 
-    !!---- 
+
+    !!----
     !!---- NORM_R
     !!----    Calculate the Norm of a vector
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Norm_R(X,G) Result(R)    
+    Module Pure Function Norm_R(X,G) Result(R)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in) :: x   ! Input vector
        real(kind=cp), dimension(:,:), intent(in) :: g   ! Metrics
@@ -47,5 +47,5 @@ Submodule (CFML_Maths) Norm
 
        return
     End Function Norm_R
-   
+
 End Submodule Norm

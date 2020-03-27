@@ -5,16 +5,16 @@
 !!
 Submodule (CFML_Maths) In_Limits
  Contains
- 
+
     !!----
     !!---- IN_LIMITS_I
     !!----   Logical function that is true if all the components of the vector vect
-    !!----   are within the limits:   
+    !!----   are within the limits:
     !!----          limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function In_Limits_I(v,limits,n) result(ok)    
+    Module Pure Function In_Limits_I(v,limits,n) result(ok)
        !---- Arguments ----!
        integer, dimension(:),             intent(in) :: v        ! Input Vector
        integer, dimension(:,:),           intent(in) :: limits   ! Normally (2,n)
@@ -46,16 +46,16 @@ Submodule (CFML_Maths) In_Limits
 
        return
     End Function in_limits_i
-    
+
     !!----
     !!---- IN_LIMITS_R
     !!----   Logical function that is true if all the components of the vector vect
-    !!----   are within the limits:   
+    !!----   are within the limits:
     !!----          limits(1,i)  <= vect(i) <=  limits(2,i), for all i.
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function In_Limits_R(v,limits,n) result(ok)    
+    Module Pure Function In_Limits_R(v,limits,n) result(ok)
        !---- Arguments ----!
        real(kind=cp), dimension(:),             intent(in) :: v        ! Input vector
        real(kind=cp), dimension(:,:),           intent(in) :: limits   ! Normally (2,n)
@@ -87,5 +87,5 @@ Submodule (CFML_Maths) In_Limits
 
        return
     End Function in_limits_R
-    
+
 End Submodule In_Limits

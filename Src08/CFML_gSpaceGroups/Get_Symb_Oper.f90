@@ -3,23 +3,23 @@
 !!----
 !!
 SubModule (CFML_gSpaceGroups) SPG_011
-   
-   !> Local Variable 
+
+   !> Local Variable
    real(kind=cp), parameter :: LEPS=0.0002_cp
-   
+
    Contains
-   
+
    !!----
    !!---- STRING_FROM_OP
    !!----
-   !!---- 19/04/2019 
+   !!---- 19/04/2019
    !!
    Module Function String_from_Op(Op, Strcode) Result(symb)
       !---- Arguments ----!
       type(Symm_Oper_Type),       intent(in) :: Op
       character(len=*), optional, intent(in) :: Strcode
       character(len=:), allocatable          :: symb
-      
+
       !> Init
       symb=" "
       if (present(strcode)) then
@@ -28,13 +28,13 @@ SubModule (CFML_gSpaceGroups) SPG_011
          Symb=Get_Symb_from_Mat(Op%Mat,"xyz",Op%time_inv)
       end if
    End Function String_from_Op
-   
+
    !!----
    !!----  STRING_FROM_MAT_TR_R
-   !!----     Returning a string for symmetry operators or for points, 
+   !!----     Returning a string for symmetry operators or for points,
    !!----     axes or plane give as written in fractional form
    !!----
-   !!---- 15/05/2019 
+   !!---- 15/05/2019
    !!
    Module Function String_from_MAT_TR_R(Mat,T) Result(Symb)
       !---- Arguments ----!
@@ -46,10 +46,10 @@ SubModule (CFML_gSpaceGroups) SPG_011
       character(len= 30)       :: car
       integer                  :: i,j,k, np,npp,npos
       real(kind=cp)            :: suma
-      
+
       !> Init
       symb=" "
-      
+
       npos=1
       do i=1,3
          npp=0
@@ -90,7 +90,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
                      else
                         symb(npos:)=car(1:np)//"x"
                      end if
-                  
+
                   case (2)
                      k=index(car(1:np),"/")
                      if ( k /= 0) then
@@ -100,11 +100,11 @@ SubModule (CFML_gSpaceGroups) SPG_011
                         else
                            symb(npos:)=car(1:k-1)//"y"//car(k:np)
                         end if
-                     
+
                      else
                         symb(npos:)=car(1:np)//"y"
                      end if
-                  
+
                   case (3)
                      k=index(car(1:np),"/")
                      if ( k /= 0) then
@@ -114,7 +114,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
                         else
                            symb(npos:)=car(1:k-1)//"z"//car(k:np)
                         end if
-                     
+
                      else
                         symb(npos:)=car(1:np)//"z"
                      end if
@@ -154,7 +154,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
       symb=pack_string(symb)
 
    End Function String_from_MAT_TR_R
-   
+
    !!----
    !!---- STRING_FROM_MAT_TR_I
    !!----    Obtain the Jones Faithful representation of a symmetry operator
@@ -175,7 +175,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
 
       !> Init
       symb=" "
-      
+
       do i=1,3
          sym(i)=" "
          do j=1,3
@@ -190,7 +190,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
                sym(i)=trim(sym(i))//pack_string(car)
             end if
          end do
-         
+
          if (abs(t(i)) > LEPS ) then
             car=String_Fraction_2Dig(t(i))
             sym(i)=trim(sym(i))//trim(car)
@@ -206,4 +206,4 @@ SubModule (CFML_gSpaceGroups) SPG_011
    End Function String_from_MAT_TR_I
 
 End SubModule SPG_011
-   
+

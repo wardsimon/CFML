@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-Submodule (CFML_Metrics) Niggli_Cell 
+Submodule (CFML_Metrics) Niggli_Cell
  Contains
     !!----
     !!---- NIGGLI_CELL_ABC
@@ -10,9 +10,9 @@ Submodule (CFML_Metrics) Niggli_Cell
     !!----    Calls the subroutine Niggli_Cell_Nigglimat for
     !!----    the effective calculations
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
-    Module Subroutine Niggli_Cell_ABC(VCell,Niggli_Point,Cell,Trans)    
+    Module Subroutine Niggli_Cell_ABC(VCell,Niggli_Point,Cell,Trans)
        !---- Arguments ----!
        real(kind=cp),dimension(6),              intent(in out) :: VCell
        real(kind=cp),dimension(5),    optional, intent(   out) :: Niggli_Point
@@ -36,15 +36,15 @@ Submodule (CFML_Metrics) Niggli_Cell
           else
              call Niggli_Cell_Mat(n_mat,Niggli_Point,celda)
           end if
-          
+
        else if(present(trans)) then
           call Niggli_Cell_Mat(n_mat,cell=celda,trans=trans)
-          
+
        else
           call Niggli_Cell_Mat(n_mat,cell=celda)
        end if
        if (Err_CFML%IErr /= 0) return
-       
+
        !> Reconstruct the new cell (Niggli Cell)
        VCell(1) = sqrt(n_mat(1,1))
        VCell(2) = sqrt(n_mat(1,2))
@@ -52,15 +52,15 @@ Submodule (CFML_Metrics) Niggli_Cell
        VCell(4) = acosd(n_mat(2,1)/(VCell(2)*VCell(3)))
        VCell(5) = acosd(n_mat(2,2)/(VCell(1)*VCell(3)))
        VCell(6) = acosd(n_mat(2,3)/(VCell(1)*VCell(2)))
-       
+
        !> The exactly type of cell is unknown
        if (present(cell)) then
           call Set_Crystal_Cell(Vcell(1:3),Vcell(4:6), Cell)
-       end if 
+       end if
 
        return
     End Subroutine Niggli_Cell_ABC
-    
+
     !!----
     !!---- NIGGLI_CELL_PARAMS
     !!----    Calculates the Niggli cell when the input is the list of cell parameters
@@ -68,7 +68,7 @@ Submodule (CFML_Metrics) Niggli_Cell
     !!----
     !!----    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Niggli_Cell_Params(A,B,C,Alpha,Beta,Gamma,Niggli_Point,Cell,Trans)
        !---- Arguments ----!
@@ -100,10 +100,10 @@ Submodule (CFML_Metrics) Niggli_Cell
           else
              call Niggli_Cell_Mat(n_mat,Niggli_Point,celda)
           end if
-          
+
        else if(present(trans)) then
           call Niggli_Cell_Mat(n_mat,cell=celda,trans=trans)
-          
+
        else
           call Niggli_Cell_Mat(n_mat,cell=celda)
        end if
@@ -111,21 +111,21 @@ Submodule (CFML_Metrics) Niggli_Cell
 
        a=celda%cell(1); b=celda%cell(2); c=celda%cell(3)
        alpha=celda%ang(1); beta=celda%ang(2); gamma=celda%ang(3)
-           
+
        if (present(cell)) then
           call Set_Crystal_Cell([a,b,c],[alpha,beta,gamma], Cell)
        end if
 
        return
     End Subroutine Niggli_Cell_Params
-    
+
     !!----
     !!---- NIGGLI_CELL_TYPE
     !!----    Calculates the Niggli cell when the input is an object of type Cell_Type
     !!----
     !!----    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Niggli_Cell_Type(Cell,Niggli_Point,Celln,Trans)
        !---- Arguments ----!
@@ -138,7 +138,7 @@ Submodule (CFML_Metrics) Niggli_Cell
        type(Cell_G_Type)               :: celda
        real(kind=cp), dimension(2,3)   :: n_mat
 
-       !> Init 
+       !> Init
        celda=cell
        n_mat(1,1)=Celda%GD(1,1); n_mat(1,2)=Celda%GD(2,2); n_mat(1,3)=Celda%GD(3,3)
        n_mat(2,1)=Celda%GD(2,3); n_mat(2,2)=Celda%GD(1,3); n_mat(2,3)=Celda%GD(1,2)
@@ -149,7 +149,7 @@ Submodule (CFML_Metrics) Niggli_Cell
           else
              call Niggli_Cell_Mat(n_mat,Niggli_Point,celda)
           end if
-          
+
        else if(present(trans)) then
           call Niggli_Cell_Mat(n_mat,cell=celda,trans=trans)
        else
@@ -158,15 +158,15 @@ Submodule (CFML_Metrics) Niggli_Cell
        if (Err_CFML%IErr /= 0) return
 
        call Set_Crystal_Cell(celda%cell,celda%ang,cell)
-       
+
        !> Problem with the type of celln
        if (present(celln)) then
           call Set_Crystal_Cell(celda%cell,celda%ang,celln)
        end if
-       
+
        return
     End Subroutine Niggli_Cell_Type
-    
+
     !!----
     !!---- NIGGLI_CELL_VECT
     !!----    Calculates the Niggli cell when the input is given as three vectors
@@ -174,7 +174,7 @@ Submodule (CFML_Metrics) Niggli_Cell
     !!----
     !!----    Calls the subroutine Niggli_Cell_Nigglimat for the effective calculations
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Niggli_Cell_Vect(Vec1,Vec2,Vec3,Niggli_Point,Cell,Trans)
        !---- Arguments ----!
@@ -195,11 +195,11 @@ Submodule (CFML_Metrics) Niggli_Cell
           ERR_CFML%Msg="NIGGLI_CELL@METRICS: The three input vectors aren't linearly independent!"
           return
        end if
-       
+
        n_mat(1,1)=dot_product(Vec1,Vec1)
        n_mat(1,2)=dot_product(Vec2,Vec2)
        n_mat(1,3)=dot_product(Vec3,Vec3)
-       
+
        n_mat(2,1)=dot_product(Vec2,Vec3)
        n_mat(2,2)=dot_product(Vec1,Vec3)
        n_mat(2,3)=dot_product(Vec1,Vec2)
@@ -210,32 +210,32 @@ Submodule (CFML_Metrics) Niggli_Cell
           else
              call Niggli_Cell_Mat(n_mat,Niggli_Point,celda)
           end if
-          
+
        else if(present(trans)) then
           call Niggli_Cell_Mat(n_mat,cell=celda,trans=trans)
        else
           call Niggli_Cell_Mat(n_mat,cell=celda)
        end if
        if (Err_CFML%IErr /= 0) return
-       
+
        !> We don't know which type of cell was used.
        if (present(cell)) then
-          call Set_Crystal_Cell(celda%cell,celda%ang, Cell) 
-       end if 
+          call Set_Crystal_Cell(celda%cell,celda%ang, Cell)
+       end if
 
        return
     End Subroutine Niggli_Cell_Vect
-    
+
     !!----
     !!---- NIGGLI_CELL_MAT
-    !!----    Calculates the Niggli cell when the input is the Niggli Matrix 
+    !!----    Calculates the Niggli cell when the input is the Niggli Matrix
     !!----    (part of the metrics) of a primitive cell.
-    !!----    Applies the scalar algorithm of I. Krivy and B. Gruber, 
+    !!----    Applies the scalar algorithm of I. Krivy and B. Gruber,
     !!----    Acta Cryst A32, 297 (1976)
     !!----
     !!----    If Trans is present, Cell should also be present.
     !!----
-    !!---- 10/04/2019 
+    !!---- 10/04/2019
     !!
     Module Subroutine Niggli_Cell_Mat(N_Mat,Niggli_Point,Cell,Trans)    !Scalar algorithm
        !---- Arguments ----!
@@ -254,7 +254,7 @@ Submodule (CFML_Metrics) Niggli_Cell
                                                          ! iterations are permitted. In case of exhausting
                                                          ! the iteration Err_Crys=.true. but the current
                                                          ! cell is output anyway
-       
+
        real(kind=cp), parameter       :: EPR=0.0001      !Relative epsilon
        integer, parameter             :: NUMITER=100
 
@@ -272,7 +272,7 @@ Submodule (CFML_Metrics) Niggli_Cell
        !   x <= y -> .not. y < x-e;   x >= y -> .not. x < y-e
        !   x == y -> .not. (x < y-e .or. y < x-e)
        !
-       
+
        !> Init
        A=n_mat(1,1)
        B=n_mat(1,2)
@@ -283,7 +283,7 @@ Submodule (CFML_Metrics) Niggli_Cell
        epss=epr*(A*B*C)**(1.0/6.0)
        ncount=0
        ok=.true.
-       
+
        if (present(trans)) then
           !> Construct the Celda from its Niggli parameters
           cel(1) = sqrt(A)
@@ -351,7 +351,7 @@ Submodule (CFML_Metrics) Niggli_Cell
           if (A < abs(v)-epss .or. (.not. (v < A-epss .or. A < v-epss) .and. &
               2.0*u < w-epss) .or. ( .not.( v < -A-epss .or. -A < v-epss) .and. &
               w < -epss)) then  ! A6
-             iv=1 
+             iv=1
              if( v < -epss) iv=-1
              C = A+C - v * iv
              u =  u  - w * iv
@@ -363,7 +363,7 @@ Submodule (CFML_Metrics) Niggli_Cell
           if (A < abs(w)-epss .or. ( .not. (w < A-epss .or. A < w-epss) .and. &
              2.0*u < v-epss) .or. ( .not. (w < -A-epss .or. -A < w-epss) .and. &
              v < -epss)) then  ! A7
-             iw=1 
+             iw=1
              if( w < -epss) iw=-1
              B = A+B - w * iw
              u =  u  - v * iw
@@ -378,7 +378,7 @@ Submodule (CFML_Metrics) Niggli_Cell
              v=2.0*A+v+w
              cycle
           end if
-          
+
           exit
        end do
 
@@ -409,7 +409,7 @@ Submodule (CFML_Metrics) Niggli_Cell
           ang(2) = acosd(v/(cel(1)*cel(3)*2.0))
           ang(3) = acosd(w/(cel(1)*cel(2)*2.0))
           call Set_Crystal_Cell(cel,ang, Cell)
-          
+
           if (present(trans)) then
              trm=Get_Transfm_Matrix(celda,cell)
              if (Err_CFML%IErr==0) then
@@ -422,13 +422,12 @@ Submodule (CFML_Metrics) Niggli_Cell
 
        return
     End Subroutine Niggli_Cell_Mat
-    
-End Submodule Niggli_Cell 
+
+End Submodule Niggli_Cell
 
 
 
-    
 
-    
 
-    
+
+

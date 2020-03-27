@@ -2,9 +2,9 @@
 !!----
 !!----
 SubModule (CFML_BVS_Tables) Set_Routines
-  
+
   Contains
-   
+
    !!----
    !!---- SET_ATOMIC_PROPERTIES
    !!----
@@ -15,7 +15,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
    !!---- "Practical considerations in determining bond-valence parameters"
    !!----  Structure and Bonding (2014) 158, 91-128 / DOI 10.1007/430_2013_96
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_Atomic_Properties_Table()
 
@@ -204,7 +204,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
       Ap_Table(181)=Atomic_Properties_Type(92,"U+6 ", 6, 6,238.0300, 7, 0, 3, 1.610, 0.03000)
       Ap_Table(182)=Atomic_Properties_Type(-1,"NH+1", 1, 1, 18.0400, 4, 1, 0, 2.100, 0.06993)
       Ap_Table(183)=Atomic_Properties_Type(-1,"DU-1",-1,-1,  1.0079, 1, 1, 0, 0.000, 0.00000)
-      
+
    End Subroutine Set_Atomic_Properties_Table
 
    !!----
@@ -217,7 +217,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
    !!----
    !!---- Only one anion is available (O-2) for the moment
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_BVEL_Table()
 
@@ -363,7 +363,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
    !!----
    !!----    Fills the parameters for BVS from O'Keefe, Bresse, Brown
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_BVS_Table()
 
@@ -1357,7 +1357,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
                   (/ 1.928, 1.846, 2.330, 2.480, 2.690, 2.410, 2.530, 2.670, 2.110, 2.520, 2.570, 1.790, 0.000, 0.000 /), &
                   (/ 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370, 0.370 /), &
                   (/     1,     1,     2,     2,     2,     2,     2,     2,     2,     2,     2,     2,     0,     0 /) )
-   
+
    End Subroutine Set_BVS_Table
 
    !!----
@@ -1368,7 +1368,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
    !!----    Structure and Bonding (2014) 158: 91-128
    !!----    DOI: 10.1007/430_2013_96
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_SBVS_Table()
 
@@ -2382,9 +2382,9 @@ SubModule (CFML_BVS_Tables) Set_Routines
                    (/   6.765,   7.146,   6.000,   6.000,   0.000,   6.333,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000/), &
                    (/   5.500,   5.500,   6.500,   7.000,   0.000,   7.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000,   0.000/), &
                    (/      33,      34,      34,      34,       0,      34,       0,       0,       0,       0,       0,       0,       0,       0/) )
-   
+
    End Subroutine Set_SBVS_Table
-   
+
    !!----
    !!---- SET_COMMON_OXIDATION_STATES_TABLE
    !!----
@@ -2502,7 +2502,7 @@ SubModule (CFML_BVS_Tables) Set_Routines
       Common_OxStates_Table(:,106) = [  6 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       Common_OxStates_Table(:,107) = [  7 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       Common_OxStates_Table(:,108) = [  8 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
-      
+
       return
    End Subroutine Set_Common_Oxidation_States_Table
 
@@ -2623,13 +2623,13 @@ SubModule (CFML_BVS_Tables) Set_Routines
       OxStates_Table(:,106) = [  6 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       OxStates_Table(:,107) = [  7 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       OxStates_Table(:,108) = [  8 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
-      
+
    End Subroutine Set_Oxidation_States_Table
 
    !!----
    !!---- SET_PAULING_ELECTRONEGATIVITY
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Set_Pauling_Electronegativity()
 
@@ -2744,5 +2744,5 @@ SubModule (CFML_BVS_Tables) Set_Routines
       PaulingX(107) = 0.00
       PaulingX(108) = 0.00
    End Subroutine Set_Pauling_Electronegativity
-   
-End SubModule Set_Routines 
+
+End SubModule Set_Routines

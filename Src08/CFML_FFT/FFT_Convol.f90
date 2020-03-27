@@ -1,10 +1,10 @@
 !!----
-!!---- 
+!!----
 !!----
 SubModule (CFML_FFT) FFT_Convol
   Contains
-   
-    
+
+
 
     !!----
     !!---- FUNCTION F_FFT
@@ -20,7 +20,7 @@ SubModule (CFML_FFT) FFT_Convol
     !!----    FX = F_fft(X)
     !!----     Y = F_fft(FY,"INV")
     !!----
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Module Pure Function F_FFT(Array, Mode ) Result(fft)
        !---- Arguments ----!
@@ -192,7 +192,7 @@ SubModule (CFML_FFT) FFT_Convol
     !!--..     Mathematics of Computations, Vol. 19 (apr. 1965), p. 297.
     !!--..
     !!--..
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Module Pure Subroutine Hfft(Array,Ifset,Iferr)
        !---- Arguments ----!

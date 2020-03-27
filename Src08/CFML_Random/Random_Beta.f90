@@ -29,7 +29,7 @@ SubModule (CFML_Random) RandomGen01
       real(kind=cp), save       :: d, f, h, t, c
       logical,       save       :: swap
 
-      !> Init  
+      !> Init
       fn_val=0.0_cp
       if (aa <= zero .or. bb <= zero) then
          err_cfml%Ierr=1
@@ -82,6 +82,6 @@ SubModule (CFML_Random) RandomGen01
       if (swap) fn_val = one - fn_val
 
       return
-   End Function Random_Beta 
-   
+   End Function Random_Beta
+
 End SubModule RandomGen01

@@ -16,26 +16,26 @@ Submodule (CFML_Rational) Constructor
        integer(kind=li), intent (in) :: numerator
        integer(kind=li), intent (in) :: denominator
        type(rational)                :: res
-       
+
        res = rational(numerator, denominator)
-       
+
        return
     End Function Make_Rational
-    
+
     !!----
     !!---- FUNCTION MAKE_RATIONAL_INT
     !!----
     !!---- 08/04/2019
     !!
     Module Elemental Function Make_Rational_Int(Numerator, Denominator) Result(Res)
-       !---- Arguments ----! 
+       !---- Arguments ----!
        integer, intent (in) :: numerator
        integer, intent (in) :: denominator
        type(rational)       :: res
-      
+
        res = rational(int(numerator,kind=li), int(denominator,kind=li))
-       
+
        return
     End Function Make_Rational_Int
-    
-End Submodule Constructor 
+
+End Submodule Constructor

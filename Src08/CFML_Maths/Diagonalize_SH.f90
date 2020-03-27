@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Maths) Diagonalize_SH
  Contains
- 
+
     !!--++ SUBROUTINE DIAGONALIZE_HERM
     !!--++
     !!--++    (OVERLOADED)
@@ -15,7 +15,7 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!--++
     !!--++ Update: February - 2005, January -2018 (JRC)
     !!
-    Module Subroutine Diagonalize_Herm(a,n,e_val,e_vect,norder)    
+    Module Subroutine Diagonalize_Herm(a,n,e_val,e_vect,norder)
        !---- Arguments ----!
        complex(kind=cp),           dimension(:,:), intent( in)  :: A
        integer,                                    intent( in)  :: n
@@ -57,7 +57,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_Herm
-    
+
     !!----
     !!---- DIAGONALIZE_SYMM
     !!----
@@ -66,9 +66,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    The eigen_values E_val are sorted in descending order if 'norder' is not present.
     !!----    The columns of E_vect are the corresponding eigenvectors.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Subroutine Diagonalize_Symm(A,n,E_Val,E_vect,norder)    
+    Module Subroutine Diagonalize_Symm(A,n,E_Val,E_vect,norder)
        !---- Arguments ----!
        real(kind=cp),           dimension(:,:), intent( in)  :: A
        integer,                                 intent( in)  :: n
@@ -82,7 +82,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        !> Init
        e_val=0.0_cp
-       
+
        if (n > size(A,1) .or. n > size(A,2)) then
           err_cfml%Ierr=1
           err_cfml%msg="MATHS@DIAGONALIZE_SYMM: Error in dimension of input matrix: A(m,m) with m < n"
@@ -103,7 +103,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_Symm
-    
+
     !!----
     !!---- DIAGONALIZE_PR_Tqli1
     !!----
@@ -117,9 +117,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    output e is destroyed.
     !!----    In TLQ1 only the eigenvalues are calculated
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Subroutine Diagonalize_PR_Tqli1(d,e,n)    
+    Module Subroutine Diagonalize_PR_Tqli1(d,e,n)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in out):: d, e ! d(np),e(np)
        integer,                     intent(in )   :: n
@@ -192,7 +192,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_PR_Tqli1
-    
+
     !!----
     !!---- DIAGONALIZE_PR_TqlI2
     !!----
@@ -211,9 +211,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    column of Z returns the mormalized eigenvector corresponding to
     !!----    D(k).
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Subroutine Diagonalize_PR_Tqli2(d,e,n,z)    
+    Module Subroutine Diagonalize_PR_Tqli2(d,e,n,z)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
        integer,                       intent(in )    :: n
@@ -295,8 +295,8 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_PR_Tqli2
-    
-    !!---- 
+
+    !!----
     !!---- DIAGONALIZE_PR_TRED1
     !!----
     !!----    (PRIVATE)
@@ -308,9 +308,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    In tred1 several lines have been deleted and A contains no
     !!----    useful information on output.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_PR_Tred1(a,n,d,e)    
+    Module Pure Subroutine Diagonalize_PR_Tred1(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -375,7 +375,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_PR_Tred1
-    
+
     !!----
     !!---- DIAGONALIZE_PR_TRED2
     !!----
@@ -387,9 +387,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    the transformation. D returns the diagonal elements of the tri-
     !!----    diagonal matrix and E the off-diagonal elements with E(1)=0.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_PR_Tred2(a,n,d,e)    
+    Module Pure Subroutine Diagonalize_PR_Tred2(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -466,10 +466,10 @@ Submodule (CFML_Maths) Diagonalize_SH
                 end do
              end do
           end if
-          
+
           !> ... to here when finding only eigenvalues.
           d(i)=a(i,i)
-          
+
           !> also delete lines from here ...
           a(i,i)=1.0
           do j=1,l
@@ -481,7 +481,7 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_PR_Tred2
-    
+
     !!----
     !!---- DIAGONALIZE_EIGENVSORT
     !!----
@@ -492,9 +492,9 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----    insertion. If io=0 order  only the eigenvalues are treated.
     !!----    Adapted from Numerical Recipes. Valid for hermitian matrices
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_EigenvSort(d,v,n,io)    
+    Module Pure Subroutine Diagonalize_EigenvSort(d,v,n,io)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in out) :: d
        real(kind=cp), dimension(:,:), intent(in out) :: v
@@ -529,15 +529,15 @@ Submodule (CFML_Maths) Diagonalize_SH
 
        return
     End Subroutine Diagonalize_EigenvSort
-    
+
     !!----
     !!---- ORIENT_EIGENVECTORS
-    !!----    re-orders eigenvectors and their eigenvalues so that #1 is close to +X of 
+    !!----    re-orders eigenvectors and their eigenvalues so that #1 is close to +X of
     !!----    Cartesian, etc
     !!----
     !!----    Written 2/2019 RJA
     !!----
-    !!---- 19/04/2019 
+    !!---- 19/04/2019
     !!
     Module Pure Subroutine Orient_Eigenvectors(eval,evec)
        !---- Arguments ----!
@@ -547,12 +547,12 @@ Submodule (CFML_Maths) Diagonalize_SH
        !---- Local Variables ----!
        integer :: i,j,s
        real(kind=cp),dimension(3)     :: val,t
-       real(kind=cp),dimension(3,3)   :: vec    
+       real(kind=cp),dimension(3,3)   :: vec
 
        !> working copy
        val=eval
        vec=evec
-    
+
        !> do sort by copy from vec back to evec
        do j=1,3
           t(1:3)=abs(vec(j,1:3))          ! find evector with largest component along Cart axis j, allow for evec parallel to -ve cart axis
@@ -561,8 +561,8 @@ Submodule (CFML_Maths) Diagonalize_SH
           eval(j)=val(i)
           evec(1:3,j)=s*vec(1:3,i)
        end do
-    
+
        return
     End Subroutine Orient_Eigenvectors
- 
+
 End Submodule Diagonalize_SH

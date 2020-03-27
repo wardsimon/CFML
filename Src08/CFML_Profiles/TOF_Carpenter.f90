@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) TOF_001
    !!----    Calculate de Profile of TOF according to Carpenter
    !!--..    Author:Laurent C Chapon
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Subroutine Tof_Carpenter(Dt,D,Alfa,Beta,Gamma,Eta,Kappa,Tof_Theta,Tof_Peak,Deriv)
       !---- Arguments ----!
@@ -39,7 +39,7 @@ SubModule (CFML_Profiles) TOF_001
 
       !> Definitions of all parameters for the Gaussian part :
       !> Define sigma with respect to gamma (sigma is the variance of sigma)
-      sigma=gamma*gamma*INV_8LN2   
+      sigma=gamma*gamma*INV_8LN2
       lambda=d*tof_theta
       R=exp(-81.799_dp/(kappa*lambda*lambda))
       deno=SQRT(2.0_dp*sigma)
@@ -244,5 +244,5 @@ SubModule (CFML_Profiles) TOF_001
 
       return
    End Subroutine Tof_Carpenter
-   
+
 End SubModule TOF_001

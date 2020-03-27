@@ -4,7 +4,7 @@
 !!----
 !!
 SubModule (CFML_Rational) RatRowEchelonForm
- 
+
  Contains
    !!----
    !!---- RATIONAL_ROWECHELONFORM_M
@@ -25,7 +25,7 @@ SubModule (CFML_Rational) RatRowEchelonForm
       nrow    = size(M,1)
       ncolumn = size(M,2)
       allocate(row(ncolumn))
-      
+
       r = 1  ! index for rows
       c = 1  ! index for columns
       do
@@ -49,9 +49,9 @@ SubModule (CFML_Rational) RatRowEchelonForm
                   M(j,:) = row(:)
                end if
             end do
-            
+
             if ( M(r,c) < (0//1) ) M(r,:) = -M(r,:)
-            
+
             cleared = .true.
             do i = r + 1 , nrow
                a = M(i,c)/M(r,c)
@@ -73,7 +73,7 @@ SubModule (CFML_Rational) RatRowEchelonForm
    !!----
    !!---- RATIONAL_ROWECHELONFORM_MT
    !!----
-   !!---- 08/04/2019 
+   !!---- 08/04/2019
    !!
    Module Pure Subroutine Rational_RowEchelonForm_MT(M,T)
       !---- Arguments ----!
@@ -123,12 +123,12 @@ SubModule (CFML_Rational) RatRowEchelonForm
                   T(j,:)  = Trow(:)
                end if
             end do
-           
+
             if ( M(r,c) < (0//1) ) then
                M(r,:) = - M(r,:)
                T(r,:) = - T(r,:)
             end if
-           
+
             cleared = .true.
             do i = r + 1 , nrow
                 a = M(i,c)/M(r,c)
@@ -147,9 +147,9 @@ SubModule (CFML_Rational) RatRowEchelonForm
          end if
       end do
 
-      return 
+      return
    End Subroutine Rational_RowEchelonForm_MT
-   
+
    !!----
    !!---- RATIONAL_SMITHNORMALFORM
    !!----
@@ -160,12 +160,12 @@ SubModule (CFML_Rational) RatRowEchelonForm
       type(rational), dimension(:,:), intent(in)  :: M     ! M(NR,NC)
       type(rational), dimension(:,:), intent(out) :: D     ! D(NR,NC)
       type(rational), dimension(:,:), intent(out) :: P     ! P(NR,NR)
-      type(rational), dimension(:,:), intent(out) :: Q     ! Q(NC,NC) 
+      type(rational), dimension(:,:), intent(out) :: Q     ! Q(NC,NC)
 
       !---- Local variables ----!
       integer                                        :: nr,nc,ndiag
       type(rational), dimension(size(M,2),size(M,1)) :: Dt
-      
+
       !> Init
       nr=size(M,1)
       nc=size(M,2)
@@ -195,8 +195,8 @@ SubModule (CFML_Rational) RatRowEchelonForm
       end do
 
       Q=transpose(Q)
-      
+
       return
    End Subroutine Rational_SmithNormalForm
- 
+
 End SubModule RatRowEchelonForm

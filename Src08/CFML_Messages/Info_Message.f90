@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_Messages) Infos
    Contains
-   
+
    !!----
    !!---- Info_Message
    !!----
    !!----    Print an message on the screen or in "Iunit" if present
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Info_Message(Mess, iunit)
       !---- Arguments ----!
@@ -22,5 +22,5 @@ SubModule (CFML_Messages) Infos
       write(unit=lun,fmt="(a)") " => "//Mess
 
    End Subroutine Info_Message
-   
-End SubModule Infos   
+
+End SubModule Infos

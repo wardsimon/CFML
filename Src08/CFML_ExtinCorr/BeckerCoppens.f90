@@ -4,7 +4,7 @@
 !!----
 SubModule (CFML_ExtinCorr) Beck_Copp
    Contains
-   
+
    !!----
    !!---- BECKER_COPPENS
    !!----
@@ -24,18 +24,18 @@ SubModule (CFML_ExtinCorr) Beck_Copp
    !!----
    !!----    The free parameters of the model are "r" and "g"
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Becker_Coppens(iext,f2,cext,r,g,ys,dydr,dydg)
-      !---- Arguments ----! 
-      integer,                     intent (in) :: iext       !2: Gaussian, 3: Lorentzian                      
-      real(kind=cp),               intent (in) :: f2         !Square of structure factor                      
-      real(kind=cp), dimension(4), intent (in) :: cext       !coefficients for Becker-Coppens correction      
-      real(kind=cp),               intent (in) :: r,g        !Radius of blocks, width of mosaic distribution  
-      real(kind=cp),               intent(out) :: ys         !Extinction correction factor: Icorr = I.ys      
-      real(kind=cp), optional,     intent(out) :: dydr       !Derivative of "ys" w.r.t "r"                    
-      real(kind=cp), optional,     intent(out) :: dydg       !Derivative of "ys" w.r.t "g"                    
-      
+      !---- Arguments ----!
+      integer,                     intent (in) :: iext       !2: Gaussian, 3: Lorentzian
+      real(kind=cp),               intent (in) :: f2         !Square of structure factor
+      real(kind=cp), dimension(4), intent (in) :: cext       !coefficients for Becker-Coppens correction
+      real(kind=cp),               intent (in) :: r,g        !Radius of blocks, width of mosaic distribution
+      real(kind=cp),               intent(out) :: ys         !Extinction correction factor: Icorr = I.ys
+      real(kind=cp), optional,     intent(out) :: dydr       !Derivative of "ys" w.r.t "r"
+      real(kind=cp), optional,     intent(out) :: dydg       !Derivative of "ys" w.r.t "g"
+
       !---- Local variables ----!
       real(kind=cp) :: a, b, c, d, h, factor, x, x2, xx, c4, yy, der
 
@@ -51,7 +51,7 @@ SubModule (CFML_ExtinCorr) Beck_Copp
       else if(iext == 3) then     !Lorentzian
          d=1.0/(1.0+a/c)
       end if
-      
+
       x=b*a*d
       x2=2.0*x
       xx=x*x
@@ -68,7 +68,7 @@ SubModule (CFML_ExtinCorr) Beck_Copp
          dydr = der * x*(1.0-a*d*factor)/r
          dydg = der * 1.5*factor*x*d*a/c
       end if
-       
+
    End Subroutine Becker_Coppens
-    
-End SubModule Beck_Copp   
+
+End SubModule Beck_Copp

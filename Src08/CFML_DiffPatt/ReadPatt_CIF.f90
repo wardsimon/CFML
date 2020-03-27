@@ -5,14 +5,14 @@
 !!
 SubModule (CFML_DiffPatt) RPatt_CIF
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_CIF
    !!--++
    !!--++    (PRIVATE)
    !!--++    Read a pattern from a CIF file
    !!--++
-   !!--++ 30/04/2019 
+   !!--++ 30/04/2019
    !!
    Module Subroutine Read_Pattern_CIF(Filename,Pat)
       !---- Arguments ----!
@@ -64,7 +64,7 @@ SubModule (CFML_DiffPatt) RPatt_CIF
       end if
 
       allocate(file_lines(nlines))
-      line_block_id=0; line_probe=0; line_loop=0; line_point_id=0; 
+      line_block_id=0; line_probe=0; line_loop=0; line_point_id=0;
       line_npoints=0; line_start_data=0
 
       rewind(unit=i_dat)
@@ -82,8 +82,8 @@ SubModule (CFML_DiffPatt) RPatt_CIF
          Err_CFML%IErr=1
          Err_CFML%Msg="Read_Pattern_CIF@DIFFPATT: No line with the number of points in the pattern!"
          return
-      end if   
-      
+      end if
+
       read(unit=file_lines(line_npoints)(27:),fmt=*,iostat=ier) pat%npts
       if (ier /= 0) then
          Err_CFML%IErr=1
@@ -182,5 +182,5 @@ SubModule (CFML_DiffPatt) RPatt_CIF
             write(unit=pat%title(i+2:),fmt="(a,g12.4)") "  Chi2(free) = ",chi2
       end select
    End Subroutine Read_Pattern_CIF
-   
-End SubModule RPatt_CIF   
+
+End SubModule RPatt_CIF

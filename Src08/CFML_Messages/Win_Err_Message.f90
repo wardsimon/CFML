@@ -5,13 +5,13 @@
 !!----
 SubModule (CFML_Messages) Errors
    Contains
-   
+
    !!----
    !!---- ERROR_MESSAGE
    !!----
    !!---- Print an error message on the screen and in "Iunit" if present
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
       !---- Arguments ----!
@@ -28,11 +28,11 @@ SubModule (CFML_Messages) Errors
          write(unit=iunit,fmt="(tr1,a)") "**** ERROR: "//trim(Mess)
          write(unit=iunit,fmt="(tr1,a)") "****"
          write(unit=iunit,fmt="(tr1,a)") " "
-         
+
          If (Present(Routine)) Then
             Write(Unit = iunit, Fmt = "(tr1,a)") "**** PROCEDURE: "//trim(Routine)
          End If
-         
+
          If (Present(Fatal)) Then
             If (Fatal) Then
                write(unit=iunit,fmt="(tr1,a)") " "
@@ -44,6 +44,6 @@ SubModule (CFML_Messages) Errors
 
       return
    End Subroutine Error_Message
-   
-   
-End SubModule Errors   
+
+
+End SubModule Errors

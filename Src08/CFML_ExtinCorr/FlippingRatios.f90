@@ -4,7 +4,7 @@
 !!----
 SubModule (CFML_ExtinCorr) FlippingRat
    Contains
-   
+
    !!----
    !!---- CORRECT_FLIPPINGRATIOS
    !!----
@@ -47,16 +47,16 @@ SubModule (CFML_ExtinCorr) FlippingRat
       dymag= 0.0_cp
       derivatives=present(dyp) .and. present(dym) .and. present(dypm) .and. present(dymag)
       if (nint(sum(abs(hkl(:)))) == 0 ) return
-      
+
       !>  Extinction corrections
       a = lambda**2
-      
+
       !> s2=sin^2(theta)
       s2=ssnn*a
-      
+
       !> a=Lambda^3
       a=a*lambda
-      
+
       !> sin(2theta)
       sin2t=2.0_cp*sqrt(s2*(1.0_cp-s2))
 
@@ -66,7 +66,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
             f2= AN**2+BN**2+ Q*(2.0*(AN*AM+BN*BM)+(AM**2+BM**2))
             b = cst*f2*a/sin2t
             c = 1.0_cp + b * extc(1)
-   
+
             !          if (c > 0) &
             yp=1.0/SQRT(c)
             if (derivatives) then
@@ -76,7 +76,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
                   dymag(2)= (yp**3-yp)*Q*(BN+BM)/f2
                end if
             end if
-            
+
             ! ym: f2=AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
             f2= AN**2+BN**2-Q*(2.0*(AN*AM+BN*BM)-(AM**2+BM**2))
             b = cst*f2*a/sin2t
@@ -96,7 +96,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
             f2= (1.0_cp-Q)*Q*(AM**2+BM**2)
             b = cst*f2*a/sin2t
             c = 1.0_cp + b * extc(1)
-   
+
             !
             ypm=1.0_cp/SQRT(c)
             if (derivatives) then
@@ -104,7 +104,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
                if (abs(f2) > epsil) then
                   dymag(5)= (yp**3-yp)*(1.0-Q)*Q*AM/f2
                   dymag(6)= (yp**3-yp)*(1.0-Q)*Q*BM/f2
-               end if 
+               end if
             end if
 
          Case(2,3)  !Gaussian/Lorentzian Becker-Coppens extinction correction
@@ -127,7 +127,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
             end if
 
             ! ym: f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
-            f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)  
+            f2= AN*AN+BN*BN- 2.0*q*(AN*AM+BN*BM)+q*(AM*AM+BM*BM)
             if (derivatives) then
                call Becker_Coppens (iext,f2,cext,r,g,ym,dydr,dydg)
                dym(1)= dydr   !Derivative of Y w.r.t. r: Dy/Dr
@@ -185,7 +185,7 @@ SubModule (CFML_ExtinCorr) FlippingRat
                   dymag(3:4)= -ym**3* b*r/f2*(/AM-AN*q + q*AM, BM-BN*q +q*BM/)
                end if
             end if
-           
+
             ! ypm: f2= (1.0-q)*q*(AM**2+BM**2)
             f2= (1.0-q)*q*(AM**2+BM**2)
             b = 0.001*f2*a/sin2t    !b = 0.000001*ff(nn,n_pat)*a/sin2t
@@ -199,9 +199,9 @@ SubModule (CFML_ExtinCorr) FlippingRat
                   dymag(3:4)= -ypm**3* b*r/f2*(/(1.0 -q) * q * AM, (1.0 -q) * q * BM /)
                end if
             end if
-         
+
       End Select
-      
-   End Subroutine Correct_FlippingRatios 
-   
-End SubModule FlippingRat  
+
+   End Subroutine Correct_FlippingRatios
+
+End SubModule FlippingRat

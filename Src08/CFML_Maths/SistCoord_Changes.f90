@@ -10,9 +10,9 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----    Determine the Cartesian coordinates from spherical coordinates.
     !!----    Theta is the azimutal angle
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)   
+    Module Pure Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent( in) :: SphCoord ! Coordinates (R,Theta;Phi)
        character(len=*), optional,  intent( in) :: mode     ! If "D" the angles are in degrees, otherwise radians is considered
@@ -35,14 +35,14 @@ Submodule (CFML_Maths) CFML_Math_011
 
        return
     End Function Get_Cart_from_Spher
-    
+
     !!----
     !!---- GET_CART_FROM_CYLIN
     !!----    Determine the Cartesian coordinates from cylindrical coordinates.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)   
+    Module Pure Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent( in) ::  CilCoord ! Coordinates rho,phi,zeta
        character(len=*), optional,  intent( in) ::  mode     ! "D" angles in degrees, otherwise in radians
@@ -61,14 +61,14 @@ Submodule (CFML_Maths) CFML_Math_011
 
        return
     End Function Get_Cart_from_Cylin
-    
+
     !!----
     !!---- GET_CYLIN_FROM_CART
     !!----    Determine the cylindrical coordinates from Cartesian coordinates.
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)    
+    Module Pure Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3),intent(in) ::  CarCoord   ! Cartesian coordinatates
        character(len=*), optional, intent(in) ::  mode
@@ -96,14 +96,14 @@ Submodule (CFML_Maths) CFML_Math_011
 
        return
     End Function Get_Cylin_from_Cart
-    
+
     !!----
     !!---- GET_SPHER_FROM_CART
     !!----    Determine the spheric coordinates from rectangular coordinates
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)    
+    Module Pure Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: CarCoord ! Cartesian
        character(len=*), optional,  intent(in) :: mode
@@ -117,7 +117,7 @@ Submodule (CFML_Maths) CFML_Math_011
           SphCoord(1)=SphCoord(1)+CarCoord(j)*CarCoord(j)
        end do
        SphCoord(1)=sqrt(SphCoord(1))
-       
+
        if (SphCoord(1) > 0.0_cp) then
           SphCoord(2)=CarCoord(3)/SphCoord(1)
           if (abs(SphCoord(2)) > 1.0_cp) then
@@ -142,57 +142,57 @@ Submodule (CFML_Maths) CFML_Math_011
 
        return
     End Function Get_Spher_from_Cart
- 
+
     !!----
     !!---- GET_SPHER_FROM_CYLIN
     !!----    Determine the spheric coordinates from cylinder coordinates
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)    
+    Module Pure Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: CilCoord ! Cylinder
        character(len=*), optional,  intent(in) :: mode
        real(kind=cp), dimension(3)             :: SphCoord ! Spherical
 
        !---- Local Variables ----!
-       real(kind=cp), dimension(3) :: CarCoord 
+       real(kind=cp), dimension(3) :: CarCoord
 
-       if (present(mode)) then 
-          CarCoord=Get_Cart_from_Cylin(CilCoord,mode) 
+       if (present(mode)) then
+          CarCoord=Get_Cart_from_Cylin(CilCoord,mode)
           SphCoord=Get_Spher_from_Cart(CarCoord,mode)
        else
           CarCoord=Get_Cart_from_Cylin(CilCoord)
           SphCoord=Get_Spher_from_Cart(CarCoord,mode)
-       end if   
+       end if
 
        return
-    End Function Get_Spher_from_Cylin   
-    
+    End Function Get_Spher_from_Cylin
+
     !!----
     !!---- GET_CYLIN_FROM_SPHER
     !!----    Determine the spheric coordinates from cylinder coordinates
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)    
+    Module Pure Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: SphCoord ! Cylinder
        character(len=*), optional,  intent(in) :: mode
        real(kind=cp), dimension(3)             :: CilCoord ! Spherical
 
        !---- Local Variables ----!
-       real(kind=cp), dimension(3) :: CarCoord 
+       real(kind=cp), dimension(3) :: CarCoord
 
-       if (present(mode)) then 
-          CarCoord=Get_Cart_from_Spher(SphCoord,mode) 
+       if (present(mode)) then
+          CarCoord=Get_Cart_from_Spher(SphCoord,mode)
           CilCoord=Get_Cylin_from_Cart(CarCoord,mode)
        else
-          CarCoord=Get_Cart_from_Spher(SphCoord,mode) 
-          CilCoord=Get_Cylin_from_Cart(CarCoord,mode) 
-       end if   
+          CarCoord=Get_Cart_from_Spher(SphCoord,mode)
+          CilCoord=Get_Cylin_from_Cart(CarCoord,mode)
+       end if
 
        return
-    End Function Get_Cylin_from_Spher 
+    End Function Get_Cylin_from_Spher
 
 End Submodule CFML_Math_011

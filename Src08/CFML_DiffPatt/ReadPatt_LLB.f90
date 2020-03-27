@@ -1,12 +1,12 @@
 SubModule (CFML_DiffPatt) RPatt_LLB
- 
+
  Contains
     !!--++
     !!--++ READ_PATTERN_G41
     !!--++
     !!--++    Read a pattern for G41
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_G41(Filename,Pat)
        !---- Arguments ----!
@@ -30,7 +30,7 @@ SubModule (CFML_DiffPatt) RPatt_LLB
           Err_CFML%Msg="Read_Pattern_G41@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -38,7 +38,7 @@ SubModule (CFML_DiffPatt) RPatt_LLB
           Err_CFML%Msg="Read_Pattern_G41@DIFFPATT: Problems opening the file: "//trim(filename)
           return
        end if
-       
+
        read(unit=i_dat,fmt="(A)",iostat=ier) txt1                  !1
        pat%title=txt1
        if (ier /= 0 ) then
@@ -63,7 +63,7 @@ SubModule (CFML_DiffPatt) RPatt_LLB
           close(unit=i_dat)
           return
        end if
-       
+
        do
          read(unit=i_dat,fmt="(A)",iostat=ier) txt3
          txt3=adjustl(txt3)
@@ -113,7 +113,7 @@ SubModule (CFML_DiffPatt) RPatt_LLB
              close(unit=i_dat)
              return
           end if
-          
+
           cnorm=0.0_cp
           do i=1,pat%npts
              pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
@@ -133,12 +133,12 @@ SubModule (CFML_DiffPatt) RPatt_LLB
              pat%x(i)= pat%xmin+(i-1)*step
           end do
        end if                        !IVARI
-       
+
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        !> Close unit
        close(unit=i_dat)
     End Subroutine Read_Pattern_G41
- 
-End SubModule RPatt_LLB 
+
+End SubModule RPatt_LLB

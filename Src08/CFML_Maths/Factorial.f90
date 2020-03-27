@@ -4,15 +4,15 @@
 !!----
 !!
 Submodule (CFML_Maths) Factorial
- 
+
  Contains
     !!----
     !!---- FACTORIAL_I
     !!----    Factorial of N.  The value returned is an integer
     !!----
-    !!---- 27/03/2019 
+    !!---- 27/03/2019
     !!
-    Module Elemental Function Factorial_I(N) Result(fact)    
+    Module Elemental Function Factorial_I(N) Result(fact)
        !---- Argument ----!
        integer, intent(in) :: N        ! Factorial of N
        integer             :: Fact
@@ -23,7 +23,7 @@ Submodule (CFML_Maths) Factorial
 
        !> Init
        fact=0
-       
+
        !> Check the current limits
        if ( n > N_LIM) return
 
@@ -38,14 +38,14 @@ Submodule (CFML_Maths) Factorial
 
        return
     End Function Factorial_I
-    
+
     !!----
     !!---- FACTORIAL_R
-    !!----    Factorial of N. 
+    !!----    Factorial of N.
     !!----
-    !!---- 27/03/2019 
+    !!---- 27/03/2019
     !!
-    Module Elemental Function Factorial_R(N) Result(Fact)    
+    Module Elemental Function Factorial_R(N) Result(Fact)
        !---- Arguments ----!
        integer,        intent(in) :: N      ! Factorial of N
        real(kind=cp)              :: Fact
@@ -55,7 +55,7 @@ Submodule (CFML_Maths) Factorial
 
        !> Init
        Fact=0.0_cp
-       
+
        if (n == 0) then
           Fact = 1.0_cp
        else
@@ -67,5 +67,5 @@ Submodule (CFML_Maths) Factorial
 
        return
     End Function Factorial_R
-    
+
 End Submodule Factorial

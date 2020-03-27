@@ -5,17 +5,17 @@
 !!
 Submodule (CFML_Maths) Sort
  Contains
- 
-    
- 
+
+
+
     !!----
     !!---- SORT_I
     !!----    Sort an array such the arr(indx(j)) is in ascending
     !!----    order for j=1,2,...,N.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Function Sort_I(arr,n) Result(indx)    
+    Module Function Sort_I(arr,n) Result(indx)
        !---- Arguments ----!
        integer, dimension(:), intent(in ) :: arr       ! Vector
        integer              , intent(in ) :: n         ! Dimension
@@ -117,17 +117,17 @@ Submodule (CFML_Maths) Sort
 
        return
     End Function Sort_I
- 
-    !!---- 
+
+    !!----
     !!---- SORT_R
     !!----
     !!----    (OVERLOADED)
     !!----    Sort an array such the arr(indx(j)) is in ascending
     !!----    order for j=1,2,...,N.
     !!----
-    !!---- 03/04/2019 
+    !!---- 03/04/2019
     !!
-    Module Function Sort_R(arr,n) Result(indx)    
+    Module Function Sort_R(arr,n) Result(indx)
        !---- Arguments ----!
        real(kind=cp),dimension(:), intent(in) :: arr       ! Input Vector
        integer,                    intent(in) :: n         ! Dimension
@@ -228,5 +228,5 @@ Submodule (CFML_Maths) Sort
 
        return
     End Function Sort_R
- 
+
 End Submodule Sort

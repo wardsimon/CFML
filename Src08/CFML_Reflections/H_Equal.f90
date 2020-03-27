@@ -15,7 +15,7 @@ SubModule (CFML_Reflections) RFL_001
       integer, dimension(:), intent(in) :: h
       integer, dimension(:), intent(in) :: k
       logical                           :: info
-      
+
       !---- Local Variables ----!
       integer :: i
 
@@ -28,5 +28,5 @@ SubModule (CFML_Reflections) RFL_001
          end if
       end do
    End Function H_Equal
-   
-End SubModule RFL_001   
+
+End SubModule RFL_001

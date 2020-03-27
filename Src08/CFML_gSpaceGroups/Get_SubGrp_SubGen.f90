@@ -14,9 +14,9 @@ Submodule (CFML_gSpaceGroups) SPG_023
       type(Spg_Type),dimension(:),       intent(out) :: SubG
       integer,                           intent(out) :: nsg
       integer,                  optional,intent(in)  :: indexg
-      
+
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng       
+      integer  :: i,L,j,k,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng
       character (len=40), dimension(:),allocatable :: gen,gen_min
       character (len=40), dimension(30)            :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
@@ -30,16 +30,16 @@ Submodule (CFML_gSpaceGroups) SPG_023
          SubG(1)=SpG
          nsg=0
          return
-      end if   
-      
+      end if
+
       !> Test if generators are available
       !> construct a procedure for selecting the minimal set of generators
-      if (len_trim(SpG%generators_list) ==  0) then 
+      if (len_trim(SpG%generators_list) ==  0) then
          Err_CFML%Ierr = 1
          Err_CFML%Msg  = "Get_Subgroups_Subgen@SPACEG: A list of generators of the parent group is needed!"
          return
       end if
-       
+
       maxg=size(SubG)
       allocate(gen(SpG%multip))
       d=SpG%d
@@ -52,7 +52,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
          call Allocate_Op(SpG%d,Op_cent)
          Op_cent=SpG%Op(nc)  !Operator corresponding to the centre of symmetry
       end if
-      
+
       nla=0
       if (SpG%num_lat > 0) then
          do i=1,SpG%num_lat
@@ -62,11 +62,11 @@ Submodule (CFML_gSpaceGroups) SPG_023
          end do
          nla=ng
       end if
-       
-      !> Formation of the list of possible generators extracted from list of generators of 
+
+      !> Formation of the list of possible generators extracted from list of generators of
       !> the input Group
       call Get_Generators(SpG%generators_list,d,gen_min, ngen)
-      
+
       !>Purge the list of operators eliminating centre of symmetry and Lattice Translations
       n=0
       ng=ngen
@@ -103,7 +103,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
             end do
          end do
       end if
-      
+
       if (ngen >= 2) then
          do i=1,ngen-1
             do j=i+1,ngen
@@ -112,7 +112,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
             end do
          end do
       end if
-      
+
       if (ngen >= 1) then
          do i=1,ngen
             L=L+1
@@ -120,7 +120,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
          end do
       end if
       mp=L
-      
+
       if (SpG%num_lat > 0)  then
          do j=1,SpG%num_lat
             do i=1,mp
@@ -152,5 +152,5 @@ Submodule (CFML_gSpaceGroups) SPG_023
       end do
       nsg=n
    End Subroutine Get_SubGroups_Subgen
-    
-End Submodule SPG_023   
+
+End Submodule SPG_023

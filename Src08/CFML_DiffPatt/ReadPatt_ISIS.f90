@@ -11,7 +11,7 @@ SubModule (CFML_DiffPatt) RPatt_ISIS
     !!--++
     !!--++    Read a powder pattern from ISIS
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_Isis_m(Filename, VPat, NPat)
        !---- Arguments ----!

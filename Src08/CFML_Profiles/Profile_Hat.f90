@@ -8,7 +8,7 @@ SubModule (CFML_Profiles) PRF_013
    !!---- FUNCTION HAT
    !!----
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Function Hat(X,Par) Result (H_Val)
       !---- Arguments ----!
@@ -29,11 +29,11 @@ SubModule (CFML_Profiles) PRF_013
 
       return
    End Function Hat
-   
+
    !!----
    !!----  HAT_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
       !---- Arguments ----!
@@ -61,6 +61,6 @@ SubModule (CFML_Profiles) PRF_013
 
       return
    End Subroutine Hat_Der
-   
-   
+
+
 End SubModule PRF_013

@@ -6,13 +6,13 @@ SubModule (CFML_DiffPatt) RPatt_NLS
    !!--++
    !!--++    Read a pattern for NLS
    !!--++
-   !!--++ 01/05/2019 
+   !!--++ 01/05/2019
    !!
    Module Subroutine Read_Pattern_NLS(Filename,Pat)
       !---- Arguments ----!
       character(len=*),    intent(in)  :: Filename      ! Path+Filename
       class(DiffPat_Type), intent(out) :: Pat
-       
+
       !---- Local Variables ----!
       character(len=132)                           :: aline
       integer                                      :: nlines,j,i,ier, no, i_dat
@@ -29,7 +29,7 @@ SubModule (CFML_DiffPatt) RPatt_NLS
          Err_CFML%Msg="Read_Pattern_NLS@DIFFPATT: The file "//trim(filename)//" doesn't exist"
          return
       end if
-          
+
       !> Open File
       open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
       if (ier /= 0 ) then
@@ -37,7 +37,7 @@ SubModule (CFML_DiffPatt) RPatt_NLS
          Err_CFML%Msg="Read_Pattern_NLS@DIFFPATT: Problems opening the file: "//trim(filename)
          return
       end if
-       
+
       title_given=.false.
 
       do
@@ -48,7 +48,7 @@ SubModule (CFML_DiffPatt) RPatt_NLS
             title_given=.true.
          end if
          if (aline(1:1) == "!") cycle
-         
+
          read(unit=aline,fmt=*,iostat=ier) pat%xmin, step, pat%xmax
          if (ier /= 0 ) then
             Err_CFML%IErr=1
@@ -81,7 +81,7 @@ SubModule (CFML_DiffPatt) RPatt_NLS
             close(unit=i_dat)
             return
          end if
-         
+
          read(unit=i_dat,fmt="(10F8.0)",iostat=ier)(pat%sigma(j+no),no=1,10)
          if (ier /= 0 ) then
             Err_CFML%IErr=1
@@ -102,8 +102,8 @@ SubModule (CFML_DiffPatt) RPatt_NLS
       end do
       pat%ymin=minval(pat%y(1:pat%npts))
       pat%ymax=maxval(pat%y(1:pat%npts))
-      
+
       close(unit=i_dat)
    End Subroutine Read_Pattern_NLS
-    
+
 End SubModule RPatt_NLS

@@ -4,14 +4,14 @@
 !!----
 !!
 Submodule (CFML_Maths) Sbm_Debye
- 
+
  Contains
-    !!---- 
+    !!----
     !!---- DEBYE
     !!----
-    !!---- 02/04/2019 
+    !!---- 02/04/2019
     !!
-    Module Function Debye(N,X) Result(Fval)    
+    Module Function Debye(N,X) Result(Fval)
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of the Debye function
        real(kind=cp), intent(in) :: X ! Value
@@ -23,35 +23,35 @@ Submodule (CFML_Maths) Sbm_Debye
        !> Init
        fval=0.0_cp
        call clear_error()
-       
+
        !> Check
        if (n <= 0) then
           Err_CFML%IErr=1
           Err_CFML%Msg="MATHS@DEBYE: The order for Debye function was ZERO!"
           return
        end if
-       
+
        !> precision
        if (CP == SP) then
           xx=dble(x)
        else
           xx=x
        end if
-       
+
        !> Calculation
        ff=Debye_DP(n,xx)
-       if (Err_CFML%Ierr /= 0) return  
-   
+       if (Err_CFML%Ierr /= 0) return
+
        !> Precision
        if (CP == SP) then
-          fval=real(ff) 
+          fval=real(ff)
        else
           fval=ff
-       end if             
-   
+       end if
+
        return
     End Function Debye
- 
+
     !!----
     !!---- DEBYE_PR_CHEBYSHEVSERIES
     !!----
@@ -60,9 +60,9 @@ Submodule (CFML_Maths) Sbm_Debye
     !!----    with Reinsch modification, as analysed in the paper by Oliver in
     !!----    J.I.M.A., vol. 20, 1977, pp379-391
     !!----
-    !!----  28/03/2019 
+    !!----  28/03/2019
     !!
-    Module Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)    
+    Module Function Debye_PR_ChebyshevSeries(n, a, t) Result(fval)
        !---- Arguments ----!
        integer,                       intent(in) :: N    ! The no. of terms in the sequence
        real(kind=dp), dimension(0:N), intent(in) :: A    ! The coefficients of the Chebyshev series
@@ -123,16 +123,16 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye_PR_ChebyshevSeries
- 
+
     !!----
     !!---- FUNCTION DEBYE_DP
     !!----    Calculates the Debye function of order N
     !!----
     !!----    If X < 0.0 then limited to |x| < 2*Pi
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Debye_DP(N,X) Result(Fval)    
+    Module Function Debye_DP(N,X) Result(Fval)
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of the Debye function
        real(kind=dp), intent(in) :: X ! Value
@@ -178,9 +178,9 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye_DP
- 
-    
- 
+
+
+
     !!----
     !!---- FUNCTION DEBYE1
     !!----    Calculates the Debye function of order 1, defined as
@@ -207,7 +207,7 @@ Submodule (CFML_Maths) Sbm_Debye
     !!----
     !!---- 28/03/2019
     !!
-    Module Function Debye1(X) Result(Fval)    
+    Module Function Debye1(X) Result(Fval)
        !---- Arguments ----!
        real(kind=dp), intent(in) :: X
        real(kind=dp)             :: fval
@@ -294,7 +294,7 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye1
- 
+
     !!----
     !!---- FUNCTION DEBYE2
     !!----    Calculates the Debye function of order 2, defined as
@@ -324,7 +324,7 @@ Submodule (CFML_Maths) Sbm_Debye
     !!----
     !!---- Update: January 2017
     !!
-    Module Function Debye2(X) Result(Fval)    
+    Module Function Debye2(X) Result(Fval)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
        real(kind=dp)             :: fval
@@ -418,7 +418,7 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye2
- 
+
     !!----
     !!---- DEBYE3
     !!----    Calculates the Debye function of order 3, defined as
@@ -446,9 +446,9 @@ Submodule (CFML_Maths) Sbm_Debye
     !!----  XLIM2: The value above which DEBYE3 = 0.0 to machine precision.
     !!----         The recommended value is CUBE ROOT(19/XMIN)
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Debye3(X) Result(Fval)    
+    Module Function Debye3(X) Result(Fval)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
        real(kind=dp)             :: fval
@@ -547,7 +547,7 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye3
- 
+
     !!----
     !!---- DEBYE4
     !!----    Calculates the Debye function of order 4, defined as
@@ -575,9 +575,9 @@ Submodule (CFML_Maths) Sbm_Debye
     !!----  XLIM2: The value above which DEBYE4 = 0.0 to machine precision.
     !!----         The recommended value is FOURTH ROOT(99/XMIN)
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function Debye4(X) Result(FVal)    
+    Module Function Debye4(X) Result(FVal)
        !---- Argument ----!
        real(kind=dp), intent(in) :: X
        real(kind=dp)             :: fval
@@ -679,16 +679,16 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function Debye4
- 
+
     !!----
     !!---- DEBYEN
     !!----    Calculates the Debye function of order N of X.
     !!----
     !!----    Limitation: |x| < 2*Pi
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Function DebyeN(n,x) Result(Fval)    
+    Module Function DebyeN(n,x) Result(Fval)
        !---- Arguments ----!
        integer,       intent(in) :: N ! Order of Debye function
        real(kind=dp), intent(in) :: X
@@ -730,5 +730,5 @@ Submodule (CFML_Maths) Sbm_Debye
 
        return
     End Function DebyeN
- 
+
 End Submodule Sbm_Debye

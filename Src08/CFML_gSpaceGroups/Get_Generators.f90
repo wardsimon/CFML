@@ -5,7 +5,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
     !!----
     !!---- Returns the generators for the space group = spaceGroupNumber
     !!----
-    !!---- 24/04/2019 
+    !!---- 24/04/2019
     !!
     Module Subroutine Get_Generators_L(laueClass,symOp,nSymOp,Gen,nGen)
         !---- Arguments ----!
@@ -23,7 +23,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
         !> Initialization
         Call Clear_Error()
-        
+
         nGen          = 0
         inversion     = 0
         call Rational_Identity_Matrix(identity)
@@ -83,7 +83,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                     end if
                  end if
               end do
-              
+
               !> Look for a possible twofold axis along [100]
               call Get_Rotations(symOp(:),nSymOp,2,n,idd)
               do i = 1 , n
@@ -108,7 +108,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                     end if
                  end if
               end do
-                
+
               !> Search for a possible twofold axis along [110] or [-110]
               call Get_Rotations(symOp(:),nSymOp,2,n,idd)
               do i = 1 , n
@@ -134,7 +134,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                      end if
                   end if
                end do
-                
+
                !> Look for a possible twofold axis along [-110] in SGtarget
                call Get_Rotations(symOp(:),nSymOp,2,n,idd)
                do i = 1 , n
@@ -159,7 +159,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                      end if
                   end if
                end do
-               
+
                if (nGen == 0) then
                   !> Search for the twofold axis along [001] in SGtarget
                   call Get_Rotations(symOp(:),nSymOp,2,n,idd)
@@ -172,7 +172,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                      end if
                   end do
                end if
-               
+
                !> Search for a threefold axis along {111} in SGtarget
                call Get_Rotations(symOp(:),nSymOp,3,n,idd)
                do i = 1 , n
@@ -198,5 +198,5 @@ SubModule (CFML_gSpaceGroups) SPG_038
            Gen(nGen) = symOp(inversion)
         end if
     End Subroutine Get_Generators_L
-    
-End SubModule SPG_038    
+
+End SubModule SPG_038

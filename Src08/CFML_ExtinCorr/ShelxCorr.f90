@@ -29,7 +29,7 @@ SubModule (CFML_ExtinCorr) SHX
 
       !> Init
       call clear_error()
-      
+
       coefa=0.001_cp
       if (job == 0 .or. job == 2 ) coefa=0.000001_cp
       if (present(der)) der=0.0_cp
@@ -54,7 +54,7 @@ SubModule (CFML_ExtinCorr) SHX
             c = 1.0_cp + b * extc(1)
             ys=1.0_cp/SQRT(c)
             if (present(der)) der(1)=-0.5_cp*c**(-1.5_cp)*b
-          
+
          Case (4)   !Anisotropic Shelx-like extinction correction
             b = coefa*f2*a/sin2t
             b = b * 0.25_cp /ssnn
@@ -73,7 +73,7 @@ SubModule (CFML_ExtinCorr) SHX
             end if
       End Select
       if (present(derf2)) derf2=g*(c-1.0_cp)/max(1.0e-6_cp,f2)
-      
+
    End Subroutine SHELX_Extinction
-    
-End SubModule  SHX  
+
+End SubModule  SHX

@@ -14,19 +14,19 @@ SubModule (CFML_gSpaceGroups) SPG_021
       class(Spg_Type),                     intent(in)  :: G  ! Group G > H
       class(Spg_Type),                     intent(in)  :: H  ! Subgroup of G
       integer, dimension(:), allocatable,  intent(out) :: cosets
-      
+
       !---- Local Variables ----!
       integer                      :: i,j,k,n,m
       character(len=80)            :: OpSymb
       type(Symm_Oper_Type)         :: Op
       integer, dimension(G%multip) :: ind
       logical, dimension(G%multip) :: done
-      logical                      :: ncent_assigned 
+      logical                      :: ncent_assigned
 
       !> Init
-      n=0; done=.false. 
+      n=0; done=.false.
       call Allocate_Op(G%d,Op)
-      
+
       do_G: do i=2, G%multip
          if (done(i)) cycle
          OpSymb=G%Symb_Op(i)
@@ -36,14 +36,14 @@ SubModule (CFML_gSpaceGroups) SPG_021
          n=n+1
          ind(n)=i
          ncent_assigned=.false.
-        
+
          !> Remove the new operators in aH from the list to be considered
          do k=2,H%multip
             Op=G%Op(i)*H%Op(k)
             do m=2,G%multip
                if (Op == G%Op(m)) then
                   done(m)=.true.
-              
+
                   if (.not. ncent_assigned) then
                      if (Is_OP_Inversion_Centre(G%Op(m))) then
                         ind(n)=m
@@ -62,5 +62,5 @@ SubModule (CFML_gSpaceGroups) SPG_021
       cosets=ind(1:n)
    End Subroutine Get_Cosets
 
-End SubModule SPG_021   
-   
+End SubModule SPG_021
+

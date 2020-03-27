@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Maths) RowEchelonForm
  Contains
- 
+
     !!----
     !!---- ROWECHELONFORMM
     !!----
@@ -18,7 +18,7 @@ Submodule (CFML_Maths) RowEchelonForm
     Module Pure Subroutine RowEchelonFormM(M)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in out) :: M
-       
+
        !---- Local Variables ----!
        integer                            :: r,c,i,j,a
        integer                            :: nrow,ncolumn
@@ -28,7 +28,7 @@ Submodule (CFML_Maths) RowEchelonForm
        nrow    = size(M,1)
        ncolumn = size(M,2)
        allocate(row(ncolumn))
-       
+
        r = 1  ! index for rows
        c = 1  ! index for columns
        do
@@ -72,7 +72,7 @@ Submodule (CFML_Maths) RowEchelonForm
        return
     End Subroutine RowEchelonFormM
 
-    !!---- 
+    !!----
     !!---- ROWECHELONFORMT
     !!----  Fortran version of RowEchelonFormT from the CrystGAP package
     !!----
@@ -83,7 +83,7 @@ Submodule (CFML_Maths) RowEchelonForm
        !---- Arguments ----!
        integer, dimension(:,:), intent(in out) :: M
        integer, dimension(:,:), intent(in out) :: T
-       
+
        !---- Local Variables ----!
        integer                            :: r,c,i,j,a
        integer                            :: nrow,ncolumn
@@ -115,7 +115,7 @@ Submodule (CFML_Maths) RowEchelonForm
              Trow(:) = T(r,:)
              T(r,:)  = T(i,:)
              T(i,:)  = Trow(:)
-             
+
              do j= i + 1 , nrow
                 a = abs(M(j,c))
                 if (a /= 0 .and. a < abs(M(r,c)) ) then
@@ -132,7 +132,7 @@ Submodule (CFML_Maths) RowEchelonForm
                 T(r,:) = -1 * T(r,:)
              end if
              cleared = .true.
-             
+
              do i= r + 1 , nrow
                 a = M(i,c)/M(r,c)
                 if (a /= 0 ) then
@@ -152,12 +152,12 @@ Submodule (CFML_Maths) RowEchelonForm
 
        return
     End Subroutine RowEchelonFormT
-    
+
     !!----
     !!---- SMITHNORMALFORM
     !!----    Compute the Smith Normal Form D of matrix M: D = PMQ
     !!----
-    !!---- 04/04/2019 
+    !!---- 04/04/2019
     !!
     Module Pure Subroutine SmithNormalForm(M,D,P,Q)
        !---- Arguments ----!
@@ -165,14 +165,14 @@ Submodule (CFML_Maths) RowEchelonForm
        integer, dimension(:,:), intent(out) :: D !(nr,nc)
        integer, dimension(:,:), intent(out) :: P !(nr,nr)
        integer, dimension(:,:), intent(out) :: Q !(nc,nc)
-       
+
        !--- Local variables ---!
        integer                                 :: i, ndiag, nr, nc
        integer, dimension(size(D,2),size(D,1)) :: Dt
-       
+
        nr=size(M,1)
        nc=size(M,2)
-       
+
        !> P and Q must be initialized to the identity matrix
        P =  0
        Q =  0
@@ -199,8 +199,8 @@ Submodule (CFML_Maths) RowEchelonForm
        end do
 
        Q = transpose(Q)
-     
+
        return
     End Subroutine SmithNormalForm
-    
+
 End Submodule RowEchelonForm

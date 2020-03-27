@@ -6,7 +6,7 @@ SubModule (CFML_Random) RandomGen07
    !!--++
    !!--++ GG_F
    !!--++
-   !!--++ 14/04/2019 
+   !!--++ 14/04/2019
    !!
    Module Function Gg_F(Methodeg) Result(Gg)
       !---- Arguments ----!
@@ -23,7 +23,7 @@ SubModule (CFML_Random) RandomGen07
          call random_number(ran1)
          call random_number(ran2)
          gg=sqrt(-2*log(ran1))*cos(dpi*ran2)
-      
+
       else if (methodeg == 3) then
          sifin=.false.
          do
@@ -45,7 +45,7 @@ SubModule (CFML_Random) RandomGen07
    !!--++
    !!--++    Poisson distribution by approx.gauss. (N(0,1) -> P(MT))
    !!--++
-   !!--++ 14/04/2019 
+   !!--++ 14/04/2019
    !!
    Module Function Gpg_F(Mt,Methodeg,Gpstab) Result(Gpg)
       !---- Arguments ----!
@@ -60,12 +60,12 @@ SubModule (CFML_Random) RandomGen07
       if (gpstab <= 0) then
          gg=gg_f(methodeg)
          x=nint(mt+sqrt(mt)*gg)
-      
+
       else if (gpstab == 1) then
          gg=gg_f(methodeg)
          x=nint((0.5_cp*gg + sqrt(mt))**2 - 0.33_cp)
       end if
-      
+
       if (x < 0) x=0
       gpg=x
 
@@ -77,7 +77,7 @@ SubModule (CFML_Random) RandomGen07
    !!--++
    !!--++    Poisson distribution by the product method
    !!--++
-   !!--++ 14/04/2019 
+   !!--++ 14/04/2019
    !!
    Module Function Gpp_F(Mt) Result(Gpp)
       !---- Arguments ----!
@@ -98,12 +98,12 @@ SubModule (CFML_Random) RandomGen07
          p=p*ran
          k=k+1
       end do
-      
+
       gpp=k
 
       return
    End Function Gpp_F
-   
+
    !!----
    !!---- RANDOM_POISSON
    !!----
@@ -158,5 +158,5 @@ SubModule (CFML_Random) RandomGen07
 
       return
    End Function Random_Poisson
-   
-End SubModule RandomGen07  
+
+End SubModule RandomGen07

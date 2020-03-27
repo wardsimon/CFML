@@ -1,12 +1,12 @@
 SubModule (CFML_DiffPatt) RPatt_PSI
- 
+
  Contains
     !!--++
     !!--++ READ_PATTERN_DMC
     !!--++
     !!--++    Read a pattern for DMC
     !!--++
-    !!--++ 01/05/2019 
+    !!--++ 01/05/2019
     !!
     Module Subroutine Read_Pattern_DMC(Filename,Pat)
        !---- Arguments ----!
@@ -18,7 +18,7 @@ SubModule (CFML_DiffPatt) RPatt_PSI
        integer                                      :: ier, i, i_dat
        logical                                      :: info
        real(kind=cp)                                :: step
-       
+
        !> Init
        call clear_error()
 
@@ -29,7 +29,7 @@ SubModule (CFML_DiffPatt) RPatt_PSI
           Err_CFML%Msg="Read_Pattern_DMC@DIFFPATT: The file "//trim(filename)//" doesn't exist"
           return
        end if
-          
+
        !> Open File
        open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
        if (ier /= 0 ) then
@@ -46,7 +46,7 @@ SubModule (CFML_DiffPatt) RPatt_PSI
           return
        end if
        pat%title=txt1
-       
+
        read(unit=i_dat,fmt="(A)",iostat=ier)txt1
        if (ier /= 0) then
           Err_CFML%IErr=1
@@ -82,10 +82,10 @@ SubModule (CFML_DiffPatt) RPatt_PSI
        end if
 
        read(unit=i_dat,fmt="(10f8.0)",iostat=ier)(pat%sigma(i),i=1,10)
-       if (ier /= 0) then      
+       if (ier /= 0) then
           !> Sigmas are not provided, assume sigma=sqrt(Y)
           pat%sigma(1:pat%npts) =sqrt(pat%y(1:pat%npts))
-          
+
        else
           backspace (unit=i_dat)
           read(unit=i_dat,fmt="(10f8.0)",iostat=ier)(pat%sigma(i),i=1,pat%npts)
@@ -101,11 +101,11 @@ SubModule (CFML_DiffPatt) RPatt_PSI
           pat%sigma(i) = pat%sigma(i)*pat%sigma(i)
           pat%x(i)= pat%xmin+(i-1)*step
        end do
-       
+
        pat%ymin=minval(pat%y(1:pat%npts))
        pat%ymax=maxval(pat%y(1:pat%npts))
-       
+
        close(unit=i_dat)
     End Subroutine Read_Pattern_DMC
- 
-End SubModule RPatt_PSI 
+
+End SubModule RPatt_PSI

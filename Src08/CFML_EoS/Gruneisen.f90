@@ -85,5 +85,5 @@ SubModule (CFML_EoS) EoS_008
 
       Grun=eospar%params(18)*VV0
    End Function Get_Grun_V
-   
-End SubModule EoS_008   
+
+End SubModule EoS_008

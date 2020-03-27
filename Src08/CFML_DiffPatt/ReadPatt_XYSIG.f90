@@ -1,7 +1,7 @@
 !!----
 SubModule (CFML_DiffPatt) RPatt_XYSIG
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_XYSIGMA
    !!--++
@@ -11,7 +11,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
    !!--++    If header is present the full header of the file is stored in
    !!--++    the hopefully long string: header
    !!--++
-   !!--++ 30/04/2019 
+   !!--++ 30/04/2019
    !!
    Module Subroutine Read_Pattern_XYSigma(Filename, Pat, PDF, Header)
       !---- Arguments ----!
@@ -66,7 +66,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
       do
          read(unit=i_dat,fmt="(a)", iostat=ier) txt1
          if (ier /= 0)   exit
-         
+
          npp=npp+1
          if (index(txt1,"#L r(A)") /= 0) then
             line_da=npp
@@ -330,5 +330,5 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
 
       close(unit=i_dat)
    End Subroutine Read_Pattern_XYSigma
-   
-End SubModule RPatt_XYSIG   
+
+End SubModule RPatt_XYSIG

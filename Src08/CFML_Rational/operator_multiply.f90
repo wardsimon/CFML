@@ -6,7 +6,7 @@ Submodule (CFML_Rational) Operator_Multiply
 
  Contains
     !!----
-    !!---- RATIONAL_MULTIPLY 
+    !!---- RATIONAL_MULTIPLY
     !!----
     !!---- 08/04/2019
     !!
@@ -15,15 +15,15 @@ Submodule (CFML_Rational) Operator_Multiply
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
        type(rational)              :: res
-      
+
        res = r%numerator * s%numerator // (r%denominator * s%denominator)
        res=rational_simplify(res)
-       
+
        return
     End Function Rational_Multiply
-    
+
     !!----
-    !!---- INTEGER_RATIONAL_MULTIPLY 
+    !!---- INTEGER_RATIONAL_MULTIPLY
     !!----
     !!---- 08/04/2019s
     !!
@@ -32,28 +32,28 @@ Submodule (CFML_Rational) Operator_Multiply
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: s
        type(rational)               :: res
-      
+
        res = i * s%numerator // s%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Integer_Rational_Multiply
 
     !!----
-    !!---- RATIONAL_INTEGER_MULTIPLY 
+    !!---- RATIONAL_INTEGER_MULTIPLY
     !!----
-    !!---- 08/04/2019 
+    !!---- 08/04/2019
     !!
     Module Elemental Function Rational_Integer_Multiply(S,I) Result(Res)
        !---- Arguments ----!
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: s
        type(rational)               :: res
-      
+
        res = i * s%numerator // s%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Rational_Integer_Multiply
-    
-End Submodule Operator_Multiply 
+
+End Submodule Operator_Multiply

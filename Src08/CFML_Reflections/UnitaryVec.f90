@@ -8,7 +8,7 @@ SubModule (CFML_Reflections) RFL_007
    !!----    Calculate a unitary vector in the cartesian crystal
    !!----    frame along a reciprocal vector hkl (reciprocal lattice)
    !!----
-   !!---- 21/06/2019 
+   !!---- 21/06/2019
    !!
    Module Function Unitary_Vector_H(H, Cell) Result (U)
       !---- Arguments ----!
@@ -23,6 +23,5 @@ SubModule (CFML_Reflections) RFL_007
       u=matmul(Cell%Cr_Orth_cel,v)  ![L-1]
       u=u/sqrt(u(1)*u(1)+u(2)*u(2)+u(3)*u(3))
    End Function Unitary_Vector_H
-      
-End SubModule RFL_007   
-   
+
+End SubModule RFL_007

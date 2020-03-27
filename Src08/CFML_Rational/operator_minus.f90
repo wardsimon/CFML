@@ -6,7 +6,7 @@ Submodule (CFML_Rational) Operator_Minus
 
  Contains
     !!----
-    !!---- RATIONAL_MINUS 
+    !!---- RATIONAL_MINUS
     !!----
     !!---- 08/04/2019
     !!
@@ -14,15 +14,15 @@ Submodule (CFML_Rational) Operator_Minus
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational)              :: res
-      
+
        res = - r%numerator // r%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Rational_Minus
-    
+
     !!----
-    !!---- RATIONAL_SUBTRACT 
+    !!---- RATIONAL_SUBTRACT
     !!----
     !!---- 08/04/2019
     !!
@@ -31,16 +31,16 @@ Submodule (CFML_Rational) Operator_Minus
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
        type(rational)              :: res
-      
+
        res = r%numerator * s%denominator - r%denominator * s%numerator // &
            & r%denominator * s%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Rational_Subtract
-    
+
     !!----
-    !!---- INTEGER_RATIONAL_SUBTRACT 
+    !!---- INTEGER_RATIONAL_SUBTRACT
     !!----
     !!---- 08/04/2019
     !!
@@ -49,15 +49,15 @@ Submodule (CFML_Rational) Operator_Minus
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: s
        type(rational)               :: res
-      
+
        res = (i * s%denominator -  s%numerator) //  s%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Integer_Rational_Subtract
-    
+
     !!----
-    !!---- RATIONAL_INTEGER_SUBTRACT 
+    !!---- RATIONAL_INTEGER_SUBTRACT
     !!----
     !!---- 08/04/2019
     !!
@@ -66,11 +66,11 @@ Submodule (CFML_Rational) Operator_Minus
        type(rational),  intent (in) :: s
        integer(kind=LI),intent (in) :: i
        type(rational)               :: res
-      
+
        res = (s%numerator - i * s%denominator) //  s%denominator
        res=rational_simplify(res)
-       
+
        return
     End Function Rational_Integer_Subtract
-    
-End Submodule Operator_Minus 
+
+End Submodule Operator_Minus

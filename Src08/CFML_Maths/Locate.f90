@@ -13,7 +13,7 @@ Submodule (CFML_Maths) Locate
     !!----
     !!----          V(J) <= X < V(J+1)
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
     Module Pure Function Locate_I(V,x,n) Result(j)
        !---- Argument ----!
@@ -25,7 +25,7 @@ Submodule (CFML_Maths) Locate
        !---- Local Variables ----!
        integer :: jl, ju, jm, i1, i2, nt
 
-       
+
        !> Limits
        i1=lbound(v,dim=1)
        i2=ubound(v,dim=1)
@@ -33,9 +33,9 @@ Submodule (CFML_Maths) Locate
           nt=i2-i1+1
           if (nt > n) then
              i2=i1+n-1
-          end if  
-       end if 
-       
+          end if
+       end if
+
        !> Init
        j=i1-1
 
@@ -44,7 +44,7 @@ Submodule (CFML_Maths) Locate
           j=i1
           return
        end if
-       
+
        if(x >= v(i2)) then
          j=i2
          return
@@ -66,7 +66,7 @@ Submodule (CFML_Maths) Locate
        return
     End Function Locate_I
 
-    !!---- 
+    !!----
     !!---- LOCATE_R
     !!----    Locate the index j of an ordered array V(:)
     !!----    satisfying:
@@ -85,16 +85,16 @@ Submodule (CFML_Maths) Locate
        !---- Local Variables ----!
        integer :: jl, ju, jm, i1,i2, nt
 
-       !> Limits       
+       !> Limits
        i1=lbound(v,dim=1)
        i2=ubound(v,dim=1)
        if (present(n)) then
           nt=i2-i1+1
           if (nt > n) then
              i2=i1+n-1
-          end if  
-       end if 
-       
+          end if
+       end if
+
        !> Init
        j=i1-1
 
@@ -103,7 +103,7 @@ Submodule (CFML_Maths) Locate
           j=i1
           return
        end if
-       
+
        if (x >= v(i2)) then
           j=i2
           return

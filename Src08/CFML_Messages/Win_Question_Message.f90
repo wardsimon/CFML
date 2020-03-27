@@ -6,7 +6,7 @@ SubModule (CFML_Messages) Question
    !!----
    !!----    Print an question on the screen
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Question_Message(Mess, Title)
       !---- Argument ----!
@@ -23,7 +23,7 @@ SubModule (CFML_Messages) Question
 
       return
    End Subroutine Question_Message
-   
-   
-   
-End SubModule Question   
+
+
+
+End SubModule Question

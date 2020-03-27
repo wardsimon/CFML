@@ -1,7 +1,7 @@
 !!----
 SubModule (CFML_Messages) Errors
    Contains
-   
+
    !!----
    !!---- ERROR_MESSAGE
    !!----
@@ -9,7 +9,7 @@ SubModule (CFML_Messages) Errors
    !!----    If "routine" is present the subroutine where the occured will be also displayed.
    !!----    If "fatal" is present and .True. the program will stop after the printing.
    !!----
-   !!---- 23/04/2019 
+   !!---- 23/04/2019
    !!
    Module Subroutine Error_Message(Mess, Iunit, Routine, Fatal)
       !---- Arguments ----!
@@ -42,5 +42,5 @@ SubModule (CFML_Messages) Errors
       End If
 
    End Subroutine Error_Message
-   
-End SubModule Errors   
+
+End SubModule Errors

@@ -2,14 +2,14 @@
 !!----
 !!----
 SubModule (CFML_Scattering_Tables) Del_Routines
-  
+
   Contains
-   
+
    !!----
    !!---- REMOVE_CHEM_INFO
    !!----    Deallocate Chem_Info Table
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Remove_Chem_Info()
 
@@ -22,7 +22,7 @@ SubModule (CFML_Scattering_Tables) Del_Routines
    !!---- REMOVE_DELTA_FP_FPP
    !!----    Deallocate Anomalous_ScFac Table
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Remove_Delta_Fp_Fpp()
 
@@ -35,7 +35,7 @@ SubModule (CFML_Scattering_Tables) Del_Routines
    !!---- REMOVE_MAGNETIC_FORM
    !!----    Deallocate Magnetic_Form Table
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Remove_Magnetic_Form()
 
@@ -51,13 +51,13 @@ SubModule (CFML_Scattering_Tables) Del_Routines
    !!---- REMOVE_XRAY_FORM
    !!----    Deallocate Xray_Form Table
    !!----
-   !!---- 15/04/2019 
+   !!---- 15/04/2019
    !!
    Module Subroutine Remove_Xray_Form()
 
       if (allocated(Xray_Form)) deallocate(Xray_Form)
 
       return
-   End Subroutine Remove_Xray_form 
-   
-End SubModule Del_Routines 
+   End Subroutine Remove_Xray_form
+
+End SubModule Del_Routines

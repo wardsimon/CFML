@@ -1,13 +1,13 @@
 !!----
 SubModule (CFML_Messages) Warning
    Contains
-   
+
    !!----
    !!---- WARNING_MESSAGE
    !!----
    !!----    Print an message on the screen or in "Iunit" if present
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Warning_Message(Mess, Iunit)
       !---- Arguments ----!
@@ -24,5 +24,5 @@ SubModule (CFML_Messages) Warning
 
       return
    End Subroutine Warning_Message
-   
-End SubModule Warning   
+
+End SubModule Warning

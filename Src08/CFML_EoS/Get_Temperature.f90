@@ -158,7 +158,7 @@ SubModule (CFML_EoS) EoS_004
                         err_CFML%Msg='No valid solution for temperature'
                      end if
                   else
-                     err_CFML%IErr=1 
+                     err_CFML%IErr=1
                      err_CFML%Msg='No valid solution for temperature'
                   end if
                end if
@@ -346,5 +346,5 @@ SubModule (CFML_EoS) EoS_004
             tk=eospar%tref
       end select
    End Function Get_Temperature_P0
-   
-End SubModule EoS_004   
+
+End SubModule EoS_004

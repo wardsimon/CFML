@@ -1,13 +1,13 @@
 SubModule (CFML_DiffPatt) RPatt_GSAS
 
    Contains
-   
+
    !!--++
    !!--++ READ_PATTERN_GSAS
    !!--++
    !!--++    Read a pattern for GSAS
    !!--++
-   !!--++ 01/05/2019 
+   !!--++ 01/05/2019
    !!
    Module Subroutine Read_Pattern_Gsas(Filename, Pat, mode)
       !---- Arguments ----!
@@ -30,7 +30,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
       logical                                      :: ok, info
       logical                                      :: tof !used only for some type of formats
 
-      
+
       !> Init
       call clear_error()
 
@@ -41,7 +41,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
          Err_CFML%Msg="Read_Pattern_GSAS@DIFFPATT: The file "//trim(filename)//" doesn't exist"
          return
       end if
-         
+
       !> Open File
       open(newunit=i_dat,file=trim(filename),status="old",action="read",position="rewind",iostat=ier)
       if (ier /= 0 ) then
@@ -49,7 +49,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
          Err_CFML%Msg="Read_Pattern_GSAS@DIFFPATT: Problems opening the file: "//trim(filename)
          return
       end if
-      
+
       ok=.false.
       if (present(mode)) then
          divi=1.0_cp
@@ -66,7 +66,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
          divi=100.0_cp
          tof=.false.
       end if
-      
+
       if (.not. keep_open) then
          bank_missed=.true.
 
@@ -85,7 +85,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
             close(unit=i_dat)
             return
          end if
-         
+
       else
          read(unit=i_dat,fmt="(a)") line
       end if
@@ -100,7 +100,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
                   pointi(items)=i
                   previous=.true.
                end if
-            
+
             else
                if (items > 0 .and. previous) pointf(items)=i-1
                previous=.false.
@@ -132,7 +132,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
          IF (items > 7) read(unit=line(pointi(8):pointf(8)),fmt=*) bcoef(4)
          datyp="STD"
          IF (items > 8) read(unit=line(pointi(9):pointf(9)),fmt="(a)") datyp
-         
+
          pat%npts=nchan
          if (pat%npts <= 0) then
             Err_CFML%IErr=1
@@ -155,11 +155,11 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
                pat%xmax=pat%xmin+(pat%npts-1)*step
             else
                Err_CFML%IErr=1
-               Err_CFML%Msg="Read_Pattern_GSAS@DIFFPATT: Only BINTYP=CONST is allowed for ESD data" 
+               Err_CFML%Msg="Read_Pattern_GSAS@DIFFPATT: Only BINTYP=CONST is allowed for ESD data"
                close(unit=i_dat)
                return
             end if
-           
+
             if (tof) then
                read(unit=i_dat,fmt="(10f8.0)", iostat=ier) (pat%y(i),i=1,pat%npts)
                if (ier /= 0) then
@@ -172,7 +172,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
                   backspace (unit=i_dat)
                end if
             end if
-           
+
             do i=1,pat%npts
                !if (pat%y(i) <= 0.00001) pat%y(i) = 1.0
                if (iww(i) == 0) iww(i) = 1
@@ -187,7 +187,7 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
                pat%xmin=bcoef(1)/divi !divide by 100 for CW
                step=bcoef(2)/divi  !divide by 100 for CW
                pat%xmax=pat%xmin+(pat%npts-1)*step
-              
+
                read(unit=i_dat,fmt="(10f8.0)",iostat=ier) (pat%y(i),pat%sigma(i),i=1,pat%npts)
                if (ier /= 0) then
                   backspace (unit=i_dat)
@@ -255,9 +255,8 @@ SubModule (CFML_DiffPatt) RPatt_GSAS
 
       pat%ymin=minval(pat%y(1:pat%npts))
       pat%ymax=maxval(pat%y(1:pat%npts))
-      
+
       close(unit=i_dat)
    End Subroutine Read_Pattern_Gsas
-  
-End SubModule RPatt_GSAS  
-  
+
+End SubModule RPatt_GSAS

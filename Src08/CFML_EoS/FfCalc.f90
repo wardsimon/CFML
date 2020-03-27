@@ -3,7 +3,7 @@
 !!----
 SubModule (CFML_EoS) EoS_027
    Contains
-   
+
    !!----
    !!---- FFCAL_DAT
    !!----    Return Normalized pressure and/or Strain at V and P
@@ -160,5 +160,5 @@ SubModule (CFML_EoS) EoS_027
       f=normpressure_eos(s,t,eospar)   ! Norm pressure
 
    End Subroutine FfCal_EoS
-   
-End SubModule EoS_027   
+
+End SubModule EoS_027

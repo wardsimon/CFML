@@ -5,7 +5,7 @@
 !!
 Submodule (CFML_Maths) Linear_Dependent
  Contains
- 
+
     !!----
     !!--++ LINEAR_DEPENDENT_C
     !!--++
@@ -35,7 +35,7 @@ Submodule (CFML_Maths) Linear_Dependent
     !!--++
     !!--++ Update: February - 2005
     !!
-    Module Function Linear_Dependent_C(A,na,B,nb,mb) Result(info)    
+    Module Function Linear_Dependent_C(A,na,B,nb,mb) Result(info)
        !---- Arguments ----!
        complex(kind=cp), dimension(:),   intent(in)  :: a
        complex(kind=cp), dimension(:,:), intent(in)  :: b
@@ -49,7 +49,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        !> Init
        info=.true.
-       
+
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%ierr=1
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_C: Error in dimension of input matrix or vector"
@@ -92,7 +92,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        return
     End Function Linear_Dependent_C
- 
+
     !!----
     !!--++ Linear_Dependent_I
     !!--++
@@ -108,9 +108,9 @@ Submodule (CFML_Maths) Linear_Dependent
     !!--++    is generated
     !!--++    The function uses floating arithmetic for all types.
     !!--++
-    !!--++ 03/04/2019 
+    !!--++ 03/04/2019
     !!
-    Module Function Linear_Dependent_I(A,na,B,nb,mb) Result(info)    
+    Module Function Linear_Dependent_I(A,na,B,nb,mb) Result(info)
        !---- Arguments ----!
        integer, dimension(:),   intent(in)  :: a
        integer, dimension(:,:), intent(in)  :: b
@@ -124,7 +124,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        !> Init
        info=.true.
-       
+
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%Ierr=2
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_I: Error in dimension of input matrix or vector"
@@ -155,8 +155,8 @@ Submodule (CFML_Maths) Linear_Dependent
 
        return
     End Function Linear_Dependent_I
- 
-    !!---- 
+
+    !!----
     !!--++ LINEAR_DEPENDENT_R
     !!--++
     !!--++    (OVERLOADED)
@@ -171,9 +171,9 @@ Submodule (CFML_Maths) Linear_Dependent
     !!--++    is generated
     !!--++    The function uses floating arithmetic for all types.
     !!--++
-    !!--++ 03/04/2019 
+    !!--++ 03/04/2019
     !!
-    Module Function Linear_Dependent_R(A,na,B,nb,mb) Result(info)    
+    Module Function Linear_Dependent_R(A,na,B,nb,mb) Result(info)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in)  :: a
        real(kind=cp), dimension(:,:), intent(in)  :: b
@@ -187,7 +187,7 @@ Submodule (CFML_Maths) Linear_Dependent
 
        !> Init
        info=.true.
-       
+
        if (nb > size(b,1) .or. mb > size(b,2) .or. na > size(a) ) then
           err_cfml%ierr=1
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_R: Error in dimension of input matrix or vector"
@@ -217,6 +217,6 @@ Submodule (CFML_Maths) Linear_Dependent
 
        return
     End Function Linear_Dependent_R
- 
-   
+
+
 End Submodule Linear_Dependent

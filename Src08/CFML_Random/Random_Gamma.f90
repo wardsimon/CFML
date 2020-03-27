@@ -9,7 +9,7 @@ SubModule (CFML_Random) RandomGen04
    !!----    Generates a random variate from the chi-squared
    !!----    distribution with ndf degrees of freedom
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_ChiSQ(Ndf, First) Result(Fn_Val)
       !---- Arguments ----!
@@ -23,7 +23,7 @@ SubModule (CFML_Random) RandomGen04
 
       return
    End Function Random_ChiSQ
-   
+
    !!----
    !!---- RANDOM_EXPONENTIAL
    !!----
@@ -34,7 +34,7 @@ SubModule (CFML_Random) RandomGen04
    !!----    Subroutine generates a random variate in [0,infinity) from a negative exponential
    !!----    distribution wlth density proportional to exp(-random_exponential), using inversion.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Exponential() Result(Fn_Val)
       !---- Arguments ----!
@@ -66,7 +66,7 @@ SubModule (CFML_Random) RandomGen04
    !!--..    or random_exponential (S = 1.0)
    !!--..    or random_gamma2 (S < 1.0).
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Gamma(S, First) Result(Fn_Val)
       !---- Arguments ----!
@@ -159,7 +159,7 @@ SubModule (CFML_Random) RandomGen04
    !!----    a gamma distribution with density proportional to
    !!----    gamma2**(s-1) * exp(-gamma2), using a switching method.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Gamma2(S, First) Result(Fn_Val)
       !---- Arguments ----!
@@ -215,12 +215,12 @@ SubModule (CFML_Random) RandomGen04
          end if
          exit
       end do
-      
+
       fn_val = x
 
       return
    End Function Random_Gamma2
-   
+
    !!----
    !!---- RANDOM_WEIBULL
    !!----
@@ -231,7 +231,7 @@ SubModule (CFML_Random) RandomGen04
    !!----    Generates a random variate from the Weibull distribution with
    !!----    probability density as shown before.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Weibull(a) Result(Fn_Val)
       !---- Arguments ----!
@@ -245,5 +245,5 @@ SubModule (CFML_Random) RandomGen04
 
       return
    End Function Random_Weibull
-   
+
 End SubModule RandomGen04

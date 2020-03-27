@@ -1,10 +1,10 @@
 SubModule (CFML_gSpaceGroups) SPG_035
    Contains
-   
+
    !!----
    !!---- SET_RIGHT_HANDEDNESS
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Set_Right_Handedness(A)
       !---- Arguments ----!
@@ -22,14 +22,14 @@ SubModule (CFML_gSpaceGroups) SPG_035
           A(:,2) = row(:)
       end if
    End Subroutine Set_Right_Handedness
-   
-   !!----   
+
+   !!----
    !!---- POSITIVE_SENSEROT
    !!----
    !!---- Evaluates if axis corresponds with the positive sense of rotation
    !!---- of the rotation matrix W.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Positive_SenseRot(W, Axis) Result(Positive)
       !---- Arguments ----!
@@ -50,27 +50,27 @@ SubModule (CFML_gSpaceGroups) SPG_035
 
       if (axis(2) == (0//1) .and. axis(3) == (0//1) .and. (axis(1) * U(3,2)) > (0//1)) then
           positive = .true.
-      
+
       else if ( (U(2,1) * axis(3) - U(3,1) * axis(2)) > (0//1) ) then
           positive = .true.
-      
+
       else
           positive = .false.
       end if
    End Function Positive_SenseRot
-   
-   !!---- 
+
+   !!----
    !!---- GET_ROTATION_AXIS
    !!----
    !!---- It computes the shortest lattice vector along the rotation
    !!---- axis of the symmetry operation W
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_Rotation_Axis(W) Result(axis)
       !---- Arguments ----!
       type(rational), dimension(3,3), intent(in)  :: W       !rotation matrix
-      type(rational), dimension(3)                :: axis    !shortest vector along the rotation axisP 
+      type(rational), dimension(3)                :: axis    !shortest vector along the rotation axisP
 
       !---- Local variables ----!
       integer                        :: i,j,rnk,nzeros_aux
@@ -80,9 +80,9 @@ SubModule (CFML_gSpaceGroups) SPG_035
       type(rational), dimension(3,3) :: A,U
       type(rational), dimension(3)   :: row
 
-      !> Init   
+      !> Init
       axis=0//1
-      
+
       det = rational_determ(W)
       if (det%Numerator == det%Denominator) then
          A = W
@@ -174,15 +174,15 @@ SubModule (CFML_gSpaceGroups) SPG_035
          end if
       end do
    End Function Get_Rotation_Axis
-   
-   !!---- 
+
+   !!----
    !!---- GET_ROTATIONS
    !!----
    !!---- It returns the number of symmetry operations in array symOp
    !!---- with rotational part of order n. The corresponding index
    !!---- and value of the determinant are returned in idd.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Get_Rotations(symOP, nSymOP, n, nso, idd)
       !---- Arguments ----!
@@ -200,7 +200,7 @@ SubModule (CFML_gSpaceGroups) SPG_035
 
       !> Init
       call Clear_Error()
-      
+
       axisName(1) = "onefold"
       axisName(2) = "twofold"
       axisName(3) = "threefold"
@@ -237,13 +237,13 @@ SubModule (CFML_gSpaceGroups) SPG_035
          end if
       end do
    End Subroutine Get_Rotations
-   
+
    !!----
    !!---- GET_ROTATION_ORDER
-   !!----    Determine the orden of rotation (valid for all bases). 
+   !!----    Determine the orden of rotation (valid for all bases).
    !!----    Return a zero if any error occurs.
    !!----
-   !!---- 13/05/2019 
+   !!---- 13/05/2019
    !!
    Module Function Get_Rotation_Order(W) Result(N)
       !---- Arguments ----!
@@ -286,6 +286,6 @@ SubModule (CFML_gSpaceGroups) SPG_035
          case ( 3)
             if (det ==  1) n= 1
       end select
-   End Function Get_Rotation_Order 
-   
-End Submodule SPG_035    
+   End Function Get_Rotation_Order
+
+End Submodule SPG_035

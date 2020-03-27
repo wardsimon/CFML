@@ -5,13 +5,13 @@
 !!
 Submodule (CFML_Maths) Upper_Triangular
  Contains
- 
+
     !!----
     !!---- UPPER_TRIANGULAR_I
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Upper_Triangular_I(A,n) Result (T)    
+    Module Pure Function Upper_Triangular_I(A,n) Result (T)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: A     ! Input array
        integer,                 intent(in) :: n     ! Dimension
@@ -33,13 +33,13 @@ Submodule (CFML_Maths) Upper_Triangular
 
        return
     End Function Upper_Triangular_I
- 
-    !!---- 
+
+    !!----
     !!---- UPPER_TRIANGULAR_R
     !!----
-    !!---- 28/03/2019 
+    !!---- 28/03/2019
     !!
-    Module Pure Function Upper_Triangular_R(A,n) Result (T)    
+    Module Pure Function Upper_Triangular_R(A,n) Result (T)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: A   ! Input array
        integer,                       intent(in) :: n   ! Dimension
@@ -61,6 +61,6 @@ Submodule (CFML_Maths) Upper_Triangular
 
        return
     End Function  Upper_Triangular_R
- 
-   
+
+
 End Submodule Upper_Triangular

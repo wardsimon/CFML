@@ -24,12 +24,12 @@ SubModule (CFML_Reflections) RFL_003
 
       !> Init
       info=.false.
-       
+
       nops= SpG%NumOps
       if (SpG%centred /= 1) nops=min(nops*2,SpG%Multip)
 
       Dd=size(h)
-       
+
       do i=1,nops
          Mat=SpG%Op(i)%Mat(1:Dd,1:Dd)
          hh = matmul(h,Mat)
@@ -37,7 +37,7 @@ SubModule (CFML_Reflections) RFL_003
             info=.true.
             exit
          end if
-         
+
          if (present(Friedel)) then
             if (Friedel) then
                if (h_equal(k,-hh)) then
@@ -48,5 +48,5 @@ SubModule (CFML_Reflections) RFL_003
          end if
       end do
    End Function H_Equiv
-    
-End SubModule RFL_003   
+
+End SubModule RFL_003

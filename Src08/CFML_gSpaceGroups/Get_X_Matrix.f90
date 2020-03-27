@@ -1,12 +1,12 @@
 SubModule (CFML_gSpaceGroups) SPG_037
-   Contains  
-     
+   Contains
+
    !!----
    !!---- GET_A_MATRICES_CRYS
    !!----
    !!---- Build A matrices -see Acta Cryst. A55 383-395 (1999) -.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Get_A_Matrix_Crys(Laueclass,A,N)
        !---- Arguments ----!
@@ -39,7 +39,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                Ainv(:,:,4) = R2
                Ainv(:,:,5) = matmul(R2,R3)
                Ainv(:,:,6) = matmul(Ainv(:,:,5),R3)
-           
+
            case ("mmm")
                n  = 6
                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
@@ -58,7 +58,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                Ainv(:,:,4) = R2
                Ainv(:,:,5) = matmul(R2,R3)
                Ainv(:,:,6) = matmul(Ainv(:,:,5),R3)
-           
+
            case ("m-3")
                n = 2
                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
@@ -69,7 +69,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                R2(3,1:3) = [ 0//1, 0//1, 1//1 ]
                Ainv(:,:,1) = R1(:,:)
                Ainv(:,:,2) = R2(:,:)
-           
+
            case default
                n = 1
                R1(1,1:3) = [ 1//1, 0//1, 0//1 ]
@@ -82,13 +82,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
            A(:,:,i)=Rational_Inverse_Matrix(Ainv(:,:,i))
        end do
    End Subroutine Get_A_Matrix_Crys
-   
-   !!----   
+
+   !!----
    !!---- Get_A_Matrices_Shub
    !!----
    !!---- Similar to Get_A_Matrices_Crys, but adapted to Shubnikov groups
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Subroutine Get_A_Matrix_Shub(Laueclass,A,N)
       !---- Arguments ----!
@@ -96,9 +96,9 @@ SubModule (CFML_gSpaceGroups) SPG_037
       type(rational), dimension(3,3,6), intent(out) :: A
       integer,                          intent(out) :: n
 
-    
+
       n = 1
-    
+
       !> setting a,b,c
       A(1,1:3,1) = [ 1, 0, 0 ]
       A(2,1:3,1) = [ 0, 1, 0 ]
@@ -107,70 +107,70 @@ SubModule (CFML_gSpaceGroups) SPG_037
       select case (trim(laueClass))
           case ("2/m") ! Monoclinic
              n = 6
-             
+
              !> setting c,b,-a-c
              A(1,1:3,2) = [ 0, 0,-1 ]
              A(2,1:3,2) = [ 0, 1, 0 ]
              A(3,1:3,2) = [ 1, 0,-1 ]
-             
+
              !> setting -a-c,b,a
              A(1,1:3,3) = [-1, 0, 1 ]
              A(2,1:3,3) = [ 0, 1, 0 ]
              A(3,1:3,3) = [-1, 0, 0 ]
-             
+
              !> setting c,-b,a
              A(1,1:3,4) = [ 0, 0, 1 ]
              A(2,1:3,4) = [ 0,-1, 0 ]
              A(3,1:3,4) = [ 1, 0, 0 ]
-             
+
              !> setting -a-c,-b,c
              A(1,1:3,5) = [-1, 0, 0 ]
              A(2,1:3,5) = [ 0,-1, 0 ]
              A(3,1:3,5) = [-1, 0, 1 ]
-             
+
              !> setting a,-b,-a-c
              A(1,1:3,6) = [ 1, 0,-1 ]
              A(2,1:3,6) = [ 0,-1, 0 ]
              A(3,1:3,6) = [ 0, 0,-1 ]
-             
+
           case ("mmm") ! Orthorhombic
              n = 6
-             
+
              !> setting b,c,a
              A(1,1:3,2) = [ 0, 0, 1 ]
              A(2,1:3,2) = [ 1, 0, 0 ]
              A(3,1:3,2) = [ 0, 1, 0 ]
-             
+
              !> setting c,a,b
              A(1,1:3,3) = [ 0, 1, 0 ]
              A(2,1:3,3) = [ 0, 0, 1 ]
              A(3,1:3,3) = [ 1, 0, 0 ]
-             
+
              !> setting a,c,-b
              A(1,1:3,4) = [ 1, 0, 0 ]
              A(2,1:3,4) = [ 0, 0,-1 ]
              A(3,1:3,4) = [ 0, 1, 0 ]
-             
+
              !> setting c,b,-a
              A(1,1:3,5) = [ 0, 0,-1 ]
              A(2,1:3,5) = [ 0, 1, 0 ]
              A(3,1:3,5) = [ 1, 0, 0 ]
-             
+
              !> setting b,a,-c
              A(1,1:3,6) = [ 0, 1, 0 ]
              A(2,1:3,6) = [ 1, 0, 0 ]
              A(3,1:3,6) = [ 0, 0,-1 ]
-          
+
           case ("-3","-3 R","-3m","-3m R","-3m1","-31m") ! Trigonal
              n = 2
-             
+
              !> reverse -> obverse setting
              A(1,1:3,2) = [-1, 0, 0 ]
              A(2,1:3,2) = [ 0,-1, 0 ]
              A(3,1:3,2) = [ 0, 0, 1 ]
       end select
    End Subroutine Get_A_Matrix_Shub
-   
+
    !!----
    !!---- GET_MC_MATRIX
    !!----
@@ -178,7 +178,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
    !!---- in some cases for cubic groups with primitive lattices has been
    !!---- introduced in the subroutine Get_A_Matrices_Crys, for the case m-3.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_Mc_Matrix(LaueClass, Mp) Result(Mc)
       !---- Arguments ----!
@@ -215,19 +215,19 @@ SubModule (CFML_gSpaceGroups) SPG_037
          case ("4/m","4/mmm")
             lattyp=Get_Lattice_Type(Mp)
             if (Err_CFML%Ierr /= 0) return
-            
+
             if (lattyp == "C") then  ! C -> P
                Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                Mcinv(2,:) = [ 1//1,-1//1, 0//1 ]
                Mcinv(3,:) = [ 0//1, 0//1,-1//1 ]
                Mc=Rational_Inverse_Matrix(Mcinv)
-               
+
             else if (lattyp == "F") then ! F -> I
                Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                Mcinv(2,:) = [-1//1, 1//1, 0//1 ]
                Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                Mc=Rational_Inverse_Matrix(Mcinv)
-               
+
             else
                Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -237,12 +237,12 @@ SubModule (CFML_gSpaceGroups) SPG_037
          case ("-3","-3 R")
             lattyp=Get_Lattice_Type(Mp)
             if (Err_CFML%Ierr /= 0) return
-            
+
             if (lattyp == "S") then ! reverse -> obverse setting
                Mc(1,:) = [-1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1,-1//1, 0//1 ]
                Mc(3,:) = [ 0//1, 0//1, 1//1 ]
-               
+
             else
                Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -252,18 +252,18 @@ SubModule (CFML_gSpaceGroups) SPG_037
          case ("-3m","-3m R","-3m1","-31m")
             lattyp=Get_Lattice_Type(Mp)
             if (Err_CFML%Ierr /= 0) return
-            
+
             if (lattyp == "S") then ! reverse -> obverse setting
                Mc(1,:) = [-1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1,-1//1, 0//1 ]
                Mc(3,:) = [ 0//1, 0//1, 1//1 ]
-               
+
             else if (lattyp == "H") then ! H -> P
                Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
                Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                Mc=Rational_Inverse_Matrix(Mcinv)
-               
+
             else
                Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -273,13 +273,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
          case ("6/mmm")
             lattyp=Get_Lattice_Type(Mp)
             if (Err_CFML%Ierr /= 0) return
-            
+
             if (lattyp == "H") then ! H -> P
                Mcinv(1,:) = [ 1//1, 1//1, 0//1 ]
                Mcinv(2,:) = [-1//1, 2//1, 0//1 ]
                Mcinv(3,:) = [ 0//1, 0//1, 1//1 ]
                Mc=Rational_Inverse_Matrix(Mcinv)
-               
+
             else
                Mc(1,:) = [ 1//1, 0//1, 0//1 ]
                Mc(2,:) = [ 0//1, 1//1, 0//1 ]
@@ -302,7 +302,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
          write(*,'(a)') trim(symb)
       end if
    End Function Get_Mc_Matrix
-   
+
    !!----
    !!---- GET_S_MATRIX
    !!----
@@ -312,7 +312,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
    !!---- used to find vectors perpendicular to the rotation axis. For
    !!---- a vector x perpendicular to the rotation axis, since Sx = 0.
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_S_Matrix(W) Result(S)
       !---- Arguments ----!
@@ -332,16 +332,16 @@ SubModule (CFML_gSpaceGroups) SPG_037
       do i = 2 , order
          Waux = MatMul(Waux,W)
          S    = S + Waux
-      end do  
+      end do
    End Function Get_S_Matrix
-   
+
    !!----
    !!---- GET_P_MATRIX
    !!----
    !!---- It returns a 3x3 matrix P which transforms the
    !!---- current setting to a primitive setting
    !!----
-   !!---- 22/04/2019 
+   !!---- 22/04/2019
    !!
    Module Function Get_P_Matrix(G,Nospin) Result(P)
       !---- Arguments ----!
@@ -366,17 +366,17 @@ SubModule (CFML_gSpaceGroups) SPG_037
       pout=.false.
       pout= (pout .or. CFML_DEBUG)
       !>===============
-       
+
       if (pout) then
          write(*,'(8x,a)') " => Constructing (P,0) matrix...."
          write(*,'(12x,a)') "This matrix transforms the original basis in a primitive basis"
       end if
-       
+
       !> Init
       call Clear_Error()
       primitive   = .false.
       nullVec(:)  = 0//1
-      
+
       nLatt = 1
       do i = 1 , G%num_lat
          if (.not. Rational_Equal(G%Lat_tr(:,i),nullVec))  nLatt = nLatt + 1
@@ -393,14 +393,14 @@ SubModule (CFML_gSpaceGroups) SPG_037
          call Rational_Identity_Matrix(P)
          primitive = .true.
          return
-      
+
       else
          !> Build an expanded list of centring vectors
          nAuxVec = 0
          if (present(nospin)) then
             rNumLat = (G%num_lat+G%num_alat+1)//1
             allocate(auxVec(3,G%num_lat+G%num_alat))
-         
+
          else
             rNumLat = (G%num_lat+1)//1
             allocate(auxVec(3,G%num_lat))
@@ -453,7 +453,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
             end do
          end do
       end if
-      
+
       !> Sort vectors from shorter to longer
       do
          sorted = .True.
@@ -467,7 +467,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
          end do
          if (sorted) exit
       end do
-      
+
       !> Append the unit translations
       centringVec(:,ncentringVec+1) = [ 1//1, 0//1, 0//1, 1//1 ]
       centringVec(:,ncentringVec+2) = [ 0//1, 1//1, 0//1, 1//1 ]
@@ -485,7 +485,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                P(:,1) = centringVec(1:3,i)
                P(:,2) = centringVec(1:3,j)
                P(:,3) = centringVec(1:3,k)
-               
+
                call Clear_Error()
                Pinv=Rational_Inverse_Matrix(P)
                if (Err_CFML%ierr == 0) then
@@ -514,7 +514,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
          Err_CFML%Ierr = 1
          Err_CFML%Msg  = "Get_P_Matrix@SPACEG: A primitive basis cannot be found"
          return
-      
+
       else if (pout) then
          write(*,'(12x,a)',advance='no') "Original setting --> Primitive setting transformation: "
          call Rational_Identity_Matrix(Paux)
@@ -523,7 +523,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
          write(*,'(a)') trim(symb)
       end if
    End Function Get_P_Matrix
-   
+
    !!----
    !!---- GET_MP_MATRIX
    !!----
@@ -535,7 +535,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
    !!----      Mp = [ bx2 by2 bz2 ]
    !!----           [ bx3 by3 bz3 ]
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Function Get_Mp_Matrix(G,P) Result(Mp)
        !---- Arguments ----!
@@ -560,7 +560,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
        pout=.false.
        pout= (pout .or. CFML_DEBUG)
        !>===============
-       
+
        axisName(2) = "twofold"
        axisName(3) = "threefold"
        axisName(4) = "fourfold"
@@ -580,30 +580,30 @@ SubModule (CFML_gSpaceGroups) SPG_037
              Mp = reshape ( [ 1//1,0//1,0//1,&
                               0//1,1//1,0//1,&
                               0//1,0//1,1//1 ],(/3,3/) )
-   
+
           case ("2/m","4/m","-3","-3 R","6/m")
              select case (trim(G%laue))
                 case ("2/m")
                    order(1) = 2
-                
+
                 case ("4/m")
                    order(1) = 4
-                
+
                 case ("-3","-3 R","6/m")
                     order(1) = 3
              end select
-               
+
              if (pout) write(*,'(12x,3a)') "Searching for the ",trim(axisName(order(1)))," axis..."
              allocate(idd(G%Multip,2))
              call Get_Rotations(G%op(:),G%Multip,order(1),n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              !> Put the symmetry operation in the primitive setting
              W = MatMul(G%op(idd(1,1))%Mat(1:3,1:3),P)
              W = MatMul(Pinv,W)
              bz=Get_Rotation_Axis(W)
              if (Err_CFML%Ierr /= 0) return
-             
+
              if (pout) then
                 write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(1:3)%Numerator
                 write(*,'(12x,a)') "Searching for lattice vectors perpendicular to the rotation axis." // &
@@ -611,33 +611,33 @@ SubModule (CFML_gSpaceGroups) SPG_037
              end if
              vPerp=Get_VecPerp_To_RotAxis(W)
              if (Err_CFML%Ierr /= 0) return
-             
+
              call Get_Pseudo_Standard_Base(W,vPerp,bz,bx,by)
              Mp(:,1) = bx
              Mp(:,2) = by
              Mp(:,3) = bz
              deallocate(idd)
-           
+
           case ("4/mmm")
              if (pout) write(*,'(12x,a)') "Searching for the fourfold axis..."
              allocate(idd(G%Multip,2))
              call Get_Rotations(G%op(:),G%Multip,4,n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              !> Put the symmetry operation in the primitive setting
              W = MatMul(G%op(idd(1,1))%Mat(1:3,1:3),P)
              W = MatMul(Pinv,W)
              bz=Get_Rotation_Axis(W)
              if (Err_CFML%Ierr /= 0) return
-             
+
              if (pout) then
                  write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                  write(*,'(12x,a)') "Searching for the twofold axis..."
              end if
-             
+
              call Get_Rotations(G%op(:),G%Multip,2,n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              colinear = .true.
              do i = 1 , n
                 !> Put the symmetry operation in the primitive setting
@@ -645,7 +645,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 U = MatMul(Pinv,U)
                 bx=Get_Rotation_Axis(U)
                 if (Err_CFML%Ierr /= 0) return
-                
+
                 if (.not. Rational_Co_Linear(bz,bx)) then
                    colinear = .false.
                    exit
@@ -663,7 +663,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
              Mp(:,2) = by
              Mp(:,3) = bz
              deallocate(idd)
-           
+
           case ("-3m","-3m R","-3m1","-31m","6/mmm")
              if (pout) write(*,'(12x,a)') "Searching for the threefold axis..."
              allocate(idd(G%Multip,2))
@@ -676,14 +676,14 @@ SubModule (CFML_gSpaceGroups) SPG_037
              if (idd(1,2) == -1)  W = -W
              bz=Get_Rotation_Axis(W)
              if (Err_CFML%Ierr /= 0) return
-             
+
              if (pout) then
                 write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                 write(*,'(12x,a)') "Searching for the twofold axis..."
              end if
              call Get_Rotations(G%op(:),G%Multip,2,n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              colinear = .true.
              do i = 1 , n
                 !> Put the symmetry operation in the primitive setting
@@ -691,13 +691,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 U = MatMul(Pinv,U)
                 bx=Get_Rotation_Axis(U)
                 if (Err_CFML%Ierr /= 0) return
-                
+
                 if (.not. Rational_Co_Linear(bz,bx)) then
                     colinear = .false.
                     exit
                 end if
              end do
-             
+
              if (colinear) then
                  Err_CFML%Ierr = 1
                  Err_CFML%Msg  = "Get_Mp_Matrix@SPACEG: "// &
@@ -710,13 +710,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
              Mp(:,2) = by
              Mp(:,3) = bz
              deallocate(idd)
-           
+
           case ("mmm")
              if (pout) write(*,'(12x,a)') "Searching for the three twofold axis..."
              allocate(idd(G%Multip,2))
              call Get_Rotations(G%op(:),G%Multip,2,n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              n_ = 0
              do i = 1 , n
                 !> Put the symmetry operation in the primitive setting
@@ -724,7 +724,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 W = MatMul(Pinv,W)
                 bz=Get_Rotation_Axis(W)
                 if (Err_CFML%Ierr /= 0) return
-                
+
                 colinear = .false.
                 do j = 1 , n_
                    if (Rational_Co_Linear(bz,Mp(:,j))) colinear = .true.
@@ -737,13 +737,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 if (n_ == 3) exit
              end do
              deallocate(idd)
-           
+
           case ("m3","m-3","m3m","m-3m")
              if (pout) write(*,'(12x,a)') "Searching for the four threefold axes..."
              allocate(idd(G%Multip,2))
              call Get_Rotations(G%op(:),G%Multip,3,n,idd)
              if (Err_CFML%Ierr /= 0) return
-             
+
              nCubicAxes = 0
              standard   = .true. ! Initially we assume P is a standard basis
              do i = 1 , n
@@ -751,7 +751,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 W = MatMul(Pinv,W)
                 bz=Get_Rotation_Axis(W)
                 if (Err_CFML%Ierr /= 0) return
-                
+
                 colinear = .false.
                 do j = 1 , nCubicAxes
                    if (Rational_Co_Linear(bz,cubicAxes(:,j))) colinear = .true.
@@ -769,7 +769,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 Mp(:,1) = [ 1//1,0//1,0//1 ]
                 Mp(:,2) = [ 0//1,1//1,0//1 ]
                 Mp(:,3) = [ 0//1,0//1,1//1 ]
-             
+
              else
                 !> Find a combination of cubicAxes for which the threefold axes are along {111}
                 do i = 0 , 1
@@ -784,13 +784,13 @@ SubModule (CFML_gSpaceGroups) SPG_037
                          Mp(:,1) = (1//2) * (cubicAxes(:,1) + bx)
                          Mp(:,2) = (1//2) * (cubicAxes(:,1) + by)
                          Mp(:,3) = (1//2) * (cubicAxes(:,1) + bz)
-                         
+
                          !> For lattice I, Mp is not integral (there is a lattice
                          !> point at the middle of each diagonal. We must multiply
                          !> by two in order to get the diagonal of the cube
                          if (.not. Rational_Is_Integer(Mp)) Mp = (2//1) * Mp
                          PM = matmul(P,Mp)
-                         
+
                          call Clear_Error()
                          PMinv=Rational_Inverse_Matrix(PM)
                          if (Err_CFML%ierr == 0) then
@@ -831,7 +831,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
           write(*,'(a)') trim(symb)
        end if
    End Function Get_Mp_Matrix
-   
+
    !!----
    !!---- GET_VECPERP_TO_ROTAXIS
    !!----
@@ -839,7 +839,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
    !!---- four lattice vectors perpendicular to the rotation
    !!---- axis.
    !!----
-   !!---- 24/04/2019 
+   !!---- 24/04/2019
    !!
    Module Function Get_VecPerp_To_RotAxis(W) Result(vPerp)
        !---- Arguments ----!
@@ -906,7 +906,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
              do i = 1 , 4
                 vPerp(3,i) = -(vPerp(1,i) * U(row,1) + vPerp(2,i) * U(row,2)) / U(row,3)
              end do
-             
+
           case (1)
              do i = 1 , 3
                 if (U(row,i) == (0//1)) exit
@@ -925,7 +925,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                    vPerp(1,4) = -1//1
                    vPerp(2,4) = 1//1
                    vPerp(3,4) = - U(row,2) / U(row,3)
-                   
+
                 case (2)
                    vPerp(1,1) = 0//1
                    vPerp(2,1) = 1//1
@@ -939,7 +939,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                    vPerp(1,4) = 1//1
                    vPerp(2,4) = -1//1
                    vPerp(3,4) = - U(row,1) / U(row,3)
-                   
+
                 case (3)
                    vPerp(1,1) = 0//1
                    vPerp(2,1) = 0//1
@@ -954,7 +954,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                    vPerp(2,4) = -U(row,1) / U(row,2)
                    vPerp(3,4) = -1//1
              end select
-          
+
           case (2)
              do i = 1 , 3
                 if (U(row,i) /= (0//1)) exit
@@ -970,7 +970,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                    vPerp(3,3) =  1//1
                    vPerp(2,4) =  1//1
                    vPerp(3,4) = -1//1
-                   
+
                 case (2)
                    vPerp(2,:) =  0//1
                    vPerp(1,1) =  1//1
@@ -981,7 +981,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                    vPerp(3,3) =  1//1
                    vPerp(1,4) =  1//1
                    vPerp(3,4) = -1//1
-                   
+
                 case (3)
                    vPerp(3,:) =  0//1
                    vPerp(1,1) =  1//1
@@ -999,5 +999,5 @@ SubModule (CFML_gSpaceGroups) SPG_037
           call Smallest_Integral_Vector(vPerp(:,i))
        end do
    End Function Get_VecPerp_To_RotAxis
-    
-End SubModule SPG_037   
+
+End SubModule SPG_037

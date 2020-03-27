@@ -40,7 +40,7 @@ SubModule (CFML_EoS) EoS_003
                else if(sqroot > -1.0*tiny(0.0) ) then
                   ptr=-2.0_cp*(T-eospar%params(21))/eospar%params(22)
                else
-                  err_CFML%Ierr=1 
+                  err_CFML%Ierr=1
                   write(err_CFML%Msg,'(a,f8.3,a)')'No real solution for Ptr at T = ',T,'K'
                end if
             end if
@@ -116,7 +116,7 @@ SubModule (CFML_EoS) EoS_003
       real(kind=cp),  intent(in) :: P       ! Pressure
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
       real(kind=cp)              :: Tr       ! The transition T at this P
-      
+
       !---- Local Variables ----!
 
       !>init
@@ -134,7 +134,7 @@ SubModule (CFML_EoS) EoS_003
             Tr = eospar%params(21)+p*eospar%params(22)+p*p*eospar%params(23)
       end select
    End Function Get_Transition_Temperature
-   
+
    !!----
    !!---- TRANSITION_PHASE
    !!----    Returns .true. if P and T are in the low phase stability field
@@ -149,7 +149,7 @@ SubModule (CFML_EoS) EoS_003
       real(kind=cp),  intent(in) :: T       ! Temperature
       type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameter
       logical                    :: Ip
-      
+
       !---- Local Variables ----!
       real(kind=cp)              :: Ttr      ! transition temperature at this pressure
 
@@ -176,5 +176,5 @@ SubModule (CFML_EoS) EoS_003
       !> Now invert result if the lowT phase is high symm phase:
       if (eospar%params(20) < 0) ip = .not. ip
    End Function Transition_Phase
-   
-End SubModule EoS_003   
+
+End SubModule EoS_003

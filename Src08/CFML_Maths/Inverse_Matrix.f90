@@ -461,7 +461,7 @@ Submodule (CFML_Maths) Inverse_Matrix
 
        return
     End Subroutine LU_Decomp
-    
+
     !!----
     !!---- LU_DESCOMPOSITION
     !!----
@@ -471,10 +471,10 @@ Submodule (CFML_Maths) Inverse_Matrix
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a(:,:)
        integer,       intent(   out) :: p(:)
-      
+
        !---- Local Variables ----!
        integer :: n,i,j,k,kmax
-      
+
        n=size(a,1)
        p=[ ( i, i=1,n ) ]
        do k = 1,n-1
@@ -483,7 +483,7 @@ Submodule (CFML_Maths) Inverse_Matrix
           a(p(k+1:),k) = a(p(k+1:),k) / a(p(k),k)
           forall (j=k+1:n) a(p(k+1:),j) = a(p(k+1:),j) - a(p(k+1:),k) * a(p(k),j)
        end do
-      
+
     End Subroutine LU_Descomposition
 
     !!----
@@ -504,12 +504,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        B=cmplx(0.0_cp,0.0_cp)
 
        !> Deter
-       det=determ(A,2) 
+       det=determ(A,2)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV2_C@MATHS: Determinant was zero!" 
-       end if  
-       
+          Err_CFML%MSG="MATINV2_C@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
@@ -540,12 +540,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        B=0.0_cp
 
        !> Deter
-       det=determ(A,2) 
+       det=determ(A,2)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV2_R@MATHS: Determinant was zero!" 
-       end if 
-       
+          Err_CFML%MSG="MATINV2_R@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
@@ -573,12 +573,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        complex(Kind=cp) :: det, detinv
 
        !> Deter
-       det=determ(A,3) 
+       det=determ(A,3)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV3_C@MATHS: Determinant was zero!" 
-       end if 
-       
+          Err_CFML%MSG="MATINV3_C@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
                  - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
@@ -613,12 +613,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        real(Kind=cp) :: det,detinv
 
        !> Deter
-       det=determ(A,3) 
+       det=determ(A,3)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV3_R@MATHS: Determinant was zero!" 
-       end if 
-        
+          Err_CFML%MSG="MATINV3_R@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = 1/(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
                  - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
@@ -653,12 +653,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        complex(kind=cp)             :: det,detinv
 
        !> Deter
-       det=determ(A,4) 
+       det=determ(A,4)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV4_C@MATHS: Determinant was zero!" 
-       end if 
-       
+          Err_CFML%MSG="MATINV4_C@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = &
                 1/(A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+ &
@@ -726,12 +726,12 @@ Submodule (CFML_Maths) Inverse_Matrix
        real(kind=cp)             :: det, detinv
 
        !> Deter
-       det=determ(A,4) 
+       det=determ(A,4)
        if (abs(det) <= epss) then
           Err_CFML%Ierr=1
-          Err_CFML%MSG="MATINV4_R@MATHS: Determinant was zero!" 
-       end if 
-       
+          Err_CFML%MSG="MATINV4_R@MATHS: Determinant was zero!"
+       end if
+
        !> Calculate the inverse determinant of the matrix
        detinv = &
                 1/(A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+ &

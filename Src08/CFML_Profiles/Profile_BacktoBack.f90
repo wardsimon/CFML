@@ -7,7 +7,7 @@ SubModule (CFML_Profiles) PRF_011
    !!----
    !!---- BACK_TO_BACK_EXP
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
       !---- Arguments ----!
@@ -28,12 +28,12 @@ SubModule (CFML_Profiles) PRF_011
       end if
 
       return
-   End Function Back_To_Back_Exp 
-   
+   End Function Back_To_Back_Exp
+
    !!----
    !!---- BACK_TO_BACK_EXP_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
    Module Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
       !---- Arguments ----!
@@ -69,5 +69,5 @@ SubModule (CFML_Profiles) PRF_011
 
       return
    End Subroutine Back_To_Back_Exp_Der
-    
+
 End SubModule PRF_011
