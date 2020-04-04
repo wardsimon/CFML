@@ -181,6 +181,147 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
 
    End Subroutine Change_Setting_SpaceG
 
+   Subroutine transf_E_groups(str)
+     character(len=*), intent(in out) :: str
+     ! --- Local variables ---!
+     character(len=len(str)) :: e_group
+     integer :: p2,pm,pm2,pe
+
+     e_group = pack_string(u_case(str))
+     p2 = index(e_group,"2")
+     pm2= index(e_group,"M",back=.true.)
+     pm = index(e_group,"M")
+     pe = index(e_group,"E")
+     if(pe == 0) return
+     ! Space groups 39 and 41
+     if(p2 /= 0) then
+       if(pm /= 0) then ! Space group 39
+
+          Select Case(pm)
+
+           Case(2)
+
+             if(e_group(1:1) == "B") then  ! e-> a
+               str="B M A 2"  ! Bme2
+             else
+               str="C M 2 A"  ! Cm2e
+             end if
+
+           Case(3)
+
+             if(e_group(1:1) == "A") then  ! e-> b
+               str="A B M 2"  !Aem2
+             else
+               str="C 2 M B"  !C2me
+             end if
+
+           Case(4)
+
+            if(e_group(1:1) == "A") then  ! e-> c
+              str="A C 2 M"  !Ae2m
+            else
+              str="B 2 C M"  !B2em
+            end if
+
+          End Select
+
+       else  ! Space group 41
+
+          Select Case(p2)
+
+            Case(4)
+
+              if(e_group(1:1) == "A") then  ! e-> b,a
+                str="A B A 2"  !Aea2
+              else
+                str="B B A 2"  !Bbe2
+              end if
+
+            Case(3)
+
+              if(e_group(1:1) == "A") then  ! e-> c,a
+                str="A C 2 A"  !Ae2a
+              else
+                str="C C 2 A"  !Cc2e
+              end if
+
+            Case(2)
+
+              if(e_group(1:1) == "B") then  ! e-> c,b
+                str="B 2 C B"  !B2eb
+              else
+                str="C 2 C B"  !C2ce
+              end if
+
+          End Select
+
+       end if
+
+     else ! Centrosymmetric groups
+
+       if(pm /= 0) then
+
+         if(pm2 == pm) then !Group 64
+
+            Select Case(pm)
+
+              Case(2) ! Cmce Bmeb
+
+                if(e_group(1:1) == "C") then
+                  str="C M C A"  !Cmce
+                else
+                  str="B M A B"  !Bmeb
+                end if
+
+              Case(3)  !Ccme Aema
+
+                if(e_group(1:1) == "C") then
+                  if(index(str,":") /= 0) then
+                    str="C C M B"  !Cmce
+                  else
+                    str="A C M B:1"  !Cmce:1
+                  end if
+                else
+                  str="A B M A"  !Aema
+                end if
+
+              Case(4) !Aeam Bbem
+
+                if(e_group(1:1) == "A") then
+                  str="A C A M"  !Aeam
+                else
+                  str="B B C M"  !Bbem
+                end if
+
+            End Select
+         else  ! Group 67
+
+            Select Case (pe)
+              case(2) !Aemm Ambiguous notation because the two groups Abmm and Acmm are not distinguished
+                str="A B M M"  !another option is str="A C M M"
+              case(3) !Bmem
+                str="B M C M"  !another option is str="B M A M"
+              case(4)
+                str="C M M A"  !another option is str="C M M B"
+            End Select
+         end if
+
+       else !Group 68 Ccca
+
+         Select Case (pe) !
+           case(2) !Aeaa Ambiguous notation because the two groups Abmm and Acmm are not distinguished
+             str="A B A A"  !another option is str="A C A A"
+           case(3) !Bbcb
+             str="B B C B"  !another option is str="B B A B"
+           case(4)
+             str="C C C A"  !another option is str="C C C B"
+         End Select
+
+       end if
+     end if
+
+   End Subroutine transf_E_groups
+
    Subroutine get_rcentring_vectors(d,im,L,newlat,roti)
       integer,                        intent(in)     :: d, im !dimension of the space
       integer,                        intent(in out) :: L !number of provisional lattice vectors
@@ -927,11 +1068,18 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
                exit
             end do
             str_HM_std=trim(str_HM)
+         else
+            n_it=0
          end if
 
          !> Is HM symbol defined in SPGR_INFO?
          if (n_it == 0) then
             str_HM=u_case(trim(Str))
+            !Check if the new nomenclature of some orthorhombic groups are being used
+            if(index(str_HM,"E") /= 0) then !Convert to the traditional nomenclature to use the appropriate generators
+              !The new notation cannot handle all possible settings for the space groups 67 and 68
+              call transf_E_groups(str_HM)
+            end if
             do i=1,NUM_SPGR_INFO
                if (trim(str_HM) /= trim(spgr_info(i)%hm)) cycle
                n_it    = spgr_info(i)%n

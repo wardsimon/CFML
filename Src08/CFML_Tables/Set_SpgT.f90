@@ -3758,7 +3758,7 @@ SubModule (CFML_Symmetry_Tables) Set_Routines
       spgr_info(373:402)= (/                                           &
            spgr_info_type( 66,"C C C M     ","-C 2 2c         ", 3,10, (/ 0, 0, 0,  6, 12, 12/),"     ") , &
            spgr_info_type( 66,"A M A A     ","-A 2a 2         ", 3,10, (/ 0, 0, 0, 12,  6, 12/),"cab  ") , &
-           spgr_info_type( 66,"B A M B     ","-B 2b -2a       ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"bca  ") , &
+           spgr_info_type( 66,"B B M B     ","-B 2b -2xb      ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"bca  ") , &
            spgr_info_type( 67,"C M M A     ","-C 2b 2         ", 3,10, (/ 0, 0, 0, 12,  6, 12/),"     ") , &
            spgr_info_type( 67,"C M M B     ","-C 2b 2b        ", 3,10, (/ 0, 0, 0,  6, 12, 12/),"ba-c ") , &
            spgr_info_type( 67,"A B M M     ","-A 2c 2c        ", 3,10, (/ 0, 0, 0, 12, 12,  6/),"cab  ") , &
