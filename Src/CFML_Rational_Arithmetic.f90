@@ -1354,9 +1354,9 @@
         end do
 
     end function IsDiagonalMatrix
-    
+
     logical function IsNullVector(v) Result(null)
-    
+
         !---- Arguments ----!
         type(rational), dimension(:), intent(in) :: v
 
@@ -1370,8 +1370,8 @@
                 return
             end if
         end do
-    
-    end function IsNullVector    
+
+    end function IsNullVector
 
     subroutine Rational_Rank(M,r)
 
