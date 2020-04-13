@@ -133,6 +133,8 @@
     write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//".int"
     if(cond%split_mag) &
     write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//"_mag.int"
+    if(cond%to_og) &
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//"_mag_og.int"
     write(unit=*,fmt="(a,a)")   "           Reject  file: ", trim(cond%fileout)//".rej"
     write(unit=*,fmt="(a)")   " "
 

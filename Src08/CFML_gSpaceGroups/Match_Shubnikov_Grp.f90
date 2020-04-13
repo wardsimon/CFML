@@ -228,8 +228,8 @@ SubModule (CFML_gSpaceGroups) SPG_042
                 if (spacegroup_label_bns(i)(2:2) == "_") magLat(2) = spacegroup_label_bns(i)(3:3)
                 do n = 1 , nA
                     if (doTest(n)) then
-                        if (G_aux(n)%shu_lat(1) .ne. magLat(1) .or. &
-                            G_aux(n)%shu_lat(2) .ne. magLat(2)) cycle
+                        if (G_aux(n)%shu_lat(1) /= magLat(1) .or. &
+                            G_aux(n)%shu_lat(2) /= magLat(2)) cycle
                         ! Try to find the same set of generators in the standard magnetic group
                         ngen_ = 0
                         do j = 1 , ngen

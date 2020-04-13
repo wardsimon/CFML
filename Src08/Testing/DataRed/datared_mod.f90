@@ -34,12 +34,13 @@
       logical :: mag_only     = .false.
       logical :: print_all    = .false.
       logical :: split_mag    = .false.
+      logical :: to_OG        = .false.
       character(len=:), allocatable :: title,forma
       character(len=:), allocatable :: filhkl
       character(len=:), allocatable :: fileout
       integer                       :: hkl_type
       real(kind=cp), dimension(:,:),allocatable :: transhkl !Should be allocated after knowing the number of propagation vectors
-      real(kind=cp), dimension(3)   :: cel,ang
+      real(kind=cp), dimension(3)   :: cel,ang,kv_og
       real(kind=cp)                 :: epsg, wavel
       real(kind=cp)                 :: warning=0.25  ! 25% error for warning equivalent reflections
       real(kind=cp)                 :: scal_fact=1.0
@@ -150,6 +151,14 @@
               if(ier /= 0) cond%scal_fact=1.0_cp
               cond%scale_given=.true.
 
+            Case("TO_OG") !Propagation vector to transform BNS description to OG
+              read(unit=line(j:),fmt=*,iostat=ier)  cond%kv_og
+              if(ier /= 0) then
+                cond%kv_og=0.0_cp
+              else
+                cond%to_og=.true.
+              end if
+
             Case("STATISTICS")
               cond%statistics=.true.
 
@@ -197,6 +206,19 @@
          End Select
 
       end do
+
+      if(cond%to_og .and. .not. cond%transf_ind)  then
+        cond%transf_ind=.true.
+        allocate(cond%transhkl(D,D))
+        cond%transhkl=0.0
+        do i=1,3
+           if(abs(cond%kv_og(i)) < 0.0001) then
+             cond%transhkl(i,i)= 1.0
+           else
+             cond%transhkl(i,i)= 1.0/cond%kv_og(i)
+           end if
+        end do
+      end if
 
     End Subroutine Read_DataRed_File
 
@@ -299,6 +321,13 @@
        if(cond%hkl_real) then
           write(unit=*,fmt="(a)")   " => hkl indices will be treated as real numbers "
           write(unit=iou,fmt="(a)") " => hkl indices will be treated as real numbers "
+       end if
+
+       if(cond%to_og) then
+          write(unit=*,fmt="(a)")   " => hkl indices will be also output as type: hkl ivk (Opechowski-Guccione setting + kvect)"
+          write(unit=iou,fmt="(a)") " => hkl indices will be also output as type: hkl ivk (Opechowski-Guccione setting + kvect)"
+          write(unit=iou,fmt="(a,3f10.4,a)") " => Opechowski-Guccione k-vector:  [",cond%kv_og," ]"
+          write(unit=iou,fmt="(a)") " => Indices for equivalences/extinction-conditions are those corresponding to the BNS-setting according to the transformation given below"
        end if
 
        if(cond%transf_ind) then

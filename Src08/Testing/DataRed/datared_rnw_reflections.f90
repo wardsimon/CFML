@@ -170,7 +170,7 @@
                  exit
                end if
                if(.not. zbelong(h1(:))) then
-                  if(cond%prop) then
+                  if(cond%prop .or. cond%to_og) then
                     cond%hkl_real=.true.
                   else
                     if(cond%transf_ind) then
@@ -193,7 +193,7 @@
                      h1=real(nint(h1))
                   end if
                end if
-               Ob(nr)%hr=h1
+               Ob(nr)%hr=h1 !This is not transformed when cond%to_og=.true.
             end do
 
         Case(2)     ! Jane's format for .fsq:   Two lines per reflection
@@ -220,7 +220,7 @@
                  exit
                end if
                if(.not. zbelong(h1)) then
-                 if(cond%prop) then
+                 if(cond%prop .or. cond%to_og) then
                    cond%hkl_real=.true.
                  else
                    if(cond%transf_ind) then
@@ -313,7 +313,7 @@
                end if
                h1=Ob(nr)%hr
                if(.not. zbelong(h1)) then
-                 if(cond%prop) then
+                 if(cond%prop .or. cond%to_og) then
                    cond%hkl_real=.true.
                  else
                    if(cond%transf_ind) then
@@ -346,7 +346,7 @@
                  exit
                end if
                if(.not. zbelong(h1)) then
-                 if(cond%prop) then
+                 if(cond%prop .or. cond%to_og) then
                    cond%hkl_real=.true.
                  else
                    if(cond%transf_ind) then
@@ -482,7 +482,7 @@
                end if
 
                if(.not. zbelong(h1)) then
-                 if(cond%prop) then
+                 if(cond%prop .or. cond%to_og) then
                    cond%hkl_real=.true.
                  else
                    if(cond%transf_ind) then
@@ -508,7 +508,7 @@
 
       do i=1,nr
          h1=Ob(i)%hr
-         if(cond%prop) then
+         if(cond%prop .or. cond%to_og) then
            Ob(i)%s=h_s(Ob(i)%hr,cell)
          else
            Ob(i)%h=nint(h1)
@@ -534,15 +534,22 @@
       allocate(Ref%Ref(nr),source=Ob)
 
 
+      found=.true.
       do i=1,nr
         j=ind(i)
         !Now calculate the integer indices
         if(cond%hkl_type /= 11) then
-          if(present(Gk)) then
-            call get_integer_indices(Ob(j)%hr,kinfo,Ob(j)%h,found,Gk,Ob(j)%ekv)
+          if(cond%to_og) then !Transform the real indices to integers + og_kvect
+             h1=Ob(j)%hr
+             Ob(j)%h=nint(matmul(cond%transhkl,h1))
           else
-            call get_integer_indices(Ob(j)%hr,kinfo,Ob(j)%h,found)
+             if(present(Gk)) then
+               call get_integer_indices(Ob(j)%hr,kinfo,Ob(j)%h,found,Gk,Ob(j)%ekv)
+             else
+               call get_integer_indices(Ob(j)%hr,kinfo,Ob(j)%h,found)
+             end if
           end if
+
           if(.not. found) then
              Ob(j)%pfn=1
              write(unit=*,fmt="(a,3f8.4)") " => Warning: no combination of the given Q_coefficients have been found for reflection: ",Ob(j)%hr
