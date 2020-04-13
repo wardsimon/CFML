@@ -112,7 +112,11 @@ SubModule (CFML_gSpaceGroups) Spg_058
        G_std%spg_lat=str_HM(1:1)
        G_std%spg_symb=str_HM(1:1)//l_case(str_HM(2:))
        G%spg_lat=G_std%spg_lat
-       G%BNS_symb=G_std%BNS_symb
+       if(len_trim(G_std%BNS_symb) == 0) then
+         G%BNS_symb=G_std%spg_symb
+       else
+         G%BNS_symb=G_std%BNS_symb
+       end if
        if (Err_CFML%Ierr /= 0) return
 
        do s=1, n
