@@ -1,4 +1,4 @@
-SubModule (CFML_gSpaceGroups) SPG_022
+SubModule (CFML_gSpaceGroups) SPG_SubGroups
    Contains
 
    !!----
@@ -15,13 +15,16 @@ SubModule (CFML_gSpaceGroups) SPG_022
    !!----   This ordering facilitates the calculation of the major part of subgroups
    !!----   (excluding those for which less centring translations are considered)
    !!----   If indexg is present only the subgroups of index=indexg are output
+   !!----   If point is present, this logical array of dimension (multip,n_subgroups)
+   !!----   has its value .true. for the operators of the input SpG that belong to the
+   !!----   considered subgroup.
    !!----
    !!---- 20/04/2019
    !!
    Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
       !---- Arguments ----!
-      type(Spg_Type),                  intent( in) :: SpG
-      type(Spg_Type),dimension(:),     intent(out) :: SubG
+      type(Spg_Type),                   intent( in) :: SpG
+      type(Spg_Type),dimension(:),      intent(out) :: SubG
       integer,                          intent(out) :: nsg
       integer,                 optional,intent(in)  :: indexg
       logical, dimension(:,:), optional,intent(out) :: point
@@ -32,10 +35,9 @@ SubModule (CFML_gSpaceGroups) SPG_022
       character (len=40), dimension(:),allocatable :: gen
       character (len=40), dimension(30)            :: gen_lat
       character (len=40)                           :: gen_cent
-
       type(Symm_Oper_Type)                         :: Op_cent
       type(Symm_Oper_Type), dimension(30)          :: Op_lat
-      type(Spg_Type), dimension(:), allocatable   :: sG
+      type(Spg_Type), dimension(:), allocatable    :: sG
       integer, dimension(size(SubG))               :: index_sg, ind
 
       !> Init
@@ -142,7 +144,6 @@ SubModule (CFML_gSpaceGroups) SPG_022
                   end if
                end do
                if (.not. newg) L=L-1
-
             else
                L=L-1
             end if
@@ -217,4 +218,4 @@ SubModule (CFML_gSpaceGroups) SPG_022
       end if
    End Subroutine Get_SubGroups
 
-End SubModule SPG_022
+End SubModule SPG_SubGroups

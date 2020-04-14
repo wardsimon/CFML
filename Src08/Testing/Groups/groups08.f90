@@ -58,7 +58,7 @@
        set_given=.false.; sup_given=.false.; datb_given=.false.
        write(*,'(/,a,/)') " => Examples of input to the next question:"
        write(*,'(a)') "1236   :: a,b,c;0,0,0                  <-- Shubnikov group type 1236 in standard setting"
-       write(*,'(a)') "123    :: a,c,b;1/2,0,0                <-- Space group type 123 in non-standard setting"
+       write(*,'(a)') "123    :: a,-c,b;1/2,0,0               <-- Space group type 123 in non-standard setting"
        write(*,'(a)') "Pn'ma                                  <-- Shubnikov group type Pn'ma in standard setting"
        write(*,'(a)') "Pn'ma  :: -c,b,a;0,0,0                 <-- Shubnikov group type Pn'ma in the non-standard setting Pcmn'"
        write(*,'(a)') "B 2 C B                                <-- space #41 of standard symbol Aba2"
@@ -89,8 +89,24 @@
                setting= adjustl(generatorlist(i+2:))
                set_given=.true.
              end if
+             generatorlist=generatorlist(1:i-1)
           end if
        else
+          i=index(generatorList,"::")
+          if(i /= 0) then
+             j=index(generatorList,"sup")  !Superspace
+             if(j /= 0) then
+               sup_given=.true.
+               if(index(generatorList,"a1") /= 0) then
+                 setting= adjustl(generatorlist(i+2:j-1))
+                 set_given=.true.
+               end if
+             else
+               setting= adjustl(generatorlist(i+2:))
+               set_given=.true.
+             end if
+             generatorlist=generatorlist(1:i-1)
+          end if
           i=index(generatorList,"'")
           j=index(generatorList,"_")
           if(i /= 0 .or. j /= 0) datb_given=.true.
@@ -138,11 +154,16 @@
        end do
        !> Testing Get_subgroups_cosets
        if (indexg == 0) then
-          call get_subgroups_subgen(Grp,sGrp,nsg)
-
+          !call get_subgroups_subgen(Grp,sGrp,nsg)
+          call get_subgroups(Grp,sGrp,nsg)
        else if(indexg > 0) then
-          call get_subgroups_subgen(Grp,sGrp,nsg,indexg)
+          !call get_subgroups_subgen(Grp,sGrp,nsg,indexg)
+          call get_subgroups(Grp,sGrp,nsg,indexg)
        else
+          cycle
+       end if
+       if (Err_CFML%Ierr /= 0) then
+          write(*,'(/,4x,a)') trim(Err_CFML%Msg)
           cycle
        end if
 

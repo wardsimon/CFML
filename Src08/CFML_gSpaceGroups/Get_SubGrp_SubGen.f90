@@ -28,7 +28,7 @@ Submodule (CFML_gSpaceGroups) SPG_023
       !> Trivial P1: x,y,z
       if (Spg%Multip == 1) then
          SubG(1)=SpG
-         nsg=0
+         nsg=1
          return
       end if
 

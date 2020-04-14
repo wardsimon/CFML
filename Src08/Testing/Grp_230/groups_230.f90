@@ -14,9 +14,9 @@ Program test230_groups
    character(len=256)                  :: generatorList
    character(len=5)                    :: aux
    character(len=15)                   :: forma,hm
-   integer                             :: i,j,L,nsg,lun,nc,inig,fing,ier
+   integer                             :: i,j,L,nsg,lun,nc,inig,fing,ier,minuts
    integer, dimension(:), allocatable  :: cosets
-   real(kind=cp)                       :: start, fin,par
+   real(kind=cp)                       :: start, fin,par,secs
 
    type(Spg_Type)                      :: Grp
    type(Spg_Type), dimension(4096)     :: sGrp
@@ -71,7 +71,7 @@ Program test230_groups
                write(*,'(a,i4,a)') " => Error in the identification of the sub-group: ",L,"  => "//trim(Err_CFML%Msg)
             end if !else
                write(lun,"(/,2(a,i4),a20,a)") "  Sub-Group Number #",L, " of index: ",Grp%multip/sGrp(L)%multip, &
-               "  Symb: "//trim(sGrp(L)%BNS_symb),"  Transf. to standard: "//trim(sGrp(L)%mat2std_shu)
+               "  Symb: "//trim(sGrp(L)%BNS_symb),"  Transf. to standard: "//trim(sGrp(L)%mat2std_shu)//"    Generators: "//trim(sGrp(L)%generators_list)
 
                !> Write the coset decomposition of Grp with respect to the current subgroup
                call Get_Cosets(Grp,sGrp(L),cosets)
@@ -94,7 +94,9 @@ Program test230_groups
                                                        nsg," subgroups","CPU-time: ",fin-par," seconds"
    end do
    call CPU_TIME(fin)
-   write(*,"(a,f12.5,a)") "  CPU_Time for all calculations: ",(fin-start)/60.0," minutes"
-   write(lun,"(a,f12.5,a)") "  CPU_Time for all calculations: ",(fin-start)/60.0," minutes"
+   minuts=nint((fin-start)/60.0)
+   secs=((fin-start)/60.0-real(minuts))*60.0
+   write(*,"(/,a,i3,a,f9.5,a)")   "  CPU_Time for all calculations: ",minuts," minutes, ",secs," seconds"
+   write(lun,"(/,a,i3,a,f9.5,a)") "  CPU_Time for all calculations: ",minuts," minutes, ",secs," seconds"
 
 End Program test230_groups

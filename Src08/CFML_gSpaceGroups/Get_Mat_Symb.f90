@@ -56,6 +56,9 @@ SubModule (CFML_gSpaceGroups) SPG_012
       if (i /= 0) then
          x_typ=abc
          abc_transf=.true.
+      else if(index(Symb,"a1") /= 0) then
+         x_typ=abc
+         abc_transf=.true.
       end if
 
       Mat=0//1
