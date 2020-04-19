@@ -6,14 +6,34 @@ Submodule (CFML_gSpaceGroups) SPG_023
    !!----
    !!---- GET_SUBGROUPS_SUBGEN
    !!----
-   !!---- 20/04/19
+   !!----   This subroutine provides all subgroups of a generic space group
+   !!----   It is supposed that the operators have been already ordered, so
+   !!----   that if the group is centrosymmetric the position of the corresponding
+   !!----   operator is Numops+1, moreover if it is centred the symmetry operators
+   !!----   are orderd as:
+   !!----   [1...Numops] {-1|t}*[1...Numops] {1|t1}*[1...Numops] {-1|t}*[1 ... Numops]}
+   !!----   {1|t2}*[1...Numops] {-1|t}*[1 ... Numops]} ....
+   !!----   where t1,t2, ... are the centring translations
+   !!----   This ordering facilitates the calculation of the major part of subgroups
+   !!----   (excluding those for which less centring translations are considered)
+   !!----   If indexg is present only the subgroups of index=indexg are output
+   !!----   If point is present, this logical array of dimension (multip,n_subgroups)
+   !!----   has its value .true. for the operators of the input SpG that belong to the
+   !!----   considered subgroup.
+   !!----   The difference if this subroutine with respect to the Get_SubGroups subroutine
+   !!----   is that previously to calculating the subgroups, a list of generators of the
+   !!----   initial group is created in a better way than Get_SubGroups.
+   !!----   (Still testing for determining which one is more complete)
+   !!----
+   !!----   Updated: 17/04/2020
    !!
-   Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg)
+   Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg, point)
       !---- Arguments ----!
       type(Spg_Type),                    intent( in) :: SpG
       type(Spg_Type),dimension(:),       intent(out) :: SubG
       integer,                           intent(out) :: nsg
       integer,                  optional,intent(in)  :: indexg
+      logical, dimension(:,:),  optional,intent(out) :: point
 
       !--- Local variables ---!
       integer  :: i,L,j,k,d, nc, mp,maxg,ngen,nla,n,nop,idx,ng
@@ -151,6 +171,23 @@ Submodule (CFML_gSpaceGroups) SPG_023
          end do
       end do
       nsg=n
+
+      if (present(point)) then
+         point=.false.
+         do j=1,nsg
+            L=1
+            do i=1,SpG%multip
+               do k=L,SubG(j)%multip
+                  if (SubG(j)%Symb_Op(k) == SpG%Symb_Op(i)) then
+                     point(i,j) = .true.
+                     L=k+1
+                     exit
+                  end if
+               end do
+            end do
+         end do
+      end if
+
    End Subroutine Get_SubGroups_Subgen
 
 End Submodule SPG_023

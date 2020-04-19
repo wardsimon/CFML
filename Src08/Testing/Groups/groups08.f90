@@ -40,7 +40,7 @@
 
     character(len=256)                  :: generatorList
     character(len=80)                   :: setting
-    character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)"
+    character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)",mode
     character(len=5)                    :: aux
     type(Spg_Type)                      :: Grp
     type(Spg_Type), dimension(512)      :: sGrp
@@ -49,7 +49,7 @@
     integer, dimension(:),  allocatable :: ord
     integer :: i, j, L, nsg, ind, indexg, num_group, ier
     real(kind=cp) :: start, fin
-    logical :: set_given, sup_given, datb_given
+    logical :: set_given, sup_given, datb_given, full
 
     !> Init
     call Set_Conditions_NumOp_EPS(4096) !Maximum admissible multiplicity
@@ -135,30 +135,27 @@
           call Write_SpaceGroup_Info(Grp)
        end if
 
-       !call Group_Constructor(generatorList,Grp)
-       !if (Err_CFML%Ierr /= 0) then
-       !   write(*,'(/,4x,a)') trim(Err_CFML%Msg)
-       !   cycle
-       !else
-       !   call Identify_Group(Grp) !.false.
-       !   if (Err_CFML%Ierr /= 0) then
-       !      write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
-       !   end if
-       !   call Write_SpaceGroup_Info(Grp)
-       !end if
-
+       full=.false.
        do
           write(*,'(/,a)',advance='no') "Introduce the index of subgroups (if = 0, no restriction, if < 0 no calculation): "
-          read(*,*,iostat=ier) indexg
+          read(*,"(a)") mode
+          if(index(mode,"full") /= 0) full=.true.
+          read(mode,*,iostat=ier) indexg
           if(ier == 0) exit
        end do
        !> Testing Get_subgroups_cosets
        if (indexg == 0) then
-          !call get_subgroups_subgen(Grp,sGrp,nsg)
-          call get_subgroups(Grp,sGrp,nsg)
+         if(full) then
+            call get_subgroups_full(Grp,sGrp,nsg)
+         else
+            call get_subgroups(Grp,sGrp,nsg)
+         end if
        else if(indexg > 0) then
-          !call get_subgroups_subgen(Grp,sGrp,nsg,indexg)
+         if(full) then
+            call get_subgroups_full(Grp,sGrp,nsg,indexg)
+         else
           call get_subgroups(Grp,sGrp,nsg,indexg)
+         end if
        else
           cycle
        end if

@@ -21,7 +21,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
 
         !---- Local variables ----!
-        integer                                                    :: i,j,k,n,ngen,ngen_
+        integer                                                    :: i,j,k,n,ngen,ngen_,ni
         integer                                                    :: iniG,endG
         integer                                                    :: nPointOper,nA
         logical                                                    :: hexagonal,shift
@@ -126,14 +126,12 @@ SubModule (CFML_gSpaceGroups) SPG_042
         allocate(G_aux(nA))
         allocate(doTest(nA))
         allocate(idx(3,nA))
-        allocate(pointerToOper(2*G%multip,nA))
         allocate(C(4,4,nA),Cinv(4,4,nA),Paux(3,3,nA))
 
         !> Initialize arrays
         G_aux(:)           = G
         doTest(:)          = .true.
         idx(:,:)           = 0
-        pointerToOper(:,:) = 0
 
         !> Get transformation matrices for every setting we will test
         Caux(1:3,1:3) = matmul(P,M)
@@ -161,6 +159,9 @@ SubModule (CFML_gSpaceGroups) SPG_042
            G_aux(n)%pg   = G%pg
         end do
 
+        ni=maxval(G_aux(:)%multip)           !Allocation of pointerToOper moved here
+        allocate(pointerToOper(2*ni,nA))
+        pointerToOper(:,:) = 0
         !> Map each symmetry operation in pointerToOper for every possible setting
         do n = 1 , nA
            do i = 1 , G_aux(n)%multip

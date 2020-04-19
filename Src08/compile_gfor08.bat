@@ -275,7 +275,6 @@ rem   Submodules CFML_SpaceG
       gfortran -c %OPTC% -J..\mod Spg_Const_VGen.f90                 %OPT1%
       gfortran -c %OPTC% -J..\mod Get_Cosets.f90                     %OPT1%
       gfortran -c %OPTC% -J..\mod Get_SubGrp.f90                     %OPT1%
-      gfortran -c %OPTC% -J..\mod Get_SubGrp_SubGen.f90              %OPT1%
       gfortran -c %OPTC% -J..\mod Smallest_IntegralVec.f90           %OPT1%
       gfortran -c %OPTC% -J..\mod Get_LattType.f90                   %OPT1%
       gfortran -c %OPTC% -J..\mod Get_OriginShift.f90                %OPT1%

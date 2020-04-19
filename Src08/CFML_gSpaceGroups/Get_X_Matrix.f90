@@ -345,7 +345,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
    !!
    Module Function Get_P_Matrix(G,Nospin) Result(P)
       !---- Arguments ----!
-      class(spg_type),                 intent(in)  :: G
+      class(spg_type),                intent(in)  :: G
       logical, optional,              intent(in)  :: nospin
       type(rational), dimension(3,3)              :: P
 

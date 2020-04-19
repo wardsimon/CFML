@@ -75,11 +75,11 @@ Module CFML_gSpaceGroups
 
     public :: Allocate_OP, Allocate_SpaceGroup, Change_Setting_SpaceG,            &
               Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
-              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups,                   &
-              Get_SubGroups_SubGen, Group_Constructor,                            &
-              Identify_Group, Init_SpaceGroup,                                    &
-              Set_Conditions_NumOP_EPS, Set_SpaceGroup,                           &
-              Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec
+              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups, Group_Constructor,&
+              Identify_Group, Init_SpaceGroup,  Is_OP_Inversion_Centre,           &
+              Set_Conditions_NumOP_EPS, Set_SpaceGroup,Is_OP_Lattice_Centring,    &
+              Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec,Is_OP_Anti_Lattice, &
+              Get_SubGroups_full
 
     !---- Types ----!
 
@@ -561,13 +561,14 @@ Module CFML_gSpaceGroups
           logical, dimension(:,:), optional,intent(out) :: point
        End Subroutine Get_SubGroups
 
-       Module Subroutine Get_SubGroups_Subgen(SpG, SubG, nsg, indexg)
+       Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point)
           !---- Arguments ----!
-          type(Spg_Type),                   intent( in) :: SpG
-          type(Spg_Type),dimension(:),      intent(out) :: SubG
-          integer,                          intent(out) :: nsg
-          integer,                 optional,intent(in)  :: indexg
-       End Subroutine Get_SubGroups_Subgen
+          type(Spg_Type),                    intent( in) :: SpG
+          type(Spg_Type),dimension(:),       intent(out) :: SubG
+          integer,                           intent(out) :: nsg
+          integer,                  optional,intent(in)  :: indexg
+          logical, dimension(:,:),  optional,intent(out) :: point
+       End Subroutine Get_SubGroups_full
 
        Module Function Get_Symb_from_Mat_Tr(Mat, tr, oposite) Result(Str)
           !---- Arguments ----!
@@ -655,11 +656,6 @@ Module CFML_gSpaceGroups
           !---- Arguments ----!
           type(spg_type), intent(in out) :: G
        End Subroutine Identify_Crystal_System
-
-       Module Subroutine Identify_SpaceGroup_3D(G)
-          !---- Arguments ----!
-          class(spg_type),    intent(in out) :: G
-       End Subroutine Identify_SpaceGroup_3D
 
        Module Subroutine Identify_Group(G)
           !---- Arguments ----!

@@ -63,7 +63,7 @@ SubModule (CFML_gSpaceGroups) SPG_011
                         case ("-1")
                            car(2:)=car(3:)//"  "
                          case ("+1")
-                            car=car(3:)//"  "
+                           car=car(3:)//"  "
                      end select
                   else
                      car(2:)=car(3:)//"  "

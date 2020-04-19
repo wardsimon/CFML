@@ -274,7 +274,6 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Spg_Const_VGen.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_Cosets.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_SubGrp.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Get_SubGrp_SubGen.f90                  /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Smallest_IntegralVec.f90               /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_LattType.f90                       /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_OriginShift.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
