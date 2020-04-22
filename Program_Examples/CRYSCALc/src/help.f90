@@ -14,14 +14,14 @@ subroutine write_CRYSCALC_title()
  !call write_info(trim(TXT_sep_line))
  !do i= 3, title_lines_nb -2
  ! !call write_info(TRIM(title_line(i)))
- ! call center_TXT_line(title_line(i))  
+ ! call center_TXT_line(title_line(i))
  !end do
  !call write_info(trim(TXT_sep_line))
  !call write_info('')
- 
+
  call write_info('')
  do i= 2, title_lines_nb-1
-  call center_TXT_line(title_line(i))  
+  call center_TXT_line(title_line(i))
  end do
  call write_info('')
 
@@ -474,11 +474,11 @@ subroutine HELP_on_line
     case ("REF_SHELX")
      call write_help_lines(HELP_REF_SHELX_numor)
      keyword_ok = .true.
-	 
+
 	case ("REF_SIR")
      call write_help_lines(HELP_REF_SIR_numor)
      keyword_ok = .true.
-	 
+
 	case ("REF_SPF", "REF_SUPERFLIP")
      call write_help_lines(HELP_REF_SPF_numor)
      keyword_ok = .true.

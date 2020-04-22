@@ -907,9 +907,9 @@ subroutine run_keyword_interactive(current_keyword)
 
       case ('REF_SIR')
         call write_REF('SIR')
-		
+
       case ("REF_SPF", "REF_SUPERFLIP", "SPF", "SUPERFLIP")
-        call write_REF('SPF')		
+        call write_REF('SPF')
 
       case ('REF_SADABS', 'REF_SAD', 'SADABS')
        call write_REF('SADABS')

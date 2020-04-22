@@ -18,7 +18,7 @@ subroutine list_space_groups()
       call write_info(' ')
 
       n_out = 0
-	  
+
       if(list_sg(1)) then          ! triclinique
        i1 = 1
        i2 = 2

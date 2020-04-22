@@ -893,7 +893,7 @@ subroutine  create_report
       structure_refinement%name(1:11) == 'SHELXL-2016') SHELXL_2014 = .true.
   endif
 
- 
+
   if(HTML_report) then
    !WRITE(HTML_unit, '(a)') "The structure was solved by direct methods using the SIR97 program [1], "
    WRITE(HTML_unit, '(4a)') "The structure was solved by ", trim(solving_method), " using the <i>",  &

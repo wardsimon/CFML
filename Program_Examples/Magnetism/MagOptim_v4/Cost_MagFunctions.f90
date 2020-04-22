@@ -196,7 +196,7 @@
                  end if
                  end do
                   Write(unit=lun,fmt="(/)")
-                 
+
               case (4)    !Optimization "F2mag_mupad"
                  Write(unit=lun,fmt="(a,f12.4)") &
                  " => Cost(F2mag_mupad): Optimization of Sum(|Obs-Scale*Calc|^2) / Sum(sigma^2)) / (Nobs-Npar): ",cost
@@ -221,7 +221,7 @@
 !******************************************!
       real,dimension(:),    intent( in):: v
       real,                 intent(out):: cost
-      
+
        !---- Arguments ----!
 
       !---- Local variables ----!
@@ -270,10 +270,10 @@
                         cost=cost+ Pcost(iset)* WCost(1)
                       end if
                     end do
-                    cost=cost/(9*Nobs-NP_Refi) !normalized cost 
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
-!                   cost=cost/(9*sum([(MultiData%Nobs(iset),iset=1,Nset)])-NP_Refi) !normalized cost 
- 
+!                   cost=cost/(9*sum([(MultiData%Nobs(iset),iset=1,Nset)])-NP_Refi) !normalized cost
+
                case(2)      !mupad
                     do iset=1,Nset
                       if(Multidata%SNP(iset)) then
@@ -282,11 +282,11 @@
                         cost=cost+ Pcost(iset)* WCost(2)
                       end if
                     end do
-                    cost=cost/(9*Nobs-NP_Refi) !normalized cost 
+                    cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
                case(3)      !F2mag+cryopad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_Dom_Data(iset)
                         call Cost_Pol(iset,Pcost(iset))
                         costPol=costPol+ Pcost(iset)* WCost(3)
@@ -301,7 +301,7 @@
 
                case(4)      !F2mag+mupad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_CrSec_Data(iset)
                         call Cost_Pol_sVs(iset,Pcost(iset))
                         costPol=costPol+ Pcost(iset)* WCost(4)
@@ -339,27 +339,27 @@
 
                case(1)      !cryopad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_Dom_Data(iset)
                         call Cost_Pol(iset,Pcost(iset))
                         cost=cost+ Pcost(iset)* WCost(1)
                        end if
                    end do
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost 
- 
+                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
+
                case(2)      !mupad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_CrSec_Data(iset)
                         call Cost_Pol_sVs(iset,Pcost(iset))
                         cost=cost+ Pcost(iset)* WCost(2)
                        end if
                     end do
-                   cost=cost/(9*Nobs-NP_Refi) !normalized cost 
+                   cost=cost/(9*Nobs-NP_Refi) !normalized cost
 
                case(3)      !F2mag+cryopad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_Dom_Data(iset)
                         call Cost_Pol(iset,Pcost(iset))
                         costPol=costPol+ Pcost(iset)* WCost(3)
@@ -374,7 +374,7 @@
 
                case(4)      !F2mag+mupad
                     do iset=1,Nset
-                      if(Multidata%SNP(iset)) then 
+                      if(Multidata%SNP(iset)) then
                         call Calc_Polar_CrSec_Data(iset)
                         call Cost_Pol_sVs(iset,Pcost(iset))
                         costPol=costPol+ Pcost(iset)* WCost(4)
@@ -425,7 +425,7 @@
 
        !---- Here Cost is not normalised to Nobs,Npar
         cost=0.0
-        
+
         do iobs=1,MultiData%Nobs(iset) !loop over Polar observations
           cost =  cost + sum(PolaroMultilist%Polarolist(iset)%Polaro(iobs)%woPij * &
                  ( (PolariMultilist%Polarilist(iset)%Polari(iobs)%Pij - &
@@ -496,22 +496,22 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
       num_dom=0
       i=0
 
-      do 
+      do
       i=i+1
       if(i >= file_cfl%nlines) exit
 
       lowline=l_case(adjustl(file_cfl%line(i)))
- 
+
       if(lowline(1:6) == "magdom".and.magdom_begin) then
-        num_dom=num_dom+1 
+        num_dom=num_dom+1
         ip=index(lowline,":")
         write(unit=file_cfl%line(i),fmt="(a,2f7.4)") lowline(1:ip),Mag_Dom%Pop(1:2,num_dom)
         write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
         do
           i=i+1
-          lowline=adjustl(l_case(file_cfl%line(i)))         
+          lowline=adjustl(l_case(file_cfl%line(i)))
           if(lowline(1:6) == "magdom") then
-            num_dom=num_dom+1 
+            num_dom=num_dom+1
             ip=index(lowline,":")
             write(unit=file_cfl%line(i),fmt="(a,2f7.4)") lowline(1:ip),Mag_Dom%Pop(1:2,num_dom)
             write(unit=lun,fmt="(a)") trim(file_cfl%line(i))
@@ -521,7 +521,7 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
             exit
           end if
         end do
-        cycle 
+        cycle
       end if! end magdom
 
        if(lowline(1:5) == "matom") then
@@ -535,7 +535,7 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
        end if
 
        if(lowline(1:3) == "skp".and.skp_begin) then
-         num_skp=num_skp+1 !max mA%atom(num_matom)%nvk 
+         num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
          read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
          if(MGp%Sk_type == "Spherical_Frame") then
            Rsk(:)=mA%atom(num_matom)%Spher_Skr(:,ik)
@@ -544,13 +544,13 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
          else
            Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
            Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-           Ph=mA%atom(num_matom)%mphas(ik)        
+           Ph=mA%atom(num_matom)%mphas(ik)
          end if
 
          write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
          do
            i=i+1
-           lowline=adjustl(l_case(file_cfl%line(i)))         
+           lowline=adjustl(l_case(file_cfl%line(i)))
            if(lowline(1:3) == "skp") then
              num_skp=num_skp+1
              read(unit=lowline(4:),fmt=*,iostat=ier) ik,im,Rsk,Isk,Ph
@@ -561,7 +561,7 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
              else
                Rsk(:)=mA%atom(num_matom)%Skr(:,ik)
                Isk(:)=mA%atom(num_matom)%Ski(:,ik)
-               Ph=mA%atom(num_matom)%mphas(ik)        
+               Ph=mA%atom(num_matom)%mphas(ik)
              end if
              write(unit=file_cfl%line(i),fmt='(a,i8,i3,7f8.3)') 'skp',ik,im,Rsk,Isk,Ph
            else
@@ -576,27 +576,27 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
        forma="(a6,i8,i3,  f8.3)"
 
        if(lowline(1:6) == "bfcoef".and.bfcoef_begin) then
-         num_skp=num_skp+1 !max mA%atom(num_matom)%nvk 
+         num_skp=num_skp+1 !max mA%atom(num_matom)%nvk
          read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
          n=abs(MGp%nbas(im))
 
          write(unit=forma(11:12),fmt="(i2)") n+1
          read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
-         coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik) 
-         Ph=mA%atom(num_matom)%mphas(ik)        
-         write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph        
+         coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
+         Ph=mA%atom(num_matom)%mphas(ik)
+         write(unit=file_cfl%line(i),fmt=forma) 'bfcoef',ik,im,coef(1:n),Ph
 
          do
            i=i+1
-           lowline=adjustl(l_case(file_cfl%line(i)))         
+           lowline=adjustl(l_case(file_cfl%line(i)))
            if(lowline(1:6) == "bfcoef") then
              num_skp=num_skp+1
              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im
              n=abs(MGp%nbas(im))
              write(unit=forma(11:12),fmt="(i2)") n+1
              read(unit=lowline(7:),fmt=*,iostat=ier) ik,im,coef(1:n),ph
-             coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik) 
-             Ph=mA%atom(num_matom)%mphas(ik)        
+             coef(1:n)= mA%atom(num_matom)%cbas(1:n,ik)
+             Ph=mA%atom(num_matom)%mphas(ik)
              write(unit=file_cfl%line(i),fmt="(a,i8,i3,4f8.3)") 'bfcoef',ik,im,coef(1:n),Ph
            else
              i=i-1
@@ -611,5 +611,5 @@ Subroutine Write_SOL_mCFL(lun,file_cfl,mA,Mag_dom,comment)
       end do
 
     End Subroutine Write_SOL_mCFL
-    
+
   End Module cost_magfunctions

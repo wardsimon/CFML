@@ -99,7 +99,7 @@ subroutine read_SHELX_HKL(input_string)
     call write_CIF_section("HKL DATA from SADABS")
    else
     call write_CIF_section("HKL DATA from TWINABS")
-   end if   
+   end if
   else
    call write_CIF_section("HKL DATA from SAINT")
   end if

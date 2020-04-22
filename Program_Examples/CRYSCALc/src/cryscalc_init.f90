@@ -68,7 +68,7 @@ subroutine cryscalc_init()
   DEVICE%Xcalibur  = .false.
   DEVICE%SuperNova = .false.
 
-  
+
   !Structure_solution%title       = "SIR97: a new tool for crystal structure determination and refinement"
   !Structure_solution%DOI         = "10.1107/S0021889898007717"
   Structure_solution%name         = 'SIR97'
@@ -76,13 +76,13 @@ subroutine cryscalc_init()
                                     'C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, '//   &
                                     'G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119'
   Structure_solution%CIF_ref      = 'SIR97 (Altomare et al., 1999)'
-  
-  
+
+
   !Structure_solution%title        = "SIR2004: an improved tool for crystal structure determination and refinement"
   !Structure_solution%DOI          = "10.1107/S002188980403225X"
   !Structure_solution%name         = 'SIR2004'
   !Structure_solution%reference    = 'M.C. Burla, R. Caliandro, M. Camalli, B. Carrozzini, '//  &
-  !                                   'G. Cascarano, L. De Caro, C. Giacovazzo, G. Polidori, '// & 
+  !                                   'G. Cascarano, L. De Caro, C. Giacovazzo, G. Polidori, '// &
   !  								  'R. Spagna, J. Appl. Cryst. (2005) 38, 381-388'
   !Structure_solution%CIF_ref      = 'SIR2004 (Burla., 2005)  '
 
@@ -98,7 +98,7 @@ subroutine cryscalc_init()
   !Structure_solution%reference    = 'Palatinus L., Chapuis G., J. Appl. Cryst. (2007, 40, 786-790'
   !Structure_solution%CIF_ref      = 'SUPERFLIP (Palatinus et al, 2007)'
 
-  
+
   CIF_parameter%atom_sites_solution_1 = "direct"    ! "structure-invariant direct methods"
   CIF_parameter%atom_sites_solution_2 = "difmap"    ! "difference Fourier map"
   !Structure_refinement%title     = 'A short history of SHELX'
@@ -106,13 +106,13 @@ subroutine cryscalc_init()
   Structure_refinement%name       = 'SHELXL-97'
   Structure_refinement%reference  = 'Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'
   Structure_refinement%CIF_ref    = 'SHELXL-97 (Sheldrick, 2008)'
-  
+
   !Structure_refinement%title     = 'Crystal structure refinement with SHELXL'
   !Structure_refinement%DOI       = '10.1107/S2053229614024218'
   Structure_refinement%name       = 'SHELXL-2014'
   Structure_refinement%reference  = 'SHELXL-2014/6: Sheldrick G.M., Acta Cryst. C71 (2015) 3-8'
   Structure_refinement%CIF_ref    = 'SHELXL-2014/6 (Sheldrick, 2015)'
-  
+
   Absorption_correction%name      = '?'
   Absorption_correction%reference = '?'
   Absorption_correction%CIF_ref   = '?'
@@ -203,7 +203,7 @@ subroutine cryscalc_init()
 
   SIR%name           = '?'
   SIR%details        = '?'
-  
+
   SPF%name           = '?'
   SPF%details        = '?'
 
@@ -673,11 +673,11 @@ subroutine cryscalc_init()
   CIF_parameter%abs_structure_details            = '?'
   CIF_parameter%shelx_res_checksum               = '?'
   CIF_parameter%shelx_hkl_checksum               = '?'
-  CIF_parameter%shelx_fab_checksum               = '?' 
+  CIF_parameter%shelx_fab_checksum               = '?'
   CIF_parameter%Friedel_coverage                 = "?"
   CIF_parameter%Friedel_fraction_full            = "?"
   CIF_parameter%Friedel_fraction_max             = "?"
-  
+
   CIF_parameter%WinGX_used                           = .false.
 
   CIF_parameter_DEVICE%diffracto_device                  = '?'
@@ -718,14 +718,14 @@ subroutine cryscalc_init()
   CIF_parameter_DEVICE%computing_molecular_graphics         = "'SXGRAPH (Farrugia, 1999), Mercury (CSD, 2016)'"
   CIF_parameter_DEVICE%computing_publication_material_1     = "WinGX publication routines (Farrugia, 2012),"
   CIF_parameter_DEVICE%computing_publication_material_2     = "CRYSCALC (T. Roisnel, local program, 2016)"
-  
+
   ! -------------- WinGX features -----------------------------------------
   ! ref   : Farrugia L. J., J. Appl. Crystallogr. 1999, 32, 837-838
   ! title : WinGX suite for small-molecule single-crystal crystallography
-  ! DOI   : 10.1107/S0021889899006020 
+  ! DOI   : 10.1107/S0021889899006020
   ! -----------------------------------------------------------------------
 
-  
+
 
 
   SW_DENZO%data_collection                              = "'Collect (Nonius BV, 1997-2000)'"
@@ -924,7 +924,7 @@ subroutine cryscalc_init()
   SHELX%details(4)  = "_computing_structure_refinement  'SHELXL-97:     Sheldrick G.M., Acta Cryst. A64 (2008), 112-122'"
   SHELX%details(5)  = "_computing_structure_refinement  'SHELXL-2014/6: Sheldrick G.M., Acta Cryst. C71 (2015) 3-8'"
   SHELX%details(6)  = ";"
-  
+
   SHELX%details(10) = "SHELXL-97"
   SHELX%details(11) = "  Sheldrick G.M., Acta Cryst. A64 (2008), 112-122"
   SHELX%details(12) = "  A short history of SHELX"
@@ -937,7 +937,7 @@ subroutine cryscalc_init()
   SHELX%details(19) = "  Sheldrick G.M., Acta Cryst. A71 (2015) 3-8"
   SHELX%details(20) = "  SHELXT - Integrated space-group and crystal-structure determination"
   SHELX%details(21) = "  DOI: http://dx.doi.org/10.1107/S2053273314026370"
-  
+
   SIR%details(1)    = "SIR97"
   SIR%details(2)    = "  A. Altomare, M. C. Burla, M. Camalli, G. Cascarano, C. Giacovazzo, A. Guagliardi, A. G. G. Moliterni, "// &
                       "G. Polidori, R. Spagna, J. Appl. Cryst. (1999) 32, 115-119"
@@ -953,13 +953,13 @@ subroutine cryscalc_init()
                       "A. Mazzoneb and G. Polidori, J. Appl. Cryst. (2015). 48, 306–309"
   SIR%details(11)   = "  SIR2004: an improved tool for crystal structure determination and refinement"
   SIR%details(12)   = "  DOI: http://dx.doi.org/10.1107/S1600576715001132"
- 
+
   SPF%details(1)    = "SUPERFLIP"
   SPF%details(2)    = "  Palatinus L., Chapuis G., J. Appl. Cryst. (2007, 40, 786-790"
   SPF%details(3)    = "  Superflip - a computer program for the solution of crystal structures by charge flipping " // &
                       "in arbitrary dimensions"
   SPF%details(4)    = "  DOI: http://dx.doi.org/10.1107/S0021889807029238"
-  
+
 
   ABS_CRYSALIS%type       = "_exptl_absorpt_correction_type                          multi-scan"
   ABS_CRYSALIS%details(1) = "_exptl_absorpt_process_details"

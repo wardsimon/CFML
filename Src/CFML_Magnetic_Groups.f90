@@ -1,9 +1,45 @@
+!!-------------------------------------------------------
+!!---- Crystallographic Fortran Modules Library (CrysFML)
+!!-------------------------------------------------------
+!!---- The CrysFML project is distributed under LGPL. In agreement with the
+!!---- Intergovernmental Convention of the ILL, this software cannot be used
+!!---- in military applications.
+!!----
+!!---- Copyright (C) 1999-2012  Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
+!!----
+!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
+!!----
+!!---- Authors: Juan Rodriguez-Carvajal (ILL)
+!!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
+!!----
+!!---- Contributors: Laurent Chapon     (ILL)
+!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----               Tierry Roisnel     (CDIFX,Rennes France)
+!!----               Eric Pellegrini    (ILL)
+!!----
+!!---- This library is free software; you can redistribute it and/or
+!!---- modify it under the terms of the GNU Lesser General Public
+!!---- License as published by the Free Software Foundation; either
+!!---- version 3.0 of the License, or (at your option) any later version.
+!!----
+!!---- This library is distributed in the hope that it will be useful,
+!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- Lesser General Public License for more details.
+!!----
+!!---- You should have received a copy of the GNU Lesser General Public
+!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
+!!----
+!!---- Special module Created by JRC in November 2012.
+!!---- Code based in the program "read_magnetic_data.f" and the data base "magnetic_data.txt"
+!!---- provided by Harold T. Stokes and Branton J. Campbell
+!!---- Brigham Young University, Provo, Utah, USA
+!!----
  Module CFML_Magnetic_Groups
-   !!---- Special module Created by JRC in November 2012.
-   !!---- Code based in the program "read_magnetic_data.f" and the data base "magnetic_data.txt"
-   !!---- provided by Harold T. Stokes and Branton J. Campbell
-   !!---- Brigham Young University, Provo, Utah, USA
-   !!----
    Use CFML_GlobalDeps
    Use CFML_Crystallographic_Symmetry, only: Get_Seitz_Symbol,Get_Trasfm_Symbol, &
                                              Get_Shubnikov_Operator_Symbol, Get_Transl_Symbol

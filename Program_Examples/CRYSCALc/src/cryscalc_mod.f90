@@ -216,7 +216,7 @@ module cryscalc_module
    CHARACTER (LEN=16)                :: name
    CHARACTER (LEN=16)                :: version
    CHARACTER (len=80)                :: type
-   CHARACTER (len=256), dimension(22):: details   
+   CHARACTER (len=256), dimension(22):: details
   end type SHELX_type
   type (SHELX_type) :: SHELX
   type (SHELX_type) :: SIR
@@ -544,7 +544,7 @@ module cryscalc_module
   character (len=256), dimension(2)            :: report_logo
 
   LOGICAL                                      :: expert_mode             ! allows specific instructions (ex: fic  = FILE import.cif)
-  LOGICAL                                      :: news_only_expert 
+  LOGICAL                                      :: news_only_expert
   LOGICAL                                      :: skip_start_menu         ! skip start menu
   LOGICAL                                      :: hkl_statistics          ! output statistics on hkl reflections
   LOGICAL                                      :: hkl_format_free         ! format libre pour un fichier .hkl
@@ -1720,7 +1720,7 @@ module CIF_module
    CHARACTER (LEN=256)                :: Friedel_coverage
    CHARACTER (LEN=256)                :: Friedel_fraction_max
    CHARACTER (LEN=256)                :: Friedel_fraction_full
-  
+
   END TYPE CIF_parameter_type
   TYPE (CIF_parameter_type) :: CIF_parameter
 

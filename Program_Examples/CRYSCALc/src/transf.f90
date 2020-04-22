@@ -1287,7 +1287,7 @@ end subroutine Create_HKLF5_file
      Kappa = motor(3)
     end if
 
-	
+
     kappa = kappa * pi / 180.    ! en rad
     ! calcul de Chi_euler: sin(Chi_euler/2) = sin(alfa).sin(kappa/2)
     sin_chi = SIN(alpha) * SIN(kappa/2)
@@ -1327,9 +1327,9 @@ end subroutine Create_HKLF5_file
     else
      Phi_E = motor(1)
      Om_E  = motor(2)
-     Chi   = motor(3)	 	
+     Chi   = motor(3)
     end if
-	
+
     if(Chi > 180.) Chi = 360.-Chi        ! new janvier 2017
     Chi = Chi * pi / 180.                ! en rad.
 

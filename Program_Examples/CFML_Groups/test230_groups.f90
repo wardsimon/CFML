@@ -16,9 +16,9 @@ Program test230_groups
     call Init_Group(2048) !Maximum admissible multiplicity
     call CPU_TIME(start)
     open(newunit=lun,file="test_230groups.out",status="replace",action="write")
-    write(*,"(a)",advance="no") " => Enter the numbers of the space groups to be analysed (two integers <=230)" 
+    write(*,"(a)",advance="no") " => Enter the numbers of the space groups to be analysed (two integers <=230)"
     read(*,*,iostat=ier) inig,fing
-    if(ier /= 0) then 
+    if(ier /= 0) then
       inig=2
       fing=230
     end if

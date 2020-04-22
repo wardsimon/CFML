@@ -1158,10 +1158,10 @@ subroutine search_hkl_EQUIV()
   ! ---------- feb. 2017 : check if systematic absence ----------------------
   if(hkl_absent(requested_H, SPG)) then
    call write_info("   Warning: Requested reflection IS a SYSTEMATIC absence in the current space group !")
-   return   
+   return
   end if
-  ! ------------------------------------------------------------------------- 
-   
+  ! -------------------------------------------------------------------------
+
   call write_info('')
   WRITE(message_text, '(a,3I4)') '  ... Search for equivalent reflections of: ', requested_H(1), requested_H(2), requested_H(3)
   call write_info(TRIM(message_text))
@@ -2393,7 +2393,7 @@ subroutine Get_Friedel_pairs_number
  USE HKL_module
  Use CFML_Reflections_Utilities,  ONLY : HKL_absent,  HKL_equiv, HKL_gen, Hkl_GEN_SXTAL, Get_MaxNumRef, reflect_type
  USE CFML_Crystal_Metrics,        ONLY : Set_Crystal_Cell
- 
+
 
  USE CFML_Math_General,           ONLY : sort
  USE IO_module,                   ONLY : write_info
@@ -2482,21 +2482,21 @@ subroutine Get_Friedel_pairs_number
   nb_Friedel    = n_ok_nc - n_ok_c
   nb_Friedel_2  = n_ok_2_nc - n_ok_2_c
 
-  
+
   ! calcul du nombre de Friedel attendu
   theta_min = MINVAL(theta_hkl(1:n_ref))
   theta_max = MAXVAL(theta_hkl(1:n_ref))
   STL_min  = SIN(theta_min  * PI / 180) / wavelength
   STL_max  = SIN(theta_max  * PI / 180) / wavelength
-  Num_ref  =  Get_MaxNumRef(STL_max, Unit_cell%volume, STL_min ) 
+  Num_ref  =  Get_MaxNumRef(STL_max, Unit_cell%volume, STL_min )
   IF(ALLOCATED(reflex_HKL))        DEALLOCATE(reflex_HKL)
   ALLOCATE(reflex_HKL(Num_ref), stat=ier)
    if(ier/=0) call write_alloc_error("reflex_HKL")
-     
-  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell) 
+
+  call set_crystal_Cell(unit_cell%param(1:3), unit_cell%param(4:6), crystal_cell)
   call HKL_gen(crystal_cell, SPG, .true., STL_min, STL_max, Num_ref, reflex_HKL )
-  
-  WRITE(message_text, '(a,I8)')            "  . Number of expected Friedel pairs         : ", Num_ref 
+
+  WRITE(message_text, '(a,I8)')            "  . Number of expected Friedel pairs         : ", Num_ref
   call write_info(TRIM(message_text))
   WRITE(message_text, '(a,I8,a,F6.2,a)')   "  . Number of valid Friedel pairs            : ", nb_Friedel, &
                                            "  (", 100.*nb_Friedel/Num_ref, "%)"
@@ -2646,7 +2646,7 @@ subroutine calcul_completude(n_ref, n_ok, input_string)
    WRITE(message_text, '(a,F6.2)')   '  . Completeness  = ', 100.*(REAL(n_ok)/REAL(exp_Num_ref))
   endif
   call write_info(TRIM(message_text))
-  
+
   IF(ALLOCATED(reflex_HKL))        DEALLOCATE(reflex_HKL)
   ALLOCATE(reflex_HKL(Num_ref), stat=ier)
 

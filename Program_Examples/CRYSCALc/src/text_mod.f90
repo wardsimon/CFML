@@ -72,7 +72,7 @@ subroutine def_title_lines
  title_line(18) = ""
  title_line(19) = "[with courtesy of JRC and JGP for CFML]"
  title_line(20) = ""
- title_line(21) = "" 
+ title_line(21) = ""
  title_line(22) = "contact  : "//trim(cryscalc%mail)
  title_line(23) = "Web site : "//trim(CRYSCALC%url)
  title_line(24) = ""
@@ -3446,13 +3446,13 @@ end subroutine Def_command_line_arguments
   integer                           :: i, long_1, long
 
   long = len_trim(import_string)
-  long_1 = int((TXT_line_width - long)/2) 
+  long_1 = int((TXT_line_width - long)/2)
   if(long_1 /=0) then
    write(fmt_, '(a,i2,a)') '(', long_1, 'a1,a)'
    write(new_string, trim(fmt_)) (' ', i=1, long_1), trim(import_string)
   else
    new_string = trim(import_string)
-  end if  
+  end if
   call write_TXT_line(trim(new_string))
 
   return
@@ -3474,8 +3474,8 @@ end subroutine Def_command_line_arguments
      write(fmt_, '(a,i2,a)') '(a,a,', TXT_line_width - long -2, 'x,a)'
 	 WRITE(output_line, fmt = trim(fmt_)) "    *", trim(import_string), "*"
 	else
-	 WRITE(output_line, fmt = '(2a)') "    *", trim(import_string) 
-    end if	
+	 WRITE(output_line, fmt = '(2a)') "    *", trim(import_string)
+    end if
 	call write_info(trim(output_line))
 
   return

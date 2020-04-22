@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -140,7 +141,7 @@
 !!----    Functions:
 !!----       CALC_CELL_STRAIN
 !!----       CALC_DEFORMATION_TENSOR
-!!----       CALC_DEFORMED_METRIC 
+!!----       CALC_DEFORMED_METRIC
 !!----       CART_U_VECTOR
 !!----       CART_VECTOR
 !!----       CELL_VOLUME_SIGMA
@@ -477,9 +478,9 @@
        return
 
     End Function Cart_Vector
-    
 
-    
+
+
 
     !!----
     !!---- Function Cell_Volume_Sigma(Cell) result(sigma)
@@ -899,7 +900,7 @@
     !!---- Coded from equations given by Zotov, Acta Cryst. (1990). A46, 627-628
     !!---- Ported from WinStrain (RJA)
     !!----
-    !!---- 28/02/2020 
+    !!---- 28/02/2020
     !!
     Function Calc_Cell_Strain(Itype,T0,T1) Result(Strain)
        !---- Arguments ----!
@@ -916,7 +917,7 @@
        !> Init
        singular=.false.
        strain=0.0_cp
-       
+
        do i=1,3
           strain(i,i)=0.1     ! safety
        end do
@@ -940,8 +941,8 @@
              do i=1,3
                 strain(i,i)=strain(i,i)+1.5
              end do
-          
-          case (2) ! Eulerian infinitesimal  
+
+          case (2) ! Eulerian infinitesimal
              call Invert_Matrix (S1, Sinv, Singular)
              w1=matmul(sinv,s0)      !
              do i=1,3
@@ -952,8 +953,8 @@
              do i=1,3
                 strain(i,i)=strain(i,i)+1.0
              end do
-             
-          case (3) ! lagrangian finite 
+
+          case (3) ! lagrangian finite
              call Invert_Matrix (S0, Sinv, Singular)
              w1=matmul(sinv,s1)
              w2=transpose(w1)      !
@@ -965,9 +966,9 @@
              end do
              do i=1,3
                 strain(i,i)=strain(i,i)-0.5
-             end do  
-             
-          case (4) ! lagrangian infinitesimal  
+             end do
+
+          case (4) ! lagrangian infinitesimal
              call Invert_Matrix (S0, Sinv, Singular)
              w1=matmul(sinv,s1)      !
              do i=1,3
@@ -981,89 +982,89 @@
        end select
 
     End Function Calc_Cell_Strain
-    
+
     !!----
     !!---- Function Calc_Deformed_Metric
     !!----
     !!----  Calculates metric tensor of deformed cell from initial cell and deformation tensor
     !!----  Initial cell and F matrix must be defined with respect to same axial system
-    !!---- 
-    !!----  26/02/2020, RJA  
-    !!       
+    !!----
+    !!----  26/02/2020, RJA
+    !!
     Function Calc_Deformed_Metric(C,F) Result(G)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in) ::  C  ! CR_Orth_Cel for a chosen axial system for the starting state
-       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.  
+       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.
        real(kind=cp), dimension(3,3)             ::  G  ! Metric tensor of deformed cell
 
        G=matmul(F,C)
        G=matmul(transpose(F),G)
        G=matmul(transpose(C),G)
-    
+
     End Function Calc_Deformed_Metric
 
 
     !!----
     !!---- Function Calc_Deformation_Tensor(C0,C1)
-    !!----  
+    !!----
     !!----  Calculates deformation tensor from CR_Orth_Cel matrices
-    !!---- 
-    !!----  26/02/2020, RJA  
-    !!      
+    !!----
+    !!----  26/02/2020, RJA
+    !!
     Function Calc_Deformation_Tensor(C0, C1) Result(F)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in) ::  C0 ! CR_Orth_Cel for a chosen axial system for the starting state
        real(kind=cp), dimension(3,3), intent(in) ::  C1 ! CR_Orth_Cel in same  axial system for the final state
-       real(kind=cp), dimension(3,3)             ::  F   ! Deformation tensor from C0 to C1. 
+       real(kind=cp), dimension(3,3)             ::  F   ! Deformation tensor from C0 to C1.
 
 
        !--- Local variables ---!
        integer                       :: i
-       real(kind=cp), dimension(3,3) :: C0inv 
+       real(kind=cp), dimension(3,3) :: C0inv
        logical                       :: singular
-       
+
        !> init
        F=0.0_cp
-       
+
        do i=1,3
           F(i,i)=1.0_cp
        end do
-       
+
        call Invert_Matrix (C0, C0inv, Singular)
        if (singular) return
-        
-       F=matmul(C1, C0inv)       
-       
+
+       F=matmul(C1, C0inv)
+
     End Function Calc_Deformation_Tensor
-      
-    !!----    
+
+    !!----
     !!---- Subroutine Cell_From_Metric
     !!----
     !!---- Calculates the cell parameters from metric tensor
-    !!----      
+    !!----
     !!----  26/02/2020, RJA
-    !!  
+    !!
     Subroutine Cell_From_Metric(G, Vcell, Volume)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in)  :: G      ! metric tensor
        real(kind=cp), dimension(6),   intent(out) :: Vcell  ! a,b,c, alpha, beta, gamma in degrees
        real(kind=cp), optional,       intent(out) :: Volume ! Volume
-    
+
        !--- Local variables ---!
        integer :: i
-    
+
        do i=1,3
           Vcell(i)=sqrt(G(i,i))
        end do
        Vcell(4)=acosd(G(2,3)/(vcell(2)*vcell(3)))
        Vcell(5)=acosd(G(1,3)/(vcell(1)*vcell(3)))
        Vcell(6)=acosd(G(1,2)/(vcell(1)*vcell(2)))
-       
-       if (present(volume)) then 
+
+       if (present(volume)) then
           call Determinant (G, 3, volume)
           volume=sqrt(abs(volume))
-       end if   
-    End Subroutine Cell_From_Metric  
+       end if
+    End Subroutine Cell_From_Metric
 
 
     !!----

@@ -1,6 +1,6 @@
 !     Last change:  TR   17 Jul 2007    4:07 pm
 subroutine interactive_mode(input_string)
- USE macros_module, ONLY : u_case 
+ USE macros_module, ONLY : u_case
  USE IO_module
  USE cryscalc_module
  USE HKL_module,    ONLY : HKL_list, search_EQUIV, search_FRIEDEL, requested_H
@@ -106,7 +106,7 @@ END subroutine interactive_mode
         if(nb_atom /=0)  call inside_unit_cell()
 
       case ('HEADER', 'HEAD')
-       call write_header 
+       call write_header
 
       case ('HELP', 'MAN')
         call help_on_line()
@@ -290,12 +290,12 @@ END subroutine interactive_mode
 
       case ('SEARCH_EXTI', 'FIND_EXTI')                       ! recherche des extinctions
         call search_exti()
-        
+
       case ("SEARCH_SPGR", "SEARCH_SPACE_GROUP", "SEARCH_GROUP",   &
             "CHECK_SPGR",  "CHECK_SPACE_GROUP",  "CHECK_GROUP")
         call search_SPGR()
 
-  
+
       case ('FIND_HKL', 'SEARCH_HKL')
         call search_hkl()                                     ! recherche reflection particuliere
 
@@ -304,7 +304,7 @@ END subroutine interactive_mode
 
       !case ('LIST_HKL', 'LST_HKL', 'LIST_HKL_EXTI', 'LST_HKL_EXTI')
       !CASE ("WRITE_HKL", "WRITE_HKL_LIST", "WRITE_HKL_LST")
-      CASE ("FIND_HKL_LIST", "FIND_HKL_LST", "EXTRACT_HKL_LIST", "EXTRACT_HKL_LST") 
+      CASE ("FIND_HKL_LIST", "FIND_HKL_LST", "EXTRACT_HKL_LIST", "EXTRACT_HKL_LST")
         if (HKL_list%EXTI_number/=0) call search_HKL_list()     ! recherche reflections obeissant à une règle d'extinctions
 
       case ('LIST_EXTI', 'LIST_EXTI_RULE', 'LST_EXTI', 'LST_EXTI_RULE')
@@ -337,18 +337,18 @@ END subroutine interactive_mode
         if (keyword_FILE) call twin_obverse_reverse
 
       CASE ('TRICLINIC', 'TRICL')
-       call transf_triclinic  
+       call transf_triclinic
 
 
       CASE ('MONOCLINIC', 'MONOC', 'MONOCL')
         call transf_monoclinic
-        
+
       CASE ('HEXA_TWIN', 'HEXA_TWINNING',  'HEXAGONAL_TWIN', 'HEXAGONAL_TWINNING', &
             'TWIN_HEXA', 'TWIN_HEXAGONAL', 'TWINNING_HEXA',  'TWINNING_HEXAGONAL')
         call twin_hexa
 
       CASE ('TWIN_PSEUDO_HEXA')
-        call twin_pseudo_hexa   
+        call twin_pseudo_hexa
 
 
       CASE ('PAUSE')
@@ -418,7 +418,7 @@ END subroutine interactive_mode
       case ('WRITE_DEVICE', 'OUTPUT_DEVICE')
         call write_DEVICE_features
 
-      case ('WRITE_BEAM', 'WRITE_INCIDENT_BEAM')  
+      case ('WRITE_BEAM', 'WRITE_INCIDENT_BEAM')
         call write_beam_features
 
       case ('REF_KCCD', 'KCCD')

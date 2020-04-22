@@ -978,7 +978,7 @@ subroutine identification_keywords(read_line)
      IF(arg_string(i+3)(1:7) == 'FRIEDEL' ) search_friedel = .true.
     end do
 
-   case ('EQUIV', 'EQUIV_HKL', 'SEARCH_EQUIV', 'SEARCH_EQUIV_HKL', 'FIND_EQUIV', 'FIND_EQUIV_HKL')   
+   case ('EQUIV', 'EQUIV_HKL', 'SEARCH_EQUIV', 'SEARCH_EQUIV_HKL', 'FIND_EQUIV', 'FIND_EQUIV_HKL')
     IF(nb_arg < 3) then
      call check_arg_nb('3', 'EQUIV')
      return
@@ -2657,7 +2657,7 @@ subroutine identification_keywords(read_line)
 
    case ('NEWS')
     keyword_NEWS     = .true.
-	news_only_expert = .false.	
+	news_only_expert = .false.
     !if(nb_arg /=0) then
     ! read(arg_string(1), *) news_year
     !else
@@ -2673,11 +2673,11 @@ subroutine identification_keywords(read_line)
 		 arg_string(i) == 'EXPERT') then
 	   news_only_expert = .true.
 	  else
-       read(arg_string(i), *) news_year	  
+       read(arg_string(i), *) news_year
 	  end if
 	 end do
-    end if	
-		
+    end if
+
 
    case ('HEADER', 'HEAD')
     keyword_HEADER = .true.
@@ -3282,7 +3282,7 @@ subroutine identification_keywords(read_line)
 
     case ("REF_SPF", "REF_SUPERFLIP")
      keyword_WRITE_REF_SPF  = .true.
-	
+
    case ('REF_SADABS', 'REF_SAD', 'SADABS')
     keyword_WRITE_REF_SADABS = .true.
     if(nb_arg /=0) call check_write_CIF(nb_arg, arg_string)

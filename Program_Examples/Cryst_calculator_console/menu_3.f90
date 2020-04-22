@@ -73,7 +73,7 @@
 
              case ('4 ')
                 call Menu_ATOM_4()   !Calculating polarisation if charges are given
-                
+
              case ('5 ')
                 call Menu_ATOM_5()   !Calculating polarisation if charges are given
 
@@ -492,9 +492,9 @@
        write(unit=*,fmt="(a)") " straightforward way by calculating difference of coordinates."
        write(unit=*,fmt="(a)") "  "
        write(unit=*,fmt="(a)",advance="no") " => Enter the name of the CFL file containing the non polar structure: "
-       read(unit=*,fmt="(a)") 
-        
-       
+       read(unit=*,fmt="(a)")
+
+
        do i=1,A%natoms
          if(abs(A%atom(i)%charge) <= 0.001)  then
            calc_possible=.false.
@@ -667,8 +667,8 @@
        end if
        call Wait_Message(" => Press <enter> to continue ...")
 
-    End Subroutine Menu_Atom_5   
-    
+    End Subroutine Menu_Atom_5
+
     Function Angle_vect(u,v) Result(angle)
       real(kind=cp), dimension(:), intent(in) :: u,v
       real(kind=cp) :: angle

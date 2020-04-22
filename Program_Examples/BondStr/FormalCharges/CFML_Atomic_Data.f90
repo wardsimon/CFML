@@ -8,7 +8,7 @@ Contains
   Subroutine Set_Common_Oxidation_States_Table()
 
     If (.Not. Allocated(Common_OxStates_Table)) Allocate(Common_OxStates_Table(8,108))
-    
+
     Common_OxStates_Table(:,  1) = (/ -1 ,  1 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 /)
     Common_OxStates_Table(:,  2) = (/  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 /)
     Common_OxStates_Table(:,  3) = (/  1 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 /)
@@ -121,7 +121,7 @@ Contains
   End Subroutine Set_Common_Oxidation_States_Table
 
   Subroutine Set_Oxidation_States_Table()
-    
+
     If (.Not. Allocated(OxStates_Table)) Allocate(OxStates_Table(11,108))
 
     OxStates_Table(:,  1) = (/ -1 ,  1 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 /)

@@ -87,7 +87,7 @@
               maxloc,minloc, matmul, sum
 
     integer, public, parameter :: ik=8
-    
+
     type :: rational
       integer(kind=ik) :: numerator
       integer(kind=ik) :: denominator
@@ -274,11 +274,11 @@
       integer(kind=ik), intent (in)  :: i
       res = i // 1_ik
     end subroutine assign_rational_intik
-    
+
     pure subroutine assign_rational_int (res, i)
       type (rational),  intent (out) :: res  !, volatile
       integer, intent (in)           :: i
-      res = i // 1 
+      res = i // 1
     end subroutine assign_rational_int
 
     elemental subroutine assign_rational_real_cp (res,xr)
@@ -349,7 +349,7 @@
       integer,         intent (out)  :: i
       i= nint(real(res%numerator,kind=dp)/real(res%denominator,kind=dp))
     end subroutine assign_int_rational
-    
+
     elemental subroutine assign_intik_rational (i, res)
       type (rational), intent (in)   :: res  !, volatile
       integer(kind=ik),intent (out)  :: i

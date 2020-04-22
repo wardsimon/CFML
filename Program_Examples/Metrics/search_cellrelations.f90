@@ -2,7 +2,7 @@
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, Err_Crys_Mess, Init_err_crys,  &
                                      Change_Setting_Cell,Set_Crystal_Cell, Write_Crystal_Cell,   &
                                      get_primitive_cell
-    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Set_SpaceGroup 
+    use CFML_Crystallographic_Symmetry, only: Space_Group_type, Set_SpaceGroup
     use CFML_String_utilities, only: l_case, Get_Symb_From_Mat, Get_Separator_Pos
     use CFML_Math_3D,          only: Invert_A,determ_A
     use CFML_Math_General,     only: acosd
@@ -12,7 +12,7 @@
     integer, dimension(2)       :: pos
     real,    dimension(3)       :: cel1,ang1,cel2,ang2,cel,ang,pcel2,pang2,k1=0.0,k2=0.0
     real,    dimension(6)       :: bestsol
-    integer, dimension(3,3)     :: mat,bestmat 
+    integer, dimension(3,3)     :: mat,bestmat
     real,    dimension(3,nk)    :: k_ind
     real,    dimension(3,3)     :: base,trans,newc,gn,tp,stp,itp,istp,trans_inv,ttrans,ttrans_inv
     real,    dimension(3)       :: hkl_bas,k_bas,hkl
@@ -51,13 +51,13 @@
       end do
       write(unit=*,fmt="(a)") " => Enter the name of the output file: "
       read(unit=*,fmt="(a)") fileout
-    else if (narg == 2) then 
+    else if (narg == 2) then
       call GET_COMMAND_ARGUMENT(2,fileout)
-    else if (narg == 1) then 
+    else if (narg == 1) then
       i=index(fileinp,".", back=.true.)
-      if(i /= 0) then 
+      if(i /= 0) then
         fileout=fileinp(1:i)//"out"
-      else 
+      else
         fileout=trim(fileinp)//".out"
       end if
     end if
@@ -228,16 +228,16 @@
       end do          !i3
      end do           !i2
     end do            !i1
-    
-    if(isol == 0) then 
-      write(unit=lout,fmt="(/,a)") " => No solution found! " 
-      write(unit=*,fmt="(/,/,a)")  " => No solution found! " 
-    else 
+
+    if(isol == 0) then
+      write(unit=lout,fmt="(/,a)") " => No solution found! "
+      write(unit=*,fmt="(/,/,a)")  " => No solution found! "
+    else
       write(unit=lout,fmt="(a,i6,a,f10.5)") " => The best solution is the number ",isol,&
                                                        " with average deviation: ",bestr
       write(unit=lout,fmt="(a,i3,a)")  " => There are other ",neq," equivalent solutions in the list"
       write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding primitive cell parameters are: ",bestsol
-      
+
       call Set_Crystal_Cell(bestsol(1:3),bestsol(4:6),pSuperCell) !use primitive for convenience
       base=transpose(pSuperCell%Cr_Orth_cel)  !basis vectors of the primitive cell
       newc=matmul(real(istp),base)            !Transformation to conventional cell
@@ -248,7 +248,7 @@
       ang(1)=acosd(Gn(2,3)/(cel(2)*cel(3)))
       ang(2)=acosd(Gn(1,3)/(cel(1)*cel(3)))
       ang(3)=acosd(Gn(1,2)/(cel(1)*cel(2)))
-      
+
       write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The corresponding conventional cell parameters are: ",cel,ang
       write(unit=lout,fmt="(a,3f8.4,3f8.2)")  " => The observed      conventional cell parameters are: ",cel2,ang2
       write(unit=lout,fmt="(a)") " => Transformation matrix between conventional cells: "
@@ -268,34 +268,34 @@
       !!--..       A*' = inv(Mt) A*     X*' =   M     X*
       !!--..
       !!--..       G' = M G Mt          G*' = inv(Mt) G* inv(M)
-      
-      
+
+
       trans=matmul(istp,matmul(real(bestmat),tp))
       trans_inv=Invert_A(trans)
-      call Get_Symb_From_Mat(trans,abc_symb,(/"a","b","c"/)) 
+      call Get_Symb_From_Mat(trans,abc_symb,(/"a","b","c"/))
       call Get_Separator_Pos(abc_symb,",",pos,ncar)
       abc_symb=" A="//abc_symb(1:pos(1)-1)//"  B="//abc_symb(pos(1)+1:pos(2)-1)//"  C="//abc_symb(pos(2)+1:)
-      call Get_Symb_From_Mat(trans_inv,iabc_symb,(/"A","B","C"/)) 
+      call Get_Symb_From_Mat(trans_inv,iabc_symb,(/"A","B","C"/))
       call Get_Separator_Pos(iabc_symb,",",pos,ncar)
       iabc_symb=" a="//iabc_symb(1:pos(1)-1)//"  b="//iabc_symb(pos(1)+1:pos(2)-1)//"  c="//iabc_symb(pos(2)+1:)
-      
+
       write(unit=lout,fmt="(/t17,a,t64,a/)") trim(abc_symb),trim(iabc_symb)
-      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
-      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
-      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
-      
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"
+
       write(unit=*,fmt="(//a)") " => FINAL conventional cell transformation:"
       write(unit=*,fmt="(/t17,a,t64,a/)") trim(abc_symb),trim(iabc_symb)
-      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"  
-      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)  
-      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"  
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | A |    /",trans(1,:)," \ | a |      | a |   /",trans_inv(1,:)," \ | A |"
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B | = | ",trans(2,:),"  || b |      | b |= | ",trans_inv(2,:),"  || B |       determinant:",determ_a(trans)
+      write(unit=*,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C |    \",trans(3,:)," / | c |      | c |   \",trans_inv(3,:)," / | C |"
       ttrans=transpose(trans)
       ttrans_inv=transpose(trans_inv)
-      
-      write(unit=lout,fmt="(/,a, 3f8.4,a,3f8.4,a)")    "       | A*|    /",ttrans(1,:)," \ | a*|      | a*|   /",ttrans_inv(1,:)," \ | A*|"  
-      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B*| = | ",ttrans(2,:),"  || b*|      | b*|= | ",ttrans_inv(2,:),"  || B*|       determinant:",determ_a(trans_inv)  
-      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C*|    \",ttrans(3,:)," / | c*|      | c*|   \",ttrans_inv(3,:)," / | C*|"  
-      
+
+      write(unit=lout,fmt="(/,a, 3f8.4,a,3f8.4,a)")    "       | A*|    /",ttrans(1,:)," \ | a*|      | a*|   /",ttrans_inv(1,:)," \ | A*|"
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a,f8.4)") "       | B*| = | ",ttrans(2,:),"  || b*|      | b*|= | ",ttrans_inv(2,:),"  || B*|       determinant:",determ_a(trans_inv)
+      write(unit=lout,fmt="(a, 3f8.4,a,3f8.4,a)")      "       | C*|    \",ttrans(3,:)," / | c*|      | c*|   \",ttrans_inv(3,:)," / | C*|"
+
       !Search propagation vectors relating the two unit cells
       !Generate allowed reflections in the superstructure cell up to s=0.5
       call Hkl_Gen_Sxtal(supercell,SpGr,0.0,0.25,Num_Ref,hkl_sup)
@@ -309,18 +309,18 @@
       	call k_independent(k_bas)
       	write(unit=lout,fmt="(t8,i8,3i6,tr4,3f8.4,3i6,tr4,3f9.5)") i, hkl_sup(i)%h,hkl_bas,nint(hkl_bas),k_bas
       end do
-      
+
       if(k1_given) then
       	k2=matmul(trans,k1)
-        write(unit=lout,fmt="(/,2(a,3f9.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")" 
+        write(unit=lout,fmt="(/,2(a,3f9.4),a)") "       k-vector in basis cell: (",k1,")  Transformed to supercell: (",k2,")"
       else if(k2_given) then
       	k1=matmul(trans_inv,k2)
-        write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")" 
+        write(unit=lout,fmt="(/,2(a,3f8.4),a)") "       k-vector in supercell: (",k2,")  Transformed to basis cell: (",k1,")"
         write(unit=lout,fmt="(/,a)") " ==============================================================="
         write(unit=lout,fmt="(a)")   " Indexing of superstructure satellites in the substructure basis"
         write(unit=lout,fmt="(a,/)") " ==============================================================="
         write(unit=lout,fmt="(a)") "         Num_Ref     Hs      Ks      Ls         Hb      Kb      Lb     hb    kb    lb           k-vector"
-        
+
         do i=1,Num_ref
         	hkl=hkl_sup(i)%h+k2
         	hkl_bas=matmul(trans_inv,hkl)
@@ -339,11 +339,11 @@
       		write(unit=lout,fmt="(a,i2,a,3f9.5,a)") "  k-vector # ",i,"  (",k_ind(:,i)," )"
       end do
     end if
-    
-    call cpu_time(fin)                                                                                                       
+
+    call cpu_time(fin)
     write(unit=*,fmt="(/,a,f10.2,a)")     " => CPU-Time: ", fin-start," seconds"
     write(unit=lout,fmt="(/,a,f10.2,a)")  " => CPU-Time: ", fin-start," seconds"
-    
+
     contains
     	subroutine k_independent(k)
     		real, dimension(3), intent(in):: k
@@ -354,7 +354,7 @@
     		if(n_kind == 0) then
     			n_kind=n_kind+1
     			neg=count(k+del < 0.0)
-    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then    			  
+    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then
        		  k_ind(:,n_kind) = -k
        		else
        		  k_ind(:,n_kind) =  k
@@ -366,12 +366,12 @@
     			end do
     		  n_kind=n_kind+1
     			neg=count(k+del < 0.0)
-    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then    			  
+    			if(neg >= 2 .or. (neg == 1 .and. k(1)+del < 0.0)) then
        		  k_ind(:,n_kind) = -k
        		else
        		  k_ind(:,n_kind) =  k
        		end if
     		end if
-    	end subroutine k_independent 
-    	
+    	end subroutine k_independent
+
   End Program Cell_Relations

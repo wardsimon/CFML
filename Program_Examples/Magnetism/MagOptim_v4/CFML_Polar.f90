@@ -218,11 +218,11 @@
     !!---- TYPE :: Polar_obs_type
     !!--..
     !!----     real(kind=cp), dimension (3)  :: H      ! H +/- k
-    !!----     real(kind=cp), dimension (3)  :: SPV   
-    !!----     realL(kind=cp)                :: Pin     
+    !!----     real(kind=cp), dimension (3)  :: SPV
+    !!----     realL(kind=cp)                :: Pin
     !!----     real(kind=cp), dimension (3,3):: oPij   ! the observed polarisation tensor
     !!----     real(kind=cp), dimension (3,3):: soPij  ! the Sigma of polarisation tensor
-    !!----     real(kind=cp), dimension (3,3):: woPij  ! the weight 1/Sigma**2 
+    !!----     real(kind=cp), dimension (3,3):: woPij  ! the weight 1/Sigma**2
     !!---- End Type Polar_obs_type
     !!----
     !!---- Updated: February 2012 OZ
@@ -248,10 +248,10 @@
     !!---- Updated: February 2009 OZ
     !!
     Type, public :: Polar_Obs_List_type
-       integer                                         :: NRef  
-!      REAL(kind=cp), DIMENSION (3)                    :: SPV   
-!      REAL(kind=cp)                                   :: P     
-       type(Polar_obs_type),allocatable, dimension(:)  :: Polaro 
+       integer                                         :: NRef
+!      REAL(kind=cp), DIMENSION (3)                    :: SPV
+!      REAL(kind=cp)                                   :: P
+       type(Polar_obs_type),allocatable, dimension(:)  :: Polaro
     End Type Polar_Obs_List_type
     !!
     !!---- TYPE :: Polar_ObsMulti_List_type

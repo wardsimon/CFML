@@ -3,9 +3,9 @@ Module Common
   Use CFML_GlobalDeps,       Only:  cp
 
   Type :: node
-     Integer                     :: nbonds, nbonds_pbc    
+     Integer                     :: nbonds, nbonds_pbc
      Integer                     :: type                ! 1: interior, -1: face, -2: edge, -3: vertex
-     Integer                     :: state               ! 0: non-visited, 1: visited 
+     Integer                     :: state               ! 0: non-visited, 1: visited
      Integer                     :: cc, cc_pbc          ! connected component to which the node belongs, before and after pbc
      Integer, Dimension(3)       :: face
      Integer, Dimension(12)      :: bond, bond_pbc
@@ -54,7 +54,7 @@ Program BVEL_Percol
   Real(kind=cp), Dimension(:),     Allocatable :: levels
   Real(kind=cp), Dimension(:,:),   Allocatable :: xyz
   Real(kind=cp), Dimension(:,:,:), Allocatable :: rho
-  
+
   Character(len=1)                             :: end_line=Char(10)
   Character(len=2)                             :: MC_method
   Character(len=79)                            :: title
@@ -72,7 +72,7 @@ Program BVEL_Percol
        "       * BVEL Percolation from *.pgrid files *     " , &
        "       ***************************************     " , &
        "          (JRC - ILL, version: January 2016 )"
-   
+
   Write(unit=*,fmt=*) " "
 
   ! Arguments on the command line
@@ -97,7 +97,7 @@ Program BVEL_Percol
   End If
 
   ! -----------------
-  ! Read the BVEL map 
+  ! Read the BVEL map
   ! -----------------
 
   Open(11, file = filnam, &
@@ -108,17 +108,17 @@ Program BVEL_Percol
   Read(11) version
   Read(11) title(1:79),end_line
   Read(11) gType
-  Read(11) fType !=0                                                                                                             
-  Read(11) nval  !=1                                                                                                             
-  Read(11) ndim  !=3                                                                                                             
+  Read(11) fType !=0
+  Read(11) nval  !=1
+  Read(11) ndim  !=3
   Read(11) ngrid
-  Read(11) nASYM !                                                                                                               
+  Read(11) nASYM !
   Read(11) Cell%cell,Cell%ang
-  
+
   Allocate(rho(ngrid(1),ngrid(2),ngrid(3)))
 
   Read(11) rho
-  
+
   Close(11)
 
   Emin = Minval(rho)
@@ -135,7 +135,7 @@ Program BVEL_Percol
   ! -------------------------------------------------------
 
   ! Parameters for the marching cube method
-  
+
   nlevel    = 1
   MC_method = "TR"
   np_max    = ngrid(1) * ngrid(2) * ngrid(3) * 12 / 8
@@ -156,7 +156,7 @@ Program BVEL_Percol
        "          (JRC - ILL, version: January 2016)"
   Write(unit=lun,fmt="(a,/)") " "
 
-  Do 
+  Do
 
      ! ----------------------
      ! Compute the isosurface
@@ -189,7 +189,7 @@ Program BVEL_Percol
 
      Allocate(id(npoints(1)),newnode(npoints(1)))
 
-     !  1.)  
+     !  1.)
 
      Write(unit=*,fmt="(10x,a)") 'Computing nodes....'
      Write(unit=lun,fmt="(10x,a)") 'Computing nodes....'
@@ -228,8 +228,8 @@ Program BVEL_Percol
               Exit
            End If
         End Do
-        
-        If (newnode(i)) Then 
+
+        If (newnode(i)) Then
            nnodes(4) = nnodes(4) + 1
            id(i)  = nnodes(4)
         Else
@@ -247,7 +247,7 @@ Program BVEL_Percol
 
      Do i = 1 , npoints(1)
 
-        If (newnode(i)) Then 
+        If (newnode(i)) Then
            nodes(id(i))%xyz(:)     = xyz(1:3,i)
            nodes(id(i))%state      = 0
            nodes(id(i))%cc         = 0
@@ -257,12 +257,12 @@ Program BVEL_Percol
            nodes(id(i))%face(:)    = 0
 
            ! Classify the node: 1 (interior), -1 (face), -2 (edge), -3 (vertex)
-        
+
            nodes(id(i))%type = 0
 
            Do j = 1 , 3
 
-              If (Abs(nodes(id(i))%xyz(j) - 0.0d0) < 1e-6) Then 
+              If (Abs(nodes(id(i))%xyz(j) - 0.0d0) < 1e-6) Then
                  nodes(id(i))%type    = nodes(id(i))%type + 1
                  nodes(id(i))%face(j) = -1
               Else If (Abs(nodes(id(i))%xyz(j) - 1.0d0) < 1e-6) Then
@@ -285,11 +285,11 @@ Program BVEL_Percol
      i          = 1
      nbonds_in  = 0
      nbonds_out = 0
-  
+
      Do j = 1 , npoints(1) / 3 ! run over each triangle stored in xyz
-     
+
         ! tricon stores the triangle conectivity
-     
+
         !        i ------ i+1
         !          \    /
         !           \  /
@@ -302,16 +302,16 @@ Program BVEL_Percol
         tricon(2,1) = i + 2
         tricon(1,2) = i
         tricon(2,2) = i + 1
-     
+
         Do k = 0 , 2 ! run over the three vertex of the triangle
            v = i + k
-        
+
            Do l = 1 , 2 ! store the two bonds if they haven't previously be stored
               newbond = .True.
 
               Do m = 1 , nodes(id(v))%nbonds
 
-                 If (nodes(id(v))%bond(m) == id(tricon(l,k))) Then 
+                 If (nodes(id(v))%bond(m) == id(tricon(l,k))) Then
                     newbond = .False.
                     Exit
                  End If
@@ -322,7 +322,7 @@ Program BVEL_Percol
 
                  Do m = 1 , nodes(id(v))%nbonds_pbc
 
-                    If (nodes(id(v))%bond_pbc(m) == id(tricon(l,k))) Then 
+                    If (nodes(id(v))%bond_pbc(m) == id(tricon(l,k))) Then
                        newbond = .False.
                        Exit
                     End If
@@ -333,7 +333,7 @@ Program BVEL_Percol
 
               If (newbond) Then
                  pbc = .False.
-              
+
                  Do m = 1 , 3
 
                     If (Abs(nodes(id(v))%xyz(m) - nodes(id(tricon(l,k)))%xyz(m)) > 0.5) Then
@@ -354,9 +354,9 @@ Program BVEL_Percol
                  End If
 
               End If
-           
+
            End Do
-           
+
         End Do
 
         i = i + 3
@@ -387,16 +387,16 @@ Program BVEL_Percol
 
      Write(unit=*,fmt="(8x,a,/)") 'Computing connected components (Depth First Search algorithm)....'
      Write(unit=lun,fmt="(8x,a,/)") 'Computing connected components (Depth First Search algorithm)....'
-  
+
      m          = 0
      ncc        = 0
 
-     Do 
+     Do
         allvisited = .True.
         m          = m + 1
 
         Do i = m , nnodes(4)
-           
+
            If (nodes(i)%state == 0) Then
               allvisited      = .False.
               ncc             = ncc + 1
@@ -452,12 +452,12 @@ Program BVEL_Percol
      m       = 0
      ncc_pbc = 0
 
-     Do 
+     Do
         allvisited = .True.
         m          = m + 1
 
         Do i = m , ncc
-           
+
            If (cts(i)%state == 0) Then
               allvisited      = .False.
               ncc_pbc         = ncc_pbc + 1
@@ -475,7 +475,7 @@ Program BVEL_Percol
 
         If (allvisited) Exit
      End Do
-     
+
      Write(unit=*,fmt="(12x,a,i6,/)")   "Number of connected components found after  applying boundary conditions: ", ncc_pbc
      Write(unit=lun,fmt="(12x,a,i6,/)")   "Number of connected components found after  applying boundary conditions: ", ncc_pbc
 
@@ -490,12 +490,12 @@ Program BVEL_Percol
         End Do
         cts(jc)%pbc = 1
      End Do
-     
+
      ! Apply boundary conditions
 
      Do i = 1 , ncc_pbc
         ic = 1
-        Do 
+        Do
            If (cts(ic)%cc == i .And. cts(ic)%pbc == 0) Then
               Do j = 1 , nnodes(4)
                  If (nodes(j)%cc == ic .And. nodes(j)%nbonds_pbc > 0) Then
@@ -506,17 +506,17 @@ Program BVEL_Percol
                           Do v = 1 , 3
                              dr = nodes(j)%xyz(v) - nodes(k)%xyz(v)
                              If (dr > 0.5) Then
-                                t(v) = -1. 
+                                t(v) = -1.
                              Else If (dr < -0.5) Then
-                                t(v) =  1. 
-                             Else 
+                                t(v) =  1.
+                             Else
                                 t(v) =  0.
                              End If
                           End Do
                           cts(ic)%pbc = 1
                           Do m = 1 , nnodes(4)
                              If (nodes(m)%cc == ic) &
-                                  nodes(m)%xyz(:) = nodes(m)%xyz(:) + t(:) 
+                                  nodes(m)%xyz(:) = nodes(m)%xyz(:) + t(:)
                           End Do
                        End If
                     End Do
@@ -532,7 +532,7 @@ Program BVEL_Percol
            If (ic > ncc) ic = 1
         End Do
      End Do
-     
+
      ! --------------------
      ! Percolation analysis
      ! --------------------
@@ -549,21 +549,21 @@ Program BVEL_Percol
      Do i = 1 , ncc_pbc
         Write(unit=*,fmt="(12x,a,i3)") "Analysing component ", i
         Write(unit=lun,fmt="(12x,a,i3)") "Analysing component ", i
-     
+
         Do j = 1 , nnodes(4)
            If (cts(nodes(j)%cc)%cc == i .And. nodes(j)%nbonds_pbc > 0) Then
-           
+
               Do k = 1 , nodes(j)%nbonds_pbc
                  l = nodes(j)%bond_pbc(k)
-                 
+
                  Do v = 1 , 3
                     dr = nodes(j)%xyz(v) - nodes(l)%xyz(v)
-                    If (Abs(dr) > 0.5 .And. .Not. percolation(v)) Then 
+                    If (Abs(dr) > 0.5 .And. .Not. percolation(v)) Then
                        percolation(v) = .True.
                        E_percol(v)    = levels(1) - emin
                     End If
                  End Do
-              
+
               End Do
 
            End If
@@ -582,7 +582,7 @@ Program BVEL_Percol
         Write(unit=*,fmt="(12x,a)") "Percolation along a: No"
         Write(unit=lun,fmt="(12x,a)") "Percolation along a: No"
      End If
-     
+
      If (percolation(2)) Then
         Write(unit=*,fmt="(12x,a,f6.2,a3)") "Percolation along b: Yes, Activation energy: ", E_percol(2), " eV"
         Write(unit=lun,fmt="(12x,a,f6.2,a3)") "Percolation along b: Yes, Activation energy: ", E_percol(2), " eV"
@@ -590,7 +590,7 @@ Program BVEL_Percol
         Write(unit=*,fmt="(12x,a)") "Percolation along b: No"
         Write(unit=lun,fmt="(12x,a)") "Percolation along b: No"
      End If
-     
+
      If (percolation(3)) Then
         Write(unit=*,fmt="(12x,a,f6.2,a3/)") "Percolation along c: Yes, Activation energy: ", E_percol(3), " eV"
         Write(unit=lun,fmt="(12x,a,f6.2,a3/)") "Percolation along c: Yes, Activation energy: ", E_percol(3), " eV"

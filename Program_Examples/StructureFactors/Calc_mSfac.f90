@@ -9,14 +9,14 @@ Program Calc_Magnetic_Structure_Factors
    !---- Use Modules ----!
   !use f2kcli  !Comment for Fortran 2003 compliant (Environment module) compilers
    use CFML_crystallographic_symmetry, only: magnetic_space_group_type,&
-                                             Write_Magnetic_Space_Group 
+                                             Write_Magnetic_Space_Group
    use CFML_Atom_TypeDef,              only: Atom_List_Type, Write_Atom_List
    use CFML_Crystal_Metrics,           only: Crystal_Cell_Type, Write_Crystal_Cell
    use CFML_Reflections_Utilities,     only: Reflect_List_Type
    use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type, &
                                              get_moment_ctr
-   use CFML_Structure_Factors,         only: Magnetic_Structure_Factors, Write_Structure_Factors, & 
-                                             Strf_List_Type 
+   use CFML_Structure_Factors,         only: Magnetic_Structure_Factors, Write_Structure_Factors, &
+                                             Strf_List_Type
    use CFML_String_Utilities,          only: u_case
 
    !---- Variables ----!
@@ -38,7 +38,7 @@ Program Calc_Magnetic_Structure_Factors
    integer                     :: narg
    Logical                     :: esta, arggiven=.false.,sthlgiven=.false., full=.true.
    real, dimension(3)          :: codes=(/11.0,21.0,31.0/)
-   
+
    !---- Arguments on the command line ----!
    narg=command_argument_count()
 
@@ -83,7 +83,7 @@ Program Calc_Magnetic_Structure_Factors
           "    *******************************************************************"  , &
           "                        (JRC- January-2020 )"
 
-   inquire(file=trim(filcod)//".mcif",exist=esta)   
+   inquire(file=trim(filcod)//".mcif",exist=esta)
    if (esta) then
       call Readn_set_Xtal_Structure(trim(filcod)//".mcif",Cell,SpG,A,Mode="CIF")
    else

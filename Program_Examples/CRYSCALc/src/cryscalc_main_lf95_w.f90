@@ -49,7 +49,7 @@ program crystallographic_calculations
   call nombre_de_colonnes(cmd_line, nb_arg)
 
   ! ----------- 27 fev. 2017 ------------------------------
-  call Check_command_line(cmd_line, nb_arg)  
+  call Check_command_line(cmd_line, nb_arg)
 
   ! g95 :
   !nb_arg = IARGC()
@@ -135,7 +135,7 @@ program crystallographic_calculations
     end if
 
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'RAW=' ) then
-	 if(index(u_case(RAW_file_name), '.ABS') ==0) RAW_file_name = trim(RAW_file_name)//'.RAW' 
+	 if(index(u_case(RAW_file_name), '.ABS') ==0) RAW_file_name = trim(RAW_file_name)//'.RAW'
      RAW_file_name = cmd_arg(i)(5:)
      keyword_RAW = .true.
     end if
@@ -145,7 +145,7 @@ program crystallographic_calculations
     end if
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'HKL=' ) then
      HKL_file_name = cmd_arg(i)(5:)
-	 if(index(u_case(HKL_file_name), '.HKL') ==0) HKL_file_name = trim(HKL_file_name)//'.HKL' 
+	 if(index(u_case(HKL_file_name), '.HKL') ==0) HKL_file_name = trim(HKL_file_name)//'.HKL'
      if (index(u_case(HKL_file_name), "_4.HKL") /=0) then
       twinabs_file = .true.
       twinabs_4    = .true.
@@ -158,7 +158,7 @@ program crystallographic_calculations
      keyword_HKL = .true.
     end if
     if(long >=4 .and. u_case(cmd_arg(i)(1:4)) == 'P4P=' ) then
-	 if(index(u_case(P4P_file_name), '.P4P') ==0) P4P_file_name = trim(P4P_file_name)//'.P4P' 
+	 if(index(u_case(P4P_file_name), '.P4P') ==0) P4P_file_name = trim(P4P_file_name)//'.P4P'
      P4P_file_name = cmd_arg(i)(5:)
      keyword_P4P = .true.
      arg_keyword = .true.
@@ -722,7 +722,7 @@ subroutine Check_command_line(cmd_line, nb_arg)
   character (len=256), dimension(10) :: cmd_arg
   integer                            :: i, i1
 
-  ! 
+  !
   if(nb_arg /=0) then
    do i=1, nb_arg
     i1 = index(cmd_line, "P4P=")
@@ -731,7 +731,7 @@ subroutine Check_command_line(cmd_line, nb_arg)
 	 exit
 	end if
    end do
-   
+
    call nombre_de_colonnes(cmd_line, nb_arg)
    do i=1, nb_arg
     i1 = index(cmd_line, "HKL=")
@@ -740,7 +740,7 @@ subroutine Check_command_line(cmd_line, nb_arg)
 	 exit
 	end if
    end do
-   
+
    call nombre_de_colonnes(cmd_line, nb_arg)
    do i=1, nb_arg
     i1 = index(cmd_line, "ABS=")
@@ -749,10 +749,10 @@ subroutine Check_command_line(cmd_line, nb_arg)
 	 exit
 	end if
    end do
-   
+
    call nombre_de_colonnes(cmd_line, nb_arg)
   end if
- 
+
  return
 end subroutine Check_command_line
 

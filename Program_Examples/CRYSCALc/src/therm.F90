@@ -56,7 +56,7 @@ subroutine calc_THERM_ANISO()
 
  implicit none
   REAL(kind=sp), DIMENSION(3)      :: rms
-  
+
   if(debug_proc%level_2)  call write_debug_proc_level(2, "calc_therm_aniso")
 
   call write_info('')

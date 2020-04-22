@@ -391,7 +391,7 @@ subroutine generate_HKL()
  else
   call HKL_gen(crystal_cell, SPG, Friedel, STL_min, STL_max, Num_ref, reflex_HKL )
  end if
- 
+
  if(on_screen .and. write_details) then
   call write_info(' ')
   if(HKL_STL) then
@@ -416,8 +416,8 @@ subroutine generate_HKL()
   call write_info(trim(message_text))
   call write_info(' ')
  end if
- 
- 
+
+
  !call Hkl_uni(crystal_cell, SPG, Friedel, STL_min, STL_max, "s", Num_ref, reflex_HKL )
 
 
@@ -434,7 +434,7 @@ subroutine generate_HKL()
   call write_info(TRIM(message_text))
   call write_info('')
  end if
- 
+
  if(.not. write_HKL .and. .not. create_PAT) then
   DEALLOCATE (reflex_HKL)
   deallocate (ordered_array)
@@ -539,7 +539,7 @@ subroutine generate_HKL()
     if(ier/=0) call write_alloc_error("sf_2")
 
    call HKL_uni(crystal_cell, SPG, .true., STL_min, STL_max, "s", num_ref, reflex_list_HKL)
-   
+
    ! chargement des facteurs de diffusion
    ! call Init_structure_factors (HKL_objet, Atoms_objet, SPG_objet, mode, lun)
    ! mode = XRA : Xrays

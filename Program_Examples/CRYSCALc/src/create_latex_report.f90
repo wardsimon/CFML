@@ -8,16 +8,16 @@ end module LATEX_module
 
 subroutine Latex_preambule
  use LATEX_module,    only : logo
- use cryscalc_module, only : LATEX_unit, archive_cif, cryscalc 
+ use cryscalc_module, only : LATEX_unit, archive_cif, cryscalc
  implicit none
   character (len=256), dimension(2)   :: logo_full
   logical,             dimension(2)   :: file_exist
   character (len=256)                 :: DOS_command
-  
+
   logo_full = ''
   logo(1) = 'CDIFX_logo.jpg'
   logo(2) = 'ISCR_logo.png'
- 
+
  WRITE(LATEX_unit, '(a)')  "% Structural report (LATEX file) created by CRYSCALC.exe"
  WRITE(LATEX_unit, '(2a)') "%      Starting CIF file : ", trim(archive_CIF)
  WRITE(LATEX_unit, '(a)')  "%"
@@ -87,31 +87,31 @@ subroutine Latex_preambule
  write(LATEX_unit, '(a)') '\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif'
  write(LATEX_unit, '(a)') '\normalfont'
  write(LATEX_unit, '(a)') ''
- 
+
  if(len_trim(cryscalc%path_name) /= 0) then
   file_exist = .false.
   write(logo_full(1), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(1))
   inquire(file = trim(logo_full(1)), exist = file_exist(1))
   write(logo_full(2), '(3a)') trim(cryscalc%path_name), '\img\', trim(logo(2))
   inquire(file = trim(logo_full(2)), exist = file_exist(2))
-  
+
   if(file_exist(1) .and. file_exist(2)) then
-   ! les fichiers doivent etre dans le repertoire de travail   
-   write(DOS_command, '(3a)') 'copy ', trim(logo_full(1)), ' .'     
+   ! les fichiers doivent etre dans le repertoire de travail
+   write(DOS_command, '(3a)') 'copy ', trim(logo_full(1)), ' .'
    call system(trim(DOS_command))
-   
+
    write(DOS_command, '(3a)') 'copy ', trim(logo_full(2)), ' .'
-   call system(trim(DOS_command))   
-   
-  
+   call system(trim(DOS_command))
+
+
    write(LATEX_unit, '(a)') ''
    write(LATEX_unit, '(a)') '\begin{figure}[h]'
    !write(LATEX_unit, '(a)') '% \includegraphics[width=50.pt]{img/ISCR_logo.png} \includegraphics[width=40.pt]{img/cdifx_logo.jpg}'
    write(LATEX_unit, '(5a)') ' \includegraphics[width=50.pt]{', trim(logo(1)), '}  \includegraphics[width=40.pt]{', trim(logo(2)), '}'
    write(LATEX_unit, '(a)') '\end{figure}'
    write(LATEX_unit, '(a)') ''
-   
-   
+
+
   endif
  endif
 
@@ -124,9 +124,9 @@ end subroutine Latex_preambule
 subroutine Latex_End
  use LATEX_module,    only : logo
  use cryscalc_module, only : LATEX_unit
- 
+
  implicit none
- 
+
  write(LATEX_unit, '(a)')''
  write(LATEX_unit, '(4a)') '\footnote{\textcolor{gris50}{This structural report has been created through ', &
                            '\href{http://www.cdifx.univ-rennes1.fr/CRYSCALC}{CRYSCALC} (',  trim(cryscalc%version), ').'
@@ -136,7 +136,7 @@ subroutine Latex_End
 
  !call system('del '//trim(logo(1)))
  !call system('del '//trim(logo(2)))
-   
+
  return
 end subroutine Latex_End
 
@@ -149,7 +149,7 @@ subroutine check_LATEX_file_name(LATEX_string)
   !LATEX_string = replace_car(LATEX_string, '\',   '/bs ')
   !LATEX_string = replace_car(LATEX_string, '/bs', '\bs ')
   LATEX_string = replace_car(LATEX_string, '\', '\bs ')
-  
+
   !LATEX_string = replace_car(LATEX_string, '_',   '\/')
   !LATEX_string = replace_car(LATEX_string, '\/',  '\_')
   LATEX_string = replace_car(LATEX_string, '_',  '\_')

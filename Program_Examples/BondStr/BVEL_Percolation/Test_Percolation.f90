@@ -18,7 +18,7 @@ Program Test_Percolation
   pgrid_file  = "LiFePO4-D20_bvel.pgrid"
 
   ! Read BVEL map
-  
+
   Call Read_BVEL(pgrid_file,Lun,rho)
 
   ! Set initial values for percolation analysis
@@ -33,7 +33,7 @@ Program Test_Percolation
   axis(1)     = "a"
   axis(2)     = "b"
   axis(3)     = "c"
-  
+
   ! Percolation analysis
 
   Write(unit=*,fmt="(/,a)") "Computing first estimation of percolation energies (it can take some minutes) ...."
@@ -47,7 +47,7 @@ Program Test_Percolation
         Write(unit=*,fmt="(tr4,a,a1,a)") "Percolation along ", axis(i), ": No"
      End If
   End Do
-  
+
   Write(unit=*,fmt="(/,a)") "Refining energies...."
 
   dE_ini = dE

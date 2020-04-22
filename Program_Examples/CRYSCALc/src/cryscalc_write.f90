@@ -1202,11 +1202,11 @@ subroutine write_REF(input_string)
   end do
   if(write_details) then
    do k=1, 3
-    call write_info('') 
+    call write_info('')
     do i=10+4*(k-1), 13+4*(k-1)
      call write_info(trim(SHELX%details(i)))
     end do
-   end do	
+   end do
   end if
 
 
@@ -1223,7 +1223,7 @@ subroutine write_REF(input_string)
    end do
    write(CIF_unit, '(a)') ''
   endif
-  
+
  ELSEIF(input_SIR) then
   call write_info("")
   call write_info("#----------------------------------------------------------------------------#")
@@ -1232,17 +1232,17 @@ subroutine write_REF(input_string)
   call write_info("")
   if(write_details) then
    do k=1, 3
-    call write_info('') 
+    call write_info('')
     do i=1+4*(k-1), 4+4*(k-1)
      call write_info(trim(SIR%details(i)))
     end do
-   end do	
+   end do
   else
-   call write_info('') 
+   call write_info('')
    do k=1, 3
      call write_info(trim(SIR%details(1+4*(k-1))))
-   end do	
- 
+   end do
+
   end if
 
  ELSEIF(input_SPF) then
@@ -1253,15 +1253,15 @@ subroutine write_REF(input_string)
   call write_info("")
   if(write_details) then
    do k=1, 1
-    call write_info('') 
+    call write_info('')
     do i=1+4*(k-1), 4+4*(k-1)
      call write_info(trim(SPF%details(i)))
     end do
-   end do	
+   end do
   else
    do k=1, 1
      call write_info(trim(SPF%details(1+4*(k-1))))
-   end do	
+   end do
   end if
 
 
