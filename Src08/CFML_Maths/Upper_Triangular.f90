@@ -11,7 +11,7 @@ Submodule (CFML_Maths) Upper_Triangular
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Upper_Triangular_I(A,n) Result (T)
+    Pure Module Function Upper_Triangular_I(A,n) Result (T)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: A     ! Input array
        integer,                 intent(in) :: n     ! Dimension
@@ -39,7 +39,7 @@ Submodule (CFML_Maths) Upper_Triangular
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Upper_Triangular_R(A,n) Result (T)
+    Pure Module Function Upper_Triangular_R(A,n) Result (T)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: A   ! Input array
        integer,                       intent(in) :: n   ! Dimension

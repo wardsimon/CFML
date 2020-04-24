@@ -6,7 +6,7 @@ SubModule (CFML_gSpaceGroups) Oper_Mult
    !!----
    !!---- 19/04/2019
    !!
-   Module Pure Function Multiply_Symm_Oper(Op1,Op2) Result (Op3)
+   Pure Module Function Multiply_Symm_Oper(Op1,Op2) Result (Op3)
       !---- Arguments ----!
       type(Symm_Oper_Type), intent(in) :: Op1,Op2
       type(Symm_Oper_Type)             :: Op3

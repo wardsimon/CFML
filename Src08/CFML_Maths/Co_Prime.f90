@@ -16,7 +16,7 @@ Submodule (CFML_Maths) CFML_Math_002
     !!----
     !!---- 27/03/2019
     !!
-    Module Pure Function Co_Prime(v,imax) result(cop)
+    Pure Module Function Co_Prime(v,imax) result(cop)
        !---- Arguments ----!
        integer, dimension(:),           intent(in) :: v          ! Input vector of numbers
        integer,               optional, intent(in) :: imax       ! Maximun prime number to be tested

@@ -8,7 +8,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2005
     !!
-    Module Pure Function U_Equiv(Cell, Th_U) Result(Uequi)
+    Pure Module Function U_Equiv(Cell, Th_U) Result(Uequi)
        !---- Arguments ----!
        class(Cell_G_Type),          intent(in)  :: Cell    ! Cell object
        real(kind=cp), dimension(6), intent(in)  :: Th_U    ! U thermal parameters
@@ -51,7 +51,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_Betas_from_B(B,Cell) Result(Beta)
+    Pure Module Function Get_Betas_from_B(B,Cell) Result(Beta)
        !---- Arguments ----!
        real(kind=cp),dimension(6), intent(in)  :: B
        class(Cell_G_Type),         intent(in)  :: Cell
@@ -74,7 +74,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_U_from_B(B) Result(U)
+    Pure Module Function Get_U_from_B(B) Result(U)
        !---- Arguments ----!
        real(kind=cp),dimension(6),  intent(in)  :: B
        real(kind=cp),dimension(6)               :: U
@@ -91,7 +91,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_B_from_Betas(Beta,Cell) Result(B)
+    Pure Module Function Get_B_from_Betas(Beta,Cell) Result(B)
        !---- Arguments ----!
        real(kind=cp),dimension(6), intent(in)  :: Beta
        class(Cell_G_Type),         intent(in)  :: Cell
@@ -114,7 +114,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_Betas_from_U(U,Cell) Result(Beta)
+    Pure Module Function Get_Betas_from_U(U,Cell) Result(Beta)
        !---- Arguments ----!
        real(kind=cp),dimension(6),intent(in)  :: U
        class(Cell_G_Type),        intent(in)  :: Cell
@@ -137,7 +137,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: April - 2013
     !!
-    Module Pure Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+    Pure Module Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
        !--- Argument ----!
        real(kind=cp),           intent(in)  :: Biso
        class(Cell_G_Type),      intent(in)  :: Cell
@@ -176,7 +176,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_U_from_Betas(Beta,Cell) Result(U)
+    Pure Module Function Get_U_from_Betas(Beta,Cell) Result(U)
        !---- Arguments ----!
        real(kind=cp),dimension(6),intent(in)  :: Beta
        class(Cell_G_Type),        intent(in)  :: Cell
@@ -199,7 +199,7 @@ Submodule (CFML_Metrics) ThConversion
     !!----
     !!---- Update: February - 2003
     !!
-    Module Pure Function Get_B_from_U(U) Result(B)
+    Pure Module Function Get_B_from_U(U) Result(B)
        !---- Arguments ----!
        real(kind=cp),dimension(6), intent(in)  :: U
        real(kind=cp),dimension(6)              :: B

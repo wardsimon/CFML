@@ -10,7 +10,7 @@ Submodule (CFML_Rational) Operator_Minus
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Minus(R) Result(Res)
+    Elemental Module Function Rational_Minus(R) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational)              :: res
@@ -26,7 +26,7 @@ Submodule (CFML_Rational) Operator_Minus
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Subtract(R, S) Result(Res)
+    Elemental Module Function Rational_Subtract(R, S) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
@@ -44,7 +44,7 @@ Submodule (CFML_Rational) Operator_Minus
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Integer_Rational_Subtract(I, S) Result(Res)
+    Elemental Module Function Integer_Rational_Subtract(I, S) Result(Res)
        !---- Arguments ----!
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: s
@@ -61,7 +61,7 @@ Submodule (CFML_Rational) Operator_Minus
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Integer_Subtract(S,I) Result(Res)
+    Elemental Module Function Rational_Integer_Subtract(S,I) Result(Res)
        !---- Arguments ----!
        type(rational),  intent (in) :: s
        integer(kind=LI),intent (in) :: i

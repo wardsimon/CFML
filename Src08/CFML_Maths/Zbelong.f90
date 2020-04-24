@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Zbelong
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_M(A) Result(belong)
+    Pure Module Function Zbelong_M(A) Result(belong)
        !---- Argument ----!
        real(kind=cp),   dimension(:,:), intent( in) :: a        ! Input array
        logical                                      :: belong
@@ -32,7 +32,7 @@ Submodule (CFML_Maths) Zbelong
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_R(x) Result(belong)
+    Pure Module Function Zbelong_R(x) Result(belong)
        !---- Argument ----!
        real(kind=cp), intent( in) :: x              ! Input number
        logical                    :: belong
@@ -51,7 +51,7 @@ Submodule (CFML_Maths) Zbelong
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Zbelong_V(v) Result(belong)
+    Pure Module Function Zbelong_V(v) Result(belong)
        !---- Argument ----!
        real(kind=cp),   dimension(:), intent( in) :: v      ! Input vector
        logical                                    :: belong

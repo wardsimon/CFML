@@ -10,7 +10,7 @@ Submodule (CFML_Rational) Operator_Add
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Add(R, S) Result(Res)
+    Elemental Module Function Rational_Add(R, S) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
@@ -28,7 +28,7 @@ Submodule (CFML_Rational) Operator_Add
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Integer_Add(S, I) Result(Res)
+    Elemental Module Function Rational_Integer_Add(S, I) Result(Res)
        !---- Arguments ----!
        type(rational),  intent (in) :: s
        integer(kind=LI),intent (in) :: i
@@ -45,7 +45,7 @@ Submodule (CFML_Rational) Operator_Add
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Integer_Rational_Add(I, S) Result(Res)
+    Elemental Module Function Integer_Rational_Add(I, S) Result(Res)
        !---- Arguments ----!
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: s

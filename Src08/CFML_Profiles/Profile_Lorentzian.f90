@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) PRF_005
    !!----
    !!---- 21/04/2019
    !!
-   Module Pure Function Lorentzian(X,Par) Result (Lor_Val)
+   Pure Module Function Lorentzian(X,Par) Result (Lor_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -32,7 +32,7 @@ SubModule (CFML_Profiles) PRF_005
    !!----
    !!---- 21/04/2019
    !!
-   Module Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
+   Pure Module Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in) :: x
       real(kind=cp),           dimension(:),intent(in) :: par

@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) PRF_003
    !!----
    !!---- Update: October - 2005
    !!
-   Module Pure Function Gaussian(X,Par) Result (Gauss_Val)
+   Pure Module Function Gaussian(X,Par) Result (Gauss_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -32,7 +32,7 @@ SubModule (CFML_Profiles) PRF_003
    !!----
    !!---- Update: October - 2005
    !!
-   Module Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
+   Pure Module Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                       intent(in) :: x
       real(kind=cp),          dimension(:),intent(in) :: par

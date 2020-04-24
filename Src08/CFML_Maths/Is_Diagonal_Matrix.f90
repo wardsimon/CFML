@@ -11,7 +11,7 @@ Submodule (CFML_Maths) Is_Diagonal_Matrix
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Is_Diagonal_Matrix_I(A) Result(info)
+    Pure Module Function Is_Diagonal_Matrix_I(A) Result(info)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in)  :: A
        logical                              :: info
@@ -40,7 +40,7 @@ Submodule (CFML_Maths) Is_Diagonal_Matrix
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Is_Diagonal_Matrix_R(A) Result(info)
+    Pure Module Function Is_Diagonal_Matrix_R(A) Result(info)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in)  :: A
        logical                                    :: info

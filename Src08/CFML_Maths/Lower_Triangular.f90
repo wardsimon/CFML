@@ -10,7 +10,7 @@ Submodule (CFML_Maths) Lower_Triangular
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Lower_Triangular_I(A,n) Result (T)
+    Pure Module Function Lower_Triangular_I(A,n) Result (T)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: A    ! Input array
        integer,                 intent(in) :: n    ! Dimension of array
@@ -38,7 +38,7 @@ Submodule (CFML_Maths) Lower_Triangular
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Lower_Triangular_R(A,n) Result (T)
+    Pure Module Function Lower_Triangular_R(A,n) Result (T)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: A    ! Input Array
        integer,                       intent(in) :: n    ! Dimension of A

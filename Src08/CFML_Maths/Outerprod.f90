@@ -17,7 +17,7 @@ Submodule (CFML_Maths) CFML_Math_005
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Outerprod(a,b)  Result(c)
+    Pure Module Function Outerprod(a,b)  Result(c)
        !---- Arguments ----!
        real(kind=cp),dimension(:),intent(in)    :: a,b
        real(kind=cp),dimension(size(a),size(b)) :: c

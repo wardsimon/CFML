@@ -11,7 +11,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
+    Pure Module Function Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -42,7 +42,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+    Pure Module Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
@@ -171,7 +171,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
+    Pure Module Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -208,7 +208,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+    Pure Module Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par

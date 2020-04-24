@@ -16,7 +16,7 @@ Submodule (CFML_Maths) CFML_Math_004
     !!----
     !!---- 27/03/2019
     !!
-    Module Elemental Function Poly_Legendre(L,M,X) Result(Plmx)
+    Elemental Module Function Poly_Legendre(L,M,X) Result(Plmx)
        !---- Arguments ----!
        integer,      intent (in) :: l
        integer,      intent (in) :: m

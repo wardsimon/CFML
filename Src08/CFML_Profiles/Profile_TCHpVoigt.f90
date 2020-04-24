@@ -7,7 +7,7 @@ SubModule (CFML_Profiles) PRF_031
     !!----
     !!---- Update: April - 2009
     !!
-    Module Pure Function TCH_pVoigt(X,Par) Result (Pv_Val)
+    Pure Module Function TCH_pVoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -46,7 +46,7 @@ SubModule (CFML_Profiles) PRF_031
     !!----
     !!---- Update: April - 2009
     !!
-    Module Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
+    Pure Module Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
        !---- Arguments ----!
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par

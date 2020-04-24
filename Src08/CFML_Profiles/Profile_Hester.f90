@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) PRF_001
    !!----     Function to give the analytical value of the normalisation constant
    !!----
    !!
-   Module Pure Function dfunc_int(twopsi, twoth0) result(dfunc)
+   Pure Module Function dfunc_int(twopsi, twoth0) result(dfunc)
       !---- Arguments ----!
       Real(kind=cp), Intent(In)  :: twopsi
       Real(kind=cp), Intent(In)  :: twoth0
@@ -45,7 +45,7 @@ SubModule (CFML_Profiles) PRF_001
    !!----    Function to calculate 1/4(log(|sin(x)+1|)-log(|sin(x)-1|))
    !!----
    !!
-   Module Pure Function extra_int(x) result(extra)
+   Pure Module Function extra_int(x) result(extra)
       !---- Arguments ----!
       Real(kind=cp), Intent(In) :: x
       Real(kind=cp)             :: extra

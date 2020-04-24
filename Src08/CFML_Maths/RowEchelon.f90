@@ -15,7 +15,7 @@ Submodule (CFML_Maths) RowEchelonForm
     !!---- https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
     !!----
     !!----
-    Module Pure Subroutine RowEchelonFormM(M)
+    Pure Module Subroutine RowEchelonFormM(M)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in out) :: M
 
@@ -79,7 +79,7 @@ Submodule (CFML_Maths) RowEchelonForm
     !!----  The original source code can be found at:
     !!----          https://fossies.org/linux/gap/pkg/cryst/gap/common.gi
     !!----
-    Module Pure Subroutine RowEchelonFormT(M,T)
+    Pure Module Subroutine RowEchelonFormT(M,T)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in out) :: M
        integer, dimension(:,:), intent(in out) :: T
@@ -159,7 +159,7 @@ Submodule (CFML_Maths) RowEchelonForm
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Subroutine SmithNormalForm(M,D,P,Q)
+    Pure Module Subroutine SmithNormalForm(M,D,P,Q)
        !---- Arguments ----!
        integer, dimension(:,:), intent(in)  :: M !(nr,nc)
        integer, dimension(:,:), intent(out) :: D !(nr,nc)

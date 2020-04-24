@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Tensor_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Tensor_Product_C(Vec1,Vec2) Result(w)
+    Pure Module Function Tensor_Product_C(Vec1,Vec2) Result(w)
        !---- Argument ----!
        complex(kind=cp), dimension(3), intent( in) :: Vec1,Vec2  ! Vector 1, Vector 2
        complex(kind=cp), dimension(3,3)            :: w          ! Tensor product Vector1 (o) Vector2
@@ -34,7 +34,7 @@ Submodule (CFML_Maths) Tensor_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Tensor_Product_I(Vec1, Vec2) Result(w)
+    Pure Module Function Tensor_Product_I(Vec1, Vec2) Result(w)
        !---- Argument ----!
        integer, dimension(3), intent( in) :: Vec1,Vec2
        integer, dimension(3,3)            :: w
@@ -56,7 +56,7 @@ Submodule (CFML_Maths) Tensor_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Tensor_Product_R(Vec1,Vec2) Result(w)
+    Pure Module Function Tensor_Product_R(Vec1,Vec2) Result(w)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in) :: Vec1,Vec2
        real(kind=cp), dimension(3,3)            :: w

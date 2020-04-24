@@ -14,7 +14,7 @@ Submodule (CFML_Maths) In_Limits
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function In_Limits_I(v,limits,n) result(ok)
+    Pure Module Function In_Limits_I(v,limits,n) result(ok)
        !---- Arguments ----!
        integer, dimension(:),             intent(in) :: v        ! Input Vector
        integer, dimension(:,:),           intent(in) :: limits   ! Normally (2,n)
@@ -55,7 +55,7 @@ Submodule (CFML_Maths) In_Limits
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function In_Limits_R(v,limits,n) result(ok)
+    Pure Module Function In_Limits_R(v,limits,n) result(ok)
        !---- Arguments ----!
        real(kind=cp), dimension(:),             intent(in) :: v        ! Input vector
        real(kind=cp), dimension(:,:),           intent(in) :: limits   ! Normally (2,n)

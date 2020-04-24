@@ -22,7 +22,7 @@ SubModule (CFML_FFT) FFT_Convol
     !!----
     !!---- 14/04/2019
     !!
-    Module Pure Function F_FFT(Array, Mode ) Result(fft)
+    Pure Module Function F_FFT(Array, Mode ) Result(fft)
        !---- Arguments ----!
        complex(kind=cp), dimension(:),      intent(in) :: Array  !  In -> real array containing real parts of transform
        character(len=*),          optional, intent(in) :: Mode   !  In -> type="INV" : backward transform. Absent or whatever -> forward transform
@@ -194,7 +194,7 @@ SubModule (CFML_FFT) FFT_Convol
     !!--..
     !!---- 14/04/2019
     !!
-    Module Pure Subroutine Hfft(Array,Ifset,Iferr)
+    Pure Module Subroutine Hfft(Array,Ifset,Iferr)
        !---- Arguments ----!
        complex(kind=cp), dimension(0:,0:,0:), intent(in out) :: Array       ! In -> Contains the complex 3D array to be transformed
        integer,                               intent(in    ) :: IfSet       ! In -> 1,2 Inverse Fourier Transform; -1,-2 Fourier Transform
@@ -721,7 +721,7 @@ SubModule (CFML_FFT) FFT_Convol
     !!----
     !!---- Update: 11/07/2015
     !!
-    Module Pure Subroutine Sfft( Array, Mode,Iferr )
+    Pure Module Subroutine Sfft( Array, Mode,Iferr )
        !---- Arguments ----!
        complex(kind=cp), dimension(:),      intent(in out) :: Array   ! In -> real array containing real parts of transform
        character(len=*), optional,          intent(in)     :: Mode    ! In -> type="INV" : backward transform; Absent or whatever : forward transform

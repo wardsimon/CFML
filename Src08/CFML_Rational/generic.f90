@@ -11,7 +11,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Co_linear(R,S,N) Result(OK)
+   Pure Module Function Rational_Co_linear(R,S,N) Result(OK)
       !---- Argument ----!
       type(rational), dimension(:), intent(in) :: R
       type(rational), dimension(:), intent(in) :: S
@@ -65,7 +65,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Is_NullVector(V) Result(nulo)
+   Pure Module Function Rational_Is_NullVector(V) Result(nulo)
       !---- Arguments ----!
       type(rational), dimension(:), intent(in) :: v
       logical                                  :: nulo
@@ -92,7 +92,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Is_DiagonalMatrix(M) Result(Diagonal)
+   Pure Module Function Rational_Is_DiagonalMatrix(M) Result(Diagonal)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: M
       logical                                    :: Diagonal
@@ -121,7 +121,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Elemental Function Rational_Modulo_Lat(R) Result(S)
+   Elemental Module Function Rational_Modulo_Lat(R) Result(S)
       !---- Arguments ----!
       type(rational), intent(in) :: r
       type(rational)             :: s
@@ -153,7 +153,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Rank(M) Result(k)
+   Pure Module Function Rational_Rank(M) Result(k)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in)  :: M
       integer                                     :: k
@@ -220,7 +220,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Recursive Function Rational_Determ(A) Result(Det)
+   Pure Module Recursive Function Rational_Determ(A) Result(Det)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: a
       type(rational)                             :: det

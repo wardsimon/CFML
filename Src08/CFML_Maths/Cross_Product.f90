@@ -13,7 +13,7 @@ Submodule (CFML_Maths) Cross_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_C(u,v) Result(w)
+    Pure Module Function Cross_Product_C(u,v) Result(w)
        !---- Argument ----!
        complex(kind=cp), dimension(3), intent( in) :: u  ! Vector 1
        complex(kind=cp), dimension(3), intent( in) :: v  ! Vector 2
@@ -33,7 +33,7 @@ Submodule (CFML_Maths) Cross_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_R(u,v) Result(w)
+    Pure Module Function Cross_Product_R(u,v) Result(w)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in) :: u   ! Vector 1
        real(kind=cp), dimension(3), intent( in) :: v   ! Vector 2
@@ -54,7 +54,7 @@ Submodule (CFML_Maths) Cross_Product
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Cross_Product_I(u,v) Result(w)
+    Pure Module Function Cross_Product_I(u,v) Result(w)
        !---- Argument ----!
        integer, dimension(3), intent( in) :: u    ! Vector 1
        integer, dimension(3), intent( in) :: v    ! Vector 2

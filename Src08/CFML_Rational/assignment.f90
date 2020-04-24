@@ -10,7 +10,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Subroutine Assign_Rational_Int_LI(Res, I)
+    Elemental Module Subroutine Assign_Rational_Int_LI(Res, I)
        !---- Arguments ----!
        type(rational),   intent (out) :: res  ! volatile
        integer(kind=LI), intent (in)  :: i
@@ -25,7 +25,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Subroutine Assign_Rational_Int(Res, I)
+    Elemental Module Subroutine Assign_Rational_Int(Res, I)
        !---- Arguments ----!
        type(rational),  intent (out) :: res  ! volatile
        integer,         intent (in)  :: i
@@ -40,7 +40,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!----
     !!
-    Module Elemental Subroutine Assign_Rational_Real_Cp(Res, Xr)
+    Elemental Module Subroutine Assign_Rational_Real_Cp(Res, Xr)
        !---- Arguments ----!
        type(rational), intent(out) :: res  ! volatile
        real(kind=cp),  intent (in) :: xr
@@ -78,7 +78,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Subroutine Assign_Int_Rational(I, Res)
+    Elemental Module Subroutine Assign_Int_Rational(I, Res)
        !---- Arguments ----!
        type(rational), intent (in)   :: res  !, volatile
        integer,        intent (out)  :: i
@@ -93,7 +93,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Subroutine Assign_Int_LI_Rational(I, Res)
+    Elemental Module Subroutine Assign_Int_LI_Rational(I, Res)
        !---- Arguments ----!
        type(rational),  intent (in)   :: res  !, volatile
        integer(kind=LI),intent (out)  :: i
@@ -108,7 +108,7 @@ Submodule (CFML_Rational) Assign
     !!----
     !!----
     !!
-    Module Elemental Subroutine Assign_Real_Rational_CP(X, Res)
+    Elemental Module Subroutine Assign_Real_Rational_CP(X, Res)
        !---- Arguments ----!
        type(rational), intent(in)   :: res
        real(kind=cp),  intent (out) :: x

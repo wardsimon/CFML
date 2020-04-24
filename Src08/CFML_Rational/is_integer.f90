@@ -12,7 +12,7 @@ SubModule (CFML_Rational) Is_Integer_Rational
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Is_Integer_Rational_Matrix(Mat) Result(OK)
+   Pure Module Function Is_Integer_Rational_Matrix(Mat) Result(OK)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: Mat
       logical                                    :: OK
@@ -38,7 +38,7 @@ SubModule (CFML_Rational) Is_Integer_Rational
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Is_Integer_Rational_Vector(Vec) Result(OK)
+   Pure Module Function Is_Integer_Rational_Vector(Vec) Result(OK)
       !---- Arguments ----!
       type(rational), dimension(:), intent(in) :: vec
       logical                                  :: ok
@@ -62,7 +62,7 @@ SubModule (CFML_Rational) Is_Integer_Rational
    !!----
    !!---- 08/04/2019
    !!
-   Module Elemental Function Is_Integer_Rational_Scalar(R) Result(OK)
+   Elemental Module Function Is_Integer_Rational_Scalar(R) Result(OK)
       !---- Arguments ----!
       type(rational), intent(in) :: r
       logical                    :: OK

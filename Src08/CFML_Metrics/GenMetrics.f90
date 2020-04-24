@@ -12,7 +12,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function SigmaV_From_Cell(Cell) Result(sigma)
+    Pure Module Function SigmaV_From_Cell(Cell) Result(sigma)
        !---- Arguments ----!
        class(Cell_Type), intent(in) :: Cell      ! Cell Parameters
        real(kind=cp)                :: sigma     ! Sigma
@@ -58,7 +58,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Volume_from_Cell(cell,ang) Result(Vol)
+    Pure Module Function Volume_from_Cell(cell,ang) Result(Vol)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: cell
        real(kind=cp), dimension(3), intent(in) :: ang
@@ -90,7 +90,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Get_Metrics(cell,ang) Result(G)
+    Pure Module Function Get_Metrics(cell,ang) Result(G)
        !---- Arguments ----!
        real(kind=cp), dimension(3)  , intent(in ) :: cell  ! Cell Parameters
        real(kind=cp), dimension(3)  , intent(in ) :: ang
@@ -265,7 +265,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Subroutine Reciprocal_Cell(cell,ang,rcell,rang,rVol)
+    Pure Module Subroutine Reciprocal_Cell(cell,ang,rcell,rang,rVol)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in ) :: cell,ang
        real(kind=cp), dimension(3), intent(out) :: rcell,rang
@@ -1758,7 +1758,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
+    Pure Module Function Cart_Vector(Mode,V,Cell) Result(Vc)
        !---- Arguments ----!
        character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD
        real(kind=cp), dimension(3), intent(in) :: v         !  Vector
@@ -1796,7 +1796,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
+    Pure Module Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
        !---- Arguments ----!
        character(len=*),            intent(in) :: Mode   ! Options, D, R, BL, BLD
        real(kind=cp), dimension(3), intent(in) :: v      ! Vector
@@ -1828,7 +1828,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!---- 10/04/2019
     !!
-    Module Pure Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
+    Pure Module Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
        !---- Argument ----!
        real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
        real(kind=cp),                    intent(in) :: phi   ! Angle in Degrees of rotation around V

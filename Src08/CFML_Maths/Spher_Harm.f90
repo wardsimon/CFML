@@ -15,7 +15,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----
     !!---- 09/04/2019
     !!
-    Module Elemental Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
+    Elemental Module Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
        !---- Arguments ----!
        integer,      intent (in) :: l          !
        integer,      intent (in) :: m          !
@@ -91,7 +91,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----
     !!---- 09/04/2019
     !!
-    Module Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
+    Pure Module Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
        !---- Arguments ----!
        integer,                    intent (in) :: l      !
        integer,                    intent (in) :: m      !
@@ -230,7 +230,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----
     !!---- 09/04/2019
     !!
-    Module Elemental Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
+    Elemental Module Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
        !---- arguments ----!
        integer,       intent(in) :: n
        integer,       intent(in) :: l
@@ -290,7 +290,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!----
     !!---- 09/04/2019
     !!
-    Module Elemental Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
+    Elemental Module Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
        !---- Arguments ----!
        integer,      intent (in) :: l         ! Index l >= 0
        integer,      intent (in) :: m         ! Index m <= l
@@ -336,7 +336,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!-->>
     !!---- 09/04/2019
     !!
-    Module Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
+    Pure Module Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
        !---- Arguments ----!
        integer,                    intent (in) :: l,m,p
        real(kind=cp),dimension(3), intent (in) :: u
@@ -400,7 +400,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!-->>
     !!---- 09/04/2019
     !!
-    Module Pure Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
+    Pure Module Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
        !---- Arguments ----!
        integer,                    intent (in) :: l,m,p
        real(kind=cp),dimension(3), intent (in) :: u        ! unit vector in cartesian coordinates
@@ -555,7 +555,7 @@ Submodule (CFML_Maths) SpherHarmon
     !!-->>
     !!---- 09/04/2019
     !!
-    Module Pure Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
+    Pure Module Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
        !---- Arguments ----!
        character(len=*),         intent(in)  :: group
        integer, dimension(2,11), intent(out) :: lj

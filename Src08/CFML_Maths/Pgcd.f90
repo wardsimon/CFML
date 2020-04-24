@@ -15,7 +15,7 @@ Submodule (CFML_Maths) CFML_Math_003
     !!----
     !!---- Update: February - 2005
     !!
-    Module Elemental Function Gcd(a,b) Result(mcd)
+    Elemental Module Function Gcd(a,b) Result(mcd)
        !---- Arguments ----!
        integer, intent(in) :: a,b
        integer             :: mcd
@@ -47,7 +47,7 @@ Submodule (CFML_Maths) CFML_Math_003
     !!----
     !!---- Update: February - 2005
     !!
-    Module Elemental Function Lcm(a,b) result(mcm)
+    Elemental Module Function Lcm(a,b) result(mcm)
        !---- Arguments ----!
        integer, intent(in) :: a,b
        integer             :: mcm

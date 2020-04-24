@@ -10,7 +10,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Abs(R) Result(Res)
+    Elemental Module Function Rational_Abs(R) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        type(rational)              :: res
@@ -25,7 +25,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Int(R) Result(Res)
+    Elemental Module Function Rational_Int(R) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        integer(kind=LI)            :: res
@@ -40,7 +40,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Nint(R) Result(Res)
+    Elemental Module Function Rational_Nint(R) Result(Res)
        !---- Arguments ----!
        type(rational),  intent (in)  :: r
        integer(kind=LI)              :: res
@@ -55,7 +55,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Modulo(R) Result(Res)
+    Elemental Module Function Rational_Modulo(R) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        integer                     :: res
@@ -70,7 +70,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Integer_Modulo(R,I) Result(Res)
+    Elemental Module Function Rational_Integer_Modulo(R,I) Result(Res)
        !---- Arguments ----!
        type(rational),  intent (in) :: r
        integer(kind=LI),intent(in)  :: i
@@ -90,7 +90,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Mod(R) Result(Res)
+    Elemental Module Function Rational_Mod(R) Result(Res)
        !---- Arguments ----!
        type(rational), intent (in) :: r
        integer                     :: res
@@ -105,7 +105,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!----
     !!
-    Module Elemental Function Rational_Integer_Mod(R,I) Result(Res)
+    Elemental Module Function Rational_Integer_Mod(R,I) Result(Res)
        !---- Arguments ----!
       type(rational),   intent (in) :: r
       integer(kind=LI), intent (in) :: i
@@ -125,7 +125,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Dot_Product(R1,R2) Result(Res)
+    Pure Module Function Rational_Dot_Product(R1,R2) Result(Res)
        !---- Arguments ----!
        type(rational), dimension(:), intent (in) :: r1
        type(rational), dimension(:), intent (in) :: r2
@@ -149,7 +149,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Maxval_Vector(R) Result(Res)
+    Pure Module Function Rational_Maxval_Vector(R) Result(Res)
        !---- Arguments ----!
        type(rational), dimension(:), intent (in) :: r
        type(rational)                            :: res
@@ -171,7 +171,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Maxval_Matrix(R) Result(Res)
+    Pure Module Function Rational_Maxval_Matrix(R) Result(Res)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent(in) :: r
        type(rational)                              :: Res
@@ -195,7 +195,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Minval_Vector(R) Result(Res)
+    Pure Module Function Rational_Minval_Vector(R) Result(Res)
        !---- Arguments ----!
        type(rational), dimension(:), intent (in) :: r
        type(rational)                            :: res
@@ -217,7 +217,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Minval_Matrix(R) Result(Res)
+    Pure Module Function Rational_Minval_Matrix(R) Result(Res)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent (in) :: r
        type(rational)                              :: res
@@ -241,7 +241,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Matmul_Matvec(Mat,Vec) Result(Vec_Out)
+    Pure Module Function Rational_Matmul_Matvec(Mat,Vec) Result(Vec_Out)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent (in) :: mat
        type(rational), dimension(:),   intent (in) :: vec
@@ -265,7 +265,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Matmul_Matmat(Mat1,Mat2) Result(Mat_Out)
+    Pure Module Function Rational_Matmul_Matmat(Mat1,Mat2) Result(Mat_Out)
        !---- Arguments ----!
        type(rational), dimension(:,:), intent (in)                 :: mat1
        type(rational), dimension(:,:), intent (in)                 :: mat2
@@ -300,7 +300,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!----
     !!
-    Module Pure Function Rational_Maxloc_Matrix(Mat) Result(Pos_Max)
+    Pure Module Function Rational_Maxloc_Matrix(Mat) Result(Pos_Max)
        !---- Arguments ----!
        type(rational),  dimension(:,:), intent(in) :: Mat
        integer, dimension(2)                       :: pos_max
@@ -330,7 +330,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Maxloc_Vector(Vec) Result(Pos_Max)
+    Pure Module Function Rational_Maxloc_Vector(Vec) Result(Pos_Max)
        !---- Arguments ----!
        type(rational), dimension(:), intent(in) :: vec
        integer                                  :: pos_max
@@ -357,7 +357,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Minloc_Matrix(Mat) Result(Pos_Min)
+    Pure Module Function Rational_Minloc_Matrix(Mat) Result(Pos_Min)
        !---- Arguments ----!
        type(rational),  dimension(:,:), intent(in) :: Mat
        integer, dimension(2)                       :: pos_min
@@ -388,7 +388,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Minloc_Vector(Vec) Result(Pos_Min)
+    Pure Module Function Rational_Minloc_Vector(Vec) Result(Pos_Min)
        !---- Arguments ----!
        type(rational), dimension(:), intent(in) :: vec
        integer                                  :: pos_min
@@ -415,7 +415,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Real(R) Result (Res)
+    Elemental Module Function Rational_Real(R) Result (Res)
        !---- Arguments ----!
        type (rational),  intent(in) :: r
        real(kind=cp)                :: res
@@ -430,7 +430,7 @@ Submodule (CFML_Rational) Overloads
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Rational_Sum_Vector(Vec) Result(Suma)
+    Pure Module Function Rational_Sum_Vector(Vec) Result(Suma)
        !---- Arguments ----!
        type(rational), dimension(:), intent(in) :: vec
        type(rational)                           :: suma

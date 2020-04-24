@@ -12,7 +12,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Second_Derivative(x,y,n) Result(d2y)
+    Pure Module Function Second_Derivative(x,y,n) Result(d2y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x     ! Vector xi
        real(kind=cp), dimension(:), intent(in)  :: y     ! Vector Yi=F(xi)
@@ -54,7 +54,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Smoothing_Vec(Y, N, Niter) Result(Ys)
+    Pure Module Function Smoothing_Vec(Y, N, Niter) Result(Ys)
        !---- Arguments ----!
        real(kind=cp),dimension(:),            intent(in) :: Y         !  In Out-> Array to be smoothed
        integer,                               intent(in) :: n         !  In -> Number of points
@@ -95,7 +95,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
+    Pure Module Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
        !---- Arguments ----!
        real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
        real(kind=cp), dimension(:), intent(in)  :: x    ! Vector Xi points
@@ -141,7 +141,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Linear_Interpol(xi,x,y) Result(yi)
+    Pure Module Function Linear_Interpol(xi,x,y) Result(yi)
        !---- Arguments ----!
        real(kind=cp),              intent(in)   :: xi ! X point to evaluate
        real(kind=cp), dimension(:),intent(in)   :: x  ! Vector containing Xi points
@@ -166,7 +166,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function First_Derivative(x,y,n) Result(d1y)
+    Pure Module Function First_Derivative(x,y,n) Result(d1y)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x    ! Vector containing Xi
        real(kind=cp), dimension(:), intent(in)  :: y    ! Vector containing Yi
@@ -208,7 +208,7 @@ Submodule (CFML_Maths) CFML_Math_007
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Spline_D2Y(x,y,n,yp1,ypn) Result(Ys)
+    Pure Module Function Spline_D2Y(x,y,n,yp1,ypn) Result(Ys)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X
        real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)

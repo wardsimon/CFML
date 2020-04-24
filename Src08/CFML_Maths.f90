@@ -383,28 +383,28 @@
           logical                                           :: co_linear
        End Function Co_linear_R
 
-       Module Pure Function Cross_Product_C(u,v) Result(w)
+       Pure Module Function Cross_Product_C(u,v) Result(w)
           !---- Argument ----!
           complex(kind=cp), dimension(3), intent( in) :: u    ! Vector 1
           complex(kind=cp), dimension(3), intent( in) :: v    ! Vector 2
           complex(kind=cp), dimension(3)              :: w    ! u x v
        End Function Cross_Product_C
 
-       Module Pure Function Cross_Product_I(u,v) Result(w)
+       Pure Module Function Cross_Product_I(u,v) Result(w)
           !---- Argument ----!
           integer, dimension(3), intent( in) :: u    ! Vector 1
           integer, dimension(3), intent( in) :: v    ! Vector 2
           integer, dimension(3)              :: w    ! u x v
        End Function Cross_Product_I
 
-       Module Pure Function Cross_Product_R(u,v) Result(w)
+       Pure Module Function Cross_Product_R(u,v) Result(w)
           !---- Argument ----!
           real(kind=cp), dimension(3), intent( in) :: u    ! Vector 1
           real(kind=cp), dimension(3), intent( in) :: v    ! Vector 2
           real(kind=cp), dimension(3)              :: w    ! u x v
        End Function Cross_Product_R
 
-       Module Elemental Function Erfc_Deriv(X) Result(Der)
+       Elemental Module Function Erfc_Deriv(X) Result(Der)
           !---- Argument ----!
           real(kind=cp), intent(in)    :: x
           real(kind=cp)                :: der
@@ -463,19 +463,19 @@
           real(kind=DP)                             :: fval ! Return value
        End Function Debye_PR_ChebyshevSeries
 
-       Module Pure Function Determ_V_I(Vec1,Vec2,Vec3) Result(det)
+       Pure Module Function Determ_V_I(Vec1,Vec2,Vec3) Result(det)
           !---- Arguments ----!
           integer, dimension(3), intent(in) :: Vec1,Vec2,Vec3
           integer                           :: det
        End Function Determ_V_I
 
-       Module Pure Function Determ_V_R(Vec1,Vec2,Vec3) Result(det)
+       Pure Module Function Determ_V_R(Vec1,Vec2,Vec3) Result(det)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: Vec1,Vec2,Vec3
           real(kind=cp)                           :: det
        End Function Determ_V_R
 
-       Module Pure Subroutine Diagonalize_EigenvSort(d,v,n,io)
+       Pure Module Subroutine Diagonalize_EigenvSort(d,v,n,io)
           !---- Arguments ----!
           real(kind=cp), dimension(:),   intent(in out) :: d
           real(kind=cp), dimension(:,:), intent(in out) :: v
@@ -496,14 +496,14 @@
           real(kind=cp), dimension(:,:), intent(in out) :: z    ! z(np,np)
        End Subroutine Diagonalize_PR_Tqli2
 
-       Module Pure Subroutine Diagonalize_PR_Tred1(a,n,d,e)
+       Pure Module Subroutine Diagonalize_PR_Tred1(a,n,d,e)
           !---- Arguments ----!
           real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
           integer,                       intent(in)     :: n
           real(kind=cp), dimension(:),   intent(in out) :: d, e ! d(np),e(np)
        End Subroutine Diagonalize_PR_Tred1
 
-       Module Pure Subroutine Diagonalize_PR_Tred2(a,n,d,e)
+       Pure Module Subroutine Diagonalize_PR_Tred2(a,n,d,e)
           !---- Arguments ----!
           real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
           integer,                       intent(in)     :: n
@@ -537,7 +537,7 @@
           real(kind = dp), dimension(n,n), intent(out)   :: z
        End Subroutine Diagonalize_RGen
 
-       Module Pure Function Co_Prime(V,Imax) result(Cop)
+       Pure Module Function Co_Prime(V,Imax) result(Cop)
           !---- Arguments ----!
           integer, dimension(:),           intent(in) :: V          ! Input vector of numbers
           integer,               optional, intent(in) :: Imax       ! Maximun prime number to be tested
@@ -572,55 +572,55 @@
           real(kind=cp)                              :: Det    ! Value
        End Function Determinant_R
 
-       Module Pure Function Deter2_C(A) Result(Det)
+       Pure Module Function Deter2_C(A) Result(Det)
           !---- arguments ----!
           complex(kind=cp), dimension(2,2), intent(in) :: A   !! Matrix
           complex(kind=cp)                             :: Det      !! Determinant
        End Function Deter2_C
 
-       Module Pure Function Deter2_I(A) Result(Det)
+       Pure Module Function Deter2_I(A) Result(Det)
           !---- arguments ----!
           integer, dimension(2,2), intent(in) :: A   !! Matrix
           integer                             :: Det      !! Determinant
        End Function Deter2_I
 
-       Module Pure Function Deter2_R(A) Result(Det)
+       Pure Module Function Deter2_R(A) Result(Det)
           !---- arguments ----!
           real(kind=cp), intent(in) :: A(2,2)   !! Matrix
           real(kind=cp)             :: Det      !! Determinant
        End Function Deter2_R
 
-       Module Pure Function Deter3_C(A) Result(Det)
+       Pure Module Function Deter3_C(A) Result(Det)
           !---- arguments ----!
           complex(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
           complex(kind=cp)                             :: Det      !! Determinant
        End Function Deter3_C
 
-       Module Pure Function Deter3_I(A) Result(Det)
+       Pure Module Function Deter3_I(A) Result(Det)
           !---- arguments ----!
           integer, dimension(3,3), intent(in) :: A   !! Matrix
           integer                             :: Det      !! Determinant
        End Function Deter3_I
 
-       Module Pure Function Deter3_R(A) Result(Det)
+       Pure Module Function Deter3_R(A) Result(Det)
           !---- arguments ----!
           real(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
           real(kind=cp)                             :: Det      !! Determinant
        End Function Deter3_R
 
-       Module Pure Function Deter4_C(A) Result(Det)
+       Pure Module Function Deter4_C(A) Result(Det)
           !---- arguments ----!
           complex(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
           complex(kind=cp)                             :: Det      !! Determinant
        End Function Deter4_C
 
-       Module Pure Function Deter4_I(A) Result(Det)
+       Pure Module Function Deter4_I(A) Result(Det)
           !---- arguments ----!
           integer, dimension(4,4), intent(in) :: A   !! Matrix
           integer                             :: Det !! Determinant
        End Function Deter4_I
 
-       Module Pure Function Deter4_R(A) Result(Det)
+       Pure Module Function Deter4_R(A) Result(Det)
           !---- arguments ----!
           real(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
           real(kind=cp)                             :: Det !! Determinant
@@ -689,19 +689,19 @@
           logical                                           :: info
        End Function Equal_Vector_R
 
-       Module Elemental Function Factorial_I(N) Result(Fact)
+       Elemental Module Function Factorial_I(N) Result(Fact)
           !---- Argument ----!
           integer, intent(in) :: N        ! Factorial of N
           integer             :: Fact
        End Function Factorial_I
 
-       Module Elemental Function Factorial_R(N) Result(Fact)
+       Elemental Module Function Factorial_R(N) Result(Fact)
           !---- Arguments ----!
           integer, intent(in) :: N    ! Factorial of N
           real(kind=cp)       :: Fact
        End Function Factorial_R
 
-       Module Pure Function First_Derivative(x,y,n) Result(d1y)
+       Pure Module Function First_Derivative(x,y,n) Result(d1y)
           !---- Arguments ----!
           real(kind=cp), dimension(:), intent(in)  :: x    ! Vector containing Xi
           real(kind=cp), dimension(:), intent(in)  :: y    ! Vector containing Yi
@@ -709,48 +709,48 @@
           real(kind=cp), dimension(n)              :: d1y  ! Vector containing the first derivative
        End Function First_Derivative
 
-       Module Elemental Function Gcd(a,b) Result(mcd)
+       Elemental Module Function Gcd(a,b) Result(mcd)
           !---- Arguments ----!
           integer, intent(in) :: a,b   ! Integers
           integer             :: mcd   ! Maximum common divisor
        End Function Gcd
 
-       Module Pure Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)
+       Pure Module Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent( in) ::  CilCoord ! Coordinates rho,phi,zeta
           character(len=*), optional,  intent( in) ::  mode     ! "D" angles in degrees, otherwise in radians
           real(kind=cp), dimension(3)              ::  CarCoord ! Cartesian coordinates
        End Function Get_Cart_from_Cylin
 
-       Module Pure Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)
+       Pure Module Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent( in) :: SphCoord ! Coordinates (R,Theta;Phi)
           character(len=*), optional,  intent( in) :: mode     ! If "D" the angles are in degrees, otherwise radians is considered
           real(kind=cp), dimension(3)              :: CarCoord ! Cartesian coordinates
        End Function Get_Cart_from_Spher
 
-       Module Pure Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)
+       Pure Module Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3),intent(in) ::  CarCoord   ! Cartesian coordinatates
           character(len=*), optional, intent(in) ::  mode
           real(kind=cp), dimension(3)            ::  CilCoord   ! Cylindrical coordinates
        End Function Get_Cylin_from_Cart
 
-       Module Pure Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)
+       Pure Module Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: SphCoord ! Cylinder
           character(len=*), optional,  intent(in) :: mode
           real(kind=cp), dimension(3)             :: CilCoord ! Spherical
        End Function Get_Cylin_from_Spher
 
-       Module Pure Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)
+       Pure Module Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: CarCoord ! Cartesian
           character(len=*), optional,  intent(in) :: mode
           real(kind=cp), dimension(3)             :: SphCoord ! Spherical
        End Function Get_Spher_from_Cart
 
-       Module Pure Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)
+       Pure Module Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: CilCoord ! Cylinder
           character(len=*), optional,  intent(in) :: mode
@@ -775,7 +775,7 @@
           real(kind=cp), dimension(size(a,1),size(a,1)) :: Ainv
        End Function Inverse_Matrix_R
 
-       Module Pure Function In_Limits_I(v,limits,n) result(ok)
+       Pure Module Function In_Limits_I(v,limits,n) result(ok)
           !---- Arguments ----!
           integer, dimension(:),             intent(in) :: v        ! Input Vector
           integer, dimension(:,:),           intent(in) :: limits   ! Normally (2,n)
@@ -783,7 +783,7 @@
           logical                                       :: ok
        End Function In_Limits_I
 
-       Module Pure Function In_Limits_R(v,limits,n) result(ok)
+       Pure Module Function In_Limits_R(v,limits,n) result(ok)
           !---- Arguments ----!
           real(kind=cp), dimension(:),             intent(in) :: v        ! Input Vector
           real(kind=cp), dimension(:,:),           intent(in) :: limits   ! Normally (2,n)
@@ -798,31 +798,31 @@
           integer, dimension(:),optional, intent(out) :: perm
        End Subroutine Invert_Matrix_R
 
-       Module Pure Function Is_Diagonal_Matrix_I(A) Result(info)
+       Pure Module Function Is_Diagonal_Matrix_I(A) Result(info)
           !---- Arguments ----!
           integer, dimension(:,:), intent(in)  :: A
           logical                              :: info
        End Function Is_Diagonal_Matrix_I
 
-       Module Pure Function Is_Diagonal_Matrix_R(A) Result(info)
+       Pure Module Function Is_Diagonal_Matrix_R(A) Result(info)
           !---- Arguments ----!
           real(kind=cp), dimension(:,:), intent(in)  :: A
           logical                                    :: info
        End Function Is_Diagonal_Matrix_R
 
-       Module Pure Function Is_Null_Vector_I(V) Result(info)
+       Pure Module Function Is_Null_Vector_I(V) Result(info)
           !---- Arguments ----!
           integer,  dimension(:), intent(in)  :: V
           logical                             :: Info
        End Function Is_Null_Vector_I
 
-       Module Pure Function Is_Null_Vector_R(V) Result(info)
+       Pure Module Function Is_Null_Vector_R(V) Result(info)
           !---- Arguments ----!
           real(kind=cp),  dimension(:), intent(in)  :: V
           logical                             :: Info
        End Function Is_Null_Vector_R
 
-       Module Elemental Function Lcm(a,b) result(mcm)
+       Elemental Module Function Lcm(a,b) result(mcm)
           !---- Arguments ----!
           integer, intent(in) :: a,b    ! Integers
           integer             :: mcm    ! Minimum common multiple
@@ -852,7 +852,7 @@
           logical                                    :: info
        End Function Linear_Dependent_R
 
-       Module Pure Function Linear_Interpol(xi,x,y) Result(yi)
+       Pure Module Function Linear_Interpol(xi,x,y) Result(yi)
           !---- Arguments ----!
           real(kind=cp),              intent(in)   :: xi ! X point to evaluate
           real(kind=cp), dimension(:),intent(in)   :: x  ! Vector containing Xi points
@@ -860,7 +860,7 @@
           real(kind=cp)                            :: yi ! Output
        End Function Linear_Interpol
 
-       Module Pure Function Locate_I(V,x,n) Result(j)
+       Pure Module Function Locate_I(V,x,n) Result(j)
           !---- Argument ----!
           integer, dimension(:), intent(in):: v  ! Input vector
           integer,               intent(in):: x  ! Value
@@ -868,7 +868,7 @@
           integer                          :: j
        End Function Locate_I
 
-       Module Pure Function Locate_R(V,x,n) Result(j)
+       Pure Module Function Locate_R(V,x,n) Result(j)
           !---- Argument ----!
           real(kind=cp), dimension(:), intent(in):: v
           real(kind=cp),               intent(in):: x
@@ -876,14 +876,14 @@
           integer                                :: j
        End Function Locate_R
 
-       Module Pure Function Lower_Triangular_I(A,n) Result (T)
+       Pure Module Function Lower_Triangular_I(A,n) Result (T)
           !---- Argument ----!
           integer, dimension(:,:), intent(in) :: A    ! Input array
           integer,                 intent(in) :: n    ! Dimension of array
           integer, dimension(n,n)             :: T
        End Function Lower_Triangular_I
 
-       Module Pure Function Lower_Triangular_R(A,n) Result (T)
+       Pure Module Function Lower_Triangular_R(A,n) Result (T)
           !---- Argument ----!
           real(kind=cp), dimension(:,:), intent(in) :: A    ! Input Array
           integer,                       intent(in) :: n    ! Dimension of A
@@ -905,25 +905,25 @@
           integer, dimension(:), optional, intent(out)    :: indx
        End Subroutine LU_Decomp
 
-       Module Pure Subroutine LU_Descomposition(a,p)
+       Pure Module Subroutine LU_Descomposition(a,p)
           !---- Arguments ----!
           real(kind=cp), intent(in out) :: a(:,:)
           integer,       intent(   out) :: p(:)
        End Subroutine LU_Descomposition
 
-       Module Pure Function Mat_Cross_C(Vec) Result(M)
+       Pure Module Function Mat_Cross_C(Vec) Result(M)
           !---- Argument ----!
           complex(kind=cp), dimension(3), intent( in) :: Vec
           complex(kind=cp), dimension(3,3)            :: M
        End Function Mat_Cross_C
 
-       Module Pure Function Mat_Cross_I(Vec) Result(M)
+       Pure Module Function Mat_Cross_I(Vec) Result(M)
           !---- Argument ----!
           integer, dimension(3), intent( in) :: Vec
           integer, dimension(3,3)            :: M
        End Function Mat_Cross_I
 
-       Module Pure Function Mat_Cross_R(Vec) Result(M)
+       Pure Module Function Mat_Cross_R(Vec) Result(M)
           !---- Argument ----!
           real(kind=cp), dimension(3), intent( in) :: Vec
           real(kind=cp), dimension(3,3)            :: M
@@ -979,51 +979,51 @@
        !   real(kind=cp), dimension(n,n)             :: Ainv
        !End Function MatInvN_R
 
-       Module Pure Function Modulo_Lat(v) result(u)
+       Pure Module Function Modulo_Lat(v) result(u)
           !---- Argument ----!
           real(kind=cp), dimension(:), intent( in) :: v
           real(kind=cp), dimension(1:size(v))      :: u
        End Function Modulo_Lat
 
-       Module Elemental Function Negligible_C(C) Result(Neglig)
+       Elemental Module Function Negligible_C(C) Result(Neglig)
           !---- Argument ----!
           complex(kind=cp), intent( in) :: C         ! Complex number
           logical                       :: Neglig
        End Function Negligible_C
 
-       Module Elemental Function Negligible_R(R) Result(neglig)
+       Elemental Module Function Negligible_R(R) Result(neglig)
           !---- Argument ----!
           real(kind=cp), intent( in) :: R          ! Real number
           logical                    :: Neglig
        End Function Negligible_R
 
-       Module Pure Function Norm_I(X,G) Result(R)
+       Pure Module Function Norm_I(X,G) Result(R)
           !---- Arguments ----!
           integer,       dimension(:),   intent(in) :: x    ! Input vector
           real(kind=cp), dimension(:,:), intent(in) :: g    ! Metric array
           real(kind=cp)                             :: r    ! Norm of the input vector
        End Function Norm_I
 
-       Module Pure Function Norm_R(X,G) Result(R)
+       Pure Module Function Norm_R(X,G) Result(R)
           !---- Arguments ----!
           real(kind=cp), dimension(:),   intent(in) :: x   ! Input vector
           real(kind=cp), dimension(:,:), intent(in) :: g   ! Metrics
           real(kind=cp)                             :: r   ! Norm of the vector
        End Function Norm_R
 
-       Module Pure Subroutine Orient_Eigenvectors(eval,evec)
+       Pure Module Subroutine Orient_Eigenvectors(eval,evec)
           !---- Arguments ----!
           real(kind=cp), dimension(3),   intent(in out) :: eval
           real(kind=cp), dimension(3,3), intent(in out) :: evec
        End Subroutine Orient_Eigenvectors
 
-       Module Pure Function Outerprod(a,b)  Result(c)
+       Pure Module Function Outerprod(a,b)  Result(c)
           !---- Arguments ----!
           real(kind=cp),dimension(:),intent(in)    :: a,b
           real(kind=cp),dimension(size(a),size(b)) :: c
        End Function Outerprod
 
-       Module Pure Subroutine Points_In_Line2D(X1, XN, N, XP)
+       Pure Module Subroutine Points_In_Line2D(X1, XN, N, XP)
           !---- Arguments ----!
           real(kind=cp), dimension(2),   intent(in)  :: X1   ! Point1 in 2D
           real(kind=cp), dimension(2),   intent(in)  :: XN   ! PointN in 2D
@@ -1031,7 +1031,7 @@
           real(kind=cp), dimension(:,:), intent(out) :: XP   ! List of points
        End Subroutine Points_In_Line2D
 
-       Module Elemental Function Poly_Legendre(L,M,X) Result(Plmx)
+       Elemental Module Function Poly_Legendre(L,M,X) Result(Plmx)
           !---- Arguments ----!
           integer,      intent (in) :: L
           integer,      intent (in) :: M
@@ -1098,53 +1098,53 @@
           integer, dimension(3),            intent(out):: ix      ! 1: x, 2: y, 3: z
        End Subroutine Resolv_Sist_3x3
 
-       Module Pure Function Rotation_OX(Vec,Angle) Result(Rvec)
+       Pure Module Function Rotation_OX(Vec,Angle) Result(Rvec)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
           real(kind=cp),               intent(in) :: angle    ! Angle
           real(kind=cp), dimension(3)             :: Rvec     ! Vector rotated
        End Function Rotation_OX
 
-       Module Pure Function Rotation_OY(Vec,Angle) Result(Rvec)
+       Pure Module Function Rotation_OY(Vec,Angle) Result(Rvec)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
           real(kind=cp),               intent(in) :: angle    ! Angle
           real(kind=cp), dimension(3)             :: Rvec     ! Vector rotated
        End Function Rotation_OY
 
-       Module Pure Function Rotation_OZ(Vec,Angle) Result(Rvec)
+       Pure Module Function Rotation_OZ(Vec,Angle) Result(Rvec)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
           real(kind=cp),               intent(in) :: angle    ! Angle
           real(kind=cp), dimension(3)             :: Rvec     ! Vector rotated
        End Function Rotation_OZ
 
-       Module Pure Subroutine RowEchelonFormM(M)
+       Pure Module Subroutine RowEchelonFormM(M)
           !---- Arguments ----!
           integer, dimension(:,:), intent(in out) :: M
        End Subroutine RowEchelonFormM
 
-       Module Pure Subroutine RowEchelonFormT(M,T)
+       Pure Module Subroutine RowEchelonFormT(M,T)
           !---- Arguments ----!
           integer, dimension(:,:), intent(in out) :: M
           integer, dimension(:,:), intent(in out) :: T
        End Subroutine RowEchelonFormT
 
-       Module Pure Function Scalar_I(X,Y,G) Result(R)
+       Pure Module Function Scalar_I(X,Y,G) Result(R)
           !---- Arguments ----!
           integer, dimension(:),         intent(in) :: x,y     ! Input vectors
           real(kind=cp), dimension(:,:), intent(in) :: g       ! Metrics
           real(kind=cp)                             :: r       ! Scalar
        End Function Scalar_I
 
-       Module Pure Function Scalar_R(X,Y,G) Result(R)
+       Pure Module Function Scalar_R(X,Y,G) Result(R)
           !---- Arguments ----!
           real(kind=cp), dimension(:),   intent(in) :: x,y    ! Input vectors
           real(kind=cp), dimension(:,:), intent(in) :: g      ! Metrics
           real(kind=cp)                             :: r      ! Scalar
        End Function Scalar_R
 
-       Module Pure Function Second_Derivative(x,y,n) Result(d2y)
+       Pure Module Function Second_Derivative(x,y,n) Result(d2y)
           !---- Arguments ----!
           real(kind=cp), dimension(:), intent(in)  :: x     ! Vector xi
           real(kind=cp), dimension(:), intent(in)  :: y     ! Vector Yi=F(xi)
@@ -1152,7 +1152,7 @@
           real(kind=cp), dimension(n)              :: d2y   ! Second derivate
        End Function Second_Derivative
 
-       Module Pure Subroutine SmithNormalForm(M,D,P,Q)
+       Pure Module Subroutine SmithNormalForm(M,D,P,Q)
           !---- Arguments ----!
           integer, dimension(:,:), intent(in)  :: M !(nr,nc)
           integer, dimension(:,:), intent(out) :: D !(nr,nc)
@@ -1160,7 +1160,7 @@
           integer, dimension(:,:), intent(out) :: Q !(nc,nc)
        End Subroutine SmithNormalForm
 
-       Module Pure Function Smoothing_Vec(Y, N, Niter) Result(Ys)
+       Pure Module Function Smoothing_Vec(Y, N, Niter) Result(Ys)
           !---- Arguments ----!
           real(kind=cp),dimension(:),            intent(in) :: Y         !  In Out-> Array to be smoothed
           integer,                               intent(in) :: n         !  In -> Number of points
@@ -1182,7 +1182,7 @@
           integer, dimension(n)                    :: indx      ! Index
        End Function Sort_R
 
-       Module Pure Function Spline_D2Y(x,y,n,yp1,ypn) Result(ys)
+       Pure Module Function Spline_D2Y(x,y,n,yp1,ypn) Result(ys)
           !---- Arguments ----!
           real(kind=cp), dimension(:), intent(in)  :: x               !  In -> Array X
           real(kind=cp), dimension(:), intent(in)  :: y               !  In -> Array Yi=F(Xi)
@@ -1192,7 +1192,7 @@
           real(kind=cp), dimension(n)            :: ys              ! Out -> array containing second derivatives
        End Function Spline_D2Y
 
-       Module Pure Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
+       Pure Module Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
           !---- Arguments ----!
           real(kind=cp),               intent(in)  :: xi   ! X value for evaluation
           real(kind=cp), dimension(:), intent(in)  :: x    ! Vector Xi points
@@ -1209,122 +1209,122 @@
           real(kind=cp),dimension(:,:),intent(   out) ::v   ! V(n,n)
        End Subroutine Svdcmp
 
-       Module Elemental Subroutine Swap_C(a,b)
+       Elemental Module Subroutine Swap_C(a,b)
           !---- Arguments ----!
           complex(kind=cp), intent(in out) :: a
           complex(kind=cp), intent(in out) :: b
        End Subroutine Swap_C
 
-       Module Elemental Subroutine Swap_I(A,B)
+       Elemental Module Subroutine Swap_I(A,B)
           !---- Arguments ----!
           integer , intent(in out) :: a
           integer , intent(in out) :: b
        End Subroutine Swap_I
 
-       Module Elemental Subroutine Swap_R(A,B)
+       Elemental Module Subroutine Swap_R(A,B)
           !---- Arguments ----!
           real(kind=cp), intent(in out) :: a
           real(kind=cp), intent(in out) :: b
        End Subroutine Swap_R
 
-       Module Elemental Subroutine Swap_Masked_C(A,B,Mask)
+       Elemental Module Subroutine Swap_Masked_C(A,B,Mask)
           !---- Arguments ----!
           complex(kind=cp), intent(in out) :: a
           complex(kind=cp), intent(in out) :: b
           logical,           intent(in) :: mask
        End Subroutine Swap_Masked_C
 
-       Module Elemental Subroutine Swap_Masked_I(A,B,Mask)
+       Elemental Module Subroutine Swap_Masked_I(A,B,Mask)
           !---- Arguments ----!
           integer, intent(in out) :: a
           integer, intent(in out) :: b
           logical,           intent(in) :: mask
        End Subroutine Swap_Masked_I
 
-       Module Elemental Subroutine Swap_Masked_R(A,B,Mask)
+       Elemental Module Subroutine Swap_Masked_R(A,B,Mask)
           !---- Arguments ----!
           real(kind=cp), intent(in out) :: a
           real(kind=cp), intent(in out) :: b
           logical,           intent(in) :: mask
        End Subroutine Swap_Masked_R
 
-       Module Pure Function Tensor_Product_C(Vec1,Vec2) Result(w)
+       Pure Module Function Tensor_Product_C(Vec1,Vec2) Result(w)
           !---- Argument ----!
           complex(kind=cp), dimension(3), intent( in) :: Vec1,Vec2  ! Vector 1, Vector 2
           complex(kind=cp), dimension(3,3)            :: w          ! Tensor product Vector1 (o) Vector2
        End Function Tensor_Product_C
 
-       Module Pure Function Tensor_Product_I(Vec1,Vec2) Result(w)
+       Pure Module Function Tensor_Product_I(Vec1,Vec2) Result(w)
           !---- Argument ----!
           integer, dimension(3), intent( in) :: Vec1,Vec2  ! Vector 1, Vector 2
           integer, dimension(3,3)            :: w          ! Tensor product Vector1 (o) Vector2
        End Function Tensor_Product_I
 
-       Module Pure Function Tensor_Product_R(Vec1,Vec2) Result(w)
+       Pure Module Function Tensor_Product_R(Vec1,Vec2) Result(w)
           !---- Argument ----!
           real(kind=cp), dimension(3), intent( in) :: Vec1,Vec2  ! Vector 1, Vector 2
           real(kind=cp), dimension(3,3)            :: w          ! Tensor product Vector1 (o) Vector2
        End Function Tensor_Product_R
 
-       Module Pure Function Trace_C(a) Result(b)
+       Pure Module Function Trace_C(a) Result(b)
           !---- Argument ----!
           complex(kind=cp), dimension(:,:), intent(in) :: a
           complex(kind=cp)                             :: b
        End Function Trace_C
 
-       Module Pure Function Trace_I(a) Result(b)
+       Pure Module Function Trace_I(a) Result(b)
           !---- Argument ----!
           integer, dimension(:,:), intent(in) :: a
           integer                             :: b
        End Function Trace_I
 
-       Module Pure Function Trace_R(a) Result(b)
+       Pure Module Function Trace_R(a) Result(b)
           !---- Argument ----!
           real(kind=cp), dimension(:,:), intent(in) :: a
           real(kind=cp)                             :: b
        End Function Trace_R
 
-       Module Pure Function Upper_Triangular_I(A,n) Result (T)
+       Pure Module Function Upper_Triangular_I(A,n) Result (T)
           !---- Argument ----!
           integer, dimension(:,:), intent(in) :: A     ! Input array
           integer,                 intent(in) :: n     ! Dimension
           integer, dimension(n,n)             :: T
        End Function Upper_Triangular_I
 
-       Module Pure Function Upper_Triangular_R(A,n) Result (T)
+       Pure Module Function Upper_Triangular_R(A,n) Result (T)
           !---- Argument ----!
           real(kind=cp), dimension(:,:), intent(in) :: A   ! Input array
           integer,                       intent(in) :: n   ! Dimension
           real(kind=cp), dimension(n,n)             :: T
        End Function  Upper_Triangular_R
 
-       Module Pure Function Vec_Length(G,Vec) Result(c)
+       Pure Module Function Vec_Length(G,Vec) Result(c)
           !---- Arguments ----!
           real(kind=cp), intent(in)  , dimension(3,3)       :: G      ! Metric array
           real(kind=cp), intent(in)  , dimension(3  )       :: Vec    ! Vector
           real(kind=cp)                                     :: c      ! Length of Vector
        End Function Vec_Length
 
-       Module Pure Function Zbelong_M(A) Result(belong)
+       Pure Module Function Zbelong_M(A) Result(belong)
           !---- Argument ----!
           real(kind=cp),   dimension(:,:), intent( in) :: A        ! Input array
           logical                                      :: belong
        End Function Zbelong_M
 
-       Module Pure Function Zbelong_R(X) Result(belong)
+       Pure Module Function Zbelong_R(X) Result(belong)
           !---- Argument ----!
           real(kind=cp), intent( in) :: X              ! Input number
           logical                    :: belong
        End Function Zbelong_R
 
-       Module Pure Function Zbelong_V(V) Result(belong)
+       Pure Module Function Zbelong_V(V) Result(belong)
           !---- Argument ----!
           real(kind=cp),   dimension(:), intent( in) :: v      ! Input vector
           logical                                    :: belong
        End Function Zbelong_V
 
        !> Spherical Harmonics
-       Module Elemental Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
+       Elemental Module Function Cubic_Harm_Ang(L,M,Theta,Phi) Result(Klm)
           !---- Arguments ----!
           integer,      intent (in) :: l          !
           integer,      intent (in) :: m          !
@@ -1333,7 +1333,7 @@
           real(kind=cp)             :: klm        !
        End Function Cubic_Harm_Ang
 
-       Module Elemental Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
+       Elemental Module Function Integral_Slater_Bessel(N,L,Z,S) Result(V)
           !---- arguments ----!
           integer,       intent(in) :: n
           integer,       intent(in) :: l
@@ -1342,7 +1342,7 @@
           real(kind=cp)             :: v
        End Function Integral_Slater_Bessel
 
-       Module Elemental Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
+       Elemental Module Function Real_Spher_Harm_Ang(l,m,p,theta,phi) result(ylmp)
           !---- Arguments ----!
           integer,      intent (in) :: l         ! Index l >= 0
           integer,      intent (in) :: m         ! Index m <= l
@@ -1352,7 +1352,7 @@
           real(kind=cp)             :: ylmp
        End Function Real_Spher_Harm_Ang
 
-       Module Pure Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
+       Pure Module Function Cubic_Harm_Ucvec(L,M,U) Result(Klm)
           !---- Arguments ----!
           integer,                    intent (in) :: l      !
           integer,                    intent (in) :: m      !
@@ -1360,21 +1360,21 @@
           real(kind=cp)                           :: Klm    !
        End Function Cubic_Harm_Ucvec
 
-       Module Pure Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
+       Pure Module Function Real_Spher_Harm_Ucvec(l,m,p,u) result(ylmp)
           !---- Arguments ----!
           integer,                    intent (in) :: l,m,p
           real(kind=cp),dimension(3), intent (in) :: u
           real(kind=cp)                           :: ylmp
        End Function Real_Spher_Harm_Ucvec
 
-       Module Pure Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
+       Pure Module Function Real_Spher_HarmCharge_Ucvec(L,M,P,U) Result(Dlmp)
           !---- Arguments ----!
           integer,                    intent (in) :: l,m,p
           real(kind=cp),dimension(3), intent (in) :: u
           real(kind=cp)                           :: Dlmp
        End Function Real_Spher_HarmCharge_Ucvec
 
-       Module Pure Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
+       Pure Module Subroutine Pikout_Lj_Cubic(Group,Lj,Ncoef)
           !---- Arguments ----!
           character(len=*),         intent(in)  :: group
           integer, dimension(2,11), intent(out) :: lj

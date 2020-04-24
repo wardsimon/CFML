@@ -12,7 +12,7 @@ Submodule (CFML_Maths) CFML_Maths_012
     !!----
     !!---- 09/04/2019
     !!
-    Module Elemental Function Erfc_Deriv(X) Result(Der)
+    Elemental Module Function Erfc_Deriv(X) Result(Der)
        !---- Argument ----!
        real(kind=cp), intent(in)    :: x
        real(kind=cp)                :: der

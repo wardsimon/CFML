@@ -247,7 +247,7 @@
     End Interface  Niggli_Cell
 
     Interface
-       Module Pure Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
+       Pure Module Function Cart_U_Vector(Mode,V,Cell) Result(Vc)
           !---- Arguments ----!
           character(len=*),            intent(in) :: Mode   ! Options, D, R, BL, BLD
           real(kind=cp), dimension(3), intent(in) :: v      ! Vector
@@ -255,7 +255,7 @@
           real(kind=cp), dimension(3)             :: vc
        End Function Cart_U_Vector
 
-       Module Pure Function Cart_Vector(Mode,V,Cell) Result(Vc)
+       Pure Module Function Cart_Vector(Mode,V,Cell) Result(Vc)
           !---- Arguments ----!
           character(len=*),            intent(in) :: mode      !  D: Direct, R: Reciprocal, BL or BLD
           real(kind=cp), dimension(3), intent(in) :: v         !  Vector
@@ -278,47 +278,47 @@
           class(Cell_G_Type),            intent(out)     :: Celln
        End Subroutine Change_Setting_Cell_Symb
 
-       Module Pure Function Get_B_from_Betas(Beta,Cell) Result(B)
+       Pure Module Function Get_B_from_Betas(Beta,Cell) Result(B)
           !---- Arguments ----!
           real(kind=cp),dimension(6), intent(in)  :: Beta
           class(Cell_G_Type),         intent(in)  :: Cell
           real(kind=cp),dimension(6)              :: B
        End Function Get_B_from_Betas
 
-       Module Pure Function Get_B_from_U(U) Result(B)
+       Pure Module Function Get_B_from_U(U) Result(B)
           !---- Arguments ----!
           real(kind=cp),dimension(6), intent(in)  :: U
           real(kind=cp),dimension(6)              :: B
        End Function Get_B_from_U
 
-       Module Pure Function Get_Betas_from_B(B,Cell) Result(Beta)
+       Pure Module Function Get_Betas_from_B(B,Cell) Result(Beta)
           !---- Arguments ----!
           real(kind=cp),dimension(6), intent(in)  :: B
           class(Cell_G_Type),         intent(in)  :: Cell
           real(kind=cp),dimension(6)              :: Beta
        End Function Get_Betas_from_B
 
-       Module Pure Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
+       Pure Module Function Get_Betas_from_Biso(Biso,Cell) Result(Betas)
           !--- Argument ----!
           real(kind=cp),           intent(in)  :: Biso
           class(Cell_G_Type),      intent(in)  :: Cell
           real(kind=cp), dimension(6)          :: Betas
        End Function Get_Betas_from_Biso
 
-       Module Pure Function Get_Betas_from_U(U,Cell) Result(Beta)
+       Pure Module Function Get_Betas_from_U(U,Cell) Result(Beta)
           !---- Arguments ----!
           real(kind=cp),dimension(6),intent(in)  :: U
           class(Cell_G_Type),        intent(in)  :: Cell
           real(kind=cp),dimension(6)             :: Beta
        End Function Get_Betas_from_U
 
-       Module Pure Function Get_U_from_B(B) Result(U)
+       Pure Module Function Get_U_from_B(B) Result(U)
           !---- Arguments ----!
           real(kind=cp),dimension(6),  intent(in)  :: B
           real(kind=cp),dimension(6)               :: U
        End Function Get_U_from_B
 
-       Module Pure Function Get_U_from_Betas(Beta,Cell) Result(U)
+       Pure Module Function Get_U_from_Betas(Beta,Cell) Result(U)
           !---- Arguments ----!
           real(kind=cp),dimension(6),intent(in)  :: Beta
           class(Cell_G_Type),        intent(in)  :: Cell
@@ -373,7 +373,7 @@
           real(kind=cp), dimension(3,3,6)              :: De_Orthcell
        End Function Get_Deriv_Orth_Cell
 
-       Module Pure Function Get_Metrics(cell,ang) Result(G)
+       Pure Module Function Get_Metrics(cell,ang) Result(G)
           !---- Arguments ----!
           real(kind=cp), dimension(3)  , intent(in ) :: cell  ! Cell Parameters
           real(kind=cp), dimension(3)  , intent(in ) :: ang
@@ -449,14 +449,14 @@
           integer,           intent(in)  :: Iunit
        End Subroutine Read_Bin_Crystal_Cell
 
-       Module Pure Subroutine Reciprocal_Cell(cell,ang,rcell,rang,rVol)
+       Pure Module Subroutine Reciprocal_Cell(cell,ang,rcell,rang,rVol)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in ) :: cell,ang
           real(kind=cp), dimension(3), intent(out) :: rcell,rang
           real(kind=cp),               intent(out) :: rvol
        End Subroutine Reciprocal_Cell
 
-       Module Pure Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
+       Pure Module Function Rot_Gibbs_Matrix(V,Phi,Cell) Result(Mat)
           !---- Argument ----!
           real(kind=cp), dimension(3),      intent(in) :: V     ! Direction vector
           real(kind=cp),                    intent(in) :: phi   ! Angle in Degrees of rotation around V
@@ -472,20 +472,20 @@
           real(kind=cp), dimension(3),optional,intent(in ) :: Vscell, Vsang  ! Standard deviations
        End Subroutine Set_Crystal_Cell
 
-       Module Pure Function SigmaV_From_Cell(Cell) Result(sigma)
+       Pure Module Function SigmaV_From_Cell(Cell) Result(sigma)
           !---- Arguments ----!
           class(Cell_Type), intent(in) :: Cell      ! Cell Parameters
           real(kind=cp)                :: sigma     ! Sigma
        End Function SigmaV_From_Cell
 
-       Module Pure Function U_Equiv(Cell, Th_U) Result(Uequi)
+       Pure Module Function U_Equiv(Cell, Th_U) Result(Uequi)
           !---- Arguments ----!
           class(Cell_G_Type),          intent(in)  :: Cell    ! Cell object
           real(kind=cp), dimension(6), intent(in)  :: Th_U    ! U thermal parameters
           real(kind=cp)                            :: Uequi   ! Uequiv
        End Function U_Equiv
 
-       Module Pure Function Volume_from_Cell(cell,ang) Result(Vol)
+       Pure Module Function Volume_from_Cell(cell,ang) Result(Vol)
           !---- Arguments ----!
           real(kind=cp), dimension(3), intent(in) :: cell
           real(kind=cp), dimension(3), intent(in) :: ang

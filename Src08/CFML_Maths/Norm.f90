@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Norm
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Norm_I(X,G) Result(R)
+    Pure Module Function Norm_I(X,G) Result(R)
        !---- Arguments ----!
        integer,       dimension(:),   intent(in) :: x    ! Input vector
        real(kind=cp), dimension(:,:), intent(in) :: g    ! Metric array
@@ -33,7 +33,7 @@ Submodule (CFML_Maths) Norm
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Norm_R(X,G) Result(R)
+    Pure Module Function Norm_R(X,G) Result(R)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in) :: x   ! Input vector
        real(kind=cp), dimension(:,:), intent(in) :: g   ! Metrics

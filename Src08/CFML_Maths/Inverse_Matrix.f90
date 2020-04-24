@@ -467,7 +467,7 @@ Submodule (CFML_Maths) Inverse_Matrix
     !!----
     !!---- 19/04/2019
     !!
-    Module Pure Subroutine LU_Descomposition(a,p)
+    Pure Module Subroutine LU_Descomposition(a,p)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a(:,:)
        integer,       intent(   out) :: p(:)

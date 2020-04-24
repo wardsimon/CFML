@@ -13,7 +13,7 @@ Submodule (CFML_Maths) CFML_Math_001
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Modulo_Lat(v) result(u)
+    Pure Module Function Modulo_Lat(v) result(u)
        !---- Argument ----!
        real(kind=cp), dimension(:), intent( in) :: v
        real(kind=cp), dimension(1:size(v))      :: u

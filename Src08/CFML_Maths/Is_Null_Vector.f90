@@ -11,7 +11,7 @@ Submodule (CFML_Maths) Is_Null_Vector
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Is_Null_Vector_I(V) Result(info)
+    Pure Module Function Is_Null_Vector_I(V) Result(info)
        !---- Arguments ----!
        integer,  dimension(:), intent(in)  :: V
        logical                             :: Info
@@ -36,7 +36,7 @@ Submodule (CFML_Maths) Is_Null_Vector
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Is_Null_Vector_R(V) result(info)
+    Pure Module Function Is_Null_Vector_R(V) result(info)
        !---- Arguments ----!
        real(kind=cp), dimension(:), intent(in)  :: v
        logical                                  :: info

@@ -9,7 +9,7 @@ SubModule (CFML_Profiles) PRF_011
    !!----
    !!---- 21/04/2019
    !!
-   Module Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
+   Pure Module Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -35,7 +35,7 @@ SubModule (CFML_Profiles) PRF_011
    !!----
    !!---- 21/04/2019
    !!
-   Module Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
+   Pure Module Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in)  :: x
       real(kind=cp),           dimension(:),intent(in)  :: par

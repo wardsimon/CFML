@@ -11,7 +11,7 @@ Submodule (CFML_Rational) Constructor
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Make_Rational(Numerator, Denominator) Result(Res)
+    Elemental Module Function Make_Rational(Numerator, Denominator) Result(Res)
        !---- Arguments ----!
        integer(kind=li), intent (in) :: numerator
        integer(kind=li), intent (in) :: denominator
@@ -27,7 +27,7 @@ Submodule (CFML_Rational) Constructor
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Make_Rational_Int(Numerator, Denominator) Result(Res)
+    Elemental Module Function Make_Rational_Int(Numerator, Denominator) Result(Res)
        !---- Arguments ----!
        integer, intent (in) :: numerator
        integer, intent (in) :: denominator

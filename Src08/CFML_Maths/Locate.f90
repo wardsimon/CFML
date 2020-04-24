@@ -15,7 +15,7 @@ Submodule (CFML_Maths) Locate
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Locate_I(V,x,n) Result(j)
+    Pure Module Function Locate_I(V,x,n) Result(j)
        !---- Argument ----!
        integer, dimension(:), intent(in):: v  ! Input vector
        integer,               intent(in):: x  ! Value
@@ -75,7 +75,7 @@ Submodule (CFML_Maths) Locate
     !!----
     !!---- Update: June - 2011
     !!
-    Module Pure Function Locate_R(V,x,n) Result(j)
+    Pure Module Function Locate_R(V,x,n) Result(j)
        !---- Argument ----!
        real(kind=cp), dimension(:), intent(in):: v
        real(kind=cp),               intent(in):: x

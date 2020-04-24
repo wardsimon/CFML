@@ -757,7 +757,7 @@ Module CFML_gSpaceGroups
           type(Symm_Oper_Type)             :: i_Op
        End Function Inverse_OP
 
-       Module Pure Function Multiply_Symm_Oper(Op1, Op2) Result (Op3)
+       Pure Module Function Multiply_Symm_Oper(Op1, Op2) Result (Op3)
           !---- Arguments ----!
           type(Symm_Oper_Type), intent(in) :: Op1,Op2
           type(Symm_Oper_Type)             :: Op3

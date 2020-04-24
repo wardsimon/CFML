@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Trace
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Trace_C(a) Result(b)
+    Pure Module Function Trace_C(a) Result(b)
        !---- Argument ----!
        complex(kind=cp), dimension(:,:), intent(in) :: a
        complex(kind=cp)                             :: b
@@ -35,7 +35,7 @@ Submodule (CFML_Maths) Trace
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Trace_I(a) Result(b)
+    Pure Module Function Trace_I(a) Result(b)
        !---- Argument ----!
        integer, dimension(:,:), intent(in) :: a
        integer                             :: b
@@ -58,7 +58,7 @@ Submodule (CFML_Maths) Trace
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Trace_R(a) Result(b)
+    Pure Module Function Trace_R(a) Result(b)
        !---- Argument ----!
        real(kind=cp), dimension(:,:), intent(in) :: a
        real(kind=cp)                             :: b

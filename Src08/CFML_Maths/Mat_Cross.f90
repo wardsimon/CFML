@@ -16,7 +16,7 @@ Submodule (CFML_Maths) Mat_Cross
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Mat_Cross_C(Vec) Result(M)
+    Pure Module Function Mat_Cross_C(Vec) Result(M)
        !---- Argument ----!
        complex(kind=cp), dimension(3), intent( in) :: Vec
        complex(kind=cp), dimension(3,3)            :: M
@@ -37,7 +37,7 @@ Submodule (CFML_Maths) Mat_Cross
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Mat_Cross_R(Vec) Result(M)
+    Pure Module Function Mat_Cross_R(Vec) Result(M)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in) :: Vec
        real(kind=cp), dimension(3,3)            :: M
@@ -58,7 +58,7 @@ Submodule (CFML_Maths) Mat_Cross
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Mat_Cross_I(Vec) Result(M)
+    Pure Module Function Mat_Cross_I(Vec) Result(M)
        !---- Argument ----!
        integer, dimension(3), intent( in) :: Vec
        integer, dimension(3,3)            :: M

@@ -153,7 +153,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter2_C(A) Result(Det)
+    Pure Module Function Deter2_C(A) Result(Det)
        !---- arguments ----!
        complex(kind=cp), dimension(2,2), intent(in) :: A   !! Matrix
        complex(kind=cp)                             :: Det      !! Determinant
@@ -170,7 +170,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter2_I(A) Result(Det)
+    Pure Module Function Deter2_I(A) Result(Det)
        !---- arguments ----!
        integer, dimension(2,2), intent(in) :: A  !! Matrix
        integer                             :: Det      !! Determinant
@@ -187,7 +187,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter2_R(A) Result(Det)
+    Pure Module Function Deter2_R(A) Result(Det)
        !---- arguments ----!
        real(kind=cp), dimension(2,2), intent(in) :: A   !! Matrix
        real(kind=cp)                             :: Det      !! Determinant
@@ -204,7 +204,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter3_C(A) Result(Det)
+    Pure Module Function Deter3_C(A) Result(Det)
        !---- arguments ----!
        complex(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
        complex(kind=cp)                             :: Det      !! Determinant
@@ -223,7 +223,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter3_I(A) Result(Det)
+    Pure Module Function Deter3_I(A) Result(Det)
        !---- arguments ----!
        integer, dimension(3,3), intent(in) :: A   !! Matrix
        integer                             :: Det      !! Determinant
@@ -242,7 +242,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter3_R(A) Result(Det)
+    Pure Module Function Deter3_R(A) Result(Det)
        !---- arguments ----!
        real(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
        real(kind=cp)                             :: Det      !! Determinant
@@ -261,7 +261,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter4_C(A) Result(Det)
+    Pure Module Function Deter4_C(A) Result(Det)
        !---- arguments ----!
        complex(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
        complex(kind=cp)                             :: Det      !! Determinant
@@ -285,7 +285,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter4_I(A) Result(Det)
+    Pure Module Function Deter4_I(A) Result(Det)
        !---- arguments ----!
        integer, dimension(4,4), intent(in) :: A   !! Matrix
        integer                             :: Det      !! Determinant
@@ -309,7 +309,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 02/04/2019
     !!
-    Module Pure Function Deter4_R(A) Result(Det)
+    Pure Module Function Deter4_R(A) Result(Det)
        !---- arguments ----!
        real(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
        real(kind=cp)                             :: Det      !! Determinant
@@ -527,7 +527,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Determ_V_I(Vec1,Vec2,Vec3) Result(det)
+    Pure Module Function Determ_V_I(Vec1,Vec2,Vec3) Result(det)
        !---- Arguments ----!
        integer, dimension(3), intent(in) :: Vec1,Vec2,Vec3
        integer                           :: det
@@ -552,7 +552,7 @@ Submodule (CFML_Maths) Determinant
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Determ_V_R(Vec1,Vec2,Vec3) Result(det)
+    Pure Module Function Determ_V_R(Vec1,Vec2,Vec3) Result(det)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec1,Vec2,Vec3
        real(kind=cp)                           :: det

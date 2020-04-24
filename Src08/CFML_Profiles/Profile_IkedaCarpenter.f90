@@ -10,7 +10,7 @@ SubModule (CFML_Profiles) PRF_021
    !!----
    !!---- U21/04/2019
    !!
-   Module Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
+   Pure Module Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
       !---- Arguments ---!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -43,7 +43,7 @@ SubModule (CFML_Profiles) PRF_021
    !!----
    !!---- 21/04/2019
    !!
-   Module Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
+   Pure Module Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in)  :: x
       real(kind=cp),           dimension(:),intent(in)  :: par

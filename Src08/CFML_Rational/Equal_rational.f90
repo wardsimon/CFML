@@ -12,7 +12,7 @@ SubModule (CFML_Rational) Equal_Rational
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Equal_Vector(Vec1,Vec2) Result(Equal)
+   Pure Module Function Rational_Equal_Vector(Vec1,Vec2) Result(Equal)
       !---- Arguments ----!
       type(rational), dimension(:), intent(in) :: vec1, vec2
       logical                                  :: equal
@@ -38,7 +38,7 @@ SubModule (CFML_Rational) Equal_Rational
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Function Rational_Equal_Matrix(Mat1,Mat2) Result(Equal)
+   Pure Module Function Rational_Equal_Matrix(Mat1,Mat2) Result(Equal)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: Mat1,Mat2
       logical                                    :: equal

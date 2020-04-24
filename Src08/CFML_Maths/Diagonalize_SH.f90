@@ -310,7 +310,7 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----
     !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_PR_Tred1(a,n,d,e)
+    Pure Module Subroutine Diagonalize_PR_Tred1(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -389,7 +389,7 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----
     !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_PR_Tred2(a,n,d,e)
+    Pure Module Subroutine Diagonalize_PR_Tred2(a,n,d,e)
        !---- Arguments ----!
        real(kind=cp), dimension(:,:), intent(in out) :: a    ! a(np,np)
        integer,                       intent(in)     :: n
@@ -494,7 +494,7 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----
     !!---- 03/04/2019
     !!
-    Module Pure Subroutine Diagonalize_EigenvSort(d,v,n,io)
+    Pure Module Subroutine Diagonalize_EigenvSort(d,v,n,io)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in out) :: d
        real(kind=cp), dimension(:,:), intent(in out) :: v
@@ -539,7 +539,7 @@ Submodule (CFML_Maths) Diagonalize_SH
     !!----
     !!---- 19/04/2019
     !!
-    Module Pure Subroutine Orient_Eigenvectors(eval,evec)
+    Pure Module Subroutine Orient_Eigenvectors(eval,evec)
        !---- Arguments ----!
        real(kind=cp), dimension(3),   intent(in out) :: eval
        real(kind=cp), dimension(3,3), intent(in out) :: evec

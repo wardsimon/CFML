@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Factorial
     !!----
     !!---- 27/03/2019
     !!
-    Module Elemental Function Factorial_I(N) Result(fact)
+    Elemental Module Function Factorial_I(N) Result(fact)
        !---- Argument ----!
        integer, intent(in) :: N        ! Factorial of N
        integer             :: Fact
@@ -45,7 +45,7 @@ Submodule (CFML_Maths) Factorial
     !!----
     !!---- 27/03/2019
     !!
-    Module Elemental Function Factorial_R(N) Result(Fact)
+    Elemental Module Function Factorial_R(N) Result(Fact)
        !---- Arguments ----!
        integer,        intent(in) :: N      ! Factorial of N
        real(kind=cp)              :: Fact

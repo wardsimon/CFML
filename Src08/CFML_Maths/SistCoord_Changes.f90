@@ -12,7 +12,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)
+    Pure Module Function Get_Cart_from_Spher(SphCoord,Mode) Result(CarCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent( in) :: SphCoord ! Coordinates (R,Theta;Phi)
        character(len=*), optional,  intent( in) :: mode     ! If "D" the angles are in degrees, otherwise radians is considered
@@ -42,7 +42,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)
+    Pure Module Function Get_Cart_from_Cylin(CilCoord,Mode) Result(CarCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent( in) ::  CilCoord ! Coordinates rho,phi,zeta
        character(len=*), optional,  intent( in) ::  mode     ! "D" angles in degrees, otherwise in radians
@@ -68,7 +68,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)
+    Pure Module Function Get_Cylin_from_Cart(CarCoord, Mode) Result(CilCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3),intent(in) ::  CarCoord   ! Cartesian coordinatates
        character(len=*), optional, intent(in) ::  mode
@@ -103,7 +103,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)
+    Pure Module Function Get_Spher_from_Cart(CarCoord,mode) Result(SphCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: CarCoord ! Cartesian
        character(len=*), optional,  intent(in) :: mode
@@ -149,7 +149,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)
+    Pure Module Function Get_Spher_from_Cylin(CilCoord,mode) Result(SphCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: CilCoord ! Cylinder
        character(len=*), optional,  intent(in) :: mode
@@ -175,7 +175,7 @@ Submodule (CFML_Maths) CFML_Math_011
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)
+    Pure Module Function Get_Cylin_from_Spher(SphCoord,mode) Result(CilCoord)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: SphCoord ! Cylinder
        character(len=*), optional,  intent(in) :: mode

@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Rotation_Axes
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OX(Vec,Angle) Result(Rvec)
+    Pure Module Function Rotation_OX(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
        real(kind=cp),               intent(in) :: angle    ! Angle
@@ -44,7 +44,7 @@ Submodule (CFML_Maths) Rotation_Axes
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OY(Vec,Angle) Result(Rvec)
+    Pure Module Function Rotation_OY(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec     ! Vector
        real(kind=cp),               intent(in) :: angle   ! Angle
@@ -76,7 +76,7 @@ Submodule (CFML_Maths) Rotation_Axes
     !!----
     !!---- 04/04/2019
     !!
-    Module Pure Function Rotation_OZ(Vec,Angle) Result(Rvec)
+    Pure Module Function Rotation_OZ(Vec,Angle) Result(Rvec)
        !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in) :: Vec      ! Vector
        real(kind=cp),               intent(in) :: angle    ! Angle

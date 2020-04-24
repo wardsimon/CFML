@@ -10,7 +10,7 @@ Submodule (CFML_Rational) Operator_LE
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_LE(R, S) Result(Res)
+    Elemental Module Function Rational_LE(R, S) Result(Res)
        !---- Argument ----!
        type(rational), intent (in) :: r
        type(rational), intent (in) :: s
@@ -33,7 +33,7 @@ Submodule (CFML_Rational) Operator_LE
     !!----
     !!---- 08/04/2019
     !!
-    Module Elemental Function Rational_Integer_LE(R, I) Result(Res)
+    Elemental Module Function Rational_Integer_LE(R, I) Result(Res)
        !---- Arguments ----!
        type(rational),  intent (in) :: r
        integer(kind=LI),intent (in) :: i
@@ -53,7 +53,7 @@ Submodule (CFML_Rational) Operator_LE
     !!----
     !!---- 08/04/2019
     !!
-    Module Pure Function Integer_Rational_LE(I, R) Result(Res)
+    Pure Module Function Integer_Rational_LE(I, R) Result(Res)
        !---- Arguments ----!
        integer(kind=LI),intent (in) :: i
        type(rational),  intent (in) :: r

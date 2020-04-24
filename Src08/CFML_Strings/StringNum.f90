@@ -18,7 +18,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_Fraction_1Dig(V) Result(Str)
+    Pure Module Function String_Fraction_1Dig(V) Result(Str)
        !---- Argument ----!
        real(kind=cp),    intent( in) :: V   !  Real value
        character(:), allocatable     :: Str !  Fracction in character form
@@ -70,7 +70,7 @@
     !!---- STRING_REAL
     !!----    Return a string of w characters containing the real value VAL
     !!----
-    Module Pure Function String_Real(Val,W) Result(Str)
+    Pure Module Function String_Real(Val,W) Result(Str)
        !---- Arguments ----!
        real(kind=cp), intent(in)  :: val        ! value to be output
        integer,       intent(in)  :: w          ! Width
@@ -157,7 +157,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Frac_Trans_1Dig(Vec) Result(Str)
+    Pure Module Function Frac_Trans_1Dig(Vec) Result(Str)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in)   :: Vec  ! Vector
        character(:),allocatable                   :: Str  ! String with conversion to fractional
@@ -192,7 +192,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_Fraction_2Dig(V) Result(Str)
+    Pure Module Function String_Fraction_2Dig(V) Result(Str)
        !---- Argument ----!
        real(kind=cp),    intent( in) :: v    ! Real value
        character(:), allocatable     :: Str  ! Fraction in character form
@@ -257,7 +257,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Frac_Trans_2Dig(Vec) Result(Str)
+    Pure Module Function Frac_Trans_2Dig(Vec) Result(Str)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent(in) :: Vec   ! Vector
        character(:), allocatable               :: Str   ! String with conversion to fractional
@@ -558,7 +558,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Set_Symb_From_Mat(Mat,cod) Result(Symb)
+    Pure Module Function Set_Symb_From_Mat(Mat,cod) Result(Symb)
        !---- Arguments ----!
        real(kind=cp),dimension(3,3),    intent(in)  :: Mat    ! Array
        character(len=1), dimension(3),  intent(in)  :: cod    ! Codes (/"u","v","w"/) or (/"x","y","z"/)
@@ -980,7 +980,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function NumCol_from_NumFmt(Str) Result(n_col)
+    Pure Module Function NumCol_from_NumFmt(Str) Result(n_col)
        !---- Argument ----!
        character (len=*), intent(in)  :: Str    ! Input format string
        integer                        :: n_col  ! Integer number of columns
@@ -1125,7 +1125,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_NumStd(Value, Std) Result(Str)
+    Pure Module Function String_NumStd(Value, Std) Result(Str)
        !---- Argument ----!
        real(kind=cp),   intent(in)  :: Value    ! Value
        real(kind=cp),   intent(in)  :: Std      ! Standard deviation

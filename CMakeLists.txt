@@ -9,6 +9,7 @@ option(MINGW_HDF_TRICK "Help building with MinGW" OFF)
 option(USE_HDF "Build crysfml and wcrysfml library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
+option(CRYSFML08 "Build CrysFML08" OFF)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
@@ -33,24 +34,17 @@ else()
 endif()
 message(STATUS "Setting CMAKE_INSTALL_PREFIX to ${CMAKE_INSTALL_PREFIX}")
 
-
 if (DEFINED CRYSFML_PREFIX)
     set(CRYSFML_PREFIX ${CRYSFML_PREFIX})
 else()
-    set(CRYSFML_PREFIX LibC)
+    if(CRYSFML08)
+        set(CRYSFML_PREFIX crysfml08)
+    else()
+        set(CRYSFML_PREFIX LibC)
+    endif()
 endif()
 set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
-
-if (GUI)
-    if (DEFINED WCRYSFML_PREFIX)
-        set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX})
-    else()
-        set(WCRYSFML_PREFIX LibW)
-    endif()
-endif()
-set (WCRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX})
-message(STATUS "WCrysFML installation path set to ${WCRYSFML_PREFIX}")
 
 #################################
 # Project section
@@ -62,30 +56,37 @@ project(libcrysfml Fortran CXX)
 # Set the a verbose make.
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+# Set module path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
+if (GUI)
+    if (DEFINED WCRYSFML_PREFIX)
+        set(WCRYSFML_PREFIX ${WCRYSFML_PREFIX})
+    else()
+        set(WCRYSFML_PREFIX LibW)
+    endif()
+    set (WCRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${WCRYSFML_PREFIX})
+    message(STATUS "WCrysFML installation path set to ${WCRYSFML_PREFIX}")
+endif()
 if (NOT WCRYSFML_PREFIX)
     # Set the default name for wcrysfml library within the install prefix.
     set(WCRYSFML_PREFIX LibW CACHE STRING "The name of wcrysfml library within library directory")
 endif()
 
-#################################
-# Includes section
-#################################
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
-
-# Includes some modules.
+# Includes some modules and build the project.
 include(add_prefix)
-include(add_suffix)
-include(set_compiler_flags)
-set_compiler_flags()
-
-#################################
-# Project building
-#################################
-
-# The subdirectories of the project.
-add_subdirectory(Src)
-if (USE_HDF)
-  add_subdirectory(SrcCpp)
+include(add_suffix)    
+if (NOT CRYSFML08)        
+    include(set_compiler_flags)
+    set_compiler_flags()
+    # The subdirectories of the project.
+    add_subdirectory(Src)
+    if (USE_HDF)
+        add_subdirectory(SrcCpp)
+    endif()
+else()
+    include(set_compiler_flags_08)
+    set_compiler_flags_08()    
+    # The subdirectories of the project.
+    add_subdirectory(Src08)
 endif()
-

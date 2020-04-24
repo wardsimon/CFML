@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_C(a,b)
+    Elemental Module Subroutine Swap_C(a,b)
        !---- Arguments ----!
        complex(kind=cp), intent(in out) :: a
        complex(kind=cp), intent(in out) :: b
@@ -33,7 +33,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_I(A,B)
+    Elemental Module Subroutine Swap_I(A,B)
        !---- Arguments ----!
        integer , intent(in out) :: a
        integer , intent(in out) :: b
@@ -54,7 +54,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_R(A,B)
+    Elemental Module Subroutine Swap_R(A,B)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b
@@ -75,7 +75,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_C(A,B,Mask)
+    Elemental Module Subroutine Swap_Masked_C(A,B,Mask)
        !---- Arguments ----!
        complex(kind=cp), intent(in out) :: a
        complex(kind=cp), intent(in out) :: b
@@ -99,7 +99,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_I(A,B,Mask)
+    Elemental Module Subroutine Swap_Masked_I(A,B,Mask)
        !---- Arguments ----!
        integer, intent(in out) :: a
        integer, intent(in out) :: b
@@ -123,7 +123,7 @@ Submodule (CFML_Maths) Swap
     !!----
     !!---- 29/03/2019
     !!
-    Module Elemental Subroutine Swap_Masked_R(A,B,Mask)
+    Elemental Module Subroutine Swap_Masked_R(A,B,Mask)
        !---- Arguments ----!
        real(kind=cp), intent(in out) :: a
        real(kind=cp), intent(in out) :: b

@@ -11,7 +11,7 @@ SubModule (CFML_Rational) RatRowEchelonForm
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Subroutine Rational_RowEchelonForm_M(M)
+   Pure Module Subroutine Rational_RowEchelonForm_M(M)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(inout) :: M
 
@@ -75,7 +75,7 @@ SubModule (CFML_Rational) RatRowEchelonForm
    !!----
    !!---- 08/04/2019
    !!
-   Module Pure Subroutine Rational_RowEchelonForm_MT(M,T)
+   Pure Module Subroutine Rational_RowEchelonForm_MT(M,T)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(inout) :: M
       type(rational), dimension(:,:), intent(inout) :: T

@@ -94,14 +94,14 @@ Module CFML_Profiles
     End Type Deriv_TOF_Type
 
     Interface
-       Module Pure Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
+       Pure Module Function Back_To_Back_Exp(X,Par) Result (Bb_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: bb_val
        End Function Back_To_Back_Exp
 
-       Module Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
+       Pure Module Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                        intent(in)  :: x
           real(kind=cp),           dimension(:),intent(in)  :: par
@@ -120,14 +120,14 @@ Module CFML_Profiles
           real(kind=cp),               intent(in)   :: asym2
        End Subroutine Calc_Pseudo_Voigt
 
-       Module Pure Function Exponential(X,Par) Result (Ex_Val)
+       Pure Module Function Exponential(X,Par) Result (Ex_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: ex_val
        End Function Exponential
 
-       Module Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
+       Pure Module Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                        intent(in) :: x
           real(kind=cp),           dimension(:),intent(in) :: par
@@ -135,14 +135,14 @@ Module CFML_Profiles
           real(kind=cp), optional, dimension(:),intent(out):: dpar
        End Subroutine Exponential_Der
 
-       Module Pure Function Hat(X,Par) Result (H_Val)
+       Pure Module Function Hat(X,Par) Result (H_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: h_val
        End Function Hat
 
-       Module Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
+       Pure Module Subroutine Hat_Der(X,Par,H_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                        intent(in)  :: x
           real(kind=cp),           dimension(:),intent(in)  :: par
@@ -150,14 +150,14 @@ Module CFML_Profiles
           real(kind=cp), optional, dimension(:),intent(out) :: dpar
        End Subroutine Hat_Der
 
-       Module Pure Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
+       Pure Module Function Ikeda_Carpenter(X,Par) Result (Ik_Val)
           !---- Arguments ---!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: ik_val
        End Function Ikeda_Carpenter
 
-       Module Pure Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
+       Pure Module Subroutine Ikeda_Carpenter_Der(X,Par,Ik_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                        intent(in)  :: x
           real(kind=cp),           dimension(:),intent(in)  :: par
@@ -165,14 +165,14 @@ Module CFML_Profiles
           real(kind=cp), optional, dimension(:),intent(out) :: dpar
        End Subroutine Ikeda_Carpenter_Der
 
-       Module Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
+       Pure Module Function Pseudovoigt(X,Par) Result (Pv_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: pv_val
        End Function Pseudovoigt
 
-       Module Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+       Pure Module Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                       intent(in) :: x
           real(kind=cp), dimension(:),         intent(in) :: par
@@ -180,14 +180,14 @@ Module CFML_Profiles
           real(kind=cp), optional,dimension(:),intent(out):: dpar
        End Subroutine Pseudovoigt_Der
 
-       Module Pure Function TCH_pVoigt(X,Par) Result (Pv_Val)
+       Pure Module Function TCH_pVoigt(X,Par) Result (Pv_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: pv_val
        End Function TCH_pVoigt
 
-       Module Pure Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
+       Pure Module Subroutine TCH_pVoigt_Der(X,Par,Pv_Val,dPar)
           !---- Arguments ----!
           real(kind=cp),                       intent(in) :: x
           real(kind=cp), dimension(:),         intent(in) :: par
@@ -195,14 +195,14 @@ Module CFML_Profiles
           real(kind=cp), optional,dimension(:),intent(out):: dpar
        End Subroutine TCH_pVoigt_Der
 
-       Module Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
+       Pure Module Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: pv_val
        End Function Split_Pseudovoigt
 
-       Module Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+       Pure Module Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                       intent(in) :: x
           real(kind=cp), dimension(:),         intent(in) :: par
@@ -222,14 +222,14 @@ Module CFML_Profiles
           real(kind=cp), intent(out) :: psvoigt
         End Subroutine PsVoigtian
 
-       Module Pure Function Dfunc_Int(twopsi, twoth0) result(dfunc)
+       Pure Module Function Dfunc_Int(twopsi, twoth0) result(dfunc)
           !---- Arguments ----!
           Real(kind=cp), Intent(In)  :: twopsi
           Real(kind=cp), Intent(In)  :: twoth0
           Real(kind=cp)              :: dfunc
        End Function Dfunc_Int
 
-       Module Pure Function Extra_Int(X) result(extra)
+       Pure Module Function Extra_Int(X) result(extra)
           !---- Arguments ----!
           Real(kind=cp), Intent(In) :: x
           Real(kind=cp)             :: extra
@@ -258,14 +258,14 @@ Module CFML_Profiles
           Logical,         Intent(In)    :: use_hps
        End Subroutine Prof_Val
 
-       Module Pure Function Gaussian(X,Par) Result (Gauss_Val)
+       Pure Module Function Gaussian(X,Par) Result (Gauss_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
           real(kind=cp)                          :: gauss_val
        End Function Gaussian
 
-       Module Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
+       Pure Module Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                       intent(in) :: x
           real(kind=cp),          dimension(:),intent(in) :: par
@@ -283,7 +283,7 @@ Module CFML_Profiles
           real(kind=cp), intent(out) :: gauss
        End Subroutine Prof_Gaussian
 
-       Module Pure Function Lorentzian(X,Par) Result (Lor_Val)
+       Pure Module Function Lorentzian(X,Par) Result (Lor_Val)
           !---- Arguments ----!
           real(kind=cp),              intent(in) :: x
           real(kind=cp), dimension(:),intent(in) :: par
@@ -300,7 +300,7 @@ Module CFML_Profiles
           real(kind=cp), intent(out):: lorentz
        End Subroutine Prof_Lorentzian
 
-       Module Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
+       Pure Module Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
           !---- Arguments ----!
           real(kind=cp),                        intent(in) :: x
           real(kind=cp),           dimension(:),intent(in) :: par

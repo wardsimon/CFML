@@ -12,7 +12,7 @@ Submodule (CFML_Maths) Scalar
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Scalar_I(X,Y,G) Result(R)
+    Pure Module Function Scalar_I(X,Y,G) Result(R)
        !---- Arguments ----!
        integer, dimension(:),         intent(in) :: x,y     ! Input vectors
        real(kind=cp), dimension(:,:), intent(in) :: g       ! Metrics
@@ -33,7 +33,7 @@ Submodule (CFML_Maths) Scalar
     !!----
     !!---- 28/03/2019
     !!
-    Module Pure Function Scalar_R(X,Y,G) Result(R)
+    Pure Module Function Scalar_R(X,Y,G) Result(R)
        !---- Arguments ----!
        real(kind=cp), dimension(:),   intent(in) :: x,y    ! Input vectors
        real(kind=cp), dimension(:,:), intent(in) :: g      ! Metrics
