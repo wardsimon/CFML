@@ -828,12 +828,13 @@ Module CFML_gSpaceGroups
           character(len=*), optional, intent(in ) :: database_path
        End Subroutine Set_SpaceGroup_DBase
 
-       Module Subroutine Set_SpaceGroup_gen(Str, SpaceG, NGen, Gen)
+       Module Subroutine Set_SpaceGroup_gen(Str, SpaceG, NGen, Gen, debug)
           !---- Arguments ----!
           character(len=*),                          intent(in ) :: Str
           class(spg_type),                           intent(out) :: SpaceG
           integer,                         optional, intent(in ) :: NGen
           character(len=*),  dimension(:), optional, intent(in ) :: Gen
+          logical,                         optional, intent(in ) :: debug
        End Subroutine Set_SpaceGroup_gen
 
        !Module Subroutine Set_SpaceGroup_symb(Str, SpaceG, NGen, Gen)

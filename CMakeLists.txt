@@ -21,7 +21,7 @@ message(STATUS "Setting compiler to ${CMAKE_Fortran_COMPILER}")
 if(DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "The build type. One of 'Release' or 'Debug'.")
 else()
-    set(CMAKE_BUILD_TYPE Release CACHE INTERNAL "The build type. One of 'Release' or 'Debug'.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "The build type. One of 'Release' or 'Debug'.")
 endif()
 message(STATUS "Setting build type to ${CMAKE_BUILD_TYPE}")
 

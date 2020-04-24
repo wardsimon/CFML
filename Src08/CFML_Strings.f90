@@ -346,7 +346,7 @@
           integer,                        intent(   out) :: marker
        End Subroutine Sort_PR_Partition
 
-       Module Recursive Subroutine Sort_Strings(Str)
+       Recursive Module Subroutine Sort_Strings(Str)
           !---- Argument ----!
           character(len=*), dimension(:), intent(in out) :: Str
        End Subroutine Sort_Strings

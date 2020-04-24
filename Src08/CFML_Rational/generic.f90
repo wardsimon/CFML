@@ -220,7 +220,7 @@ SubModule (CFML_Rational) Rational_General
    !!----
    !!---- 08/04/2019
    !!
-   Pure Module Recursive Function Rational_Determ(A) Result(Det)
+   Pure Recursive Module Function Rational_Determ(A) Result(Det)
       !---- Arguments ----!
       type(rational), dimension(:,:), intent(in) :: a
       type(rational)                             :: det

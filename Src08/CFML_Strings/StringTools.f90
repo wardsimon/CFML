@@ -562,7 +562,7 @@ Submodule (CFML_Strings) StrTools
     !!----
     !!---- 03/04/2019
     !!
-    Module Recursive Subroutine Sort_Strings(Str)
+    Recursive Module Subroutine Sort_Strings(Str)
        !---- Argument ----!
        character(len=*), dimension(:), intent(in out) :: Str
 

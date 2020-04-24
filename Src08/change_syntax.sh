@@ -11,6 +11,7 @@ do
     echo "Processing $file"
     sed -i 's/Module Pure/Pure Module/' $file
     sed -i 's/Module Elemental/Elemental Module/' $file
+    sed -i 's/Module Recursive/Recursive Module/' $file
 done
 
 # Edit files in submodules
@@ -23,6 +24,7 @@ do
         echo "Processing $dir$file"
         sed -i 's/Module Pure/Pure Module/' $file
         sed -i 's/Module Elemental/Elemental Module/' $file
+        sed -i 's/Module Recursive/Recursive Module/' $file
     done
     cd ..
 done

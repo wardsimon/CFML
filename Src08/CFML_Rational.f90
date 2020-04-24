@@ -770,7 +770,7 @@ Module CFML_Rational
           integer                                     :: k
        End Function Rational_Rank
 
-       Pure Module Recursive Function Rational_Determ(A) Result(Det)
+       Pure Recursive Module Function Rational_Determ(A) Result(Det)
           !---- Arguments ----!
           type(rational), dimension(:,:), intent(in) :: a
           type(rational)                             :: det
