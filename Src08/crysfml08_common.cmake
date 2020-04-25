@@ -299,7 +299,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYS
 #################################
 
 # The rules for installing the library.
-install(TARGETS ${LIBRARY_NAME} ARCHIVE DESTINATION ${CRYSFML_PREFIX}/lib)
+install(TARGETS ${LIBRARY_NAME} ARCHIVE DESTINATION ${CRYSFML_PREFIX})
 
 # The rules for installing the mod files. Take care the "/" is on purpose.
 install(DIRECTORY ${CRYSFML_MODULE_DIRECTORY} 
