@@ -23,7 +23,7 @@ rem ---- Options
 rem
    if [%_DEBUG%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
-      (set OPT0=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
+      (set OPT0=/Od)
       (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
    ) else (
       if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
@@ -31,7 +31,8 @@ rem
       (set OPT1=/O2)
    )
 rem
-   (set OPT2=/fpp /Qopt-report:0)
+rem   (set OPT2=/fpp /Qopt-report:0)
+   (set OPT2=/Qopt-report:0)
    (set OPT3=)
    if [%_WINTER%]==[Y] (
       if [%TARGET_ARCH%]==[ia32] (
@@ -225,15 +226,23 @@ rem   Submodules CFML_Tables
 rem
       ifort /c Del_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_BondsT.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+   echo .... Compiling Set_BondsT
       ifort /c Set_BondsT.f90                         /nologo %OPT0% %OPT2%  /module:..\mod
+   echo .... End Compiling Set_BondsT
 rem
       ifort /c Del_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Get_SpgT.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+   echo .... Compiling Get_SpgSymbols
       ifort /c Get_SpgSymbols.f90                     /nologo %OPT0% %OPT2%  /module:..\mod
+   echo .... End Compiling Get_SpgSymbols
+   echo .... Compiling Set_SpgT
       ifort /c Set_SpgT.f90                           /nologo %OPT0% %OPT2%  /module:..\mod
+   echo .... End Compiling Set_SpgT
 rem
       ifort /c Del_BVST.f90                           /nologo %OPT1% %OPT2%  /module:..\mod
+   echo .... Compiling Set_BVST
       ifort /c Set_BVST.f90                           /nologo %OPT0% %OPT2%  /module:..\mod
+   echo .... End Compiling Set_BVST
 rem
       ifort /c Allocating_MagneticDBase.f90           /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Read_MagneticDBase.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
