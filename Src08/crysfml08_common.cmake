@@ -132,8 +132,9 @@ set(TABLES_1_SRC CFML_Scattering_Tables.f90
 set(TABLES_2_SRC CFML_Symmetry_Tables.f90
                  CFML_BVS_Tables.f90
                  CFML_Magnetic_Database.f90
-                 CFML_SuperSpace_Database.f90
-                 ${SUBMOD_TABLES_2_SRC})
+                 CFML_SuperSpace_Database.f90)
+set(TABLES_3_SRC ${SUBMOD_TABLES_2_SRC})
+                 
 if(${COMPILER_NAME} STREQUAL ifort)  
     set_source_files_properties(${TABLES_1_SRC} 
         PROPERTIES COMPILE_FLAGS ${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2})
@@ -144,8 +145,14 @@ endif()
 if(${COMPILER_NAME} STREQUAL ifort)  
     set_source_files_properties(${TABLES_2_SRC} 
         PROPERTIES COMPILE_FLAGS ${OPT_FLAGS} ${OPT_FLAGS0} ${OPT_FLAGS2})
+    
+    set_source_files_properties(${TABLES_3_SRC} 
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS0}")
 else()
     set_source_files_properties(${TABLES_2_SRC} 
+        PROPERTIES COMPILE_FLAGS ${OPT_FLAGSC} ${OPT_FLAGS0})
+    
+    set_source_files_properties(${TABLES_3_SRC} 
         PROPERTIES COMPILE_FLAGS ${OPT_FLAGSC} ${OPT_FLAGS0})
 endif()
 
@@ -272,6 +279,7 @@ set(CRYSFML_COMMON_SRC
     ${METRICS_SRC}
     ${TABLES_1_SRC}
     ${TABLES_2_SRC}
+    ${TABLES_3_SRC}
     ${GROUPS_SRC}
     ${PROFILE_1_SRC}
     ${PROFILE_2_SRC}
