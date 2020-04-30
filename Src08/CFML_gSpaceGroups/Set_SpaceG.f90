@@ -49,27 +49,28 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       Type(rational), dimension(SpaceG%D,SpaceG%D)     :: Pmat,invPmat
       Type(rational), dimension(SpaceG%D-1,SpaceG%D-1) :: rot,roti,identd
       Type(rational), dimension(SpaceG%D-1)            :: v
-      Type(rational), dimension(SpaceG%D-1,300)        :: newLat
+      Type(rational), dimension(:,:),allocatable       :: newLat
       Type(rational) :: det
       integer :: i,j,k,l,n,m,Npos,d,Dd,im
       character(len=6) :: Strcode
-      type(spg_type)   :: SpG !Auxiliary space group
+      character(len=80), dimension(:),allocatable :: gen_lat
+      type(spg_type)   :: SpG, P1_t !Auxiliary space groups
       logical          :: centring
-      !character(len=40),dimension(SpaceG%D,SpaceG%D) :: matrix
 
       Dd=SpaceG%D
       d=Dd-1
-
       call Get_Mat_From_Symb(setting, Pmat)
       if(err_CFML%Ierr /= 0) return
       rot=Pmat(1:d,1:d)
-      newLat=0//1
       det=Rational_Determ(rot)
       if(det < 0_LI ) then
          err_CFML%Ierr=1
          err_CFML%Msg ="The determinant of the transformation matrix should be positive"
          return
       end if
+      L=(SpaceG%Num_Lat+1+d)*nint(det)
+      allocate(newLat(SpaceG%D-1,L))
+      newLat=0//1
       invPmat=Rational_Inverse_Matrix(Pmat)
       SpaceG%setting=trim(setting)
       SpaceG%mat2std=Get_Symb_From_Mat(invPmat,StrCode="abc" )
@@ -83,33 +84,42 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       if (SpaceG%Num_Lat > 0) then  !Original lattice is centered
          do_i:do i=1,SpaceG%Num_Lat      !Transform the centring vectors to the new lattice
             v=Rational_Modulo_Lat(matmul(roti,SpaceG%Lat_tr(:,i)))
-            !write(*,"(10a)") (trim(rational_string(v(j)))//"  ",j=1,d)
             if (sum(v) == 0_LI) cycle
             do j=1,L
                if(Rational_Equal(v,newlat(:,j))) cycle do_i
             end do
             L=L+1
             newlat(:,L)=v
+            !write(*,"(i8,a,10a)") L," -> ",(trim(rational_string(v(j)))//"  ",j=1,d)
          end do do_i
       end if
 
       do_i2:do i=1,d  !Test also the basis vectors of the original setting
         v=Rational_Modulo_Lat(roti(1:d,i))
-        !write(*,"(10a)") (trim(rational_string(v(j)))//"  ",j=1,d)
         if (sum(v) == 0_LI) cycle
             do j=1,L
                if(Rational_Equal(v,newlat(:,j))) cycle do_i2
             end do
         L=L+1
         newlat(:,L)=v
+        !write(*,"(i8,a,10a)") L," -> ",(trim(rational_string(v(j)))//"  ",j=1,d)
       end do do_i2
 
-      if (det > 1_LI ) then        !The new lattice is centred even if originally primitive
-         im=nint(det)              !Determine the new lattice translations
-         call get_rcentring_vectors(d,im,L,newlat,roti)
-      end if
-      if(L > SpaceG%Num_Lat) then
-        call Complete_Lattice_vectors(d,L,newLat)
+      if(L > 0) then !Generate the group P1 with the primitive set of lattice centring in order to get its total number
+        allocate(gen_lat(L))
+        do i=1,L
+          gen_lat(i)=" "
+          do j=1,d
+            gen_lat(i)=trim(gen_lat(i))//XYZ(j)//"+"//trim(rational_string(newlat(j,i)))//","
+          end do
+          n=len_trim(gen_lat(i))
+          gen_lat(i)(n+1:n+1)="1"
+        end do
+        call group_constructor(gen_lat,P1_t)
+        L=P1_t%Num_Lat
+        do i=1,L
+          newlat(:,i)=P1_t%Lat_tr(:,i)
+        end do
       end if
 
       SpG%Num_Lat=L
@@ -322,168 +332,6 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
 
    End Subroutine transf_E_groups
 
-   Subroutine get_rcentring_vectors(d,im,L,newlat,roti)
-      integer,                        intent(in)     :: d, im !dimension of the space
-      integer,                        intent(in out) :: L !number of provisional lattice vectors
-      type(rational), dimension(:,:), intent(in out) :: newlat
-      type(rational), dimension(:,:), intent(in)     :: roti
-
-      integer :: i,j,k,ii,jj,kk,ngm,m
-      type(rational), dimension(size(newlat,1)) :: v
-
-      ngm=im+L
-      Select Case (d)        !Search lattice centring vectors as a function of dimension of space up to 6
-
-        case(3)
-
-          doi3: do i=0,im
-             v(1) = i
-            do j=0,im
-               v(2)= j
-               do_k:do k=0,im
-                  v(3) = k
-                  if(sum(v) == 0_LI) cycle
-                  v=Rational_Modulo_Lat(matmul(roti,v))
-                  if(sum(v) == 0_LI) cycle
-                  do m=1,L
-                     if(Rational_Equal(v,newlat(:,m))) cycle do_k
-                  end do
-                  L=L+1
-                  newlat(:,L) = v(:)
-                  if (L == ngm) exit doi3
-               end do do_k!k
-            end do !j
-          end do doi3
-
-        case(4)
-
-          doi4: do i=0,im
-             v(1) = i
-            do j=0,im
-               v(2)= j
-               do k=0,im
-                  v(3) = k
-                    do_kk:do kk=0,im
-                       v(4) = kk
-                       if(sum(v) == 0_LI) cycle
-                       v=Rational_Modulo_Lat(matmul(roti,v))
-                       if(sum(v) == 0_LI) cycle
-                       do m=1,L
-                          if(Rational_Equal(v,newlat(:,m))) cycle do_kk
-                       end do
-                       L=L+1
-                       newlat(:,L) = v(:)
-                       if (L == ngm) exit doi4
-                   end do do_kk !kk
-               end do !k
-            end do !j
-          end do doi4
-
-        case(5)
-
-          doi5: do i=0,im
-             v(1) = i
-            do j=0,im
-               v(2)= j
-               do k=0,im
-                  v(3) = k
-                   do kk=0,im
-                       v(4) = kk
-                       do_jj:do jj= 0,im
-                           v(5) = jj
-                           if(sum(v) == 0_LI) cycle
-                           v=Rational_Modulo_Lat(matmul(roti,v))
-                           if(sum(v) == 0_LI) cycle
-                           do m=1,L
-                              if(Rational_Equal(v,newlat(:,m))) cycle do_jj
-                           end do
-                           L=L+1
-                           newlat(:,L) = v(:)
-                           if (L == ngm) exit doi5
-                       end do do_jj !jj
-                   end do !kk
-               end do !k
-            end do !j
-          end do doi5
-
-        case(6)
-
-          doi6: do i=0,im
-             v(1) = i
-            do j=0,im
-               v(2)= j
-               do k=0,im
-                  v(3) = k
-                    do kk=0,im
-                       v(4) = kk
-                       do jj= 0,im
-                           v(5) = jj
-                            do_ii: do ii=0,im
-                               v(6) = ii
-                               if(sum(v) == 0_LI) cycle
-                               v=Rational_Modulo_Lat(matmul(roti,v))
-                               if(sum(v) == 0_LI) cycle
-                               do m=1,L
-                                  if(Rational_Equal(v,newlat(:,m))) cycle do_ii
-                               end do
-                               L=L+1
-                               newlat(:,L) = v(:)
-                               if (L == ngm) exit doi6
-                           end do do_ii !ii
-                       end do !jj
-                   end do !kk
-               end do !k
-            end do !j
-          end do doi6
-      End Select
-   End Subroutine get_rcentring_vectors
-
-   Subroutine Complete_Lattice_vectors(d,nL,Latv)
-     integer,                        intent(in)     :: d !dimension of space
-     integer,                        intent(in out) :: nL !number of provisory lattice vectors
-     type(rational), dimension(:,:), intent(in out) :: Latv
-
-     integer :: i,j,k1,k2,lm,nlat,Lat_ini,L
-     type(rational), dimension(size(Latv,1),size(Latv,2))  :: latinv
-     type(rational), dimension(size(Latv,1))               :: v,v1,v2
-
-     if(nL == 0) return
-     L=nl
-     nlat=size(Latv,2)
-     latinv=0.0
-     where (abs(latv) > 0_LI)
-        latinv=1_LI/latv
-     end where
-     do
-        lat_ini=L
-        do i=1,L    !Even for a single centring vector this loop is executed
-          v1=latv(:,i)
-          do j=i,L  !start on i to ensure that for a single centring vector the internal loops are executed
-            v2=latv(:,j)
-            do k1=0,maxval(nint(latinv(:,i)))
-              do_k2: do k2=0,maxval(nint(latinv(:,j)))
-                v=rational(k1,1)*v1+rational(k2,1)*v2
-                v=rational_modulo_lat(v)
-                if(sum(abs(v)) == 0_LI) cycle
-                if( any(v > 1_LI) ) cycle
-                do lm=1,L
-                   if(Rational_Equal(v,latv(:,lm))) cycle do_k2
-                end do
-                L=L+1
-                if(L > nlat) then
-                   Err_CFML%Ierr=1
-                   Err_CFML%Msg="The maximum number of lattice centring vectors has been attained!"
-                   return
-                end if
-                latv(:,L)=v
-              end do do_k2
-            end do
-          end do
-        end do
-        If(L == Lat_ini) exit !No more vectors have been generated
-     end do
-     nL=L
-   End Subroutine Complete_Lattice_vectors
    !!----
    !!---- Set_SpaceGroup_DBase
    !!----    For general Space groups (Shubnikov or Superspace)

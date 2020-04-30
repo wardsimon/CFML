@@ -37,13 +37,13 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
 
       !--- Local variables ---!
       integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng
-      character (len=40), dimension(:),allocatable :: gen,gen_min
-      character (len=40), dimension(30)            :: gen_lat
+      character (len=40), dimension(:),allocatable   :: gen,gen_min
+      character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
       character (len=40)                           :: gen_cent, gen_aux
 
       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
-      type(Symm_Oper_Type), dimension(30)          :: Op_lat
+      type(Symm_Oper_Type), dimension(Spg%Num_Lat) :: Op_lat
 
       !> Trivial P1: x,y,z
       if (Spg%Multip == 1) then

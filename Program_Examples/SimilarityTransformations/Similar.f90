@@ -134,6 +134,7 @@
       end if
       If(err_form) then
         write(unit=*,fmt="(a)") trim(err_form_mess)
+        stop
       else
         exit
       end if

@@ -507,8 +507,8 @@ rem
      copy .\mod\*.smod ..\%DIRECTORY%\LibW08\. > nul
      move *.lib ..\%DIRECTORY%\LibW08\. > nul
    ) else (
-     if exist ..\%DIRECTORY%\LibC08\ rmdir ..\%DIRECTORY%\LibC08\ /S /Q
-     mkdir ..\%DIRECTORY%\LibC08\
+rem     if exist ..\%DIRECTORY%\LibC08\ rmdir ..\%DIRECTORY%\LibC08\ /S /Q
+rem     mkdir ..\%DIRECTORY%\LibC08\
      copy .\mod\*.mod ..\%DIRECTORY%\LibC08\. > nul
      copy .\mod\*.smod ..\%DIRECTORY%\LibC08\. > nul
      move *.lib ..\%DIRECTORY%\LibC08\. > nul

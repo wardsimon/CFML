@@ -80,18 +80,18 @@
       0.0000     25.6228      0.0000          0.000000    0.039028    0.000000
       0.0000      0.0000     36.7466          0.000000    0.000000    0.027213
 
- =>  Cartesian frame: x // a; y is in the ab-plane; z is x ^ y   
+ =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z = a*  
 
      Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix
               Cr_Orth_cel                               Orth_Cr_cel  
-      4.0619      0.0000      0.0000          0.246190    0.000000    0.000000
-      0.0000      5.0619      0.0000          0.000000    0.197554    0.000000
+      4.0619      0.0000      0.0000          0.246190   -0.000000   -0.000000
+      0.0000      5.0619      0.0000          0.000000    0.197554   -0.000000
       0.0000      0.0000      6.0619          0.000000    0.000000    0.164965
 
      Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix
                 BL_M                                      BL_Minv  
-    0.246190    0.000000    0.000000            4.0619      0.0000      0.0000
-    0.000000    0.197554    0.000000            0.0000      5.0619      0.0000
+    0.246190    0.000000    0.000000            4.0619     -0.0000     -0.0000
+    0.000000    0.197554   -0.000000            0.0000      5.0619      0.0000
     0.000000    0.000000    0.164965            0.0000      0.0000      6.0619
 
         Atoms information:
@@ -126,9 +126,10 @@
       ====================================
 
  => The input propagation vector is: K=(  0.5000  0.0000  0.0000 )
- => K .. IS .. equivalent to -K 
+ =>  K .. IS .. equivalent to -K, the extended little group is G(k) 
  => The operators following the k-vectors constitute the co-set decomposition G[Gk]
     The list of equivalent k-vectors are also given on the right of operators.     
+ => Numerals of the extended little group operators:  {  1,  2,  3,  4,  5,  6,  7,  8 }
  => The star of K is formed by the following   1 vectors:
 
 
@@ -173,33 +174,29 @@
  =>   Number of Space group:   0
  =>  Hermann-Mauguin Symbol: From:Pnma
  =>             Hall Symbol: From:-P 2ac 2n
- => Generalized Hall Symbol: -Z 2(0,1/2,0)
+ => Generalized Hall Symbol: -P
  =>            Setting Type: a'=2a, b'=b, c'=c  -> Origin: (0,0,0) det:   2.00
- =>          Crystal System: Monoclinic
- =>              Laue Class: 2/m
- =>             Point Group: 2/m
- =>         Bravais Lattice: Z
- =>          Lattice Symbol: mZ
- =>  Reduced Number of S.O.:   2
- =>    General multiplicity:   8
+ =>          Crystal System: Triclinic
+ =>              Laue Class: -1
+ =>             Point Group: -1
+ =>         Bravais Lattice: P
+ =>          Lattice Symbol: aP
+ =>  Reduced Number of S.O.:   1
+ =>    General multiplicity:   4
  =>          Centrosymmetry: Centric, -1 at (0,0,0)
  =>  Generators (exc. -1&L):   3
  =>         Asymmetric unit:  0.000 <= x <=  0.000
                               0.000 <= y <=  0.000
                               0.000 <= z <=  0.000
- => Non-conventional Centring vectors:  2
- => Latt( 1): (1/2,0,0)                                                                             
+ => Centring vectors:  1
+ => Latt( 1): (0,0,0)                                                                               
 
  => List of all Symmetry Operators and Symmetry Symbols
 
  => SYMM(  1): x,y,z                             Symbol: 1
- => SYMM(  2): -x,y+1/2,-z                       Symbol: 2 (0,1/2,0) 0,y,0
- => SYMM(  3): -x,-y,-z                          Symbol: -1 0,0,0
- => SYMM(  4): x,-y+1/2,z                        Symbol: m x,1/4,z
- => SYMM(  5): x+1/2,y,z                         Symbol: t (1/2,0,0)
- => SYMM(  6): -x+1/2,y+1/2,-z                   Symbol: 2 (0,1/2,0) 1/4,y,0
- => SYMM(  7): -x+1/2,-y,-z                      Symbol: -1 1/4,0,0
- => SYMM(  8): x+1/2,-y+1/2,z                    Symbol: a x,1/4,z
+ => SYMM(  2): -x,-y,-z                          Symbol: -1 0,0,0
+ => SYMM(  3): x,y,z                             Symbol: 1
+ => SYMM(  4): -x,-y,-z                          Symbol: -1 0,0,0
 
  => Change of Unit cell according to the transformation:
     ----------------------------------------------------
@@ -231,18 +228,18 @@
       0.0000     25.6228      0.0000          0.000000    0.039028    0.000000
       0.0000      0.0000     36.7466          0.000000    0.000000    0.027213
 
- =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z   
+ =>  Cartesian frame: z // c; y is in the bc-plane; x is y ^ z = a*  
 
      Crystal_to_Orthonormal_Matrix              Orthonormal_to_Crystal Matrix
               Cr_Orth_cel                               Orth_Cr_cel  
       8.1238      0.0000      0.0000          0.123095    0.000000    0.000000
-      0.0000      5.0619      0.0000          0.000000    0.197554    0.000000
-      0.0000      0.0000      6.0619          0.000000    0.000000    0.164965
+      0.0000      5.0619      0.0000         -0.000000    0.197554    0.000000
+      0.0000      0.0000      6.0619         -0.000000   -0.000000    0.164965
 
      Busing-Levy B-matrix: Hc=B.H            Inverse of the Busing-Levy B-matrix
                 BL_M                                      BL_Minv  
-    0.123095    0.000000    0.000000            8.1238      0.0000      0.0000
-    0.000000    0.197554    0.000000            0.0000      5.0619      0.0000
+    0.123095   -0.000000   -0.000000            8.1238      0.0000      0.0000
+    0.000000    0.197554   -0.000000            0.0000      5.0619      0.0000
     0.000000    0.000000    0.164965            0.0000      0.0000      6.0619
 
         Atoms information:
@@ -250,10 +247,18 @@
 
     Atom      Chem        x/a       y/b       z/c       Biso     Occ       Mult
     ===========================================================================
-    Ag                  0.0000    0.0000    0.0000    0.0000    0.5000        4  None
-    Aga                 0.2500    0.5000    0.5000    0.0000    0.5000        4  None
-    Mn                  0.2500    0.0000    0.0000    0.0000    0.5000        4  None
-    Mna                 0.0000    0.5000    0.5000    0.0000    0.5000        4  None
+    Ag                  0.0000    0.0000    0.0000    0.0000    0.2500        1  None
+    Aga                 0.2500    0.5000    0.5000    0.0000    0.5000        2  None
+    Agb                 0.0000    0.5000    0.0000    0.0000    0.2500        1  None
+    Agc                 0.2500    0.0000    0.5000    0.0000    0.5000        2  None
+    Agd                 0.5000    0.0000    0.0000    0.0000    0.2500        1  None
+    Age                 0.5000    0.5000    0.0000    0.0000    0.2500        1  None
+    Mn                  0.2500    0.0000    0.0000    0.0000    0.5000        2  None
+    Mna                 0.0000    0.5000    0.5000    0.0000    0.2500        1  None
+    Mnb                 0.2500    0.5000    0.0000    0.0000    0.5000        2  None
+    Mnc                 0.0000    0.0000    0.5000    0.0000    0.2500        1  None
+    Mnd                 0.5000    0.5000    0.5000    0.0000    0.2500        1  None
+    Mne                 0.5000    0.0000    0.5000    0.0000    0.2500        1  None
 
  => List of all atoms in the new cell
     ---------------------------------
@@ -266,81 +271,77 @@
  => Equivalent positions of atom: Ag                  
                                     x         y         z          Xc        Yc        Zc
        Ag_1                     0.00000   0.00000   0.00000     0.00000   0.00000   0.00000
-       Ag_2                     0.00000   0.50000   0.00000     0.00000   2.53095   0.00000
-       Ag_3                     0.50000   0.00000   0.00000     4.06190   0.00000   0.00000
-       Ag_4                     0.50000   0.50000   0.00000     4.06190   2.53095   0.00000
 
  => Equivalent positions of atom: Aga                 
                                     x         y         z          Xc        Yc        Zc
        Aga_1                    0.25000   0.50000   0.50000     2.03095   2.53095   3.03095
-       Aga_2                    0.75000   0.00000   0.50000     6.09285   0.00000   3.03095
-       Aga_3                    0.75000   0.50000   0.50000     6.09285   2.53095   3.03095
-       Aga_4                    0.25000   0.00000   0.50000     2.03095   0.00000   3.03095
+       Aga_2                    0.75000   0.50000   0.50000     6.09285   2.53095   3.03095
+
+ => Equivalent positions of atom: Agb                 
+                                    x         y         z          Xc        Yc        Zc
+       Agb_1                    0.00000   0.50000   0.00000     0.00000   2.53095   0.00000
+
+ => Equivalent positions of atom: Agc                 
+                                    x         y         z          Xc        Yc        Zc
+       Agc_1                    0.25000   0.00000   0.50000     2.03095   0.00000   3.03095
+       Agc_2                    0.75000   0.00000   0.50000     6.09285   0.00000   3.03095
+
+ => Equivalent positions of atom: Agd                 
+                                    x         y         z          Xc        Yc        Zc
+       Agd_1                    0.50000   0.00000   0.00000     4.06190   0.00000   0.00000
+
+ => Equivalent positions of atom: Age                 
+                                    x         y         z          Xc        Yc        Zc
+       Age_1                    0.50000   0.50000   0.00000     4.06190   2.53095   0.00000
 
  => Equivalent positions of atom: Mn                  
                                     x         y         z          Xc        Yc        Zc
        Mn_1                     0.25000   0.00000   0.00000     2.03095   0.00000   0.00000
-       Mn_2                     0.75000   0.50000   0.00000     6.09285   2.53095   0.00000
-       Mn_3                     0.75000   0.00000   0.00000     6.09285   0.00000   0.00000
-       Mn_4                     0.25000   0.50000   0.00000     2.03095   2.53095   0.00000
+       Mn_2                     0.75000   0.00000   0.00000     6.09285   0.00000   0.00000
 
  => Equivalent positions of atom: Mna                 
                                     x         y         z          Xc        Yc        Zc
        Mna_1                    0.00000   0.50000   0.50000     0.00000   2.53095   3.03095
-       Mna_2                    0.00000   0.00000   0.50000     0.00000   0.00000   3.03095
-       Mna_3                    0.50000   0.50000   0.50000     4.06190   2.53095   3.03095
-       Mna_4                    0.50000   0.00000   0.50000     4.06190   0.00000   3.03095
+
+ => Equivalent positions of atom: Mnb                 
+                                    x         y         z          Xc        Yc        Zc
+       Mnb_1                    0.25000   0.50000   0.00000     2.03095   2.53095   0.00000
+       Mnb_2                    0.75000   0.50000   0.00000     6.09285   2.53095   0.00000
+
+ => Equivalent positions of atom: Mnc                 
+                                    x         y         z          Xc        Yc        Zc
+       Mnc_1                    0.00000   0.00000   0.50000     0.00000   0.00000   3.03095
+
+ => Equivalent positions of atom: Mnd                 
+                                    x         y         z          Xc        Yc        Zc
+       Mnd_1                    0.50000   0.50000   0.50000     4.06190   2.53095   3.03095
+
+ => Equivalent positions of atom: Mne                 
+                                    x         y         z          Xc        Yc        Zc
+       Mne_1                    0.50000   0.00000   0.50000     4.06190   0.00000   3.03095
 
 
 
 
  => LIST of Translationengleiche Subgroups of index 2 for: From:Pnma           From:-P 2ac 2n  
 
- => Unknown             -Z 1             Index: [ 2]   ->  { x,y,z }    Centric (-1 at origin)
- => Unknown              Z 2yb           Index: [ 2]   ->  { x,y,z ; -x,y+1/2,-z }    Acentric
- => Unknown              Z -2yb          Index: [ 2]   ->  { x,y,z ; x,-y+1/2,z }    Acentric
+ => P -1                -P 1             Index: [ 2]   ->  { x,y,z }    Centric (-1 at origin)
 
 
  => LIST of Classengleiche Subgroups of index 2 for: From:Pnma           From:-P 2ac 2n  
 
- => P 1 21/M 1          -P 2yb           Index: [ 2]   ->  { x,y,z ; -x,y+1/2,-z }    Centric (-1 at origin)
+ => P -1                -P 1             Index: [ 2]   ->  { x,y,z }    Centric (-1 at origin)
 
 ---------------------------------
   Maximal Magnetic Space Groups
 ---------------------------------
-Magnetic Group derived from: From:Pnma and subgroup: -Z 1
+Magnetic Group derived from: From:Pnma and subgroup: -P 1
    1  x,y,z,+1
-   2  -x,y+1/2,-z,-1
-   3  -x,-y,-z,+1
-   4  x,-y+1/2,z,-1
-   5  x+1/2,y,z,+1
-   6  -x+1/2,y+1/2,-z,-1
-   7  -x+1/2,-y,-z,+1
-   8  x+1/2,-y+1/2,z,-1
-Magnetic Group derived from: From:Pnma and subgroup:  Z 2yb
+   2  -x,-y,-z,+1
+   3  x,y,z,-1
+   4  -x,-y,-z,-1
+Magnetic Group derived from: From:Pnma and subgroup: -P 1
    1  x,y,z,+1
-   2  -x,y+1/2,-z,+1
-   3  -x,-y,-z,-1
-   4  x,-y+1/2,z,-1
-   5  x+1/2,y,z,+1
-   6  -x+1/2,y+1/2,-z,+1
-   7  -x+1/2,-y,-z,-1
-   8  x+1/2,-y+1/2,z,-1
-Magnetic Group derived from: From:Pnma and subgroup:  Z -2yb
-   1  x,y,z,+1
-   2  -x,y+1/2,-z,-1
-   3  -x,-y,-z,-1
-   4  x,-y+1/2,z,+1
-   5  x+1/2,y,z,+1
-   6  -x+1/2,y+1/2,-z,-1
-   7  -x+1/2,-y,-z,-1
-   8  x+1/2,-y+1/2,z,+1
-Magnetic Group derived from: From:Pnma and subgroup: -P 2yb
-   1  x,y,z,+1
-   2  -x,y+1/2,-z,+1
-   3  -x,-y,-z,+1
-   4  x,-y+1/2,z,+1
-   5  x+1/2,y,z,-1
-   6  -x+1/2,y+1/2,-z,-1
-   7  -x+1/2,-y,-z,-1
-   8  x+1/2,-y+1/2,z,-1
+   2  -x,-y,-z,+1
+   3  x,y,z,-1
+   4  -x,-y,-z,-1
