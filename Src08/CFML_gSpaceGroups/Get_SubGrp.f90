@@ -37,7 +37,7 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
 
       !--- Local variables ---!
       integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng
-      character (len=40), dimension(:),allocatable   :: gen,gen_min
+      character (len=40), dimension(:),allocatable :: gen,gen_min
       character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
       character (len=40)                           :: gen_cent, gen_aux
@@ -201,23 +201,24 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
 
    End Subroutine Get_SubGroups
 
-   Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point)
+   Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point,printd)
       !---- Arguments ----!
       type(Spg_Type),                    intent( in) :: SpG
       type(Spg_Type),dimension(:),       intent(out) :: SubG
       integer,                           intent(out) :: nsg
       integer,                  optional,intent(in)  :: indexg
       logical, dimension(:,:),  optional,intent(out) :: point
+      logical,                  optional,intent(in)  :: printd
 
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng
+      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng,maxlist,i1,i2
       character (len=40), dimension(:),allocatable :: gen,gen_min
-      character (len=40), dimension(30)            :: gen_lat
+      character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
       character (len=40)                           :: gen_cent, gen_aux
 
       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
-      type(Symm_Oper_Type), dimension(30)          :: Op_lat
+      type(Symm_Oper_Type), dimension(Spg%Num_Lat) :: Op_lat
 
       !> Trivial P1: x,y,z
       if (Spg%Multip == 1) then
@@ -284,10 +285,10 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       end do
       ngen=n
       !Construct the lists of  possible generators to be tested
-      mp=2*max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen
+      mp=5*max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen*max(1,SpG%num_lat)
       if (allocated(list_gen)) deallocate(list_gen)
       allocate(list_gen(mp))
-
+      maxlist=mp
       ! Start with the simplest lists: 1 generator
       L=0
       if (ngen >= 1) then
@@ -320,22 +321,95 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       end if
 
       mp=L
+      if(present(printd)) write(unit=*,fmt="(a,i6)") " Number of basic generators: ",mp
 
-      !Now add the lattice translations
-      if (SpG%num_lat > 0)  then
-         do j=1,SpG%num_lat
+      if (SpG%num_lat >= 1) then
+       do j=1,SpG%num_lat  !Original operators plus 1 lattice translation
+          do i=1,mp
+             L=L+1
+             list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+             if(L == maxlist) exit
+          end do
+       end do
+      end if
+
+      if (SpG%num_lat >= 2) then
+        do j=1,SpG%num_lat-1  !Original operators plus 2 lattice translation
+          do k=j+1,SpG%num_lat
             do i=1,mp
                L=L+1
-               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))//";"//trim(gen_lat(k))
+               if(L == maxlist) exit
             end do
-         end do
+          end do
+        end do
       end if
-      nsg=L !Number of lists with generators
 
+      if (SpG%num_lat >= 3) then
+        do j=1,SpG%num_lat-2  !Original operators plus 3 lattice translation
+          do k=j+1,SpG%num_lat-1
+            do n=k+1,SpG%num_lat
+              do i=1,mp
+                 L=L+1
+                 list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))//";"//trim(gen_lat(k))//";"//trim(gen_lat(n))
+                 if(L == maxlist) exit
+              end do
+            end do
+          end do
+        end do
+      end if
+
+      !Now add  up to 5 lattice translations
+      !if (SpG%num_lat > 0)  then
+      !   i1=L+1
+      !   do j=1,SpG%num_lat  !Original operators plus 1 lattice translation
+      !      do i=1,mp
+      !         L=L+1
+      !         list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+      !         if(L == maxlist) exit
+      !      end do
+      !   end do
+      !   i2=L
+      !   do k=1,4
+      !     if (SpG%num_lat > k)  then
+      !       do j=1,SpG%num_lat  !Original operators plus k+1 lattice translations
+      !          do i=i1,i2
+      !             if(index(list_gen(i),trim(gen_lat(j))) /= 0) cycle
+      !             L=L+1
+      !             list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+      !             if(L == maxlist) exit
+      !          end do
+      !       end do
+      !     else
+      !       exit
+      !     end if
+      !     i1=i2+1
+      !     i2=L
+      !   end do
+      !end if
+
+      !if (SpG%num_lat > 0)  then
+      !   do_lat: do j=0,SpG%num_lat/2+1
+      !      if( j+1 > SpG%num_lat) exit
+      !      if (SpG%num_lat > j)  then
+      !         mp=L
+      !         do i=1,mp
+      !            L=L+1
+      !            list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j+1))
+      !            if(L == maxlist) exit do_lat
+      !         end do
+      !      end if
+      !   end do do_lat
+      !end if
+
+      nsg=L !Number of lists with generators
+      if(present(printd)) write(unit=*,fmt="(a,i6)") " Number of generator lists: ",nsg
       !> Generate the subgroups corresponding to the above lists
       n=1
+      if(present(printd)) write(unit=*,fmt="(a,i6,a)") " Generator list #",n,"  "//trim(List_gen(n))
       call Group_Constructor(List_gen(1),SubG(1))
       do_L:do L=2,nsg
+         if(present(printd)) write(unit=*,fmt="(a,i6,a)") " Generator list #",L,"  "//trim(List_gen(L))
          do i=1,n-1
            if(Is_in_Group(list_gen(L),SubG(i))) cycle do_L !Prevent generation of repeated groups
          end do

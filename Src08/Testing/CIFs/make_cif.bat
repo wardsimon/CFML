@@ -2,7 +2,7 @@
 rem ****
 rem ****---- Compilation for Groups Program ----****
 rem ****
-rem > INIT 
+rem > INIT
    (set _DEBUG=N)
    (set _COMP=ifort)
    if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
@@ -18,7 +18,7 @@ rem > Arguments ----
     if [%1]==[gfortran64] (
        (set _COMP=gfortran)
        (set _VER=m64)
-    )   
+    )
     shift
     if not [%1]==[] goto LOOP
 rem
@@ -36,7 +36,7 @@ rem
       )
       (set OPT2=/fpp /Qopt-report:0)
    )
-rem   
+rem
    if [%_COMP%]==[gfortran] (
       if [%_DEBUG%]==[Y] (
          if [%_VER%]==[m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
@@ -55,19 +55,19 @@ rem > Compilation
 rem      ifort /c CFML_IOForm.f90   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_CFL.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Write_Atomos.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-rem      ifort /c Format_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+rem         ifort /c Write_CIF.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
 rem      ifort /c Format_SHX.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /c cif.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:150000000 
+      ifort /exe:cif *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:150000000
    )
-rem   
+rem
    if [%_COMP%]==[gfortran] (
 rem      gfortran -c CFML_IOForm.f90     %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
 rem      gfortran -c Format_CFL.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
-rem      gfortran -c Format_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+rem         gfortran -c Write_CIF.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
 rem      gfortran -c Format_SHX.f90      %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -c cif.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -o cif_gf.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
-rem   
+rem
    del *.obj *.mod *.o *.map *.bak > nul

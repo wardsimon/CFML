@@ -20,9 +20,9 @@ elseif(APPLE)
         # GFortran compiler
         set(GLOBAL_DEPS_SRC CFML_GlobalDeps_MacOS_GFOR.f90)
     endif()
-elseif(UNIX)   
+elseif(UNIX)
     # Unix
-    if(${COMPILER_NAME} STREQUAL ifort)      
+    if(${COMPILER_NAME} STREQUAL ifort)
         # Intel Fortran compiler
         set(GLOBAL_DEPS_SRC CFML_GlobalDeps_Linux_IFOR.f90)
     else()
@@ -34,23 +34,23 @@ if(${COMPILER_NAME} STREQUAL ifort)
     set_source_files_properties(${GLOBAL_DEPS_SRC} 
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${GLOBAL_DEPS_SRC} 
+    set_source_files_properties(${GLOBAL_DEPS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Messages
 file(GLOB SUBMOD_MESSAGES_SRC CFML_Messages/*.f90)
-set(MESSAGES_SRC CFML_Messages.f90 
+set(MESSAGES_SRC CFML_Messages.f90
                  CFML_Messages/Err_Message.f90
                  CFML_Messages/Info_Message.f90
-                 CFML_Messages/Print_Message.f90 
+                 CFML_Messages/Print_Message.f90
                  CFML_Messages/Wait_Message.f90
                  CFML_Messages/Write_ScrollMsg.f90)
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${MESSAGES_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${MESSAGES_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${MESSAGES_SRC} 
+    set_source_files_properties(${MESSAGES_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
@@ -58,54 +58,54 @@ endif()
 file(GLOB SUBMOD_MATHS_SRC CFML_Maths/*.f90)
 file(GLOB SUBMOD_FFT_SRC CFML_FFT/*.f90)
 file(GLOB SUBMOD_RANDOM_SRC CFML_Random/*.f90)
-set(MATHS_SRC CFML_Maths.f90 
+set(MATHS_SRC CFML_Maths.f90
               CFML_FFT.f90
               CFML_Random.f90
               CFML_Trigonometry.f90
               ${SUBMOD_MATHS_SRC}
               ${SUBMOD_FFT_SRC}
               ${SUBMOD_RANDOM_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${MATHS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${MATHS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${MATHS_SRC} 
+    set_source_files_properties(${MATHS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
-endif() 
+endif()
 
 # CFML_Strings
 file(GLOB SUBMOD_STRINGS_SRC CFML_Strings/*.f90)
-set(STRINGS_SRC CFML_Strings.f90 
+set(STRINGS_SRC CFML_Strings.f90
                 ${SUBMOD_STRINGS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${STRINGS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${STRINGS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${STRINGS_SRC} 
+    set_source_files_properties(${STRINGS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Rational
 file(GLOB SUBMOD_RATIONAL_SRC CFML_Rational/*.f90)
-set(RATIONAL_SRC CFML_Rational.f90 
+set(RATIONAL_SRC CFML_Rational.f90
                 ${SUBMOD_RATIONAL_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${RATIONAL_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${RATIONAL_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${RATIONAL_SRC} 
+    set_source_files_properties(${RATIONAL_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Metrics
 file(GLOB SUBMOD_METRICS_SRC CFML_Metrics/*.f90)
-set(METRICS_SRC CFML_Metrics.f90 
+set(METRICS_SRC CFML_Metrics.f90
                 ${SUBMOD_METRICS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${METRICS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${METRICS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${METRICS_SRC} 
+    set_source_files_properties(${METRICS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
@@ -119,69 +119,70 @@ set(SUBMOD_TABLES_1_SRC CFML_Tables/Del_ScatterT.f90
                         CFML_Tables/Del_BVST.f90
                         CFML_Tables/Allocating_MagneticDBase.f90
                         CFML_Tables/Read_MagneticDBase.f90
-                        CFML_Tables/Allocating_SuperSpaceDBase.f90 
-                        CFML_Tables/Read_SSG_DBase.f90)                        
+                        CFML_Tables/Allocating_SuperSpaceDBase.f90
+                        CFML_Tables/Read_SSG_DBase.f90)
 set(SUBMOD_TABLES_2_SRC CFML_Tables/Set_ScatterT.f90
                         CFML_Tables/Set_BondsT.f90
                         CFML_Tables/Get_SpgSymbols.f90
                         CFML_Tables/Set_SpgT.f90
                         CFML_Tables/Set_BVST.f90)
-set(TABLES_1_SRC CFML_Scattering_Tables.f90 
-                 CFML_Bonds_Tables.f90 
+set(TABLES_1_SRC CFML_Scattering_Tables.f90
+                 CFML_Bonds_Tables.f90
                  ${SUBMOD_TABLES_1_SRC})
 set(TABLES_2_SRC CFML_Symmetry_Tables.f90
                  CFML_BVS_Tables.f90
                  CFML_Magnetic_Database.f90
                  CFML_SuperSpace_Database.f90)
 set(TABLES_3_SRC ${SUBMOD_TABLES_2_SRC})
-                 
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${TABLES_1_SRC} 
+
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${TABLES_1_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${TABLES_1_SRC} 
+    set_source_files_properties(${TABLES_1_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${TABLES_2_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${TABLES_2_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS0} ${OPT_FLAGS2}")
-    set_source_files_properties(${TABLES_3_SRC} 
+
+    set_source_files_properties(${TABLES_3_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS0}")
 else()
-    set_source_files_properties(${TABLES_2_SRC} 
+    set_source_files_properties(${TABLES_2_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS0}")
-    
-    set_source_files_properties(${TABLES_3_SRC} 
+
+    set_source_files_properties(${TABLES_3_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS0}")
 endif()
 
 # CFML_gSpaceGroups
 file(GLOB SUBMOD_GROUPS_SRC CFML_gSpaceGroups/*.f90)
-set(GROUPS_SRC CFML_gSpaceGroups.f90 
+set(GROUPS_SRC CFML_gSpaceGroups.f90
                ${SUBMOD_GROUPS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${GROUPS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${GROUPS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${GROUPS_SRC} 
+    set_source_files_properties(${GROUPS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Profiles
 file(GLOB SUBMOD_PROFILES_SRC CFML_Profiles/P*.f90
                              CFML_Profiles/T*.f90)
-set(PROFILES_1_SRC CFML_Profiles.f90 
-                   ${SUBMOD_PROFILES_SRC})   
-set(PROFILES_2_SRC CFML_Profiles/Init_ProfVal.f90)             
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${PROFILES_1_SRC} 
+set(PROFILES_1_SRC CFML_Profiles.f90
+                   ${SUBMOD_PROFILES_SRC})
+set(PROFILES_2_SRC CFML_Profiles/Init_ProfVal.f90)
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${PROFILES_1_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${PROFILES_1_SRC} 
+    set_source_files_properties(${PROFILES_1_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${PROFILES_2_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${PROFILES_2_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS0} ${OPT_FLAGS2}")
 else()
     set_source_files_properties(${PROFILES_2_SRC}
@@ -190,86 +191,98 @@ endif()
 
 # CFML_DiffPatt
 file(GLOB SUBMOD_DIFFPATT_SRC CFML_DiffPatt/*.f90)
-set(DIFFPATT_SRC CFML_DiffPatt.f90 
+set(DIFFPATT_SRC CFML_DiffPatt.f90
                  ${SUBMOD_DIFFPATT_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${DIFFPATT_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${DIFFPATT_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${DIFFPATT_SRC} 
+    set_source_files_properties(${DIFFPATT_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_ExtintCorr
 file(GLOB SUBMOD_EXTINCORR_SRC CFML_ExtinCorr/*.f90)
-set(EXTINCORR_SRC CFML_ExtinCorr.f90 
+set(EXTINCORR_SRC CFML_ExtinCorr.f90
                   ${SUBMOD_EXTINCORR_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${EXTINCORR_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${EXTINCORR_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${EXTINCORR_SRC} 
+    set_source_files_properties(${EXTINCORR_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_EOS
 file(GLOB SUBMOD_EOS_SRC CFML_EoS/*.f90)
-set(EOS_SRC CFML_EoS.f90 
+set(EOS_SRC CFML_EoS.f90
             ${SUBMOD_EOS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${EOS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${EOS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${EOS_SRC} 
+    set_source_files_properties(${EOS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Atoms
 file(GLOB SUBMOD_ATOMS_SRC CFML_Atoms/*.f90)
-set(ATOMS_SRC CFML_Atoms.f90 
+set(ATOMS_SRC CFML_Atoms.f90
               ${SUBMOD_ATOMS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${ATOMS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${ATOMS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${ATOMS_SRC} 
+    set_source_files_properties(${ATOMS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Reflections
 file(GLOB SUBMOD_REFLECTIONS_SRC CFML_Reflections/*.f90)
-set(REFLECTIONS_SRC CFML_Reflections.f90 
+set(REFLECTIONS_SRC CFML_Reflections.f90
                  ${SUBMOD_REFLECTIONS_SRC})
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${REFLECTIONS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${REFLECTIONS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${REFLECTIONS_SRC} 
+    set_source_files_properties(${REFLECTIONS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_Propagk
 set(PROPAGK_SRC CFML_Propagk.f90)
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${PROPAGK_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${PROPAGK_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${PROPAGK_SRC} 
+    set_source_files_properties(${PROPAGK_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
 # CFML_IOForm
 #file(GLOB SUBMOD_IOFORM_SRC CFML_IOForm/*.f90)
-set(IOFORM_SRC CFML_IOForm.f90 CFML_IOForm/Format_CFL.f90)
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${IOFORM_SRC} 
+set(IOFORM_SRC CFML_IOForm.f90 CFML_IOForm/Format_CFL.f90 CFML_IOForm/Write_CIF.f90)
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${IOFORM_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${IOFORM_SRC} 
+    set_source_files_properties(${IOFORM_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
-set(CRYSFML_COMMON_SRC 
+# CFML_Geom
+file(GLOB SUBMOD_GEOM_SRC CFML_Geom/*.f90)
+set(GEOM_SRC CFML_Geom.f90
+                 ${SUBMOD_GEOM_SRC})
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${GEOM_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
+else()
+    set_source_files_properties(${GEOM_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
+endif()
+
+set(CRYSFML_COMMON_SRC
     ${GLOBAL_DEPS_SRC}
     ${MESSAGES_SRC}
     ${MATHS_SRC}
@@ -288,8 +301,9 @@ set(CRYSFML_COMMON_SRC
     ${ATOMS_SRC}
     ${REFLECTIONS_SRC}
     ${PROPAGK_SRC}
-    ${IOFORM_SRC})
-    
+    ${IOFORM_SRC}
+    ${GEOM_SRC})
+
 # Build the library
 set(LIBRARY_NAME crysfml)
 
@@ -309,7 +323,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYS
 install(TARGETS ${LIBRARY_NAME} ARCHIVE DESTINATION ${CRYSFML_PREFIX})
 
 # The rules for installing the mod files. Take care the "/" is on purpose.
-install(DIRECTORY ${CRYSFML_MODULE_DIRECTORY}/ 
+install(DIRECTORY ${CRYSFML_MODULE_DIRECTORY}/
         DESTINATION ${CRYSFML_PREFIX}
         FILES_MATCHING
         PATTERN "*.*mod"

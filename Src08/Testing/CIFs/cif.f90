@@ -13,9 +13,10 @@
     use CFML_IOForm
     use CFML_Atoms
     use CFML_Strings,only: File_type,Set_Symb_From_Mat !pack_string
+    !use Test_CIF
     implicit none
 
-    character(len=256)                  :: fname
+    character(len=256)                  :: fname,filename
     character(len=256)                  :: setting,ctr_code
     character(len=256),dimension(26)    :: tctr_code
     character(len=:),allocatable        :: forma,formb,cmdline
@@ -75,6 +76,10 @@
        end if
        call Write_SpaceGroup_Info(Grp)
 
+       i=index(fname,".")
+       filename=fname(1:i)//"cif"
+       call Write_Cif_Template(filename, Cell, Grp, Atm, 2, "Testing WriteCIF")
+
        if(Atm%natoms > 0) then
           !First Check symmetry constraints in magnetic moments and Fourier coefficients
           !call Check_Symmetry_Constraints(Grp,Atm)
@@ -94,7 +99,7 @@
             !codini=1; codes=1.0
             call Get_moment_ctr(Atm%Atom(i)%x,Atm%Atom(i)%moment,Grp,codini,codes,ctr_code=ctr_code)!,Ipr=6)
             write(*,"(a,3f10.5,a)") " => Moment of atom "//trim(Atm%Atom(i)%Lab)//": ",Atm%Atom(i)%moment,"    CtrCode: "//trim(ctr_code)
-            call Get_Orbit(Atm%Atom(i)%x,Atm%Atom(i)%moment,Grp,Mult,orb,morb,ptr)
+            call Get_Orbit(Atm%Atom(i)%x,Grp,Mult,orb,Atm%Atom(i)%moment,morb,ptr)
             write(*,"(a)") " => Orbit of atom: "//trim(Atm%Atom(i)%Lab)
 
             Select Case(Grp%d-1)

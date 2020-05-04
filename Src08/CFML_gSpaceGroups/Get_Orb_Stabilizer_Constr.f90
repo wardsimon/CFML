@@ -51,14 +51,16 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
 
    End Subroutine Get_Stabilizer
 
-   Module Subroutine Get_Orbit(x,mom,Spg,Mult,orb,morb,ptr,convl)
+   Module Subroutine Get_Orbit(x,Spg,Mult,orb,mom,morb,ptr,convl)
       !---- Arguments ----!
-      real(kind=cp), dimension(:),                intent (in) :: x,mom
-      class(SpG_Type),                            intent (in) :: spg
-      integer,                                    intent(out) :: mult
-      real(kind=cp),dimension(:,:), allocatable,  intent(out) :: orb,morb
-      integer, dimension(:),allocatable, optional,intent(out) :: ptr
-      logical,                           optional,intent(in)  :: convl
+      real(kind=cp), dimension(:),                         intent(in)  :: x         !Position vector
+      class(SpG_Type),                                     intent(in)  :: spg       !Space Group
+      integer,                                             intent(out) :: mult      !Multiplicity of the orbit
+      real(kind=cp),dimension(:,:), allocatable,           intent(out) :: orb       !Orbit of x
+      real(kind=cp), dimension(:),               optional, intent(in)  :: mom       !Magnetic moment
+      real(kind=cp),dimension(:,:), allocatable, optional, intent(out) :: morb      !Magnetic moment orbit
+      integer, dimension(:),allocatable,         optional, intent(out) :: ptr       !Pointer to symmetry operator
+      logical,                                   optional, intent(in)  :: convl     !If present and true the content of a primite cell is outpput in the orbits
 
       !---- Local variables ----!
       integer                                          :: i, j, nt,d
@@ -73,30 +75,40 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
       d=Spg%d-1
       xs(Spg%d)=1.0
       ms(Spg%d)=1.0
-      allocate(orb(d,Spg%multip),morb(d,Spg%multip),ptr(Spg%multip))
-      orb=0.0; morb=0.0
+      allocate(orb(d,Spg%multip))
+      orb=0.0
+
+      if(present(morb)) then
+        allocate(morb(d,Spg%multip))
+        morb=0.0
+      end if
+      if(present(ptr)) then
+        allocate(ptr(Spg%multip))
+        ptr=0
+      end if
+
 
       Select Type(SpG)
 
         type is (SuperSpaceGroup_Type)
            Om=SpG%Om
            xs(1:3)=x   !Extend the position and moment to superspace
-           ms(1:3)=mom
+           if(present(mom)) ms(1:3)=mom
            do i=1,SpG%nk
              xs(3+i)=dot_product(x,SpG%kv(:,i))
-             ms(3+i)=dot_product(mom,SpG%kv(:,i))
+             if(present(mom)) ms(3+i)=dot_product(mom,SpG%kv(:,i))
            end do
         class default
            do i=1,Spg%Multip
              Om(:,:,i)=Spg%Op(i)%Mat
            end do
            xs(1:d)=x
-           ms(1:d)=mom
+           if(present(morb)) ms(1:d)=mom
       End Select
 
       mult=1
       orb(:,1)=xs(1:d)
-      morb(:,1)=ms(1:d)
+      if(present(morb)) morb(:,1)=ms(1:d)
       if(present(ptr)) ptr(mult) = 1
 
       do_ext: do j=2,Spg%Multip
@@ -113,8 +125,8 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
          msp(1:d)=Spg%Op(j)%dt*Spg%Op(j)%time_inv*matmul(Om(1:d,1:d,j),ms(1:d))
          mult=mult+1
          orb(:,mult)=xsp(1:d)
-         morb(:,mult)=msp(1:d)
-         if(present(ptr)) ptr(mult) = j   !Pointer to symmetry operator
+         if(present(morb)) morb(:,mult)=msp(1:d)
+         if(present(ptr))  ptr(mult) = j   !Pointer to symmetry operator
       end do do_ext
 
    End Subroutine Get_Orbit

@@ -247,7 +247,7 @@ Submodule (CFML_Maths) Determinant
        real(kind=cp), dimension(3,3), intent(in) :: A   !! Matrix
        real(kind=cp)                             :: Det      !! Determinant
 
-       !> Calculate the inverse determinant of the matrix
+       !> Calculate the determinant of the matrix
        det = A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
@@ -266,7 +266,7 @@ Submodule (CFML_Maths) Determinant
        complex(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
        complex(kind=cp)                             :: Det      !! Determinant
 
-       !> Calculate the inverse determinant of the matrix
+       !> Calculate the determinant of the matrix
        det = A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,2)-A(3,2)*A(4,4))+ &
              A(2,4)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))) &
            - A(1,2)*(A(2,1)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+ &
@@ -290,7 +290,7 @@ Submodule (CFML_Maths) Determinant
        integer, dimension(4,4), intent(in) :: A   !! Matrix
        integer                             :: Det      !! Determinant
 
-       !> Calculate the inverse determinant of the matrix
+       !> Calculate the determinant of the matrix
        det = A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,2)-A(3,2)*A(4,4))+ &
              A(2,4)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))) &
            - A(1,2)*(A(2,1)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+ &
@@ -314,7 +314,7 @@ Submodule (CFML_Maths) Determinant
        real(kind=cp), dimension(4,4), intent(in) :: A   !! Matrix
        real(kind=cp)                             :: Det      !! Determinant
 
-       !> Calculate the inverse determinant of the matrix
+       !> Calculate the determinant of the matrix
        det = A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,2)-A(3,2)*A(4,4))+ &
              A(2,4)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))) &
            - A(1,2)*(A(2,1)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+ &

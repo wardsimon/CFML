@@ -261,7 +261,6 @@ rem   Submodules CFML_gSpaceGroups
       ifort /c Init_Procedures.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_InversionCentre.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Is_LattCentring.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
-      ifort /c Rational_IsLattVec.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Rational_RedTraslation.f90             /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Operator_Equal.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Operator_Mult.f90                      /nologo %OPT1% %OPT2%  /module:..\mod

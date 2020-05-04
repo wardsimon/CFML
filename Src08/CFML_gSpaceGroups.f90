@@ -46,11 +46,11 @@
 !!
 Module CFML_gSpaceGroups
     !---- Use Modules ----!
+    Use CFML_GlobalDeps,        only: CP,DP, LI, EPS, err_cfml, clear_error, CFML_Debug,TPI
     Use CFML_Rational
     Use CFML_Symmetry_Tables
     Use CFML_Magnetic_Database
     Use CFML_SuperSpace_Database
-    Use CFML_GlobalDeps,        only: CP,DP, LI, EPS, err_cfml, clear_error, CFML_Debug,TPI
     Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ3D, Get_eps_math, Zbelong,EPSS,Diagonalize_RGEN, &
                                       equal_vector,resolv_sist_3x3,trace
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
@@ -79,7 +79,7 @@ Module CFML_gSpaceGroups
               Identify_Group, Init_SpaceGroup,  Is_OP_Inversion_Centre,           &
               Set_Conditions_NumOP_EPS, Set_SpaceGroup,Is_OP_Lattice_Centring,    &
               Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec,Is_OP_Anti_Lattice, &
-              Get_SubGroups_full
+              Get_SubGroups_full, SearchOp, Write_SymTrans_Code, Read_SymTrans_Code
 
     !---- Types ----!
 
@@ -137,11 +137,14 @@ Module CFML_gSpaceGroups
        type(rational),dimension(:,:), allocatable :: aLat_tr           ! Anti-translations
     End Type SPG_Type
 
-    Type, public, extends(Spg_Type):: SuperSpaceGroup_Type
+    Type, public, extends(Spg_Type):: Spg_Oreal_Type
+       real(kind=cp), allocatable,dimension(:,:,:):: Om        ! Operator matrices (3+d+1,3+d+1,Multip) in real form to accelerate calculations
+    End Type Spg_Oreal_Type
+
+    Type, public, extends(Spg_Oreal_Type) :: SuperSpaceGroup_Type
        integer                                    :: nk=0      ! (nk=1,2,3, ...) number of k-vectors
        integer                                    :: nq=0      ! number of effective set of Q_coeff >= nk
        real,          allocatable,dimension(:,:)  :: kv        ! k-vectors (3,nk)
-       real(kind=cp), allocatable,dimension(:,:,:):: Om        ! Operator matrices (3+d+1,3+d+1,Multip) in real form to accelerate calculations
        real(kind=cp), allocatable,dimension(:)    :: sintlim   ! sintheta/lambda limits (nk)
        integer,       allocatable,dimension(:)    :: nharm     ! number of harmonics along each k-vector
        integer,       allocatable,dimension(:,:)  :: q_coeff   ! Q_coeff(nk,nq)
@@ -224,6 +227,7 @@ Module CFML_gSpaceGroups
     Interface Is_Lattice_Vec
        module procedure Is_Lattice_Vec_rat
        module procedure Is_Lattice_Vec_real
+       module procedure Is_Vec_Lattice_Centring
     End Interface Is_Lattice_Vec
 
     Interface Set_SpaceGroup
@@ -468,14 +472,16 @@ Module CFML_gSpaceGroups
           integer, dimension(:,:), allocatable, optional, intent(out)    :: table
        End Subroutine Get_OPS_from_Generators
 
-       Module Subroutine Get_Orbit(x,mom,Spg,Mult,orb,morb,ptr,convl)
+       Module Subroutine Get_Orbit(x,Spg,Mult,orb,mom,morb,ptr,convl)
           !---- Arguments ----!
-          real(kind=cp), dimension(:),                intent (in) :: x,mom
-          class(SpG_Type),                            intent (in) :: spg
-          integer,                                    intent(out) :: mult
-          real(kind=cp),dimension(:,:), allocatable,  intent(out) :: orb,morb
-          integer, dimension(:),allocatable, optional,intent(out) :: ptr
-          logical,                           optional,intent(in)  :: convl
+          real(kind=cp), dimension(:),                         intent(in)  :: x
+          class(SpG_Type),                                     intent(in)  :: spg
+          integer,                                             intent(out) :: mult
+          real(kind=cp),dimension(:,:), allocatable,           intent(out) :: orb
+          real(kind=cp), dimension(:),               optional, intent(in)  :: mom
+          real(kind=cp),dimension(:,:), allocatable, optional, intent(out) :: morb
+          integer, dimension(:),allocatable,         optional, intent(out) :: ptr
+          logical,                                   optional, intent(in)  :: convl
        End Subroutine Get_Orbit
 
        Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
@@ -543,6 +549,13 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3,3)               :: S
        End Function Get_S_Matrix
 
+       Module Function SearchOp(Sim,I1,I2) Result(Isl)
+          !---- Arguments ----!
+          integer , dimension(3,3), Intent(in) :: sim
+          integer , Intent(in)                 :: i1,i2
+          integer                              :: Isl
+       End Function SearchOp
+
        Module Subroutine Get_Stabilizer(X, Spg,Order,Ptr,Atr)
           !---- Arguments ----!
           real(kind=cp), dimension(3),  intent (in)  :: x
@@ -561,13 +574,14 @@ Module CFML_gSpaceGroups
           logical, dimension(:,:), optional,intent(out) :: point
        End Subroutine Get_SubGroups
 
-       Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point)
+       Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point,printd)
           !---- Arguments ----!
           type(Spg_Type),                    intent( in) :: SpG
           type(Spg_Type),dimension(:),       intent(out) :: SubG
           integer,                           intent(out) :: nsg
           integer,                  optional,intent(in)  :: indexg
           logical, dimension(:,:),  optional,intent(out) :: point
+          logical,                  optional,intent(in)  :: printd
        End Subroutine Get_SubGroups_full
 
        Module Function Get_Symb_from_Mat_Tr(Mat, tr, oposite) Result(Str)
@@ -739,6 +753,14 @@ Module CFML_gSpaceGroups
           logical                                   :: Lattice
        End Function is_Lattice_vec_real
 
+       Pure Module Function Is_Vec_Lattice_Centring(vec,SpG,Prim) Result(Info)
+          !---- Arguments ----!
+          real(kind=cp), dimension(:), intent(in) :: Vec
+          Class(SpG_Type), optional,   intent(in) :: SpG
+          logical, optional,           intent(in) :: Prim
+          logical                                 :: info
+       End Function Is_Vec_Lattice_Centring
+
        Module Function Is_OP_Minus_1_Prime(Op) Result(Info)
           !---- Arguments ----!
           type(Symm_Oper_Type),intent(in) :: Op
@@ -769,6 +791,20 @@ Module CFML_gSpaceGroups
           type(rational), dimension(3),   intent(in)  :: axis
           logical                                     :: positive
        End Function Positive_SenseRot
+
+       Pure Module Function Write_SymTrans_Code(N,Tr) Result(Code)
+          !---- Arguments ----!
+          integer,                    intent(in)  :: N
+          real(kind=cp),dimension(3), intent(in)  :: Tr
+          character (len=:), allocatable          :: Code
+       End Function Write_SymTrans_Code
+
+       Module Subroutine Read_SymTrans_Code(Code,N,Tr)
+          !---- Arguments ----!
+          character (len=*),          intent( in) :: Code
+          integer,                    intent(out) :: N
+          real(kind=cp),dimension(3), intent(out) :: Tr
+       End Subroutine Read_SymTrans_Code
 
        Module Subroutine Reduced_Translation(Mat)
           !---- Arguments ----!

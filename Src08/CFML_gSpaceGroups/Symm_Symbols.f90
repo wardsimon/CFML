@@ -574,4 +574,161 @@
 
     End Function Symmetry_Symbol
 
+    !!----
+    !!---- Module Subroutine SearchOp(Sim,I1,I2,Isl)
+    !!----    integer , dimension(3,3), Intent(in)  :: sim      !  In -> Rotational part of a symmetry operator
+    !!----    integer ,                 Intent(in)  :: i1       !  In -> i1=1,  i2=24  if not hexagonal  (matrices of m3m )
+    !!----    integer ,                 Intent(in)  :: i2       !  In -> i1=25, i2=36  if     hexagonal  (matrices of 6/mmm)
+    !!----    integer ,                 Intent(out) :: Isl      ! Out -> Index of the matrix Mod6(Isl,:,:)=sim.
+    !!----                                                               This index allow to get the corresponding tabulated symmetry symbol.
+    !!----
+    !!---- Update: February - 2005
+    !!
+    Module Function SearchOp(Sim,I1,I2) Result(Isl)
+       !---- Arguments ----!
+       integer , dimension(3,3), Intent(in) :: sim
+       integer , Intent(in)                 :: i1,i2
+       integer                              :: Isl
+
+       !---- Local variables ----!
+       integer               :: iss,ipass,j,k,im
+
+       iss=1
+       ipass=0
+       call clear_Error()
+       do
+          ipass=ipass+1
+          imdo:  do im=i1,i2
+             Isl=0
+             do j=1,3
+                do k=1,3
+                   if (sim(j,k) /= iss*Mod6(im,j,k)) cycle imdo
+                end do
+             end do
+             Isl=iss*im
+             exit
+          end do imdo
+
+          if (Isl /= 0) return
+
+          if (ipass >=2 ) then
+             Err_CFML%Msg=" Try to re-write your S.O. using a rotational part"
+             if (i1 == 1 .and.  i2 == 24) then
+                Err_CFML%Msg=trim(Err_CFML%Msg)//" identical to a S.O. of the space group P m -3 m"
+             else if(i1 == 25 .and.  i2 == 36) then
+                Err_CFML%Msg=trim(Err_CFML%Msg)//" identical to a S.O. of the space group P 6/m m m"
+             else
+                Err_CFML%Msg=trim(Err_CFML%Msg)//" identical to a S.O. of the space group P m -3 m or P 6/m m m"
+             end if
+             err_CFML%Ierr=1
+             return
+          end if
+          iss=-1
+       end do
+
+       return
+    End Function SearchOp
+
+    !!----
+    !!---- Module Subroutine Read_SymTrans_Code(Code,N,Tr)
+    !!----    character (len=*),          intent( in) :: Code
+    !!----    integer,                    intent(out) :: N
+    !!----    real(kind=cp),dimension(3), intent(out) :: Tr
+    !!----
+    !!----    Read a Code string for reference the symmetry operator and the
+    !!----    Traslation applied.
+    !!--<<        _2.555     : N_Op = 2, Tr=( 0.0, 0.0, 0.0)
+    !!----        _3.456     : N_Op = 3, Tr=(-1.0, 0.0, 1.0)
+    !!-->>
+    !!----
+    !!---- Update: April - 2005
+    !!
+    Module Subroutine Read_SymTrans_Code(Code,N,Tr)
+       !---- Arguments ----!
+       character (len=*),          intent( in) :: Code
+       integer,                    intent(out) :: N
+       real(kind=cp),dimension(3), intent(out) :: Tr
+
+       !---- Local variables ----!
+       character(len=20) :: car
+       integer          :: i,j,k,n_ini,n_end,nt
+
+       N=1
+       Tr=0.0
+       if (len_trim(code) <= 0) return
+
+       car=adjustl(code)
+       n_ini=index(car,"_")
+       n_ini=n_ini+1
+
+       !---- Found Number of Symmetry Operator ----!
+       n_end=index(car,".")
+       if (n_end ==0) n_end=len_trim(car)+1
+       read (unit=car(n_ini:n_end-1),fmt=*) n
+
+       !---- Found the Traslation ----!
+       n_ini=index(car,".")
+       if (n_ini /= 0) then
+          n_ini=n_ini+1
+          n_end=len_trim(car)
+          read (unit=car(n_ini:n_end),fmt=*) nt
+          i=nt/100
+          j=mod(nt,100)/10
+          k=nt-(i*100+j*10)
+          i=i-5
+          j=j-5
+          k=k-5
+          tr(1)=real(i)
+          tr(2)=real(j)
+          tr(3)=real(k)
+       end if
+
+       return
+    End Subroutine Read_SymTrans_Code
+
+    !!----
+    !!---- Pure Module Function Write_SymTrans_Code(N,Tr) Result(Code)
+    !!----    integer,                    intent(in)  :: N
+    !!----    real(kind=cp),dimension(3), intent(in)  :: Tr
+    !!----    character (len=:),allocatable           :: Code
+    !!----
+    !!----    Write the code string for reference the symmetry operator and the
+    !!----    Traslation applied.
+    !!--<<        _2.555     : N_Op = 2, Tr=( 0.0, 0.0, 0.0)
+    !!----        _3.456     : N_Op = 3, Tr=(-1.0, 0.0, 1.0)
+    !!-->>
+    !!----
+    !!---- Update: April - 2005
+    !!
+    Pure Module Function Write_SymTrans_Code(N,Tr) Result(Code)
+       !---- Arguments ----!
+       integer,                    intent(in)  :: N
+       real(kind=cp),dimension(3), intent(in)  :: Tr
+       character (len=:), allocatable          :: Code
+
+       !---- Local Variables ----!
+       character(len=3)      :: car
+       integer, dimension(3) :: i
+
+       Code=" "
+       if (N <=0) return
+       car="   "
+       !---- Number of the Symmetry Operator ----!
+       write(unit=car,fmt="(i3)") n
+       car=adjustl(car)
+       Code="_"//trim(car)
+       car="   "
+       !---- Traslation Part ----!
+       i=5+nint(tr)
+       if (any(i /= 5)) then
+          write(unit=car(1:1),fmt="(i1)") i(1)
+          write(unit=car(2:2),fmt="(i1)") i(2)
+          write(unit=car(3:3),fmt="(i1)") i(3)
+          code=trim(code)//"."//trim(car)
+       else
+          if(len_trim(code)==2 .and. code(2:2) == "1") Code=" "
+       end if
+
+    End Function Write_SymTrans_Code
+
  End Submodule Symmetry_Symbol_submod
