@@ -39,11 +39,12 @@
 !!----    Update: 06/03/2011
 !!----
 !!
-Module CFML_Atoms
+ Module CFML_Atoms
 
     !---- Use Modules ----!
     Use CFML_GlobalDeps
     Use CFML_Maths,        only: modulo_lat, equal_vector
+    Use CFML_Metrics,      only: Cell_G_Type
     Use CFML_Strings,      only: u_case,l_case
     Use CFML_gSpaceGroups, only: spg_type, apply_op, SuperSpaceGroup_Type
 
@@ -53,8 +54,10 @@ Module CFML_Atoms
     private
 
     !---- List of public procedures ----!
-    public :: Allocate_Atom_List, Extend_List, Init_Atom_Type, Read_Bin_Atom_List, &
+    public :: Allocate_Atom_List, Extend_Atom_List, Init_Atom_Type, Read_Bin_Atom_List, &
               Write_Bin_atom_List, Write_Atom_List
+    public :: Equiv_Atm, Wrt_Lab
+
 
     !---- Parameters ----!
     real(kind=cp), parameter :: R_ATOM=1.1_cp      ! Average atomic radius
@@ -208,6 +211,34 @@ Module CFML_Atoms
        character (len=20),      dimension(:), allocatable :: ddlab          ! Labels of atoms at ddist (nat*idp)
     End Type Atm_Cell_Type
 
+    !!---- Type, Public :: Atom_Equiv_Type
+    !!----    integer                                        :: mult
+    !!----    character(len=2)                               :: ChemSymb
+    !!----    character(len=10),allocatable, dimension(:)    :: Lab
+    !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
+    !!---- End Type Atom_Equiv_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_Type
+       integer                                        :: mult
+       character(len=2)                               :: ChemSymb
+       character(len=20),allocatable, dimension(:)    :: Lab
+       real(kind=cp),    allocatable, dimension(:,:)  :: x
+    End Type Atom_Equiv_Type
+
+    !!---- Type, Public :: Atom_Equiv_List_Type
+    !!----    integer                                           :: nauas
+    !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    !!---- End Type Atom_Equiv_List_Type
+    !!----
+    !!----  Updated: January 2014
+    !!
+    Type, Public :: Atom_Equiv_List_Type
+       integer                                           :: nauas
+       type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
+    End Type Atom_Equiv_List_Type
+
     !!----
     !!---- TYPE :: ALIST_TYPE
     !!--..
@@ -220,8 +251,29 @@ Module CFML_Atoms
        class(Atm_Type), dimension(:), allocatable :: Atom          ! Atoms
     End type AtList_Type
 
+    !Overload
+
+    Interface Extend_Atom_List
+      Module Procedure Extend_List              !Creating a new AtList_Type with all atoms in unit cell
+      Module Procedure Set_Atom_Equiv_List      !Creating a an Atom_Equiv_List_Type from AtList_Type in asymmetric unit
+    End Interface Extend_Atom_List
+
+
     !---- Interface Zone ----!
     Interface
+
+       Pure Module Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
+          !---- Arguments ----!
+          character (len=*), intent (in) :: nam1,nam2
+          character (len=*), intent (in) :: NameAt
+          logical                        :: equiv_atom
+       End Function Equiv_Atm
+
+       Pure Module Function Wrt_Lab(Nam1,Nam2) Result(Bilabel)
+          !---- Arguments ----!
+          character (len=*), intent (in) :: nam1,nam2
+          character (len=8)              :: bilabel
+       End Function Wrt_Lab
 
        Module Subroutine Init_Atom_Type(Atm,d)
           !---- Arguments ----!
@@ -266,6 +318,14 @@ Module CFML_Atoms
           logical, optional,   intent(in)     :: Conven    ! If present and .true. using the whole conventional unit cell
        End Subroutine Extend_List
 
+       Module Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
+         type(SpG_Type),             intent(in) :: SpG
+         type(Cell_G_Type),          intent(in) :: Cell
+         type(Atlist_Type),          intent(in) :: A
+         type(Atom_Equiv_List_Type), intent(out):: Ate
+         integer, optional,          intent(in) :: lun
+       End Subroutine Set_Atom_Equiv_List
+
     End Interface
 
-End Module CFML_Atoms
+ End Module CFML_Atoms

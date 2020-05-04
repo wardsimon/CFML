@@ -26,8 +26,8 @@
          Case default
            call Set_SpaceGroup(Str,SpG)
            if(present(setting)) then
-             !call Change_Setting_SpaceG(setting,SpG)
-             call Change_Set_SpaceG(setting,SpG)
+             call Change_Setting_SpaceG(setting,SpG)
+             !call Change_Set_SpaceG(setting,SpG)
            end if
        End Select
      End Subroutine Set_gSpG

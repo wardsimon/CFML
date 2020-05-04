@@ -55,7 +55,7 @@ SubModule (CFML_IOForm) IOF_CFL
              ip(ndata)=i
           end if
        end do
-
+       !write(*,"(a)") " => Reading Phase Information"
        !---- Reading Phase Information ----!
        iph=1
        if (present(nphase)) iph=nphase
@@ -65,6 +65,7 @@ SubModule (CFML_IOForm) IOF_CFL
           call Get_Job_Info(file_dat,n_ini,n_end,Job_info)
        end if
 
+       !write(*,"(a)") " => Reading Cell Parameters"
        !---- Reading Cell Parameters ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
@@ -75,6 +76,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end if
        if (err_CFML%Ierr /= 0) return
 
+       !write(*,"(a)") " => Reading Space Group Information"
        !---- Reading Space Group Information ----!
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
@@ -86,6 +88,7 @@ SubModule (CFML_IOForm) IOF_CFL
        n_ini=ip(iph)           !Updated values to handle non-conventional order
        n_end=ip(iph+1)
 
+       !write(*,"(a)") " => Calculating number of Atoms in the Phase"
        !---- Calculating number of Atoms in the Phase ----!
        do i=n_ini,n_end
           line=adjustl(file_dat(i))
@@ -93,6 +96,7 @@ SubModule (CFML_IOForm) IOF_CFL
        end do
 
        if (nauas > 0) then
+          !write(*,"(a)") " => Reading Atoms"
           call Read_CFL_Atoms(file_dat,n_ini,n_end,A,Type_Atm,SpG%D-1)
           if (err_CFML%Ierr /= 0) return
           if(allocated(vet)) deallocate(vet)
@@ -345,7 +349,7 @@ SubModule (CFML_IOForm) IOF_CFL
        call Cut_String(line,nlong1,label)
 
        if((U_case(label(1:1)) == "M" .or. U_case(label(1:1)) == "J" ) & !Magnetic atom
-          .and. index(digpm(1:10),label(4:4)) /= 0) then
+          .and. index(digpm(1:10),label(4:4)) /= 0 .and. index(label,"+") == 0) then
           atom%ChemSymb=U_case(label(2:2))//L_case(label(3:3))
           atom%Magnetic=.true.
        else

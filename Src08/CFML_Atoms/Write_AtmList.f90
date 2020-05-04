@@ -2,8 +2,81 @@
 !!----
 !!----
 SubModule (CFML_Atoms)  Write_Atoms
-   implicit none
-   Contains
+  implicit none
+  Contains
+
+   !!----
+   !!---- Pure Module Function Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
+   !!----    character (len=*), intent (in) :: nam1       !  In -> Atom Nam1
+   !!----    character (len=*), intent (in) :: nam2       !  In -> Atom Nam2
+   !!----    character (len=*), intent (in) :: NameAt     !  In -> String containing atom names
+   !!----    logical                        :: equiv_atom !  Result .true. or .false.
+   !!----
+   !!----    Determine whether the atoms of names "nam1" and "nam2" are included in
+   !!----    the longer string "name" (constructed by function "wrt_lab").
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Pure Module Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
+      !---- Arguments ----!
+      character (len=*), intent (in) :: nam1,nam2
+      character (len=*), intent (in) :: NameAt
+      logical                        :: equiv_atom
+
+      !---- Local variables ----!
+      integer :: i1,i2
+
+      equiv_atom = .false.
+
+      i1=index(nam1,"_")-1
+      i2=index(nam2,"_")-1
+      if (i1 < 0 .or. i2 < 0 ) return
+      if (nam1(1:i1) == nameat(1:i1) .and. nam2(1:i2) == nameat(5:4+i2) ) then
+         equiv_atom = .true.
+      else if(nam1(1:i1) == nameat(5:4+i1) .and. nam2(1:i2) == nameat(1:i2) ) then
+         equiv_atom = .true.
+      end if
+
+   End Function Equiv_Atm
+
+   !!----
+   !!---- Pure Module Function Wrt_Lab(Nam1,Nam2) Result(Bilabel)
+   !!----    character (len=*), intent (in) :: nam1     !  In -> Atom name 1
+   !!----    character (len=*), intent (in) :: nam2     !  In -> Atom name 2
+   !!----    character (len=8)              :: bilabel  ! Result -> Composed string with underscores
+   !!----
+   !!----    Character function merging the main part of the labels
+   !!----    (before underscore "_") of the atoms "nam1" and "nam2" into
+   !!----    the string "bilabel"
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Pure Module Function Wrt_Lab(Nam1,Nam2) Result(Bilabel)
+      !---- Arguments ----!
+      character (len=*), intent (in) :: nam1,nam2
+      character (len=8)              :: bilabel
+
+      !---- Local variables ----!
+      integer :: i1,i2
+
+      bilabel=" "
+
+      i1=index(nam1,"_")-1
+      i2=index(nam2,"_")-1
+      if (i1 < 0 ) then
+         bilabel(1:4) = nam1(1:4)
+      else
+         bilabel(1:i1) = nam1(1:i1)
+      end if
+
+      if (i2 < 0 ) then
+         bilabel(5:8) = nam2(1:4)
+      else
+         bilabel(5:4+i2) = nam2(1:i2)
+      end if
+
+   End Function Wrt_Lab
+
    !!----
    !!---- WRITE_ATOM_LIST
    !!----    Write the atoms in the asymmetric unit

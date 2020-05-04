@@ -160,7 +160,7 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
       integer,             intent(in)       :: d    !Number of k-vectors
 
       !---- Local Variables ----!
-      integer :: i
+      integer :: i,ier
       ! Types :: Atm_Type, Atm_Std_Type, MAtm_Std_Type, Atm_Ref_Type, MAtm_Ref_Type
       type(Atm_Type)     , dimension(n)  :: Atm
       type(Atm_Std_Type) , dimension(n)  :: Atm_Std
@@ -180,18 +180,24 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
       !> Allocating variables
       Select Case(trim(l_case(Type_Atm)))
         Case("atm")
-           allocate (A%atom(n),source=Atm)
+           allocate (A%atom(n),source=Atm,stat=ier)
         Case("atm_std")
-           allocate (A%atom(n),source=Atm_Std)
+           allocate (A%atom(n),source=Atm_Std,stat=ier)
         Case("matm_std")
-           allocate (A%atom(n),source=MAtm_Std)
+           allocate (A%atom(n),source=MAtm_Std,stat=ier)
         Case("atm_ref")
-            allocate (A%atom(n),source=Atm_Ref)
+            allocate (A%atom(n),source=Atm_Ref,stat=ier)
        Case("matm_ref")
-           allocate (A%atom(n),source=MAtm_Ref)
+           allocate (A%atom(n),source=MAtm_Ref,stat=ier)
       End Select
 
-      allocate (A%active(n))
+      allocate (A%active(n),stat=ier)
+
+      if(ier /= 0) then
+        Err_CFML%Ierr=1
+        write(unit=Err_CFML%Msg,fmt="(a,i6,a)") "Error allocating atom List for N =",N," atoms"
+      end if
+
       A%active=.true.
       A%mcomp="crystal"
 

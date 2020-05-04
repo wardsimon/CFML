@@ -46,7 +46,7 @@ Module CFML_IOForm
                                       string_numstd, Number_Lines, Reading_Lines, FindFMT, &
                                       Init_FindFMT, String_Array_Type, File_type
     Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
-                                      AtList_Type, Allocate_Atom_List
+                                      AtList_Type, Allocate_Atom_List, Init_Atom_Type
     Use CFML_Metrics,           only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
                                       get_U_from_Betas, get_Betas_from_U, get_Betas_from_B
     Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
@@ -65,7 +65,7 @@ Module CFML_IOForm
 
     !---- Public subroutines ----!
     public :: Readn_Set_Xtal_Structure, Read_CFL_Cell, Read_CFL_SpG, Read_CFL_Atoms, &
-              Read_Kinfo, Check_Symmetry_Constraints
+              Read_Kinfo, Check_Symmetry_Constraints, Write_Cif_Template
     real(kind=cp), parameter :: EPSV=0.0001_cp     ! Small real value to be used for decisions
     !---- Definitions ----!
 
@@ -423,6 +423,16 @@ Module CFML_IOForm
        !   class(SpG_Type),         intent(in) :: SpG
        !   type(atlist_type),       intent(in) :: at_List
        !End Subroutine Write_Shx_Template
+
+       Module Subroutine Write_Cif_Template(filename, Cell, SpG, At_list, Type_data, Code)
+          !---- Arguments ----!
+          character(len=*),           intent(in) :: filename     ! Filename
+          class(Cell_G_Type),         intent(in) :: Cell         ! Cell parameters
+          class(SpG_Type),            intent(in) :: SpG          ! Space group information
+          Type (AtList_Type),         intent(in) :: At_List      ! Atoms
+          integer,                    intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
+          character(len=*),           intent(in) :: Code         ! Code or name of the structure
+       End Subroutine Write_Cif_Template
 
     End Interface
 

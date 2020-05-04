@@ -1,1085 +1,60 @@
 !!----
 !!----
 !!----
-SubModule (CFML_IOForm) IOF_CIFS
+  Module test_CIF
+    !---- Use modules ----!
+    Use CFML_GlobalDeps,        only: CP, PI, EPS, TAB, Err_CFML, Clear_Error
+    Use CFML_Strings,           only: l_case, u_case, get_num, cut_string, get_words, &
+                                      get_numstd, Read_Key_Value, Read_Key_ValueSTD,  &
+                                      String_NumStd, Number_Lines, Reading_Lines, FindFMT, &
+                                      Init_FindFMT, String_Array_Type, File_type
+    Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
+                                      AtList_Type, Allocate_Atom_List,Init_Atom_Type
+    Use CFML_Metrics,           only: Cell_Type, Cell_G_Type, Set_Crystal_Cell, U_equiv, &
+                                      get_U_from_Betas, get_Betas_from_U, get_Betas_from_B
+    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
+                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
+                                      Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr
+    Use CFML_Maths,             only: Get_Eps_Math
+
+    Use CFML_Rational
+
+   public
+
    Contains
-   
-   
-   !!----
-   !!---- Read_Cif_Atom
-   !!----    Obtaining Atoms parameters from Cif file. A control error is present.
-   !!----
-   !!---- 26/06/2019 
-   !!
-   Module Subroutine Read_Cif_Atom(lines,n_ini,n_end, At_List)
-      !---- Arguments ----!
-      character(len=*), dimension(:),   intent(in)      :: lines
-      integer,                          intent(in out)  :: n_ini
-      integer,                          intent(in)      :: n_end
-      type (atList_type),               intent(out)     :: At_List
 
-      !---- Local Variables ----!
-      character(len=12), parameter        :: DIGPM="0123456789+-"
-      character(len=132), allocatable     :: line
-      character(len=20),dimension(15)     :: label
-      integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
-      integer, dimension( 8)              :: lugar   !   1 -> label
-                                                     !   2 -> Symbol
-                                                     ! 3-5 -> coordinates
-                                                     !   6 -> occupancy
-                                                     !   7 -> Uequi
-                                                     !   8 -> Biso
-      real(kind=cp), dimension(1)     :: vet1,vet2
-      integer,       dimension(1)     :: ivet
-      type(atlist_type)               :: Atm
-      
-      type (atm_type)                 :: atm1
-      type (atm_std_type)             :: atm2
-      type (matm_std_type)            :: atm3
-      type (atm_ref_type)             :: atm4
-      
-      class(atm_type), allocatable    :: atm5
 
-      !> Init
-      call clear_error()
-      call allocate_atom_list(0,At_List)
-      call allocate_atom_list(n_end-n_ini+1,Atm)
-      
-      lugar=0
-      num_ini=n_ini
-      
-      !> Change of _atom_site by _atom_site_label in order to be able the reading
-      !> the atoms positions even when the anisotropic parameters are given before
-      call Read_Key_StrVal(lines,n_ini,n_end,"_atom_site_label",line)
-      
-      !> Look for the possibility that _atom_site_label is not the first item in the loop
-      do i=n_ini,num_ini,-1
-         line=adjustl(lines(i))
-         if (line(1:) == "loop_") then
-            n_ini=i+1
-            exit
-         end if
-      end do
-      j=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if ("_atom_site_label" == line(1:16)) then
-            j=j+1
-            lugar(1)=j
-            cycle
-         end if
-         if ("_atom_site_type_symbol" == line(1:22)) then
-            j=j+1
-            lugar(2)=j
-            cycle
-         end if
-         if ("_atom_site_fract_x" == line(1:18)) then
-            j=j+1
-            lugar(3)=j
-            cycle
-         end if
-         if ("_atom_site_fract_y" == line(1:18)) then
-            j=j+1
-            lugar(4)=j
-            cycle
-         end if
-         if ("_atom_site_fract_z" == line(1:18)) then
-            j=j+1
-            lugar(5)=j
-            cycle
-         end if
-         if ("_atom_site_occupancy" == line(1:20)) then
-            j=j+1
-            lugar(6)=j
-            cycle
-         end if
-         if ("_atom_site_U_iso_or_equiv" == line(1:25)) then
-            j=j+1
-            lugar(7)=j
-            cycle
-         end if
-         if ("_atom_site_B_iso_or_equiv" == line(1:25)) then
-            j=j+1
-            lugar(8)=j
-            cycle
-         end if
-         if ("_atom_site_" == line(1:11)) then
-            j=j+1
-            cycle
-         end if
-
-         if ("_oxford_atom_site_" == line(1:18)) then
-            j=j+1
-            cycle
-         end if
-
-         nline=i
-         exit
-      end do
-
-      if (any(lugar(3:5) == 0)) then
-         err_CFML%Ierr=1
-         err_CFML%Msg="Read_Cif_Atom@CFML_IOFORM: Error reading atoms in CIF format!"
-         return
-      end if
-      
-      nct=count(lugar > 0)
-      nline_big=nline
-      nline_ini=nline
-      n=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if (line(1:1) == "#" .or. line(1:1) == "?") cycle
-         if (len_trim(line) == 0) exit
-         if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
-         call get_words(line, label, nc)
-         if (nc < nct) then
-            nline=i
-            exit
-         end if
-         
-         n=n+1
-
-         !> _atom_site_label
-         atm%atom(n)%lab=label(lugar(1))
-
-         !> _atom_site_type_symbol
-         if (lugar(2) /= 0) then
-            atm%atom(n)%SfacSymb=label(lugar(2))(1:4)
-            if (index(DIGPM, label(lugar(2))(2:2)) /= 0 ) then
-               atm%atom(n)%chemSymb=u_case(label(lugar(2))(1:1))
-            else
-               atm%atom(n)%chemSymb=u_case(label(lugar(2))(1:1))//l_case(label(lugar(2))(2:2))
-            end if
-         else
-            if(index(DIGPM,label(lugar(1))(2:2)) /= 0 ) then
-               atm%atom(n)%chemSymb=u_case(label(lugar(1))(1:1))
-            else
-               atm%atom(n)%chemSymb=u_case(label(lugar(1))(1:1))//l_case(label(lugar(1))(2:2))
-            end if
-            atm%atom(n)%SfacSymb=atm%atom(n)%chemSymb
-         end if
-
-         select type (at => atm%atom)
-            type is (atm_type)
-               call get_num(label(lugar(3)),vet1,ivet,iv)    ! _atom_site_fract_x
-               at(n)%x(1)=vet1(1)
-               call get_num(label(lugar(4)),vet1,ivet,iv)    ! _atom_site_fract_y
-               at(n)%x(2)=vet1(1)
-               call get_num(label(lugar(5)),vet1,ivet,iv)    ! _atom_site_fract_z
-               at(n)%x(3)=vet1(1)
-               
-            class is (atm_std_type)
-               call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_fract_x
-               at(n)%x(1)=vet1(1)
-               at(n)%x_std(1)=vet2(1)
-               call get_numstd(label(lugar(4)),vet1,vet2,iv)    ! _atom_site_fract_y
-               at(n)%x(2)=vet1(1)
-               at(n)%x_std(2)=vet2(1)
-               call get_numstd(label(lugar(5)),vet1,vet2,iv)    ! _atom_site_fract_z
-               at(n)%x(3)=vet1(1)
-               at(n)%x_std(3)=vet2(1)
-         end select
-         
-         !> _atom_site_occupancy
-         if (lugar(6) /= 0) then
-            call get_numstd(label(lugar(6)),vet1,vet2,iv)
-         else
-            vet1=1.0
-            vet2=0.0_cp
-         end if
-         select type (at => atm%atom)
-            type is (atm_type)
-               at(n)%occ=vet1(1)
-            
-            class is (atm_std_type)
-               at(n)%occ=vet1(1)
-               at(n)%occ_std=vet2(1)
-         end select
-         
-         if (lugar(7) /= 0) then
-            call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_U_iso_or_equiv
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(n)%U_iso=vet1(1)
-               class is (atm_std_type)
-                  at(n)%U_iso=vet1(1)
-                  at(n)%U_iso_std=vet2(1)
-            end select
-            atm%atom(n)%utype="U"
-            
-         else if (lugar(8) /= 0) then
-            call get_numstd(label(lugar(8)),vet1,vet2,iv)    ! _atom_site_B_iso_or_equiv
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(n)%U_iso=vet1(1)
-               class is (atm_std_type)
-                  at(n)%U_iso=vet1(1)
-                  at(n)%U_iso_std=vet2(1)
-            end select
-            atm%atom(n)%utype="B"
-         else
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(n)%U_iso=0.0_cp
-               class is (atm_std_type)
-                  at(n)%U_iso=0.0_cp
-                  at(n)%U_iso_std=0.0_cp
-            end select
-            atm%atom(n)%utype="U"
-         end if
-      end do
-
-      if (nline >= nline_big) nline_big=nline
-      
-      !> Anisotropic
-      nline_ini=num_ini !Changed to be able the reading of anisotropic parameters
-                        !even if given before the coordinates
-      lugar=0
-      call Read_Key_StrVal(lines,n_ini,n_end,"_atom_site_aniso_", line)
-
-      j=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if ("_atom_site_aniso_label" == line(1:22)) then
-            j=j+1
-            lugar(1)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_type_symbol" == line(1:28)) then
-            j=j+1
-            lugar(8)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_11" == line(1:21)) then
-            j=j+1
-            lugar(2)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_22" == line(1:21)) then
-            j=j+1
-            lugar(3)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_33" == line(1:21)) then
-            j=j+1
-            lugar(4)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_12" == line(1:21)) then
-            j=j+1
-            lugar(5)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_13" == line(1:21)) then
-            j=j+1
-            lugar(6)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_23" == line(1:21)) then
-            j=j+1
-            lugar(7)=j
-            cycle
-         end if
-
-         if ("_atom_site_aniso" == line(1:16) ) then
-            j=j+1
-            cycle
-         end if
-
-         nline=i
-         exit
-      end do
-      if(nline >= nline_big) nline_big=nline
-      if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
-         nct=count(lugar > 0)
-         nline_ini=nline
-         mm=0
-         do i=n_ini,n_end
-            line=adjustl(lines(i))
-            if (line(1:1) == "#" .or. line(1:1) =="?") cycle
-            if (len_trim(line) == 0) exit
-            call getword(line,label,nc)
-            if (nc < nct) then
-               nline=i
-               exit
-            end if
-            do j=1,n
-               if (atm%atom(j)%thtype == "ani") cycle ! already assigned
-               if (trim(atm%atom(j)%lab) /= trim(label(lugar(1))) ) cycle
-               
-               call get_numstd(label(lugar(2)),vet1,vet2,iv)    ! _atom_site_aniso_U_11
-               select type (at => atm%atom)
-                  type is (atm_type) 
-                     at(j)%u(1)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(1)    =vet1(1)
-                     at(j)%u_std(1)=vet2(1) 
-               end select
-               
-               call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_aniso_U_22
-               select type (at => atm%atom)
-                  type is (atm_type) 
-                     at(j)%u(2)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(2)    =vet1(1)
-                     at(j)%u_std(2)=vet2(1) 
-               end select
-               
-               call get_numstd(label(lugar(4)),vet1,vet2,iv)    ! _atom_site_aniso_U_33
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(3)    =vet1(1) 
-                  class is (atm_std_type)
-                     at(j)%u(3)    =vet1(1)
-                     at(j)%u_std(3)=vet2(1)
-               end select
-               
-               call get_numstd(label(lugar(5)),vet1,vet2,iv)    ! _atom_site_aniso_U_12
-               select type (at => atm%atom)
-                  type is (atm_type) 
-                     at(j)%u(4)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(4)    =vet1(1)
-                     at(j)%u_std(4)=vet2(1)
-               end select
-                      
-               call get_numstd(label(lugar(6)),vet1,vet2,iv)    ! _atom_site_aniso_U_13       
-               select type (at => atm%atom)
-                  type is (atm_type) 
-                     at(j)%u(5)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(5)    =vet1(1)
-                     at(j)%u_std(5)=vet2(1)
-               end select
-               
-               call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_aniso_U_23
-               select type (at => atm%atom)
-                  type is (atm_type) 
-                     at(j)%u(6)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(6)    =vet1(1)
-                     at(j)%u_std(6)=vet2(1)
-               end select
-                      
-               atm%atom(j)%thtype="ani"
-               mm=mm+1
-               exit
-            end do
-         end do
-
-      end if
-      if (nline >= nline_big) nline_big=nline
-      n_ini=nline_big
-
-      !> Look for the first atoms fully occupying the site and put it in first position
-      !> This is needed for properly calculating the occupation factors
-      !> after normalization in subroutine Readn_Set_XTal_CIF
-      vet1(1)=maxval(atm%atom(1:n)%occ)  !Normalize occupancies
-      atm%atom%occ=atm%atom%occ/vet1(1)
-      First=1
-      do i=1,n
-         if (abs(atm%atom(i)%occ-1.0_cp) < EPS) then
-            First=i
-            exit
-         end if
-      end do
-      
-      !> Swapping the orinal atom at the first position with the first having full occupation
-      if (First /= 1) Then
-         select type (at => atm%atom)
-            type is (atm_type)
-               atm1=at(1)
-               at(1)=at(first)
-               at(first)=atm1
-               
-            type is (atm_std_type)
-            type is (matm_std_type)
-            type is (atm_ref_type)
-         end select      
-      end if
-
-      !> Put the first atom the first having a full occupation factor 1.0
-      if (n > 0) then
-         call allocate_atom_list(n,At_list)
-         at_list%atom=atm%atom(1:n)
-      end if
-      
-      call allocate_atom_list(0,Atm)
-
-   End Subroutine Read_Cif_Atom
-   
-   !!----
-   !!---- Read_Cif_Cell
-   !!----    Read Cell Parameters from CIF format
-   !!----
-   !!---- Update: February - 2005
-   !!
-   Module Subroutine Read_Cif_Cell(lines,N_Ini,N_End,Cell)
-      !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      class(Cell_Type),                intent(out)    :: Cell    ! Cell object
-
-      !---- Local Variables ----!
-      integer                     :: iv,initl
-      real(kind=cp), dimension(1) :: vet1,vet2
-      real(kind=cp), dimension(6) :: vcell, std
-      logical                     :: ierror
-
-      !> Init
-      call clear_error()
-      vcell=0.0_cp; std=0.0_cp
-      ierror=.false.
-
-      !> Celda
-      initl=n_ini  ! Preserve initial line => some CIF files have random order for cell parameters
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_a",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(1)=vet1(1)
-         std(1)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_b",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(2)=vet1(1)
-         std(2)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_c",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(3)=vet1(1)
-         std(3)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_alpha",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(4)=vet1(1)
-         std(4)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_beta",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(5)=vet1(1)
-         std(5)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_gamma",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(6)=vet1(1)
-         std(6)=vet2(1)
-      else
-         ierror=.true.   
-      end if
-
-      if (ierror) then
-         err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Cell@CFML_IOForm: Problems reading cell parameters!"  
-         return
-      end if   
-      call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
-   End Subroutine Read_Cif_Cell
-   
-   !!----
-   !!---- READ_CIF_WAVE
-   !!----    Read Wavelength in CIF Format
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Wave(lines, n_ini, n_end, Wave)
-      !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      real(kind=cp),                   intent(out)    :: Wave    ! Wavelength
-
-      !---- Local Variables ----!
-      integer                    :: iv
-      integer,dimension(1)       :: ivet
-      real(kind=cp), dimension(1):: vet
-
-      !> Init
-      wave=0.0_cp
-      call clear_error()
-
-      call read_key_value(lines,n_ini,n_end, "_diffrn_radiation_wavelength",vet,ivet,iv)
-      if (iv == 1) then
-         wave=vet(1)
-      else   
-         err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Wave@CFML_IOForm: Problems reading wavelenth value!" 
-      end if
-   End Subroutine Read_Cif_Wave
-   
-   !!----
-   !!---- READ_CIF_Z
-   !!----    Unit formula from Cif file
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Z(lines, n_ini, n_end, Z)
-      !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      real(kind=cp),                   intent(out)    :: Z       ! Z number
-
-      !---- Local Variables ----!
-      integer                     :: iv
-      integer,dimension(1)        :: ivet
-      real(kind=cp), dimension(1) :: vet
-
-      !> Init
-      call clear_error()
-      z=0
-      
-      call read_key_value(lines,n_ini,n_end, "_cell_formula_units_Z",vet,ivet,iv)
-      if (iv == 1) then
-         z=vet(1)
-      else  
-         err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Z@CFML_IOForm: Problems reading Z value!" 
-      end if
-   End Subroutine Read_Cif_Z
-   
-   !!----
-   !!---- Read_Cif_ChemicalName
-   !!----    Obtaining Chemical Name from Cif file
-   !!----
-   !!---- 27/06/2019
-   !!
-   Module Subroutine Read_Cif_ChemName(lines,N_ini,N_End,ChemName)
-      !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: ChemName
-
-      !---- Local variables ----!
-      integer :: np1, np2
-
-      !> Init
-      ChemName=" "
-      
-      call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_name_common",ChemName)
-
-      if (len_trim(chemname) == 0) then
-         call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_name_systematic",ChemName)
-      end if
-
-      if (len_trim(chemname) > 0) then
-         if (trim(chemname) =="; ?" .or. trim(chemname)=="#") chemname=" "
-         np1=index(chemname,"'")
-         np2=index(chemname,"'",back=.true.)
-         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-            chemname=chemname(np1+1:np2-1)
-         else
-            np1=index(chemname,'"')
-            np2=index(chemname,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               chemname=chemname(np1+1:np2-1)
-            end if
-         end if
-      end if
-
-   End Subroutine Read_Cif_ChemName
-   
-   !!----
-   !!---- READ_CIF_CONT
-   !!----    Obtaining the chemical contents from Cif file
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
-      !---- Arguments ----!
-      character(len=*), dimension(:),      intent(in)      :: lines
-      integer,                             intent(in out)  :: n_ini
-      integer,                             intent(in)      :: n_end
-      integer,                             intent(out)     :: n_elem_type
-      character(len=*), dimension(:),      intent(out)     :: elem_type
-      real(kind=cp), dimension(:),optional,intent(out)     :: n_elem
-
-      !---- Local  variables ----!
-      character(len=132)                   :: line
-      character(len=10), dimension(15)     :: label
-
-      integer                     :: iv
-      integer                     :: i,np1,np2,nlabel,nlong
-      integer,       dimension(1) :: ivet
-      real(kind=cp), dimension(1) :: vet
-
-      !> Init
-      call clear_error()
-      
-      n_elem_type = 0
-      elem_type   = " "
-      if (present(n_elem)) n_elem = 0.0_cp
-
-      call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_formula_sum",line)
-      if (len_trim(line) ==0) line=lines(n_ini+1)
-      line=adjustl(line)
-      if (line(1:1) == "?") return
-      
-      np1=index(line,"'")
-      np2=index(line,"'",back=.true.)
-      nlabel=0
-      if (np1 /= 0 .and. np2 /= 0 .and. np2 > np1) then
-         call get_words(line(np1+1:np2-1), label, nlabel)
-      end if
-      if (nlabel /=0) then
-         n_elem_type = nlabel
-         do i=1,nlabel
-            nlong=len_trim(label(i))
-            select case (nlong)
-                case (1)
-                   elem_type(i)=label(i)(1:1)
-                   if (present(n_elem)) n_elem(i)   = 1.0_cp
-
-                case (2)
-                   call get_num(label(i)(2:),vet,ivet,iv)
-                   if (iv == 1) then
-                      elem_type(i)=label(i)(1:1)
-                      if (present(n_elem)) n_elem(i)   =vet(1)
-                   else
-                      elem_type(i)=label(i)(1:2)
-                      if (present(n_elem)) n_elem(i)   = 1.0_cp
-                   end if
-
-                case (3:)
-                   call get_num(label(i)(2:),vet,ivet,iv)
-                   if (iv == 1) then
-                      elem_type(i)=label(i)(1:1)
-                      if (present(n_elem)) n_elem(i)   =vet(1)
-                   else
-                      call get_num(label(i)(3:),vet,ivet,iv)
-                      if (iv == 1) then
-                         elem_type(i)=label(i)(1:2)
-                         if (present(n_elem)) n_elem(i)   =vet(1)
-                      else
-                         elem_type(i)=label(i)(1:2)
-                         if (present(n_elem)) n_elem(i)   = 1.0
-                      end if
-                   end if
-            end select
-         end do
-      end if
-
-   End Subroutine Read_Cif_Cont
-   
-   !!----
-   !!---- READ_CIF_PRESSURE
-   !!----    Pressure and Sigma
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Pressure(lines,N_ini,N_End, P, SigP)
-      !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      real(kind=cp),     intent(out)              :: p
-      real(kind=cp),     intent(out)              :: sigp
-
-      !---- Local Variables ----!
-      integer                    :: iv
-      real(kind=cp),dimension(1) :: vet1,vet2
-
-      !> Init
-      p=0.0_cp
-      sigp=1.0e-5
-
-      call read_key_valuestd(lines,n_ini,n_end, "_diffrn_ambient_pressure",vet1,vet2,iv)
-      if (iv == 1) then
-         p=vet1(1)*1.0e-6
-         sigp=vet2(1)*1.0e-6
-      end if
-
-   End Subroutine Read_Cif_Pressure
-   
-   !!----
-   !!---- Read_Cif_Title
-   !!----    Obtaining Title from Cif file
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Title(lines,N_Ini,N_End,Title)
-      !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: title
-
-      !---- Local variables ----!
-      integer :: np, np1, np2
-
-      !> Init
-      title=" "
-      call Read_Key_StrVal(lines,n_ini,n_end, "_publ_section_title",title)
-
-      if (len_trim(title) ==0 ) title=adjustl(lines(n_ini+1))
-      if (title =="; ?" .or. title=="#") then
-         title=" "
-      else
-         np=len_trim(title)
-         if (np <= 3) title=adjustl(lines(n_ini+2))
-         np1=index(title,"'")
-         np2=index(title,"'",back=.true.)
-         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-            title=title(np1+1:np2-1)
-         else
-            np1=index(title,'"')
-            np2=index(title,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               title=title(np1+1:np2-1)
-            end if
-         end if
-      end if
-
-   End Subroutine Read_Cif_Title
-   
-   !!----
-   !!---- READ_CIF_TEMP
-   !!----    Temperature and Sigma in Kelvin
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Temp(lines,N_Ini,N_End,T,SigT)
-      !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      real(kind=cp),     intent(out)              :: T
-      real(kind=cp),     intent(out)              :: sigT
-
-      !---- Local Variables ----!
-      integer                    :: iv
-      real(kind=cp),dimension(1) :: vet1,vet2
-
-      !> Init
-      T=298.0_cp
-      sigt=1.0_cp
-
-      call read_key_valuestd(lines,n_ini,n_end, "_diffrn_ambient_temperature",vet1,vet2,iv)
-      if (iv == 1) then
-         t=vet1(1)
-         sigt=vet2(1)
-      end if
-
-   End Subroutine Read_Cif_Temp
-   
-   !!----
-   !!---- Read_Cif_Hall
-   !!----    Obtaining the Hall symbol of the Space Group
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Hall(lines, N_Ini, N_End, Hall)
-      !---- Arguments ----!
-      character(len=*), dimension(:), intent(in) :: lines
-      integer,          intent(in out)           :: n_ini
-      integer,          intent(in)               :: n_end
-      character(len=*), intent(out)              :: Hall
-
-      !---- Local variables ----!
-      integer :: np1, np2
-
-      !> Init 
-      Hall=" "
-      call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_space_group_name_Hall",hall)
-      if (len_trim(Hall)==0) Hall=adjustl(lines(n_ini+1))
-      
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (len_trim(Hall) == 0) then
-         call Read_Key_StrVal(lines,n_ini,n_end, "_space_group_name_Hall",hall)
-         if (len_trim(Hall)==0) Hall=adjustl(lines(n_ini+1))
-      end if
-
-      if (trim(Hall) =="?" .or. trim(Hall)=="#") then
-         Hall=" "
-      else
-         np1=index(Hall,"'")
-         np2=index(Hall,"'",back=.true.)
-         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-            Hall=Hall(np1+1:np2-1)
-         else
-            np1=index(Hall,'"')
-            np2=index(Hall,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               Hall=Hall(np1+1:np2-1)
-            else
-               Hall=" "
-            end if
-         end if
-      end if
-
-   End Subroutine Read_Cif_Hall
-   
-   !!----
-   !!---- READ_CIF_HM
-   !!----    Obtaining the Herman-Mauguin symbol of Space Group
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_HM(lines, N_Ini, N_End, Spgr_Hm)
-      !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: spgr_hm
-
-      !---- Local variables ----!
-      character(len=1) :: csym, csym2
-      integer          :: np1, np2
-
-      !> Init
-      spgr_hm=" "
-      np1=n_ini
-      call Read_Key_Str(lines,n_ini,n_end, "_symmetry_space_group_name_H-M",spgr_hm)
-
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (len_trim(spgr_hm) == 0) then
-         n_ini=np1
-         spgr_hm = " "
-         call Read_Key_Str(lines,n_ini,n_end, "_space_group_name_H-M_alt",spgr_hm)
-         if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(lines(n_ini+1))
-      end if
-
-      if (trim(spgr_hm) =="?" .or. trim(spgr_hm)=="#") then
-         spgr_hm=" "
-      else
-         np1=index(spgr_hm,"'")
-         np2=index(spgr_hm,"'",back=.true.)
-         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-            spgr_hm=spgr_hm(np1+1:np2-1)
-         else
-            np1=index(spgr_hm,'"')
-            np2=index(spgr_hm,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               spgr_hm=spgr_hm(np1+1:np2-1)
-            else
-               spgr_hm=" "
-            end if
-         end if
-      end if
-
-      !> Adapting Nomenclature from ICSD to our model
-      np1=len_trim(spgr_hm)
-      if (np1 > 0) then
-         csym=u_case(spgr_hm(np1:np1))
-         select case (csym)
-            case("1")
-               csym2=u_case(spgr_hm(np1-1:np1-1))
-               if (csym2 == "Z" .or. csym2 =="S") then
-                  spgr_hm=spgr_hm(:np1-2)//":1"
-               end if
-
-            case("S","Z")
-               csym2=u_case(spgr_hm(np1-1:np1-1))
-               select case (csym2)
-                  case ("H")
-                     spgr_hm=spgr_hm(:np1-2)
-                  case ("R")
-                     spgr_hm=spgr_hm(:np1-2)//":R"
-                  case default
-                     spgr_hm=spgr_hm(:np1-1)
-               end select
-
-            case("R")
-               csym2=u_case(spgr_hm(np1-1:np1-1))
-               if (csym2 == "H" ) then
-                  spgr_hm=spgr_hm(:np1-2)
-               else
-                  spgr_hm=spgr_hm(:np1-1)//":R"
-               end if
-            case("H")
-               spgr_hm=spgr_hm(:np1-1)
-               csym2=u_case(spgr_hm(np1-1:np1-1))
-               if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
-         end select
-      end if
-
-   End Subroutine Read_Cif_HM
-   
-   !!----
-   !!---- Read_Cif_Symm
-   !!----    Obtaining Symmetry Operators from Cif file
-   !!----
-   !!---- 27/06/2019 
-   !!
-   Module Subroutine Read_Cif_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
-      !---- Arguments ----!
-      character(len=*), dimension(:), intent(in)     :: lines
-      integer,                        intent(in out) :: n_ini
-      integer,                        intent(in)     :: n_end
-      integer,                        intent(out)    :: n_oper
-      character(len=*), dimension(:), intent(out)    :: oper_symm
-
-      !---- Local variables ----!
-      character(len=132) :: line
-      integer            :: i,np1,np2
-
-      !> Init 
-      n_oper=0
-      oper_symm=" "
-      
-      np1=n_ini
-      call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_equiv_pos_as_xyz",line)
-
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (n_ini == 1) then   ! TR june 2016
-         n_ini=np1
-         call Read_Key_StrVal(lines,n_ini,n_end, "_space_group_symop_operation_xyz",line)
-      end if
-
-      if (len_trim(line) /=0) then
-         line=adjustl(line)
-
-         if (line(1:1) /="#" .and. line(1:1) /= "?") then      
-            np1=index(line,"'")
-            np2=index(line,"'",back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               n_oper=n_oper+1
-               oper_symm(n_oper)=line(np1+1:np2-1)
-            else
-               np1=index(line,'"')
-               np2=index(line,'"',back=.true.)
-               if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                  n_oper=n_oper+1
-                  oper_symm(n_oper)=line(np1+1:np2-1)
-               end if
-            end if
-         end if
-      end if
-
-      do i=n_ini+1,n_end
-         line=adjustl(lines(i))
-         if (len_trim(line) /=0) then
-            if (line(1:1) /="#" .and. line(1:1) /= "?") then      
-               np1=index(line,"'")
-               np2=index(line,"'",back=.true.)
-               if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                  n_oper=n_oper+1
-                  oper_symm(n_oper)=line(np1+1:np2-1)
-               else
-                  np1=index(line,'"')
-                  np2=index(line,'"',back=.true.)
-                  if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                     n_oper=n_oper+1
-                     oper_symm(n_oper)=line(np1+1:np2-1)
-                  end if
-               end if
-            end if
-         else
-            n_ini=i+1
-            exit
-         end if
-      end do
-
-   End Subroutine Read_Cif_Symm
-   
-   !!----
-   !!---- WRITE_CIF_POWDER_PROFILE
-   !!----    Write a Cif Powder Profile file
-   !!----
-   !!---- 28/06/2019 
-   !!
-   Module Subroutine Write_Cif_Powder_Profile(filename)
-      !---- Arguments ----!
-      character(len=*), intent(in) :: filename
-
-      !---- Local Variables ----!
-      logical :: info
-      integer :: iunit
-
-      !> Init
-      info=.false.
-      iunit=0
-
-      !> Is open the file?
-      inquire(file=trim(filename),opened=info)
-      if (info) then
-         inquire(file=trim(filename),number=iunit)
-         close(unit=iunit)
-      end if
-
-      !> Writting
-      open(newunit=iunit,file=trim(filename),status="unknown",action="write")
-      rewind(unit=iunit)
-
-      !> Head
-      write(unit=iunit,fmt="(a)") "data_profile"
-      write(unit=iunit,fmt="(a)") " "
-      write(unit=iunit,fmt="(a)")     "_pd_block_id      ?"
-
-      !> Profile
-      write(unit=iunit,fmt="(a)") " "
-
-      write(unit=iunit,fmt="(a)") "loop_"
-      write(unit=iunit,fmt="(a)") "_pd_proc_point_id"
-      write(unit=iunit,fmt="(a)") "_pd_proc_2theta_corrected             # one of "
-      write(unit=iunit,fmt="(a)") "_pd_proc_energy_incident              # these "
-      write(unit=iunit,fmt="(a)") "_pd_proc_d_spacing                    # three"
-      write(unit=iunit,fmt="(a)") "_pd_proc_intensity_net"
-      write(unit=iunit,fmt="(a)") "_pd_calc_intensity_net "
-      write(unit=iunit,fmt="(a)") "_pd_proc_ls_weight      "
-      write(unit=iunit,fmt="(a)") "?     ?     ?     ?     ?     ?     ?"
-
-      write(unit=iunit,fmt="(a)") " "
-      write(unit=iunit,fmt="(a)") "# The following lines are used to test the character set of files sent by     "
-      write(unit=iunit,fmt="(a)") "# network email or other means. They are not part of the CIF data set.        "
-      write(unit=iunit,fmt="(a)") "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
-      write(unit=iunit,fmt="(a)") "# !@#$%^&*()_+{}:"//""""//"~<>?|\-=[];'`,./ "
-
-      close (unit=iunit)
-   End Subroutine Write_Cif_Powder_Profile
-   
    !!----
    !!---- Write_Cif_Template
    !!----    Write a Cif File
-   !!----    
-   !!---- 28/06/2019 
+   !!----
+   !!---- 28/06/2019
    !!
-   Module Subroutine Write_Cif_Template(filename, Cell, SpG, At_list, Type_data, Code)
+   Subroutine Write_Cif_Template(filename, Cell, SpG, At_list, Type_data, Code)
       !---- Arguments ----!
-      character(len=*),        intent(in) :: filename     ! Filename
-      class(Cell_Type),        intent(in) :: Cell         ! Cell parameters
-      class(SpG_Type),         intent(in) :: SpG          ! Space group information 
-      Type (AtList_Type),      intent(in) :: At_List      ! Atoms
-      integer,                 intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
-      character(len=*),        intent(in) :: Code         ! Code or name of the structure
+      character(len=*),           intent(in) :: filename     ! Filename
+      class(Cell_G_Type),         intent(in) :: Cell         ! Cell parameters
+      class(SpG_Type),            intent(in) :: SpG          ! Space group information
+      Type (AtList_Type),         intent(in) :: At_List      ! Atoms
+      integer,                    intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
+      character(len=*),           intent(in) :: Code         ! Code or name of the structure
 
       !---- Local Variables ----!
       logical                                 :: info, aniso
       character(len=1), parameter             :: QMARK='?'
-      character(len=132)                      :: line
-      character(len=30)                       :: comm,adptyp
+      character(len=:), allocatable           :: line
+      character(len=:), allocatable           :: comm,adptyp
       character(len=30),dimension(6)          :: text
       real(kind=cp)                           :: u,su, ocf
       real(kind=cp), dimension(6)             :: Ua,sua,aux
       real(kind=cp), dimension(At_List%Natoms):: occup,soccup
       integer                                 :: iunit,i, j
-
+      type(Atm_Std_Type),dimension(At_list%natoms) :: Atm
       !> Init
       info=.false.
       iunit=0
 
-      !> Is this file opened? 
+      !> Is this file opened?
       inquire(file=trim(filename),opened=info)
       if (info) then
          inquire(file=trim(filename),number=iunit)
@@ -1092,7 +67,7 @@ SubModule (CFML_IOForm) IOF_CIFS
 
       !> Head Information
       select case (type_data)
-         case (0:1) 
+         case (0:1)
             write(unit=iunit,fmt="(a)") "##############################################################################"
             write(unit=iunit,fmt="(a)") "###    CIF submission form for molecular structure report (Acta Cryst. C)  ###"
             write(unit=iunit,fmt="(a)") "##############################################################################"
@@ -1101,8 +76,8 @@ SubModule (CFML_IOForm) IOF_CIFS
             write(unit=iunit,fmt="(a)") "data_global"
             write(unit=iunit,fmt="(a)") "#============================================================================="
             write(unit=iunit,fmt="(a)") " "
-         
-         case (2:)  
+
+         case (2:)
             write(unit=iunit,fmt="(a)") "##################################################################"
             write(unit=iunit,fmt="(a)") "###    CIF file from CrysFML, contains only structural data    ###"
             write(unit=iunit,fmt="(a)") "##################################################################"
@@ -1111,10 +86,10 @@ SubModule (CFML_IOForm) IOF_CIFS
       !> Processing Summary
       if (type_data < 2) then
          write(unit=iunit,fmt="(a)") "# PROCESSING SUMMARY (IUCr Office Use Only)"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_journal_data_validation_number      ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_journal_date_recd_electronic        ?"
          write(unit=iunit,fmt="(a)") "_journal_date_to_coeditor            ?"
@@ -1143,15 +118,15 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_journal_paper_category              ?"
          write(unit=iunit,fmt="(a)") "_journal_suppl_publ_number           ?"
          write(unit=iunit,fmt="(a)") "_journal_suppl_publ_pages            ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Submission details
          write(unit=iunit,fmt="(a)") "# 1. SUBMISSION DETAILS"
          write(unit=iunit,fmt="(a)") " "
-         
+
          write(unit=iunit,fmt="(a)") "_publ_contact_author_name            ?   # Name of author for correspondence"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_address             # Address of author for correspondence"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1159,23 +134,23 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_publ_contact_author_email           ?"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_fax             ?"
          write(unit=iunit,fmt="(a)") "_publ_contact_author_phone           ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_contact_letter"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_requested_journal              ?"
          write(unit=iunit,fmt="(a)") "_publ_requested_coeditor_name        ?"
          write(unit=iunit,fmt="(a)") "_publ_requested_category             ?   # Acta C: one of CI/CM/CO/FI/FM/FO"
-         
+
          write(unit=iunit,fmt="(a)") "#=============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
-         !> Title  and Author List 
+
+         !> Title  and Author List
          write(unit=iunit,fmt="(a)") "# 3. TITLE AND AUTHOR LIST"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_section_title"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1183,11 +158,11 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_publ_section_title_footnote"
          write(unit=iunit,fmt="(a)") ";"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "# The loop structure below should contain the names and addresses of all "
          write(unit=iunit,fmt="(a)") "# authors, in the required order of publication. Repeat as necessary."
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
          write(unit=iunit,fmt="(a)") "    _publ_author_name"
@@ -1198,14 +173,14 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") ";"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Text
          write(unit=iunit,fmt="(a)") "# 4. TEXT"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_publ_section_synopsis"
          write(unit=iunit,fmt="(a)") ";  ?"
@@ -1232,12 +207,12 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_publ_section_acknowledgements"
          write(unit=iunit,fmt="(a)") "; ?"
          write(unit=iunit,fmt="(a)") ";"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
-         !> Identifier 
+
+         !> Identifier
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") "# If more than one structure is reported, the remaining sections should be "
          write(unit=iunit,fmt="(a)") "# completed per structure. For each data set, replace the '?' in the"
@@ -1256,10 +231,10 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
-         
+
          !> Chemical Data
          write(unit=iunit,fmt="(a)") "# 5. CHEMICAL DATA"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_chemical_name_systematic"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1274,7 +249,7 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_chemical_melting_point           ?"
          write(unit=iunit,fmt="(a)") "_chemical_compound_source         ?       # for minerals and "
          write(unit=iunit,fmt="(a)") "                                          # natural products"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
          write(unit=iunit,fmt="(a)") "    _atom_type_symbol               "
@@ -1308,14 +283,14 @@ SubModule (CFML_IOForm) IOF_CIFS
       write(unit=iunit,fmt="(a)") "loop_"
       write(unit=iunit,fmt="(a)") "    _symmetry_equiv_pos_as_xyz"
       do i=1,SpG%multip
-         line="'"//trim(SpG%Sym_Op(i))//"'"
+         line="'"//trim(SpG%Symb_Op(i))//"'"
          write(iunit,'(a)') trim(line)
       end do
       write(unit=iunit,fmt="(a)") " "
 
       do i=1,3
-         text(i)=string_numstd(cell%cell(i),cell%scell(i))
-         text(i+3)=string_numstd(cell%ang(i),cell%sang(i))
+         text(i)  =String_NumStd(cell%cell(i),cell%scell(i))
+         text(i+3)=String_NumStd(cell%ang(i),cell%sang(i))
       end do
       write(unit=iunit,fmt='(a)')       "_cell_length_a                       "//trim(adjustl(text(1)))
       write(unit=iunit,fmt='(a)')       "_cell_length_b                       "//trim(adjustl(text(2)))
@@ -1400,14 +375,14 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_process_details       ?"
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_correction_T_min      ?"
          write(unit=iunit,fmt="(a)") "_exptl_absorpt_correction_T_max      ?"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "#============================================================================="
          write(unit=iunit,fmt="(a)") " "
 
          !> Experimental Data
          write(unit=iunit,fmt="(a)") "# 7. EXPERIMENTAL DATA"
-         
+
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "_exptl_special_details"
          write(unit=iunit,fmt="(a)") "; ?"
@@ -1510,7 +485,7 @@ SubModule (CFML_IOForm) IOF_CIFS
         write(unit=iunit,fmt="(a)") "#============================================================================="
         write(unit=iunit,fmt="(a)") " "
 
-        !> Refinement Data 
+        !> Refinement Data
         write(unit=iunit,fmt="(a)") "# 8. REFINEMENT DATA"
 
         write(unit=iunit,fmt="(a)") " "
@@ -1557,17 +532,17 @@ SubModule (CFML_IOForm) IOF_CIFS
               write(unit=iunit,fmt="(a)") "# The following four items apply to angular dispersive measurements."
               write(unit=iunit,fmt="(a)") "# 2theta minimum, maximum and increment (in degrees) are for the "
               write(unit=iunit,fmt="(a)") "# intensities used in the refinement."
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_min         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_max         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_2theta_range_inc         ?"
               write(unit=iunit,fmt="(a)") "_pd_proc_wavelength               ?"
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "_pd_block_diffractogram_id        ?  # The id used for the block containing"
               write(unit=iunit,fmt="(a)") "                                     # the powder pattern profile (section 11)."
-              
+
               write(unit=iunit,fmt="(a)") " "
               write(unit=iunit,fmt="(a)") "# Give appropriate details in the next two text fields."
               write(unit=iunit,fmt="(a)") " "
@@ -1621,7 +596,7 @@ SubModule (CFML_IOForm) IOF_CIFS
       write(unit=iunit,fmt="(a)") "#============================================================================="
       write(unit=iunit,fmt="(a)") " "
 
-      !> Atomic Coordinates and Displacement Parameters 
+      !> Atomic Coordinates and Displacement Parameters
       write(unit=iunit,fmt="(a)") "# 9. ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS"
 
       write(unit=iunit,fmt="(a)") " "
@@ -1638,11 +613,38 @@ SubModule (CFML_IOForm) IOF_CIFS
       write(unit=iunit,fmt='(a)') "    _atom_site_type_symbol"
 
       !> Calculation of the factor corresponding to the occupation factor provided in A
+      Select Type(atms => At_list%Atom)
+        Type is (Atm_Std_Type)
+          atm=atms
+        Class default
+          do i=1,At_List%natoms
+            call Init_Atom_Type(Atm(i),0)
+            Atm(i)%lab     =Atms(i)%lab
+            Atm(i)%ChemSymb=Atms(i)%ChemSymb
+            Atm(i)%SfacSymb=Atms(i)%SfacSymb
+            Atm(i)%Z       =Atms(i)%Z
+            Atm(i)%mult    =Atms(i)%mult
+            Atm(i)%mult    =Atms(i)%charge
+            Atm(i)%x       =Atms(i)%x
+            Atm(i)%x       =Atms(i)%U_iso
+            Atm(i)%occ     =Atms(i)%occ
+            Atm(i)%UType   =Atms(i)%UType
+            Atm(i)%ThType  =Atms(i)%ThType
+            Atm(i)%U       =Atms(i)%U
+            Atm(i)%magnetic=Atms(i)%magnetic
+            Atm(i)%mom     =Atms(i)%mom
+            Atm(i)%Ind_ff  =Atms(i)%Ind_ff
+            Atm(i)%AtmInfo =Atms(i)%AtmInfo
+            Atm(i)%wyck    =Atms(i)%wyck
+          end do
+
+      End Select
+
       do i=1,At_List%natoms
-         occup(i)=At_list%Atom(i)%occ/(real(At_List%Atom(i)%mult)/real(SpG%multip))
-        soccup(i)=At_list%Atom(i)%occ_std/(real(At_List%Atom(i)%mult)/real(SpG%multip))
+         occup(i)=Atm(i)%occ/(real(Atm(i)%mult)/real(SpG%multip))
+        soccup(i)=Atm(i)%occ_std/(real(Atm(i)%mult)/real(SpG%multip))
       end do
-      ocf=sum(abs(At_list%atom(1)%x-At_list%atom(2)%x))
+      ocf=sum(abs(Atm(1)%x-Atm(2)%x))
       if ( ocf < 0.001) then
          ocf=occup(1)+occup(2)
       else
@@ -1652,64 +654,64 @@ SubModule (CFML_IOForm) IOF_CIFS
       aniso=.false.
       do i=1,At_List%natoms
          line=" "
-         line(2:)= At_list%Atom(i)%Lab//"  "//At_list%Atom(i)%SfacSymb 
-         
+         line(2:)= Atm(i)%Lab//"  "//Atm(i)%SfacSymb
+
          do j=1,3
-            comm=string_numstd(At_list%Atom(i)%x(j),At_list%Atom(i)%x_std(j))
+            comm=String_NumStd(Atm(i)%x(j),Atm(i)%x_std(j))
             line=trim(line)//" "//trim(comm)
          end do
-         
+
          comm=" "
-         select case (At_List%Atom(i)%Thtype)
+         select case (Atm(i)%Thtype)
             case ('iso')
                adptyp='Uiso'
-               select case (trim(At_List%Atom(i)%UType))
+               select case (trim(Atm(i)%UType))
                   case ("U")
-                     u=At_list%Atom(i)%U_iso
-                     su=At_list%Atom(i)%U_iso_std
-                     
-                  case ("B")               
-                     u=At_list%Atom(i)%U_iso/(8.0*pi*pi)
-                     su=At_list%Atom(i)%U_iso_std/(8.0*pi*pi)
-                     
-                  case ("beta") 
-                     u=At_list%Atom(i)%U_iso
-                     su=At_list%Atom(i)%U_iso_std  
-               end select      
-               comm=string_numstd(u,su)
-               
-            case ('ani')   
+                     u=Atm(i)%U_iso
+                     su=Atm(i)%U_iso_std
+
+                  case ("B")
+                     u=Atm(i)%U_iso/(8.0*pi*pi)
+                     su=Atm(i)%U_iso_std/(8.0*pi*pi)
+
+                  case ("beta")
+                     u=Atm(i)%U_iso
+                     su=Atm(i)%U_iso_std
+               end select
+               comm=String_NumStd(u,su)
+
+            case ('ani')
                aniso=.true.
                adptyp='Uani'
-               select case (trim(At_List%Atom(i)%UType))
+               select case (trim(Atm(i)%UType))
                   case ("U")
-                     ua=At_List%atom(i)%u
-                     sua=At_List%atom(i)%u_std
-                     
-                  case ("B")               
-                     ua=At_List%atom(i)%u/(8.0*pi*pi)
-                     sua=At_List%atom(i)%u_std/(8.0*pi*pi)
-                     
-                  case ("beta") 
-                     aux=At_list%atom(i)%u
+                     ua=Atm(i)%u
+                     sua=Atm(i)%u_std
+
+                  case ("B")
+                     ua=Atm(i)%u/(8.0*pi*pi)
+                     sua=Atm(i)%u_std/(8.0*pi*pi)
+
+                  case ("beta")
+                     aux=Atm(i)%u
                      ua=get_U_from_Betas(aux,cell)
-                     aux=At_list%atom(i)%u_std
+                     aux=Atm(i)%u_std
                      sua=get_U_from_Betas(aux,cell)
-               end select 
+               end select
                u=(ua(1)+ua(2)+ua(3))/3.0
                su=(ua(1)+ua(2)+ua(3))/3.0
-               com=string_numstd(u,su)
-    
-            case default   
+               comm=String_NumStd(u,su)
+
+            case default
                adptyp='.'
          end select
          line=trim(line)//" "//trim(comm)
 
-         comm=string_numstd(occup(i),soccup(i))
+         comm=String_NumStd(occup(i),soccup(i))
          line=trim(line)//" "//trim(comm)
-         write(unit=iunit,fmt="(a)") trim(line)//" "//trim(adptyp)//" "//At_list%atom(i)%SfacSymb
+         write(unit=iunit,fmt="(a)") trim(line)//" "//trim(adptyp)//" "//Atm(i)%SfacSymb
       end do
-      
+
       if (aniso) then
          write(unit=iunit,fmt="(a)") " "
          write(unit=iunit,fmt="(a)") "loop_"
@@ -1721,35 +723,35 @@ SubModule (CFML_IOForm) IOF_CIFS
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_U_13  "
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_U_23  "
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_type_symbol"
-         
+
          do i=1,At_List%natoms
-            if (At_List%Atom(i)%thtype /= "ani") cycle
-            
+            if (Atm(i)%thtype /= "ani") cycle
+
             line=" "
-            line(2:)= At_list%Atom(i)%Lab
-            
-            select case (trim(At_List%Atom(i)%UType))
+            line(2:)= Atm(i)%Lab
+
+            select case (trim(Atm(i)%UType))
                case ("U")
-                  ua=At_List%atom(i)%u
-                  sua=At_List%atom(i)%u_std
-                  
-               case ("B")               
-                  ua=At_List%atom(i)%u/(8.0*pi*pi)
-                  sua=At_List%atom(i)%u_std/(8.0*pi*pi)
-                  
-               case ("beta") 
-                  aux=At_list%atom(i)%u
+                  ua=Atm(i)%u
+                  sua=Atm(i)%u_std
+
+               case ("B")
+                  ua=Atm(i)%u/(8.0*pi*pi)
+                  sua=Atm(i)%u_std/(8.0*pi*pi)
+
+               case ("beta")
+                  aux=Atm(i)%u
                   ua=get_U_from_Betas(aux,cell)
-                  aux=At_list%atom(i)%u_std
+                  aux=Atm(i)%u_std
                   sua=get_U_from_Betas(aux,cell)
-            end select 
-            
+            end select
+
             do j=1,6
               comm=" "
-              call setnum_std(ua(j),sua(j),comm)
+              comm=String_NumStd(ua(j),sua(j))
               line=trim(line)//" "//trim(comm)
             end do
-            write(iunit,"(a)") trim(line)//"  "//A%atom(i)%SfacSymb
+            write(iunit,"(a)") trim(line)//"  "//Atm(i)%SfacSymb
          end do
       end if
 
@@ -1853,7 +855,7 @@ SubModule (CFML_IOForm) IOF_CIFS
 
       return
    End Subroutine Write_Cif_Template
-    
-   
-   
-End SubModule IOF_CIFS   
+
+
+
+ End Module test_CIF
