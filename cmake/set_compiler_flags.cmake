@@ -1,7 +1,7 @@
 macro(set_compiler_flags)
 
     # Nullify all the Fortran flags.
-    set(CMAKE_Fortran_FLAGS "")
+    #set(CMAKE_Fortran_FLAGS "")
 
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
@@ -16,8 +16,7 @@ macro(set_compiler_flags)
                 set(OPT_FLAGS1 "/Od /check:noarg_temp_created ")
                 set(OPT_FLAGS2 "/Od /check:noarg_temp_created ")
             elseif(CMAKE_BUILD_TYPE STREQUAL Release)
-                set(CMAKE_Fortran_FLAGS_RELEASE "/Qopt-report=0 /nologo /fpp")
-#               set(CMAKE_Fortran_FLAGS_RELEASE "/Qopt-report=0 /nologo")
+                set(CMAKE_Fortran_FLAGS_RELEASE "/Qopt-report=0 /nologo")
                 set(OPT_FLAGS0 "/O0")
                 set(OPT_FLAGS  "/O2 /Qparallel")
                 set(OPT_FLAGS1 "/Od")

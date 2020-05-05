@@ -242,17 +242,17 @@ Module CFML_ILL_Instrm_Data
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
 
-#ifdef USE_HDF
+!#ifdef USE_HDF
 
-   use CFML_ILL_Instrm_Data_Nexus, only:fra1,Read_Numor_D19_NXS2,Read_Header_NXS,Get_Header_Numor_NXS,  &
-                                    Read_Init_NXS,get_Header_ScanType_NXS,get_Header_Instr_Name_NXS,  &
-                                    get_Header_SubT_NXS,  &
-                                    Read_IntegerBloc_NXS,get_IntegerBloc_NXS,  &
-                                    Read_FloatBloc_NXS,get_FloatBloc_NXS,&
-                                    Read_DataBlocParam_NXS,get_DataBlocTime_NXS,get_DataBlocMoni_NXS,&
-                                    get_DataBlocTotalCount_NXS,get_DataBlocAngle1_NXS,&
-                                    get_DataBlocDataFull_NXS
-#endif
+!   use CFML_ILL_Instrm_Data_Nexus, only:fra1,Read_Numor_D19_NXS2,Read_Header_NXS,Get_Header_Numor_NXS,  &
+!                                    Read_Init_NXS,get_Header_ScanType_NXS,get_Header_Instr_Name_NXS,  &
+!                                    get_Header_SubT_NXS,  &
+!                                    Read_IntegerBloc_NXS,get_IntegerBloc_NXS,  &
+!                                    Read_FloatBloc_NXS,get_FloatBloc_NXS,&
+!                                    Read_DataBlocParam_NXS,get_DataBlocTime_NXS,get_DataBlocMoni_NXS,&
+!                                    get_DataBlocTotalCount_NXS,get_DataBlocAngle1_NXS,&
+!                                    get_DataBlocDataFull_NXS
+!#endif
 
    !---- Variables ----!
    Implicit none

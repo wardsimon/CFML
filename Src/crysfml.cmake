@@ -6,6 +6,12 @@
 set(SOURCES CFML_IO_Mess.f90
             CFML_Optimization_SAn.f90)
 
+# Add CFML_HDF5 module if USE_HDF5 = ON
+if(USE_HDF)
+    include(hdf5.cmake)
+    set(SOURCES ${SOURCES} CFML_HDF5.f90)
+endif()
+
 # Set the optimization flags.
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
@@ -25,12 +31,21 @@ set(LIBRARY_NAME crysfml)
 
 # This directory contains the crysfml_common library mod files.
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
+if(USE_HDF)
+    include_directories(${HDF5_INCLUDE_PATH})
+    link_directories(${HDF5_LIBRARY_PATH})
+endif()
 
 # The crysfml library is the CONSOLE version of the library.
 add_library(${LIBRARY_NAME} STATIC ${SOURCES} ${CRYSFML_COMMON_OBJECTS})
 
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
+
+if(USE_HDF)
+    # The library is linked to hdf5
+    target_link_libraries(${LIBRARY_NAME} ${HDF5_LIBS})
+endif()
 
 # The directory where the crysfml specific module files will be stored.
 set(CRYSFML_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_modules)

@@ -46,12 +46,26 @@ endif()
 set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
+# Include and library paths for HDF5. 
+# They must be set by the user.
+if(DEFINED HDF5_INCLUDE_PATH)   
+    set(HDF5_INCLUDE_PATH ${HDF5_INCLUDE_PATH} CACHE PATH "HDF5 include path")
+else()
+    set(HDF5_INCLUDE_PATH "" CACHE PATH "HDF5 include path")
+endif()
+
+if(NOT DEFINED HDF5_LIBRARY_PATH)    
+    set(HDF5_LIBRARY_PATH ${HDF5_LIBRARY_PATH} CACHE PATH "HDF5 library path")
+else()
+    set(HDF5_LIBRARY_PATH "" CACHE PATH "HDF5 library path")
+endif()
+
 #################################
 # Project section
 #################################
 
 # The project is declared. It is a Fortran project.
-project(libcrysfml Fortran CXX)
+project(libcrysfml Fortran)
 
 # Set the a verbose make.
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -81,9 +95,9 @@ if (NOT CRYSFML08)
     set_compiler_flags()
     # The subdirectories of the project.
     add_subdirectory(Src)
-    if (USE_HDF)
-        add_subdirectory(SrcCpp)
-    endif()
+    #if (USE_HDF)
+    #    add_subdirectory(SrcCpp)
+    #endif()
 else()
     include(set_compiler_flags_08)
     set_compiler_flags_08()    
