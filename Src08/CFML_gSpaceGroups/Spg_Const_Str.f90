@@ -28,8 +28,10 @@ SubModule (CFML_gSpaceGroups) SPG_ConstructorString
       call Clear_Error()
       call Init_SpaceGroup(Spg)
       allocate(gen1(maxnum_op))
-      call Get_Generators(ListGen, d, gen1, ngen1)
-      call Check_Gener(gen1, gen)
+      !call Get_Generators(ListGen, d, gen1, ngen1)
+      !call Check_Gener(gen1, gen)
+      call Get_Generators(ListGen, d, gen, ngen)
+
       if (Err_CFML%Ierr /= 0) return
 
       ngen=size(gen)

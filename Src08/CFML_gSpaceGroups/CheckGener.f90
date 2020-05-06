@@ -32,7 +32,6 @@ SubModule (CFML_gSpaceGroups) SPG_017
 
       do i=1, ngen_in
          if (len_trim(gen_in(i)) == 0) cycle
-
          if (.not. init) then
             d=Get_Dimension_SymmOp(gen_in(i))
             allocate(Mat(d,d))

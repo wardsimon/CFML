@@ -20,7 +20,7 @@ SubModule (CFML_gSpaceGroups) SPG_016
       !--- Local variables ---!
       character(len=:), allocatable :: symbol, ListGen
       integer, dimension(20) :: Pos
-      integer                :: i,j,k,np
+      integer                :: i,j,k,np,lg
       logical                :: timerev_provided
 
       !> Init
@@ -58,7 +58,12 @@ SubModule (CFML_gSpaceGroups) SPG_016
       j=1
       do i=1, np
          k=pos(i)
+         !gen(i)=adjustl(ListGen(j:k-1))
          gen(i)=ListGen(j:k-1)
+         !lg=len_trim(gen(i))
+         !if(gen(i)(lg:lg) /= "1") then
+         !  gen(i)=trim(gen(i))//",1"
+         !end if
          j = k + 1
       end do
       if (ngen > np) then

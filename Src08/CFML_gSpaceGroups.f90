@@ -565,13 +565,14 @@ Module CFML_gSpaceGroups
           real(kind=cp), dimension(:,:),intent(out)  :: atr
        End Subroutine Get_Stabilizer
 
-       Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
+       Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point,printd)
           !---- Arguments ----!
           type(Spg_Type),                   intent( in) :: SpG
           type(Spg_Type),dimension(:),      intent(out) :: SubG
           integer,                          intent(out) :: nsg
           integer,                 optional,intent(in)  :: indexg
           logical, dimension(:,:), optional,intent(out) :: point
+          logical,                 optional,intent(in)  :: printd
        End Subroutine Get_SubGroups
 
        Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point,printd)

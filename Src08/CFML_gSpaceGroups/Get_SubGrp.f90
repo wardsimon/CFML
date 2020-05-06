@@ -27,16 +27,17 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
    !!----
    !!----   Updated: 17/04/2020
    !!
-   Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point)
+   Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point,printd)
       !---- Arguments ----!
       type(Spg_Type),                    intent( in) :: SpG
       type(Spg_Type),dimension(:),       intent(out) :: SubG
       integer,                           intent(out) :: nsg
-      integer,                  optional,intent(in)  :: indexg
+      integer,                  optional,intent(in ) :: indexg
       logical, dimension(:,:),  optional,intent(out) :: point
+      logical,                  optional,intent( in) :: printd
 
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng
+      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng,i1,i2
       character (len=40), dimension(:),allocatable :: gen,gen_min
       character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
@@ -63,7 +64,7 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       !> construct a procedure for selecting the minimal set of generators
       if (len_trim(SpG%generators_list) ==  0) then
          Err_CFML%Ierr = 1
-         Err_CFML%Msg  = "Get_Subgroups_Subgen@SPACEG: A list of generators of the parent group is needed!"
+         Err_CFML%Msg  = "Get_Subgroups@SPACEG: A list of generators of the parent group is needed!"
          return
       end if
 
@@ -93,11 +94,6 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       !> the input Group
       call Get_Generators(SpG%generators_list,d,gen_min, ngen)
 
-      !do i=2,SpG%numops
-      !  gen_min(i) = SpG%Symb_Op(i)
-      !end do
-      !ngen=SpG%numops-1
-
       !>Purge the list of operators eliminating centre of symmetry and Lattice Translations
       n=0
       ng=ngen
@@ -119,7 +115,7 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
          end if
       end do
       ngen=n
-      mp=2*max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen  !2**(ngen+1)
+      mp=max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen*max(1,SpG%num_lat)**2
       if (allocated(list_gen)) deallocate(list_gen)
       allocate(list_gen(mp))
 
@@ -152,6 +148,13 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       end if
       mp=L
 
+      if(present(printd)) then
+        write(unit=*,fmt="(a,i6)") " Number of basic generators: ",mp
+        do i=1,mp
+           write(unit=*,fmt="(i5,a)") i, "  "//trim(list_gen(i))
+        end do
+      end if
+
       if (SpG%num_lat > 0)  then
          do j=1,SpG%num_lat
             do i=1,mp
@@ -160,27 +163,59 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
             end do
          end do
       end if
+      i1=mp+1
+      i2=i1+mp
+      if (SpG%num_lat > 1)  then
+         do j=1,SpG%num_lat
+            do i=i1,i2   !1,mp
+               L=L+1
+               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
+            end do
+         end do
+      end if
       nsg=L
 
+      if(present(printd)) then
+        write(unit=*,fmt="(a,i6)") " Number of generator lists: ",nsg
+        open(unit=55,file="generator_list_subgroup.txt",status="replace",action="write")
+        do i=1,nsg
+          write(unit=55,fmt="(a,i6,a)") " Generator list #",i,"  "//trim(List_gen(i))
+        end do
+        close(unit=55)
+      end if
+
       !> Now generate the subgroups
-      n=0
-      do L=1,nsg
+      n=1
+      if(present(printd)) write(*,"(a,2(i4,a))") " => Generating subgroup #",n," with list of generators: ",1,"  "//trim(List_gen(1))
+      call Group_Constructor(List_gen(1),SubG(1))
+      do_L:do L=2,nsg
+         do i=1,n-1
+           if(Is_in_Group(list_gen(L),SubG(i))) cycle do_L !Prevent generation of repeated groups
+         end do
          n=n+1
+         if(present(printd)) write(*,"(a,2(i4,a))") " => Generating subgroup #",n," with list of generators: ",L,"  "//trim(List_gen(L))
          call Group_Constructor(List_gen(L),SubG(n))
+         if (Err_CFML%Ierr /= 0) then
+           write(*,"(a)") " => Error in Group_Constructor "//trim(Err_CFML%Msg)
+           write(*,"(a)") "    Continuing with the next list "
+           n=max(1,n-1)
+           cycle
+         end if
          if (present(indexg)) then
             idx=SpG%multip/SubG(n)%multip
             if (idx /= indexg) then
-               n=max(0,n-1)
+               n=max(1,n-1)
                cycle
             end if
          end if
          do i=n-1,1,-1
             if (SubG(n) == SubG(i)) then
-               n=max(0,n-1)
+               n=max(1,n-1)
                exit
             end if
          end do
-      end do
+      end do do_L
+      if(present(printd)) write(unit=*,fmt="(a,i8)") " Number of generator lists: ",nsg
       nsg=n
 
       if (present(point)) then
@@ -211,12 +246,11 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       logical,                  optional,intent(in)  :: printd
 
       !--- Local variables ---!
-      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng,maxlist,i1,i2
-      character (len=40), dimension(:),allocatable :: gen,gen_min
+      integer  :: i,L,j,k,d, nc, mp,ngen,nla,n,nop,idx,ng,i1,i2
+      character (len=40), dimension(:),allocatable :: gen
       character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
       character (len=40)                           :: gen_cent, gen_aux
-
       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
       type(Symm_Oper_Type), dimension(Spg%Num_Lat) :: Op_lat
 
@@ -234,7 +268,6 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
          end if
       end if
 
-      allocate(gen(SpG%multip))
       d=SpG%d
       ng=0; nc=0
       nop=SpG%numops !number of symmetry operators excluding lattice centrings & centre of symmetry
@@ -256,45 +289,31 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
          nla=ng
       end if
 
-      !> Take as generators the list of the operators of the input group up to SpG%numops
-      allocate(gen_min(SpG%numops))
-      do i=1,SpG%numops
-        gen_min(i) = SpG%Symb_Op(i)
+      allocate(gen(SpG%Numops))
+      do i=2,SpG%Numops
+        gen(i-1) = SpG%Symb_Op(i)
       end do
-      ngen=SpG%numops
+      ngen=SpG%Numops-1
+      if (SpG%centred /= 1) then
+        gen(SpG%Numops)=gen_cent
+        ngen=SpG%Numops
+      end if
 
-      !>Purge the list of operators eliminating centre of symmetry and Lattice Translations
-      n=0
-      ng=ngen
-      if (allocated(gen)) deallocate(gen)
-      if (SpG%centred /= 1) ng=ngen*2
-      allocate(gen(ng))
-      gen=" "
-      do i=1,ngen
-         gen_aux=gen_min(i)
-         Op_aux=Get_Op_from_Symb(gen_aux)
-         if (Is_OP_Inversion_Centre(Op_aux)) cycle
-         if (Is_OP_Lattice_Centring(Op_aux)) cycle
-         n=n+1
-         gen(n) = gen_aux
-         if (SpG%centred /= 1) then
-            n=n+1
-            Op_aux=Op_aux*Op_cent
-            gen(n)=Get_Symb_from_Op(Op_aux)
-         end if
-      end do
-      ngen=n
+
       !Construct the lists of  possible generators to be tested
-      mp=5*max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen*max(1,SpG%num_lat)
+      mp=max(1,ngen-2)*max(1,ngen-1)*ngen*max(1,ngen-1)*ngen*ngen*max(1,SpG%num_lat)**2
       if (allocated(list_gen)) deallocate(list_gen)
       allocate(list_gen(mp))
-      maxlist=mp
-      ! Start with the simplest lists: 1 generator
       L=0
-      if (ngen >= 1) then
-         do i=1,ngen
-            L=L+1
-            list_gen(L)=trim(gen(i))
+      ! Continue with the lists : 3 generators (it is enough for general crystallographic groups)
+      if(ngen >= 3) then
+         do i=1,ngen-2
+            do j=i+1,ngen-1
+               do k=j+1,ngen
+                  L=L+1
+                  list_gen(L)=trim(gen(i))//";"//trim(gen(j))//";"//trim(gen(k))
+               end do
+            end do
          end do
       end if
 
@@ -308,128 +327,80 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
          end do
       end if
 
-      ! Continue with the lists : 3 generators (it is enough for general crystallographic groups)
-      if(ngen >= 3) then
-         do i=1,ngen-2
-            do j=i+1,ngen-1
-               do k=j+1,ngen
-                  L=L+1
-                  list_gen(L)=trim(gen(i))//";"//trim(gen(j))//";"//trim(gen(k))
-               end do
-            end do
+      ! Start with the simplest lists: 1 generator
+      if (ngen >= 1) then
+         do i=1,ngen
+            L=L+1
+            list_gen(L)=trim(gen(i))
          end do
       end if
 
       mp=L
-      if(present(printd)) write(unit=*,fmt="(a,i6)") " Number of basic generators: ",mp
 
-      if (SpG%num_lat >= 1) then
-       do j=1,SpG%num_lat  !Original operators plus 1 lattice translation
-          do i=1,mp
-             L=L+1
-             list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
-             if(L == maxlist) exit
-          end do
-       end do
-      end if
-
-      if (SpG%num_lat >= 2) then
-        do j=1,SpG%num_lat-1  !Original operators plus 2 lattice translation
-          do k=j+1,SpG%num_lat
+      if (SpG%num_lat > 0)  then
+         do j=1,SpG%num_lat
             do i=1,mp
                L=L+1
-               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))//";"//trim(gen_lat(k))
-               if(L == maxlist) exit
+               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
             end do
-          end do
-        end do
+         end do
       end if
-
-      if (SpG%num_lat >= 3) then
-        do j=1,SpG%num_lat-2  !Original operators plus 3 lattice translation
-          do k=j+1,SpG%num_lat-1
-            do n=k+1,SpG%num_lat
-              do i=1,mp
-                 L=L+1
-                 list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))//";"//trim(gen_lat(k))//";"//trim(gen_lat(n))
-                 if(L == maxlist) exit
-              end do
+      i1=mp+1
+      i2=i1+mp
+      if (SpG%num_lat > 1)  then
+         do j=1,SpG%num_lat
+            do i=i1,i2   !1,mp
+               L=L+1
+               list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
             end do
-          end do
-        end do
+         end do
       end if
-
-      !Now add  up to 5 lattice translations
-      !if (SpG%num_lat > 0)  then
-      !   i1=L+1
-      !   do j=1,SpG%num_lat  !Original operators plus 1 lattice translation
-      !      do i=1,mp
-      !         L=L+1
-      !         list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
-      !         if(L == maxlist) exit
-      !      end do
-      !   end do
-      !   i2=L
-      !   do k=1,4
-      !     if (SpG%num_lat > k)  then
-      !       do j=1,SpG%num_lat  !Original operators plus k+1 lattice translations
-      !          do i=i1,i2
-      !             if(index(list_gen(i),trim(gen_lat(j))) /= 0) cycle
-      !             L=L+1
-      !             list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j))
-      !             if(L == maxlist) exit
-      !          end do
-      !       end do
-      !     else
-      !       exit
-      !     end if
-      !     i1=i2+1
-      !     i2=L
-      !   end do
-      !end if
-
-      !if (SpG%num_lat > 0)  then
-      !   do_lat: do j=0,SpG%num_lat/2+1
-      !      if( j+1 > SpG%num_lat) exit
-      !      if (SpG%num_lat > j)  then
-      !         mp=L
-      !         do i=1,mp
-      !            L=L+1
-      !            list_gen(L)=trim(list_gen(i))//";"//trim(gen_lat(j+1))
-      !            if(L == maxlist) exit do_lat
-      !         end do
-      !      end if
-      !   end do do_lat
-      !end if
 
       nsg=L !Number of lists with generators
-      if(present(printd)) write(unit=*,fmt="(a,i6)") " Number of generator lists: ",nsg
+
+      if(present(printd)) then
+        write(unit=*,fmt="(a,i6)") " Number of generator lists: ",nsg
+        open(unit=55,file="generator_list_subgroup_full.txt",status="replace",action="write")
+        do i=1,nsg
+          write(unit=55,fmt="(a,i6,a)") " Generator list #",i,"  "//trim(List_gen(i))
+        end do
+        close(unit=55)
+      end if
       !> Generate the subgroups corresponding to the above lists
       n=1
-      if(present(printd)) write(unit=*,fmt="(a,i6,a)") " Generator list #",n,"  "//trim(List_gen(n))
+      if(present(printd)) write(*,"(a,2(i4,a))") " => Generating subgroup #",n," with list of generators: ",1,"  "//trim(List_gen(1))
       call Group_Constructor(List_gen(1),SubG(1))
+
       do_L:do L=2,nsg
-         if(present(printd)) write(unit=*,fmt="(a,i6,a)") " Generator list #",L,"  "//trim(List_gen(L))
-         do i=1,n-1
+         do i=n-1,1,-1
            if(Is_in_Group(list_gen(L),SubG(i))) cycle do_L !Prevent generation of repeated groups
          end do
          n=n+1 !new group
-         !write(*,"(a,i3,a)") " => Generating subgroup #",n," with generators: "//trim(List_gen(L))
+         if(present(printd)) write(*,"(a,2(i4,a))") " => Generating subgroup #",n," with list of generators: ",L,"  "//trim(List_gen(L))
          call Group_Constructor(List_gen(L),SubG(n))
+         if (Err_CFML%Ierr /= 0) then
+           write(*,"(a)") " => Error in Group_Constructor "//trim(Err_CFML%Msg)
+           write(*,"(a)") "    Continuing with the next list "
+           n=max(1,n-1)
+           cycle do_L
+         end if
          if (present(indexg)) then
             idx=SpG%multip/SubG(n)%multip
             if (idx /= indexg) then
-               n=max(0,n-1)
+               n=max(1,n-1)
                cycle do_L
             end if
          end if
-         do i=1,n-1  !Check for repetitions in any case
+         do i=n-1,1,-1  !Check for repetitions in any case
             if (SubG(n) == SubG(i)) then
-               n=max(0,n-1)
-               exit
+               n=max(1,n-1)
+               if(present(printd))  write(*,"(a,i4)") " Repeated group, new 'n' ",n
+               cycle do_L
             end if
          end do
       end do do_L
+
+      if(present(printd)) write(unit=*,fmt="(a,i8)") " Number of generator lists: ",nsg
       nsg=n
 
       if (present(point)) then
