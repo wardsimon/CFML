@@ -244,11 +244,11 @@
     !!--..
     !!
     Type, Public :: AtList_Type
-       integer                                    :: natoms=0      ! Number of atoms in the list
+       integer                                    :: natoms=0        ! Number of atoms in the list
        character(len=9)                           :: mcomp="Crystal" ! For magnetic moments and modulation functions Mcs and Dcs It may be also "Cartesian" or "Spherical"
        logical                                    :: symm_checked=.false.
-       logical,         dimension(:), allocatable :: Active        ! Flag for active or not
-       class(Atm_Type), dimension(:), allocatable :: Atom          ! Atoms
+       logical,         dimension(:), allocatable :: Active          ! Flag for active or not
+       class(Atm_Type), dimension(:), allocatable :: Atom            ! Atoms
     End type AtList_Type
 
     !Overload

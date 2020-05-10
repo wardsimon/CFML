@@ -279,7 +279,7 @@ Submodule (CFML_Strings) StrTools
           extension=" "
       else
           !> Handle the optional dotted argument.
-          dot=.true.
+          dot=.false.
           if (present(dotted)) dot=dotted
 
           if (.not. dot) idx = idx + 1

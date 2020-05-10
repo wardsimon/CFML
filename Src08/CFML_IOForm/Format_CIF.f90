@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_IOForm) IOF_003
+SubModule (CFML_IOForm) IO_CIF
    Contains
 
 
@@ -11,15 +11,14 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 26/06/2019
    !!
-   Module Subroutine Read_Cif_Atom(lines,n_ini,n_end, At_List)
+   Module Subroutine Read_CIF_Atom(lines,n_ini,n_end, AtmList)
       !---- Arguments ----!
       character(len=*), dimension(:),   intent(in)      :: lines
       integer,                          intent(in out)  :: n_ini
       integer,                          intent(in)      :: n_end
-      type (atList_type),               intent(out)     :: At_List
+      type (atList_type),               intent(out)     :: AtmList
 
       !---- Local Variables ----!
-      character(len=12), parameter        :: DIGPM="0123456789+-"
       character(len=132), allocatable     :: line
       character(len=20),dimension(15)     :: label
       integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
@@ -42,8 +41,8 @@ SubModule (CFML_IOForm) IOF_003
 
       !> Init
       call clear_error()
-      call allocate_atom_list(0,At_List)
-      call allocate_atom_list(n_end-n_ini+1,Atm)
+      call allocate_atom_list(0,AtmList,'Atm_std',0)
+      call allocate_atom_list(n_end-n_ini+1,Atm,'Atm_std',0)
 
       lugar=0
       num_ini=n_ini
@@ -146,13 +145,13 @@ SubModule (CFML_IOForm) IOF_003
          !> _atom_site_type_symbol
          if (lugar(2) /= 0) then
             atm%atom(n)%SfacSymb=label(lugar(2))(1:4)
-            if (index(DIGPM, label(lugar(2))(2:2)) /= 0 ) then
+            if (index(DIGCAR, label(lugar(2))(2:2)) /= 0 ) then
                atm%atom(n)%chemSymb=u_case(label(lugar(2))(1:1))
             else
                atm%atom(n)%chemSymb=u_case(label(lugar(2))(1:1))//l_case(label(lugar(2))(2:2))
             end if
          else
-            if(index(DIGPM,label(lugar(1))(2:2)) /= 0 ) then
+            if(index(DIGCAR,label(lugar(1))(2:2)) /= 0 ) then
                atm%atom(n)%chemSymb=u_case(label(lugar(1))(1:1))
             else
                atm%atom(n)%chemSymb=u_case(label(lugar(1))(1:1))//l_case(label(lugar(1))(2:2))
@@ -401,21 +400,21 @@ SubModule (CFML_IOForm) IOF_003
 
       !> Put the first atom the first having a full occupation factor 1.0
       if (n > 0) then
-         call allocate_atom_list(n,At_list)
-         at_list%atom=atm%atom(1:n)
+         call allocate_atom_list(n,AtmList,'Atm_std',0)
+         AtmList%atom=atm%atom(1:n)
       end if
 
-      call allocate_atom_list(0,Atm)
+      call allocate_atom_list(0,Atm,'Atm_std',0)
 
-   End Subroutine Read_Cif_Atom
+   End Subroutine Read_CIF_Atom
 
    !!----
-   !!---- Read_Cif_Cell
+   !!---- READ_CIF_CELL
    !!----    Read Cell Parameters from CIF format
    !!----
    !!---- Update: February - 2005
    !!
-   Module Subroutine Read_Cif_Cell(lines,N_Ini,N_End,Cell)
+   Module Subroutine Read_CIF_Cell(lines,N_Ini,N_End,Cell)
       !---- Arguments ----!
       character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
       integer,                         intent(in out) :: n_ini   ! Index to start
@@ -494,6 +493,7 @@ SubModule (CFML_IOForm) IOF_003
          return
       end if
       call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
+
    End Subroutine Read_Cif_Cell
 
    !!----
@@ -502,7 +502,7 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Wave(lines, n_ini, n_end, Wave)
+   Module Subroutine Read_CIF_Wave(lines, n_ini, n_end, Wave)
       !---- Arguments ----!
       character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
       integer,                         intent(in out) :: n_ini   ! Index to start
@@ -525,7 +525,7 @@ SubModule (CFML_IOForm) IOF_003
          err_CFML%Ierr=1
          err_CFML%Msg="Read_CIF_Wave@CFML_IOForm: Problems reading wavelenth value!"
       end if
-   End Subroutine Read_Cif_Wave
+   End Subroutine Read_CIF_Wave
 
    !!----
    !!---- READ_CIF_Z
@@ -533,7 +533,7 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Z(lines, n_ini, n_end, Z)
+   Module Subroutine Read_CIF_Z(lines, n_ini, n_end, Z)
       !---- Arguments ----!
       character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
       integer,                         intent(in out) :: n_ini   ! Index to start
@@ -556,20 +556,20 @@ SubModule (CFML_IOForm) IOF_003
          err_CFML%Ierr=1
          err_CFML%Msg="Read_CIF_Z@CFML_IOForm: Problems reading Z value!"
       end if
-   End Subroutine Read_Cif_Z
+   End Subroutine Read_CIF_Z
 
    !!----
-   !!---- Read_Cif_ChemicalName
+   !!---- READ_CIF_CHEMICALNAME
    !!----    Obtaining Chemical Name from Cif file
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_ChemName(lines,N_ini,N_End,ChemName)
+   Module Subroutine Read_CIF_ChemName(lines,N_ini,N_End,ChemName)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: ChemName
+      character(len=*),  dimension(:), intent(in)     :: lines
+      integer,                         intent(in out) :: n_ini
+      integer,                         intent(in)     :: n_end
+      character(len=*),                intent(out)    :: ChemName
 
       !---- Local variables ----!
       integer :: np1, np2
@@ -598,7 +598,7 @@ SubModule (CFML_IOForm) IOF_003
          end if
       end if
 
-   End Subroutine Read_Cif_ChemName
+   End Subroutine Read_CIF_ChemName
 
    !!----
    !!---- READ_CIF_CONT
@@ -606,7 +606,7 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
+   Module Subroutine Read_CIF_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
       !---- Arguments ----!
       character(len=*), dimension(:),      intent(in)      :: lines
       integer,                             intent(in out)  :: n_ini
@@ -680,7 +680,7 @@ SubModule (CFML_IOForm) IOF_003
          end do
       end if
 
-   End Subroutine Read_Cif_Cont
+   End Subroutine Read_CIF_Cont
 
    !!----
    !!---- READ_CIF_PRESSURE
@@ -688,13 +688,13 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Pressure(lines,N_ini,N_End, P, SigP)
+   Module Subroutine Read_CIF_Pressure(lines,N_ini,N_End, P, SigP)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      real(kind=cp),     intent(out)              :: p
-      real(kind=cp),     intent(out)              :: sigp
+      character(len=*),  dimension(:), intent(in)     :: lines
+      integer,                         intent(in out) :: n_ini
+      integer,                         intent(in)     :: n_end
+      real(kind=cp),                   intent(out)    :: p
+      real(kind=cp),                   intent(out)    :: sigp
 
       !---- Local Variables ----!
       integer                    :: iv
@@ -710,7 +710,7 @@ SubModule (CFML_IOForm) IOF_003
          sigp=vet2(1)*1.0e-6
       end if
 
-   End Subroutine Read_Cif_Pressure
+   End Subroutine Read_CIF_Pressure
 
    !!----
    !!---- Read_Cif_Title
@@ -718,12 +718,12 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Title(lines,N_Ini,N_End,Title)
+   Module Subroutine Read_CIF_Title(lines,N_Ini,N_End,Title)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: title
+      character(len=*),  dimension(:), intent(in)     :: lines
+      integer,                         intent(in out) :: n_ini
+      integer,                         intent(in)     :: n_end
+      character(len=*),                intent(out)    :: title
 
       !---- Local variables ----!
       integer :: np, np1, np2
@@ -751,7 +751,7 @@ SubModule (CFML_IOForm) IOF_003
          end if
       end if
 
-   End Subroutine Read_Cif_Title
+   End Subroutine Read_CIF_Title
 
    !!----
    !!---- READ_CIF_TEMP
@@ -759,13 +759,13 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Temp(lines,N_Ini,N_End,T,SigT)
+   Module Subroutine Read_CIF_Temp(lines,N_Ini,N_End,T,SigT)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      real(kind=cp),     intent(out)              :: T
-      real(kind=cp),     intent(out)              :: sigT
+      character(len=*),  dimension(:), intent(in)      :: lines
+      integer,                         intent(in out)  :: n_ini
+      integer,                         intent(in)      :: n_end
+      real(kind=cp),                   intent(out)     :: T
+      real(kind=cp),                   intent(out)     :: sigT
 
       !---- Local Variables ----!
       integer                    :: iv
@@ -781,7 +781,7 @@ SubModule (CFML_IOForm) IOF_003
          sigt=vet2(1)
       end if
 
-   End Subroutine Read_Cif_Temp
+   End Subroutine Read_CIF_Temp
 
    !!----
    !!---- Read_Cif_Hall
@@ -789,12 +789,12 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Hall(lines, N_Ini, N_End, Hall)
+   Module Subroutine Read_CIF_Hall(lines, N_Ini, N_End, Hall)
       !---- Arguments ----!
-      character(len=*), dimension(:), intent(in) :: lines
-      integer,          intent(in out)           :: n_ini
-      integer,          intent(in)               :: n_end
-      character(len=*), intent(out)              :: Hall
+      character(len=*), dimension(:), intent(in)     :: lines
+      integer,                        intent(in out) :: n_ini
+      integer,                        intent(in)     :: n_end
+      character(len=*),               intent(out)    :: Hall
 
       !---- Local variables ----!
       integer :: np1, np2
@@ -828,7 +828,7 @@ SubModule (CFML_IOForm) IOF_003
          end if
       end if
 
-   End Subroutine Read_Cif_Hall
+   End Subroutine Read_CIF_Hall
 
    !!----
    !!---- READ_CIF_HM
@@ -836,12 +836,12 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_HM(lines, N_Ini, N_End, Spgr_Hm)
+   Module Subroutine Read_CIF_HM(lines, N_Ini, N_End, Spgr_Hm)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in) :: lines
-      integer,           intent(in out)           :: n_ini
-      integer,           intent(in)               :: n_end
-      character(len=*),  intent(out)              :: spgr_hm
+      character(len=*),  dimension(:), intent(in)     :: lines
+      integer,                         intent(in out) :: n_ini
+      integer,                         intent(in)     :: n_end
+      character(len=*),                intent(out)    :: spgr_hm
 
       !---- Local variables ----!
       character(len=1) :: csym, csym2
@@ -914,7 +914,7 @@ SubModule (CFML_IOForm) IOF_003
          end select
       end if
 
-   End Subroutine Read_Cif_HM
+   End Subroutine Read_CIF_HM
 
    !!----
    !!---- Read_Cif_Symm
@@ -922,7 +922,7 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_Cif_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
+   Module Subroutine Read_CIF_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
       !---- Arguments ----!
       character(len=*), dimension(:), intent(in)     :: lines
       integer,                        intent(in out) :: n_ini
@@ -991,63 +991,260 @@ SubModule (CFML_IOForm) IOF_003
          end if
       end do
 
-   End Subroutine Read_Cif_Symm
+   End Subroutine Read_CIF_Symm
 
    !!----
    !!---- WRITE_CIF_POWDER_PROFILE
-   !!----    Write a Cif Powder Profile file
    !!----
-   !!---- 28/06/2019
+   !!----    Write a Cif Powder Profile file (converted from FullProf)
+   !!----
+   !!---- Update: January - 2020
    !!
-   Module Subroutine Write_Cif_Powder_Profile(filename)
+   Module Subroutine Write_CIF_Powder_Profile(filename,Pat,r_facts)
       !---- Arguments ----!
-      character(len=*), intent(in) :: filename
+      character(len=*),                      intent(in) :: filename   ! Name of file
+      class(DiffPat_Type),                   intent(in) :: Pat        ! Pattern
+      real(kind=cp), dimension(4), optional, intent(in) :: r_facts    ! R_patt,R_wpatt,R_exp, Chi2
 
       !---- Local Variables ----!
-      logical :: info
-      integer :: iunit
+      logical             :: info
+      character(len=132)  :: line
+      character(len=8)    :: date,time
+      character(len=30)   :: comm
+      integer             :: iunit
+      integer             :: i,j,n
+      real(kind=cp)       :: an, R_patt,R_wpatt,R_exp, Chi2
 
-      !> Init
+      !> Inicialization of variables
+      R_Patt=0.0; R_WPatt=0.0; R_Exp=0.0; Chi2=0.0
+      if (present(r_facts)) then
+         R_patt = r_facts(1)
+         R_wpatt= r_facts(2)
+         R_exp  = r_facts(3)
+         Chi2   = r_facts(4)
+      end if
+
+      !> Is this file opened?
       info=.false.
-      iunit=0
-
-      !> Is open the file?
       inquire(file=trim(filename),opened=info)
       if (info) then
          inquire(file=trim(filename),number=iunit)
          close(unit=iunit)
+         open(unit=iunit,file=trim(filename),status="unknown",action="write",position="append")
+      else
+         open(newunit=iunit,file=trim(filename),status="unknown",action="write")
       end if
 
-      !> Writting
-      open(newunit=iunit,file=trim(filename),status="unknown",action="write")
-      rewind(unit=iunit)
+      !> Writing
 
       !> Head
-      write(unit=iunit,fmt="(a)") "data_profile"
-      write(unit=iunit,fmt="(a)") " "
-      write(unit=iunit,fmt="(a)")     "_pd_block_id      ?"
+      call Date_and_Time(date, time)
+      write(unit=iunit,fmt='(a)')    " "
+      write(unit=iunit,fmt='(a)')    "#==========================="
+      write(unit=iunit,fmt='(a,i3)') "# Powder diffraction pattern "
+      write(unit=iunit,fmt='(a)')    "#==========================="
+      write(unit=iunit,fmt='(a)')    "#  "//date(7:8)//'/'//date(5:6)//'/'//date(3:4)
+      write(unit=iunit,fmt='(a)')    " "
+
+      write(iunit,'(a)') "data_profile"
+      write(unit=iunit,fmt="(a)")"_audit_creation_date "//date(3:)//' '//time(:6)
+      write(unit=iunit,fmt="(a)")'_audit_creation_method  "CrysFML"'
+      write(unit=iunit,fmt='(a)') " "
+      write(unit=iunit,fmt='(a)') "_pd_block_id      ?"
+
+      write(iunit,'(a)')"#==============================================================================             "
+      write(unit=iunit,fmt='(a)')"# 9. INSTRUMENT CHARACTERIZATION                                                            "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_exptl_special_details                                                                      "
+      write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# if regions of the data are excluded, the reason(s) are supplied here:                     "
+      write(unit=iunit,fmt='(a)')"_pd_proc_info_excluded_regions                                                              "
+      write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# The following item is used to identify the equipment used to record                       "
+      write(unit=iunit,fmt='(a)')"# the powder pattern when the diffractogram was measured at a laboratory                    "
+      write(unit=iunit,fmt='(a)')"# other than the authors' home institution, e.g. when neutron or synchrotron                "
+      write(unit=iunit,fmt='(a)')"# radiation is used.                                                                        "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_instr_location                                                                          "
+      write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"_pd_calibration_special_details           # description of the method used                  "
+      write(unit=iunit,fmt='(a)')"                                          # to calibrate the instrument                     "
+      write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_ambient_temperature    ?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_source                 ?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_source_target          ?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_source_type            ?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_measurement_device_type?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_detector               ?                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_detector_type          ?  # make or model of detector                               "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_meas_scan_method           ?  # options are 'step', 'cont',                             "
+      write(unit=iunit,fmt='(a)')"                                  # 'tof', 'fixed' or                                       "
+      write(unit=iunit,fmt='(a)')"                                  # 'disp' (= dispersive)                                   "
+      write(unit=iunit,fmt='(a)')"_pd_meas_special_details                                                                    "
+      write(unit=iunit,fmt='(a)')";  ?                                                                                        "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# The following two items identify the program(s) used (if appropriate).                    "
+      write(unit=iunit,fmt='(a)')"_computing_data_collection        ?                                                         "
+      write(unit=iunit,fmt='(a)')"_computing_data_reduction         ?                                                         "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# Describe any processing performed on the data, prior to refinement.                       "
+      write(unit=iunit,fmt='(a)')"# For example: a manual Lp correction or a precomputed absorption correction                "
+      write(unit=iunit,fmt='(a)')"_pd_proc_info_data_reduction      ?                                                         "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# The following item is used for angular dispersive measurements only.                      "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_diffrn_radiation_monochromator   ?                                                         "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# The following items are used to define the size of the instrument.                        "
+      write(unit=iunit,fmt='(a)')"# Not all distances are appropriate for all instrument types.                               "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_src/mono           ?                                                         "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_mono/spec          ?                                                         "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_src/spec           ?                                                         "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_spec/anal          ?                                                         "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_anal/detc          ?                                                         "
+      write(unit=iunit,fmt='(a)')"_pd_instr_dist_spec/detc          ?                                                         "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# 10. Specimen size and mounting information                                                "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"# The next three fields give the specimen dimensions in mm.  The equatorial                 "
+      write(unit=iunit,fmt='(a)')"# plane contains the incident and diffracted beam.                                          "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_size_axial               ?       # perpendicular to                                "
+      write(unit=iunit,fmt='(a)')"                                          # equatorial plane                                "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_size_equat               ?       # parallel to                                     "
+      write(unit=iunit,fmt='(a)')"                                          # scattering vector                               "
+      write(unit=iunit,fmt='(a)')"                                          # in transmission                                 "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_size_thick               ?       # parallel to                                     "
+      write(unit=iunit,fmt='(a)')"                                          # scattering vector                               "
+      write(unit=iunit,fmt='(a)')"                                          # in reflection                                   "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_mounting                         # This field should be                            "
+      write(unit=iunit,fmt='(a)')"                                          # used to give details of the                     "
+      write(unit=iunit,fmt='(a)')"                                          # container.                                      "
+      write(unit=iunit,fmt='(a)')"; ?                                                                                         "
+      write(unit=iunit,fmt='(a)')";                                                                                           "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_mount_mode               ?       # options are 'reflection'                        "
+      write(unit=iunit,fmt='(a)')"                                          # or 'transmission'                               "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"_pd_spec_shape                    ?       # options are 'cylinder'                          "
+      write(unit=iunit,fmt='(a)')"                                          # 'flat_sheet' or 'irregular'                     "
+      write(unit=iunit,fmt='(a)')"                                                                                            "
+      write(unit=iunit,fmt='(a)')"     "
+      write(unit=iunit,fmt='(a)')"_diffrn_radiation_probe   "//trim(pat%KindRad)
+
+      if (trim(l_case(Pat%scatvar))=="2theta") then
+         write(unit=iunit,fmt='(a,f12.6)') "_diffrn_radiation_wavelength ",Pat%wave(1)
+      end if
+
+      if (present(r_facts)) then
+         write(unit=iunit,fmt='(a)')"     "
+         write(unit=iunit,fmt='(a)') "#  The following profile R-factors are NOT CORRECTED for background"
+         write(unit=iunit,fmt='(a)') "#  The sum is extended to all non-excluded points."
+         write(unit=iunit,fmt='(a)') "#  These are the current CIF standard"
+         write(unit=iunit,fmt='(a)') " "
+         write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_R_factor          ",R_patt
+         write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_wR_factor         ",R_wpatt
+         write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_wR_expected       ",R_exp
+         write(unit=iunit,fmt='(a,f12.4)') "_pd_proc_ls_prof_chi2              ",chi2
+      end if
+
+      write(unit=iunit,fmt='(a)')"  "
+      write(unit=iunit,fmt='(a)')"_pd_proc_ls_background_function   "
+      write(unit=iunit,fmt='(a)')";   Background function description  "
+      write(unit=iunit,fmt='(a)')";                                                                              "
+      write(unit=iunit,fmt='(a)')"                                                                               "
+      write(unit=iunit,fmt='(a)')"_exptl_absorpt_process_details                                                 "
+      write(unit=iunit,fmt='(a)')";   Absorption/surface roughness correction description    "
+      write(unit=iunit,fmt='(a)')" No correction is applied ?.                                                   "
+      write(unit=iunit,fmt='(a)')";                                                                              "
+      write(unit=iunit,fmt='(a)')"                                                                               "
+      write(unit=iunit,fmt='(a)')"_pd_proc_ls_profile_function                                                   "
+      write(unit=iunit,fmt='(a)')";   Profile function description                                              "
+      write(unit=iunit,fmt='(a)')";                                                                              "
+      write(unit=iunit,fmt='(a)')"_pd_proc_ls_peak_cutoff 0.00500                                                "
+      write(unit=iunit,fmt='(a,a)')'_pd_calc_method  "   Rietveld Refinement" '
+      write(unit=iunit,fmt='(a)')"                                                                               "
+      write(unit=iunit,fmt='(a)')"#---- raw/calc data loop -----   "
+
+      select case (trim(l_case(Pat%scatvar)))
+         case ("2theta")   ! 2_Theta
+              write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_min " , Pat%xmin
+              write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_max " , Pat%xmax
+              if (Pat%NPts > 1) then
+                 write(unit=iunit,fmt='(a,f14.6)')"_pd_meas_2theta_range_inc " , (Pat%xmax-Pat%xmin)/real(Pat%Npts)
+              end if
+
+          case ("tof")   ! T.O.F.
+            write(unit=iunit,fmt='(a)') "_pd_proc_d_spacing "
+      end select
+
 
       !> Profile
-      write(unit=iunit,fmt="(a)") " "
+      write(unit=iunit,fmt='(a)') " "
 
-      write(unit=iunit,fmt="(a)") "loop_"
-      write(unit=iunit,fmt="(a)") "_pd_proc_point_id"
-      write(unit=iunit,fmt="(a)") "_pd_proc_2theta_corrected             # one of "
-      write(unit=iunit,fmt="(a)") "_pd_proc_energy_incident              # these "
-      write(unit=iunit,fmt="(a)") "_pd_proc_d_spacing                    # three"
-      write(unit=iunit,fmt="(a)") "_pd_proc_intensity_net"
-      write(unit=iunit,fmt="(a)") "_pd_calc_intensity_net "
-      write(unit=iunit,fmt="(a)") "_pd_proc_ls_weight      "
-      write(unit=iunit,fmt="(a)") "?     ?     ?     ?     ?     ?     ?"
+      write(unit=iunit,fmt='(a)') "loop_"
+      write(unit=iunit,fmt='(a)') "_pd_proc_point_id"
+      select case (trim(l_case(Pat%scatvar)))
+         case ("2theta")   !
+            write(unit=iunit,fmt='(a)') "_pd_proc_2theta_corrected   "
+         case ("tof")   ! T.O.F.
+            write(unit=iunit,fmt='(a)') "_pd_proc_d_spacing "
+         case ("energy")   ! Energy
+            write(unit=iunit,fmt='(a)') "_pd_proc_energy_incident  "
+      end select
+      write(unit=iunit,fmt='(a)') "_pd_proc_intensity_total"
+      write(unit=iunit,fmt='(a)') "_pd_calc_intensity_total"
+      write(unit=iunit,fmt='(a)') "_pd_proc_intensity_bkg_calc"
+      write(unit=iunit,fmt='(a)') " "
 
-      write(unit=iunit,fmt="(a)") " "
-      write(unit=iunit,fmt="(a)") "# The following lines are used to test the character set of files sent by     "
-      write(unit=iunit,fmt="(a)") "# network email or other means. They are not part of the CIF data set.        "
-      write(unit=iunit,fmt="(a)") "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
-      write(unit=iunit,fmt="(a)") "# !@#$%^&*()_+{}:"//""""//"~<>?|\-=[];'`,./ "
+      select type (Pat)
+         class is (DiffPat_E_Type)
+             n=0
+             do_poi: do i=1,Pat%Npts
+                if (Pat%istat(i) == 0) cycle
+                an=Pat%x(i)
+                line=" "
+                write(unit=line(1:6),fmt='(i6)') i
+                n=n+1
+                select case (trim(l_case(Pat%scatvar)))
+                   case ("2theta")   ! 2_Theta
+                      !write(unit=line(10:),fmt='(f8.4,5x,a)') an-Pat%zerop,'.    .'
+                      write(unit=line(10:),fmt='(f8.4,5x,a)') an,'.    .'
+                   case ("tof")   ! T.O.F.
+                      !write(line(10:),'(f8.4,5x,a)') (an-Pat%zerop)/pat%conv(1),'.    .'  !dtt1
+                      write(unit=line(10:),fmt='(f8.4,5x,a)') an/pat%wave(3),'.    .'  !dtt1
+                   case ("energy")   ! Energy
+                      !write(line(10:),'(a,f15.4,2x,a)') '. ',1000.0*(an-Pat%zerop),'.'
+                      write(unit=line(10:),fmt='(a,f15.4,2x,a)') '. ',1000.0*an,'.'
+                end select
+                comm=string_NumStd(Pat%y(i),sqrt(Pat%sigma(i)))
+                write(unit=line(21:),fmt='(a,2f18.4)') trim(comm)//" ", Pat%ycalc(i),Pat%bgr(i)
+                write(unit=iunit,fmt='(a)') line
+             end do do_poi
+         write(unit=iunit,fmt='(a,i7)')  "_pd_proc_number_of_points",n
+         write(unit=iunit,fmt='(a)') " "
+      end select
 
-      close (unit=iunit)
-   End Subroutine Write_Cif_Powder_Profile
+      write(unit=iunit,fmt='(a)') " "
+      write(unit=iunit,fmt='(a)') "# The following lines are used to test the character set of files sent by     "
+      write(unit=iunit,fmt='(a)') "# network email or other means. They are not part of the CIF data set.        "
+      write(unit=iunit,fmt='(a)') "# abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789              "
+      write(unit=iunit,fmt='(a)') "# !@#$%^&*()_+{}:""~<>?|\-=[];'`,./ "
+
+   End Subroutine Write_CIF_Powder_Profile
 
    !!----
    !!---- Write_Cif_Template
@@ -1055,12 +1252,12 @@ SubModule (CFML_IOForm) IOF_003
    !!----
    !!---- 28/06/2019
    !!
-   Module Subroutine Write_Cif_Template(filename, Cell, SpG, At_list, Type_data, Code)
+   Module Subroutine Write_CIF_Template(filename, Cell, SpG, Atmlist, Type_data, Code)
       !---- Arguments ----!
       character(len=*),        intent(in) :: filename     ! Filename
-      class(Cell_Type),        intent(in) :: Cell         ! Cell parameters
+      class(Cell_G_Type),      intent(in) :: Cell         ! Cell parameters
       class(SpG_Type),         intent(in) :: SpG          ! Space group information
-      Type (AtList_Type),      intent(in) :: At_List      ! Atoms
+      Type(AtList_Type),       intent(in) :: AtmList      ! Atoms
       integer,                 intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
       character(len=*),        intent(in) :: Code         ! Code or name of the structure
 
@@ -1070,9 +1267,9 @@ SubModule (CFML_IOForm) IOF_003
       character(len=132)                      :: line
       character(len=30)                       :: comm,adptyp
       character(len=30),dimension(6)          :: text
-      real(kind=cp)                           :: u,su, ocf
+      real(kind=cp)                           :: u, su, ocf,rval
       real(kind=cp), dimension(6)             :: Ua,sua,aux
-      real(kind=cp), dimension(At_List%Natoms):: occup,soccup
+      real(kind=cp), dimension(AtmList%Natoms):: occup,soccup
       integer                                 :: iunit,i, j
 
       !> Init
@@ -1308,7 +1505,7 @@ SubModule (CFML_IOForm) IOF_003
       write(unit=iunit,fmt="(a)") "loop_"
       write(unit=iunit,fmt="(a)") "    _symmetry_equiv_pos_as_xyz"
       do i=1,SpG%multip
-         line="'"//trim(SpG%Sym_Op(i))//"'"
+         line="'"//trim(SpG%Symb_Op(i))//"'"
          write(iunit,'(a)') trim(line)
       end do
       write(unit=iunit,fmt="(a)") " "
@@ -1638,11 +1835,15 @@ SubModule (CFML_IOForm) IOF_003
       write(unit=iunit,fmt='(a)') "    _atom_site_type_symbol"
 
       !> Calculation of the factor corresponding to the occupation factor provided in A
-      do i=1,At_List%natoms
-         occup(i)=At_list%Atom(i)%occ/(real(At_List%Atom(i)%mult)/real(SpG%multip))
-        soccup(i)=At_list%Atom(i)%occ_std/(real(At_List%Atom(i)%mult)/real(SpG%multip))
+      do i=1,AtmList%natoms
+         occup(i)=Atmlist%Atom(i)%occ/(real(AtmList%Atom(i)%mult)/real(SpG%multip))
+         soccup(i)=0.0
+         select type (at => AtmList%Atom)
+            class is (Atm_Std_Type)
+                soccup(i)=At(i)%occ_std/(real(At(i)%mult)/real(SpG%multip))
+         end select
       end do
-      ocf=sum(abs(At_list%atom(1)%x-At_list%atom(2)%x))
+      ocf=sum(abs(Atmlist%atom(1)%x-Atmlist%atom(2)%x))
       if ( ocf < 0.001) then
          ocf=occup(1)+occup(2)
       else
@@ -1650,55 +1851,85 @@ SubModule (CFML_IOForm) IOF_003
       end if
       occup=occup/ocf; soccup=soccup/ocf
       aniso=.false.
-      do i=1,At_List%natoms
+
+      do i=1,AtmList%natoms
          line=" "
-         line(2:)= At_list%Atom(i)%Lab//"  "//At_list%Atom(i)%SfacSymb
+         line(2:)= Atmlist%Atom(i)%Lab//"  "//Atmlist%Atom(i)%SfacSymb
 
          do j=1,3
-            comm=string_numstd(At_list%Atom(i)%x(j),At_list%Atom(i)%x_std(j))
+            rval=0.0
+            select type (at => AtmList%Atom)
+               class is (Atm_Std_Type)
+                   rval=At(i)%x_std(j)
+            end select
+            comm=string_numstd(Atmlist%Atom(i)%x(j),rval)
             line=trim(line)//" "//trim(comm)
          end do
 
          comm=" "
-         select case (At_List%Atom(i)%Thtype)
+         select case (AtmList%Atom(i)%Thtype)
             case ('iso')
                adptyp='Uiso'
-               select case (trim(At_List%Atom(i)%UType))
+               select case (trim(AtmList%Atom(i)%UType))
                   case ("U")
-                     u=At_list%Atom(i)%U_iso
-                     su=At_list%Atom(i)%U_iso_std
+                     u=Atmlist%Atom(i)%U_iso
+                     su=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            su=At(i)%U_iso_std
+                     end select
 
                   case ("B")
-                     u=At_list%Atom(i)%U_iso/(8.0*pi*pi)
-                     su=At_list%Atom(i)%U_iso_std/(8.0*pi*pi)
+                     u=Atmlist%Atom(i)%U_iso/(8.0*pi*pi)
+                     su=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            su=At(i)%U_iso_std/(8.0*pi*pi)
+                     end select
 
                   case ("beta")
-                     u=At_list%Atom(i)%U_iso
-                     su=At_list%Atom(i)%U_iso_std
+                     u=Atmlist%Atom(i)%U_iso
+                     su=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            su=At(i)%U_iso_std
+                     end select
                end select
                comm=string_numstd(u,su)
 
             case ('ani')
                aniso=.true.
                adptyp='Uani'
-               select case (trim(At_List%Atom(i)%UType))
+               select case (trim(AtmList%Atom(i)%UType))
                   case ("U")
-                     ua=At_List%atom(i)%u
-                     sua=At_List%atom(i)%u_std
+                     ua=AtmList%atom(i)%u
+                     sua=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            sua=At(i)%U_std
+                     end select
 
                   case ("B")
-                     ua=At_List%atom(i)%u/(8.0*pi*pi)
-                     sua=At_List%atom(i)%u_std/(8.0*pi*pi)
+                     ua=AtmList%atom(i)%u/(8.0*pi*pi)
+                     sua=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            sua=At(i)%U_std/(8.0*pi*pi)
+                     end select
 
                   case ("beta")
-                     aux=At_list%atom(i)%u
+                     aux=Atmlist%atom(i)%u
                      ua=get_U_from_Betas(aux,cell)
-                     aux=At_list%atom(i)%u_std
+                     aux=0.0
+                     select type (at => AtmList%Atom)
+                        class is (Atm_Std_Type)
+                            aux=At(i)%U_std
+                     end select
                      sua=get_U_from_Betas(aux,cell)
                end select
                u=(ua(1)+ua(2)+ua(3))/3.0
                su=(ua(1)+ua(2)+ua(3))/3.0
-               com=string_numstd(u,su)
+               comm=string_numstd(u,su)
 
             case default
                adptyp='.'
@@ -1707,7 +1938,7 @@ SubModule (CFML_IOForm) IOF_003
 
          comm=string_numstd(occup(i),soccup(i))
          line=trim(line)//" "//trim(comm)
-         write(unit=iunit,fmt="(a)") trim(line)//" "//trim(adptyp)//" "//At_list%atom(i)%SfacSymb
+         write(unit=iunit,fmt="(a)") trim(line)//" "//trim(adptyp)//" "//Atmlist%atom(i)%SfacSymb
       end do
 
       if (aniso) then
@@ -1722,25 +1953,37 @@ SubModule (CFML_IOForm) IOF_003
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_U_23  "
          write(unit=iunit,fmt="(a)") "    _atom_site_aniso_type_symbol"
 
-         do i=1,At_List%natoms
-            if (At_List%Atom(i)%thtype /= "ani") cycle
+         do i=1,AtmList%natoms
+            if (AtmList%Atom(i)%thtype /= "ani") cycle
 
             line=" "
-            line(2:)= At_list%Atom(i)%Lab
+            line(2:)= Atmlist%Atom(i)%Lab
 
-            select case (trim(At_List%Atom(i)%UType))
+            select case (trim(AtmList%Atom(i)%UType))
                case ("U")
-                  ua=At_List%atom(i)%u
-                  sua=At_List%atom(i)%u_std
+                  ua=AtmList%atom(i)%u
+                  sua=0.0
+                  select type (at => AtmList%Atom)
+                     class is (Atm_Std_Type)
+                         sua=At(i)%U_std
+                  end select
 
                case ("B")
-                  ua=At_List%atom(i)%u/(8.0*pi*pi)
-                  sua=At_List%atom(i)%u_std/(8.0*pi*pi)
+                  ua=AtmList%atom(i)%u/(8.0*pi*pi)
+                  sua=0.0
+                  select type (at => AtmList%Atom)
+                     class is (Atm_Std_Type)
+                         sua=At(i)%U_std/(8.0*pi*pi)
+                  end select
 
                case ("beta")
-                  aux=At_list%atom(i)%u
+                  aux=Atmlist%atom(i)%u
                   ua=get_U_from_Betas(aux,cell)
-                  aux=At_list%atom(i)%u_std
+                  aux=0.0
+                  select type (at => AtmList%Atom)
+                     class is (Atm_Std_Type)
+                         aux=At(i)%U_std
+                  end select
                   sua=get_U_from_Betas(aux,cell)
             end select
 
@@ -1749,7 +1992,7 @@ SubModule (CFML_IOForm) IOF_003
               call setnum_std(ua(j),sua(j),comm)
               line=trim(line)//" "//trim(comm)
             end do
-            write(iunit,"(a)") trim(line)//"  "//A%atom(i)%SfacSymb
+            write(iunit,"(a)") trim(line)//"  "//Atmlist%atom(i)%SfacSymb
          end do
       end if
 
@@ -1851,9 +2094,8 @@ SubModule (CFML_IOForm) IOF_003
 
       close(unit=iunit)
 
-      return
-   End Subroutine Write_Cif_Template
+   End Subroutine Write_CIF_Template
 
 
 
-End SubModule IOF_003
+End SubModule IO_CIF
