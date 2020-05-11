@@ -11,6 +11,8 @@ option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
 
+option(PROG_EX "Build the Program Examples" ON)
+
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
 else()
@@ -100,4 +102,9 @@ else()
     set_compiler_flags_08()
     # The subdirectories of the project.
     add_subdirectory(Src08)
+endif()
+
+# Build the program example executables
+if (PROG_EX)
+  add_subdirectory(Program_Examples/PowderPattern)
 endif()
