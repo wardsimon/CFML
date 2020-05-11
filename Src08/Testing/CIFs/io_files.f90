@@ -7,7 +7,7 @@
     use CFML_Globaldeps
     use CFML_Strings,      only: File_type, u_case, Get_extension
     use CFML_Metrics,      only: Cell_G_Type, Write_Crystal_Cell
-    use CFML_gSpaceGroups, only: Spg_Type, Write_SpaceGroup_Info
+    use CFML_gSpaceGroups, only: Spg_Type, SuperSpaceGroup_Type, Write_SpaceGroup_Info
     use CFML_Atoms,        only: AtList_Type, Write_Atom_List
     use CFML_IOForm
 
@@ -57,17 +57,7 @@
 
     !> Type of Files
     ext=get_extension(cmdline)
-    select case (trim(u_case(ext)))
-       case ('INS','RES') ! Shelx Format
-          call Read_Xtal_Structure(trim(cmdline), Cell, Spg, Atm)
-
-       case ('CIF')       ! CIF Format
-       case ('CFL')       ! CFL Format
-       case ('PCR')       ! PCR Format
-       case default
-          write(unit=*,fmt="(/,a)") " => The program IO_Files should be invoked with SHELX(INS or RES) or CIF or CFL format! "
-          call CloseProgram()
-    end select
+    call Read_Xtal_Structure(trim(cmdline), Cell, Spg, Atm)
 
     !> Print Information
     if (Err_CFML%Ierr == 0) then

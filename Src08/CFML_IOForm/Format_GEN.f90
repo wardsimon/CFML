@@ -69,14 +69,8 @@ SubModule (CFML_IOForm) IO_GEN
        !> Atom Type (Chemical symbol & Scattering Factor)
        call cut_string(line,nlong1,label)
 
-       if (len_trim(magmom) == 0) then
-          n=index(DIGCAR,label(2:2))
-          if (n /=0) then
-             atm%chemsymb=u_case(label(1:1))
-          else
-             atm%chemsymb=u_case(label(1:1))//l_case(label(2:2))
-          end if
-       else
+       if ((trim(label) == trim(u_case(label)) .and. len_trim(label) > 1) .or. len_trim(magmom) > 0) then
+          !> Magnetic atom
           n=index(DIGCAR,label(4:4))
           if (u_case(label(1:1)) /= "M" .and. u_case(label(1:1)) /= "J") then
              Err_CFML%IErr=1  ! Error
@@ -84,6 +78,14 @@ SubModule (CFML_IOForm) IO_GEN
              return
           end if
           atm%chemsymb=u_case(label(2:2))//l_case(label(3:3))
+
+       else
+          n=index(DIGCAR,label(2:2))
+          if (n /=0) then
+             atm%chemsymb=u_case(label(1:1))
+          else
+             atm%chemsymb=u_case(label(1:1))//l_case(label(2:2))
+          end if
        end if
        atm%SfacSymb=label(1:4)
 

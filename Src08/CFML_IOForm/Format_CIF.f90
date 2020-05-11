@@ -11,16 +11,16 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 26/06/2019
    !!
-   Module Subroutine Read_CIF_Atom(lines,n_ini,n_end, AtmList)
+   Module Subroutine Read_CIF_Atom(cif, AtmList, n_ini, n_end)
       !---- Arguments ----!
-      character(len=*), dimension(:),   intent(in)      :: lines
-      integer,                          intent(in out)  :: n_ini
-      integer,                          intent(in)      :: n_end
-      type (atList_type),               intent(out)     :: AtmList
+      type(File_Type),    intent(in)  :: cif
+      type (atList_type), intent(out) :: AtmList
+      integer, optional,  intent(in)  :: n_ini, n_end
 
       !---- Local Variables ----!
       character(len=132), allocatable     :: line
       character(len=20),dimension(15)     :: label
+      integer                             :: j_ini, j_end
       integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
       integer, dimension( 8)              :: lugar   !   1 -> label
                                                      !   2 -> Symbol
@@ -41,6 +41,7 @@ SubModule (CFML_IOForm) IO_CIF
 
       !> Init
       call clear_error()
+
       call allocate_atom_list(0,AtmList,'Atm_std',0)
       call allocate_atom_list(n_end-n_ini+1,Atm,'Atm_std',0)
 
@@ -414,25 +415,46 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- Update: February - 2005
    !!
-   Module Subroutine Read_CIF_Cell(lines,N_Ini,N_End,Cell)
+   Module Subroutine Read_CIF_Cell(cif, Cell, i_Ini, i_End)
       !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      class(Cell_Type),                intent(out)    :: Cell    ! Cell object
+      type(File_Type),    intent(in)  :: cif
+      class(Cell_Type),   intent(out) :: Cell    ! Cell object
+      integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                     :: iv,initl
-      real(kind=cp), dimension(1) :: vet1,vet2
-      real(kind=cp), dimension(6) :: vcell, std
-      logical                     :: ierror
+      integer                         :: i,npos,iv
+      integer,                        :: j_ini, j_end
+      real(kind=cp), dimension(1)     :: vet1,vet2
+      real(kind=cp), dimension(6)     :: vcell, std
+      logical                         :: ierror
+      character(len=132)              :: line
 
       !> Init
       call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Cell: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
       vcell=0.0_cp; std=0.0_cp
       ierror=.false.
 
       !> Celda
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         !> eliminar tabs
+         do
+            iv=index(lines,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
       initl=n_ini  ! Preserve initial line => some CIF files have random order for cell parameters
       call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_a",vet1,vet2,iv)
       if (iv == 1) then
@@ -2095,6 +2117,135 @@ SubModule (CFML_IOForm) IO_CIF
       close(unit=iunit)
 
    End Subroutine Write_CIF_Template
+
+   !!--++
+   !!--++ Read_XTal_CIF
+   !!--++
+   !!--++ Read a CIF File
+   !!--++
+   !!--++ 11/05/2020
+   !!
+   Module Subroutine Read_XTal_CIF(cif, Cell, Spg, AtmList, Nphase, CFrame)
+      !---- Arguments ----!
+      type(File_Type),               intent(in)  :: cif
+      class(Cell_Type),              intent(out) :: Cell
+      class(SpG_Type),               intent(out) :: SpG
+      Type(AtList_Type),             intent(out) :: Atmlist
+      Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+      character(len=*),    optional, intent(in)  :: CFrame
+
+      !---- Local Variables ----!
+      character(len=132)                :: line
+      character(len= 20)                :: Spp
+      character(len=60), dimension(192) :: symm_car
+
+      integer                   :: i, nauas, ndata, iph, n_ini,n_end,noper
+      integer, parameter        :: maxph=250  !Maximum number of phases "maxph-1"
+      integer, dimension(maxph) :: ip
+
+      real(kind=cp),dimension(6):: vet,vet2
+
+      ip=nlines
+      ip(1)=1
+
+      !---- First determine if there is more than one structure ----!
+      do i=1,nlines
+         line=adjustl(file_dat(i))
+         if (l_case(line(1:5)) == "data_" .and. l_case(line(1:11)) /= "data_global" )  then
+            n_ini=i
+            ip(1)=i
+            exit
+         end if
+      end do
+
+      ndata=0
+      do i=n_ini,nlines
+         line=adjustl(file_dat(i))
+         if (l_case(line(1:5)) == "data_")  then
+            ndata=ndata+1
+            if (ndata > maxph-1) then
+               err_form=.true.
+               ERR_Form_Mess=" => Too many phases in this file "
+               return
+            end if
+            ip(ndata)=i   !Pointer to the number of the line starting a single phase
+         end if
+      end do
+
+      iph=1
+      if (present(nphase)) iph=nphase
+
+      !---- Read Cell Parameters ----!
+      n_ini=ip(iph)           !Updated values to handle non-conventional order
+      n_end=ip(iph+1)
+      call Read_Cif_Cell(file_dat,n_ini,n_end,vet,vet2)
+      if (err_form) return
+      if(present(CFrame)) then
+        call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,CFrame,vet2(1:3),vet2(4:6))
+      else
+        call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,"A",vet2(1:3),vet2(4:6))
+      end if
+      !---- Read Atoms Information ----!
+      n_ini=ip(iph)           !Updated values to handle non-conventional order
+      n_end=ip(iph+1)
+      call Read_Cif_Atom(file_dat,n_ini,n_end,nauas,A)
+      if (err_form) return
+
+      !---- SpaceGroup Information ----!
+      n_ini=ip(iph)           !Updated values to handle non-conventional order
+      n_end=ip(iph+1)
+      call Read_Cif_Hm(file_dat,n_ini,n_end,Spp)
+
+      n_ini=ip(iph)           !Updated values to handle non-conventional order
+      n_end=ip(iph+1)
+      if (len_trim(Spp) == 0) call Read_Cif_Hall(file_dat,n_ini,n_end,Spp)
+
+      if (len_trim(Spp) == 0) then
+         n_ini=ip(iph)           !Updated values to handle non-conventional order
+         n_end=ip(iph+1)
+         call Read_Cif_Symm(file_dat,n_ini,n_end,noper,symm_car)
+
+         if (noper ==0) then
+            err_form=.true.
+            ERR_Form_Mess=" => No Space Group/No Symmetry information in this file "
+            return
+         else
+            call Set_SpaceGroup("  ",SpG,symm_car,noper,"GEN")
+         end if
+      else
+         call Set_SpaceGroup(Spp,SpG) !Construct the space group
+      end if
+
+      !---- Modify occupation factors and set multiplicity of atoms
+      !---- in order to be in agreement with the definitions of Sfac in CrysFML
+      !---- Convert Us to Betas and Uiso to Biso
+      do i=1,A%natoms
+         vet(1:3)=A%atom(i)%x
+         A%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
+         A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
+         if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
+
+         select case (A%atom(i)%thtype)
+            case ("isotr")
+               A%atom(i)%biso= A%atom(i)%ueq*78.95683521
+
+            case ("aniso")
+               select case (A%atom(i)%Utype)
+                  case ("u_ij")
+                     A%atom(i)%u(1:6) =  Convert_U_Betas(A%atom(i)%u(1:6),Cell)
+                  case ("b_ij")
+                     A%atom(i)%u(1:6) = Convert_B_Betas(A%atom(i)%u(1:6),Cell)
+               end select
+               A%atom(i)%Utype="beta"
+
+            case default
+               A%atom(i)%biso = A%atom(i)%ueq*78.95683521
+               A%atom(i)%thtype = "isotr"
+         end select
+      end do
+
+      return
+   End Subroutine Readn_Set_XTal_CIF
 
 
 

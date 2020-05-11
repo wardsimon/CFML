@@ -39,7 +39,7 @@
 !!
 Module CFML_IOForm
    !---- Use modules ----!
-   Use CFML_GlobalDeps,        only: CP, PI, EPS, TAB, Err_CFML, Clear_Error
+   Use CFML_GlobalDeps,        only: SP, CP, PI, EPS, TAB, Err_CFML, Clear_Error
    Use CFML_Maths,             only: Get_Eps_Math
    Use CFML_Rational
    Use CFML_Strings,           only: l_case, u_case, get_num, cut_string, get_words, &
@@ -75,6 +75,7 @@ Module CFML_IOForm
    !---- PARAMETERS ----!
    !--------------------!
    character(len=*), parameter :: DIGCAR="0123456789+-"  ! Digit character and signs
+   integer,          parameter :: MAX_PHASES=30          ! Number of Maximum Phases
    real(kind=cp),    parameter :: EPSV=0.0001_cp         ! Small real value to be used for decisions
 
 
@@ -122,6 +123,12 @@ Module CFML_IOForm
 
    !---- Interface zone ----!
    Interface
+      Module Subroutine Get_Job_Info(cfl,Job_info, i_ini,i_end)
+         type(File_Type),      intent(in)  :: cfl
+         type(job_info_type),  intent(out) :: Job_info
+         integer,              intent(in)  :: i_ini, i_end
+      End Subroutine Get_Job_Info
+
       Module Subroutine Read_Atom(Str, Atm)
          character(len=*), intent(in)   :: Str
          class (Atm_Type), intent(out)  :: Atm
@@ -174,28 +181,32 @@ Module CFML_IOForm
          real(kind=cp),    intent(out)    :: ratio
       End Subroutine Read_Wavelength
 
-      Module Subroutine Read_CFL_Atoms(cfl, AtmList, Type_Atm, d)
+      Module Subroutine Read_CFL_Atoms(cfl, AtmList, Type_Atm, d, i_ini, i_end)
          type(File_Type),      intent(in)     :: cfl
          Type(AtList_Type),    intent(out)    :: AtmList
          character(len=*),     intent(in)     :: Type_Atm
          integer,              intent(in)     :: d
+         integer, optional,    intent(in)     :: i_ini, i_end
       End Subroutine Read_CFL_Atoms
 
-      Module Subroutine Read_CFL_Cell(cfl, Cell, CFrame)
+      Module Subroutine Read_CFL_Cell(cfl, Cell, CFrame, i_ini, i_end )
          type(File_Type),            intent(in)     :: cfl
          class(Cell_Type),           intent(out)    :: Cell
          character(len=*), optional, intent( in)    :: CFrame
+         integer, optional,          intent(in)     :: i_ini, i_end
       End Subroutine Read_CFL_Cell
 
-      Module Subroutine Read_CFL_KVectors(cfl, Kvec)
+      Module Subroutine Read_CFL_KVectors(cfl, Kvec, i_ini, i_end)
          type(File_Type),         intent(in)     :: cfl
          type(kvect_info_Type),   intent(out)    :: Kvec
+         integer, optional,          intent(in)     :: i_ini, i_end
       End Subroutine Read_CFL_KVectors
 
-      Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type)
+      Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type, i_ini, i_end)
          Type(File_Type),                 intent(in)     :: cfl
          class(SpG_Type),                 intent(out)    :: SpG
          character(len=*), optional,      intent(in)     :: xyz_type
+         integer, optional,               intent(in)     :: i_ini, i_end
       End Subroutine Read_CFL_SpG
 
       Module Subroutine Write_CFL_Atoms(AtmList, Lun, Cell)
@@ -372,6 +383,16 @@ Module CFML_IOForm
          type(atlist_type),       intent(in) :: atmList
       End Subroutine Write_SHX_Template
 
+      Module Subroutine Read_XTal_CFL(cfl, Cell, SpG, AtmList, Nphase, CFrame, Job_Info)
+         type(File_Type),               intent(in)  :: cfl
+         class(Cell_Type),              intent(out) :: Cell
+         class(SpG_Type),               intent(out) :: SpG
+         Type(AtList_Type),             intent(out) :: Atmlist
+         Integer,             optional, intent(in)  :: Nphase
+         character(len=*),    optional, intent(in)  :: CFrame
+         Type(Job_Info_type), optional, intent(out) :: Job_Info
+      End Subroutine Read_XTal_CFL
+
       Module Subroutine Read_XTal_SHX(shx, Cell, SpG, Atm)
          type(File_Type),                 intent(in)  :: shx
          class (Cell_G_Type),             intent(out) :: Cell
@@ -431,6 +452,7 @@ Module CFML_IOForm
 
        select case (trim(u_case(ext)))
           case ('CFL')
+             call Read_XTal_CFL(f, Cell, SpG, Atm)
           case ('CIF')
           case ('INS','RES')
              call Read_XTal_SHX(f, Cell, SpG, Atm)

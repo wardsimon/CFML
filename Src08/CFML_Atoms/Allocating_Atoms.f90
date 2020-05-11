@@ -167,6 +167,7 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
       type(MAtm_Std_Type), dimension(n)  :: MAtm_Std
       type(Atm_Ref_Type) , dimension(n)  :: Atm_Ref
       type(MAtm_Ref_Type), dimension(n)  :: MAtm_Ref
+
       !> Init
       if (n <= 0) then
          A%natoms=0
@@ -179,17 +180,21 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
 
       !> Allocating variables
       Select Case(trim(l_case(Type_Atm)))
-        Case("atm")
-           allocate (A%atom(n),source=Atm,stat=ier)
-        Case("atm_std")
-           allocate (A%atom(n),source=Atm_Std,stat=ier)
-        Case("matm_std")
-           allocate (A%atom(n),source=MAtm_Std,stat=ier)
-        Case("atm_ref")
-            allocate (A%atom(n),source=Atm_Ref,stat=ier)
-       Case("matm_ref")
-           allocate (A%atom(n),source=MAtm_Ref,stat=ier)
-      End Select
+         case("atm")
+            allocate(A%atom(n),source=Atm,stat=ier)
+
+         case("atm_std")
+            allocate(A%atom(n),source=Atm_Std,stat=ier)
+
+         case("matm_std")
+            allocate(A%atom(n),source=MAtm_Std,stat=ier)
+
+         case("atm_ref")
+            allocate(A%atom(n),source=Atm_Ref,stat=ier)
+
+         case("matm_ref")
+            allocate(A%atom(n),source=MAtm_Ref,stat=ier)
+      end select
 
       allocate (A%active(n),stat=ier)
 

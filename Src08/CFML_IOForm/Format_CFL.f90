@@ -16,26 +16,38 @@ SubModule (CFML_IOForm) IO_CFL
    !!----
    !!---- 07/05/2020
    !!
-   Module Subroutine Read_CFL_Atoms(cfl, AtmList, Type_Atm, d)
+   Module Subroutine Read_CFL_Atoms(cfl, AtmList, Type_Atm, d, i_ini, i_end)
       !---- Arguments ----!
       type(File_Type),      intent(in)     :: cfl     ! Containing information
       Type(AtList_Type),    intent(out)    :: AtmList
       character(len=*),     intent(in)     :: Type_Atm
       integer,              intent(in)     :: d
+      integer, optional,    intent(in)     :: i_ini, i_end
 
       !---- Local variables -----!
       character(len=:),   allocatable   :: line,mom_comp
       character(len=:),   allocatable   :: dire
       integer                           :: i, j, na, npos, n_oc, n_mc,n_dc,n_uc
+      integer                           :: j_ini, j_end
 
       !> Init
       call clear_error()
-      call Allocate_Atom_List(0, Atmlist, Type_Atm, d)
+      if (cfl%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CFL_Atoms@CFML_IOForm: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cfl%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      if (AtmList%natoms > 0) call Allocate_Atom_List(0, Atmlist, Type_Atm, d)
 
       !> Calculate number of Atoms
       na=0
       mom_comp=" "
-      do i=1,cfl%nlines
+      do i=j_ini,j_end
           line=adjustl(cfl%line(i)%str)
           if (len_trim(line) == 0) cycle
           if (line(1:1) == "!" .or. line(1:1) == "#") cycle
@@ -58,7 +70,7 @@ SubModule (CFML_IOForm) IO_CFL
       if (len_trim(mom_comp) > 2) Atmlist%mcomp=mom_comp
 
       na=0
-      do i=1,cfl%nlines
+      do i=j_ini,j_end
          line=adjustl(cfl%line(i)%str)
          if (len_trim(line) == 0) cycle
          if (line(1:1) == "!" .or. line(1:1) == "#") cycle
@@ -78,6 +90,7 @@ SubModule (CFML_IOForm) IO_CFL
          dire=adjustl(u_case(line(1:4)))
          if (trim(dire) /= "ATOM") cycle
 
+
          na=na+1
          call read_atom(line, Atmlist%atom(na))
          Atmlist%atom(na)%UType="B"
@@ -88,8 +101,12 @@ SubModule (CFML_IOForm) IO_CFL
          j=i
          do
             j=j+1
-            if ( j < cfl%nlines ) then
+            if ( j < j_end ) then
                line=adjustl(cfl%line(j)%str)
+
+               if (len_trim(line) == 0) cycle
+               if (line(1:1) == "!" .or. line(1:1) == "#") cycle
+
                if (u_case(line(1:4)) == "ATOM") exit
 
                npos=index(line," ")
@@ -131,8 +148,12 @@ SubModule (CFML_IOForm) IO_CFL
                j=i
                do
                   j=j+1
-                  if ( j < cfl%nlines ) then
+                  if ( j < j_end ) then
                      line=adjustl(cfl%line(j)%str)
+
+                     if (len_trim(line) == 0) cycle
+                     if (line(1:1) == "!" .or. line(1:1) == "#") cycle
+
                      if (u_case(line(1:4)) == "ATOM") exit
 
                      npos=index(line," ")
@@ -181,14 +202,16 @@ SubModule (CFML_IOForm) IO_CFL
    !!----
    !!---- 07/05/2020
    !!
-   Module Subroutine Read_CFL_Cell(cfl, Cell, CFrame)
+   Module Subroutine Read_CFL_Cell(cfl, Cell, CFrame, i_ini, i_end)
       !---- Arguments ----!
       type(File_Type),            intent(in)     :: cfl     ! Containing information
       class(Cell_Type),           intent(out)    :: Cell    ! Cell object
       character(len=*), optional, intent( in)    :: CFrame
+      integer,          optional, intent(in)     :: i_ini, i_end     ! Lines to explore
 
       !---- Local variables -----!
-      integer                              :: i, iv,n_ini,n_end
+      integer                              :: i, iv, n_ini, n_end
+      integer                              :: j_ini,j_end
       real(kind=cp), dimension (6)         :: vcell, std
       character(len=132),dimension(1)      :: lines
 
@@ -200,8 +223,12 @@ SubModule (CFML_IOForm) IO_CFL
          return
       end if
 
+      j_ini=1; j_end=cfl%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
       !> Search: CELL
-      do i=1,cfl%nlines
+      do i=j_ini,j_end
          lines(1)=adjustl(u_case(cfl%line(i)%str))
          if (lines(1)(1:4) == "CELL") exit
          lines(1)=" "
@@ -244,25 +271,31 @@ SubModule (CFML_IOForm) IO_CFL
    !!----
    !!---- 07/05/2020
    !!
-   Module Subroutine Read_CFL_KVectors(cfl, Kvec)
+   Module Subroutine Read_CFL_KVectors(cfl, Kvec, i_ini, i_end)
       !---- Arguments ----!
       type(File_Type),         intent(in)     :: cfl
       type(kvect_info_Type),   intent(out)    :: Kvec
+      integer,       optional, intent(in)     :: i_ini, i_end
 
       !---- Local Variables ----!
       integer                      :: i,j,ier,nk,nq,iv
+      integer                      :: j_ini, j_end
       character(len=:),allocatable :: uline,line
 
       !> Init
       call clear_error()
       if (cfl%nlines <=0) then
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CFL_Cell@CFML_IOForm: 0 lines "
+         err_CFML%Msg="Read_CFL_Kvectors: 0 lines "
          return
       end if
 
+      j_ini=1; j_end=cfl%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
       nk=0; nq=0
-      do i=1,cfl%nlines
+      do i=j_ini,j_end
          line=adjustl(cfl%line(i)%str)
          if (len_trim(line) == 0) cycle
          if (line(1:1) == "!" .or. line(1:1) == "#") cycle
@@ -275,7 +308,7 @@ SubModule (CFML_IOForm) IO_CFL
          end do
 
          j=index(line,"!")
-         if(j /= 0) line=line(:j-1)
+         if (j /= 0) line=line(:j-1)
 
          j=index(line," ")
          if ( j == 0) then
@@ -360,185 +393,197 @@ SubModule (CFML_IOForm) IO_CFL
    !!----
    !!---- 07/05/2020
    !!
-   Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type)
-       !---- Arguments ----!
-       Type(File_Type),                 intent(in)     :: cfl
-       class(SpG_Type),                 intent(out)    :: SpG
-       character(len=*), optional,      intent(in)     :: xyz_type
+   Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type, i_ini, i_end)
+      !---- Arguments ----!
+      Type(File_Type),                 intent(in)     :: cfl
+      class(SpG_Type),                 intent(out)    :: SpG
+      character(len=*), optional,      intent(in)     :: xyz_type
+      integer,          optional,      intent(in)     :: i_ini, i_end
 
-       !--- Local Variables ---!
-       integer                           :: i,j,ngen,nk,nq,iv,ier
-       character(len=:),     allocatable :: line,uline,setting,strcode
-       character(len=40), dimension(192) :: gen
-       logical                           :: change_setting
+      !--- Local Variables ---!
+      integer                           :: i,j,ngen,nk,nq,iv,ier
+      integer                           :: j_ini, j_end
+      character(len=:),     allocatable :: line,uline,setting,strcode
+      character(len=40), dimension(192) :: gen
+      logical                           :: change_setting
 
-       !> Init
-       call clear_error()
+      !> Init
+      call clear_error()
 
-       !> Look for the appropriate keywords to construct the space group:
-       !> Crystallographic, Shubnikov, or superspace
-       ngen=0
-       setting=" "
-       change_setting=.false.
+      if (cfl%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CFL_Spg: 0 lines "
+         return
+      end if
 
-       strcode="xyz"
-       if (present(xyz_type)) strcode=trim(xyz_type)
+      j_ini=1; j_end=cfl%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
 
-       do i=1,cfl%nlines
-          line=adjustl(cfl%line(i)%str)
-          if (len_trim(line) == 0) cycle
-          if (line(1:1) == "!" .or. line(1:1) == "#") cycle
+      !> Look for the appropriate keywords to construct the space group:
+      !> Crystallographic, Shubnikov, or superspace
+      ngen=0
+      setting=" "
+      change_setting=.false.
 
-          !> Eliminate Tabs
-          do
-             iv=index(line,TAB)
-             if (iv == 0) exit
-             line(iv:iv)=' '
-          end do
+      strcode="xyz"
+      if (present(xyz_type)) strcode=trim(xyz_type)
 
-          j=index(line,"!")
-          if (j /= 0) line=line(:j-1)
+      do i=j_ini,j_end
+         line=adjustl(cfl%line(i)%str)
+         if (len_trim(line) == 0) cycle
+         if (line(1:1) == "!" .or. line(1:1) == "#") cycle
 
-          j=index(line,"::")
-          if (j /= 0) then
-             setting=trim(adjustl(line(j+2:)))
-             if (len_trim(setting) /= 0) change_setting=.true.
-             line=line(:j-1)
-          end if
+         !> Eliminate Tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
 
-          j=index(line," ")
-          uline=u_case(line(:j-1))
+         j=index(line,"!")
+         if (j /= 0) line=line(:j-1)
 
-          line=adjustl(line(j+1:))
-          select case(trim(uline))
-             case("HALL","SPGR","SPACEG")
-                call Set_SpaceGroup(line, SpG)
-                exit
+         j=index(line,"::")
+         if (j /= 0) then
+            setting=trim(adjustl(line(j+2:)))
+            if (len_trim(setting) /= 0) change_setting=.true.
+            line=line(:j-1)
+         end if
 
-             case("SHUB")
-                call Set_SpaceGroup(line,"SHUBN",SpG)
-                exit
+         j=index(line," ")
+         uline=u_case(line(:j-1))
 
-             case("SSG","SUPER","SSPG")
-                call Set_SpaceGroup(line,"SUPER",SpG, strcode)
-                exit
+         line=adjustl(line(j+1:))
+         select case(trim(uline))
+            case("HALL","SPGR","SPACEG")
+               call Set_SpaceGroup(line, SpG)
+               exit
 
-             case("GENLIST","GENERATORS","LIST")
-                call Set_SpaceGroup(line,SpG)
-                exit
+            case("SHUB")
+               call Set_SpaceGroup(line,"SHUBN",SpG)
+               exit
 
-             case("GEN","SYMM")
-                ngen=ngen+1
-                gen(ngen)=line
-          end select
-       end do
-       if (ngen > 0) call Set_SpaceGroup("  ",SpG,ngen,gen)
-       if (Err_CFML%Ierr == 1) return
+            case("SSG","SUPER","SSPG")
+               call Set_SpaceGroup(line,"SUPER",SpG, strcode)
+               exit
 
-       if (change_setting) then
-          if (strcode == "xyz")  then
-             call Change_Setting_SpaceG(setting, SpG)
-          else
-             call Change_Setting_SpaceG(setting, SpG,strcode)
-          end if
-       end if
-       if (Err_CFML%Ierr == 1) return
+            case("GENLIST","GENERATORS","LIST")
+               call Set_SpaceGroup(line,SpG)
+               exit
 
-       !> Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
-       Select Type (SpG)
-          Class is (SuperSpaceGroup_Type)
-             if (allocated(SpG%kv))      deallocate (SpG%kv)
-             if (allocated(SpG%nharm))   deallocate (SpG%nharm)
-             if (allocated(SpG%sintlim)) deallocate (SpG%sintlim)
-             if (allocated(SpG%Om))      deallocate (SpG%Om)
-             if (allocated(SpG%q_coeff)) deallocate (SpG%q_coeff)
+            case("GEN","SYMM")
+               ngen=ngen+1
+               gen(ngen)=line
+         end select
+      end do
+      if (ngen > 0) call Set_SpaceGroup("  ",SpG,ngen,gen)
+      if (Err_CFML%Ierr == 1) return
 
-             allocate(SpG%Om(SpG%D,Spg%D,SpG%Multip))
-             do i=1,SpG%Multip
-                SpG%Om(:,:,i)=real(SpG%Op(i)%Mat(:,:))
-             end do
+      if (change_setting) then
+         if (strcode == "xyz")  then
+            call Change_Setting_SpaceG(setting, SpG)
+         else
+            call Change_Setting_SpaceG(setting, SpG,strcode)
+         end if
+      end if
+      if (Err_CFML%Ierr == 1) return
 
-             nk=0; nq=0
-             do i=1,cfl%nlines
-                line=adjustl(cfl%line(i)%str)
-                if (len_trim(line) == 0) cycle
-                if (line(1:1) == "!" .or. line(1:1) == "#") cycle
+      !> Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
+      Select Type (SpG)
+         Class is (SuperSpaceGroup_Type)
+            if (allocated(SpG%kv))      deallocate (SpG%kv)
+            if (allocated(SpG%nharm))   deallocate (SpG%nharm)
+            if (allocated(SpG%sintlim)) deallocate (SpG%sintlim)
+            if (allocated(SpG%Om))      deallocate (SpG%Om)
+            if (allocated(SpG%q_coeff)) deallocate (SpG%q_coeff)
 
-                j=index(line,"!")
-                if (j /= 0) line=line(:j-1)
+            allocate(SpG%Om(SpG%D,Spg%D,SpG%Multip))
+            do i=1,SpG%Multip
+               SpG%Om(:,:,i)=real(SpG%Op(i)%Mat(:,:))
+            end do
 
-                j=index(line," ")
-                uline=u_case(line(:j-1))
+            nk=0; nq=0
+            do i=j_ini,j_end
+               line=adjustl(cfl%line(i)%str)
+               if (len_trim(line) == 0) cycle
+               if (line(1:1) == "!" .or. line(1:1) == "#") cycle
 
-                line=adjustl(line(j+1:))
-                select case(trim(uline))
-                   case("NQVECT","NKVECT")
-                      read(unit=line,fmt=*,iostat=ier) Spg%nk, Spg%nq
-                      if (ier /= 0) then
-                         Err_CFML%Ierr=1
-                         Err_CFML%Msg="Error reading the number of k-vectors and/or number of Q-coefficients"
-                         return
-                      end if
-                      allocate(Spg%kv(3,Spg%nk),Spg%q_coeff(Spg%nk,Spg%nq))
-                      allocate(Spg%nharm(Spg%nk),Spg%sintlim(Spg%nk))
-                      SpG%kv=0.0_cp; SpG%q_coeff=1; Spg%nharm=1; Spg%sintlim=1.0
+               j=index(line,"!")
+               if (j /= 0) line=line(:j-1)
 
-                   case("QVECT","KVECT")
-                      if (Spg%nk > 0) then
-                         nk=nk+1
-                         read(unit=line,fmt=*,iostat=ier) Spg%kv(:,nk)
-                         if (ier /= 0) then
-                            Err_CFML%Ierr=1
-                            write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the k-vector #",nk
-                            return
-                         end if
-                      end if
+               j=index(line," ")
+               uline=u_case(line(:j-1))
 
-                   case("NHARM")
-                      if (Spg%nk > 0) then
-                         read(unit=line,fmt=*,iostat=ier) Spg%nharm(1:Spg%nk)
-                         if (ier /= 0) then
-                            Err_CFML%Ierr=1
-                            Err_CFML%Msg = "Error reading the nk harmonics !"
-                            return
-                         end if
-                      end if
+               line=adjustl(line(j+1:))
+               select case(trim(uline))
+                  case("NQVECT","NKVECT")
+                     read(unit=line,fmt=*,iostat=ier) Spg%nk, Spg%nq
+                     if (ier /= 0) then
+                        Err_CFML%Ierr=1
+                        Err_CFML%Msg="Error reading the number of k-vectors and/or number of Q-coefficients"
+                        return
+                     end if
+                     allocate(Spg%kv(3,Spg%nk),Spg%q_coeff(Spg%nk,Spg%nq))
+                     allocate(Spg%nharm(Spg%nk),Spg%sintlim(Spg%nk))
+                     SpG%kv=0.0_cp; SpG%q_coeff=1; Spg%nharm=1; Spg%sintlim=1.0
 
-                   case("SINTL")
-                      if (Spg%nk > 0) then
-                         read(unit=line,fmt=*,iostat=ier) Spg%sintlim(1:Spg%nk)
-                         if (ier /= 0) then
-                            Err_CFML%Ierr=1
-                            Err_CFML%Msg = "Error reading the maximum sinTheta/Lambda for harmonics!"
-                            return
-                         end if
-                      end if
+                  case("QVECT","KVECT")
+                     if (Spg%nk > 0) then
+                        nk=nk+1
+                        read(unit=line,fmt=*,iostat=ier) Spg%kv(:,nk)
+                        if (ier /= 0) then
+                           Err_CFML%Ierr=1
+                           write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the k-vector #",nk
+                           return
+                        end if
+                     end if
 
-                   case("Q_COEFF")
-                      nq=nq+1
-                      read(unit=line,fmt=*,iostat=ier) Spg%q_coeff(1:Spg%nk,nq)
-                      if (ier /= 0) then
-                         Err_CFML%Ierr=1
-                         write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the Q-coefficent # ",nq
-                         return
-                      end if
+                  case("NHARM")
+                     if (Spg%nk > 0) then
+                        read(unit=line,fmt=*,iostat=ier) Spg%nharm(1:Spg%nk)
+                        if (ier /= 0) then
+                           Err_CFML%Ierr=1
+                           Err_CFML%Msg = "Error reading the nk harmonics !"
+                           return
+                        end if
+                     end if
 
-                end select
-             end do
+                  case("SINTL")
+                     if (Spg%nk > 0) then
+                        read(unit=line,fmt=*,iostat=ier) Spg%sintlim(1:Spg%nk)
+                        if (ier /= 0) then
+                           Err_CFML%Ierr=1
+                           Err_CFML%Msg = "Error reading the maximum sinTheta/Lambda for harmonics!"
+                           return
+                        end if
+                     end if
 
-             if (Spg%nk /= (Spg%D-4)) then
-                Err_CFML%Ierr=1
-                write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of k-vectors,",Spg%nk, ", does not correspond with the additional dimensions of the group ",Spg%D-4
-                return
-             end if
+                  case("Q_COEFF")
+                     nq=nq+1
+                     read(unit=line,fmt=*,iostat=ier) Spg%q_coeff(1:Spg%nk,nq)
+                     if (ier /= 0) then
+                        Err_CFML%Ierr=1
+                        write(unit=Err_CFML%Msg,fmt="(a,i2)") "Error reading the Q-coefficent # ",nq
+                        return
+                     end if
 
-             if (Spg%nq /= nq) then
-                Err_CFML%Ierr=1
-                write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of expected Q-coefficients,",Spg%nq, ", does not correspond with number of read Q-coefficients ",nq
-                return
-             end if
+               end select
+            end do
 
-       End Select
+            if (Spg%nk /= (Spg%D-4)) then
+               Err_CFML%Ierr=1
+               write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of k-vectors,",Spg%nk, ", does not correspond with the additional dimensions of the group ",Spg%D-4
+               return
+            end if
+
+            if (Spg%nq /= nq) then
+               Err_CFML%Ierr=1
+               write(unit=Err_CFML%Msg,fmt="(2(a,i2))") "The number of expected Q-coefficients,",Spg%nq, ", does not correspond with number of read Q-coefficients ",nq
+               return
+            end if
+
+      End Select
 
    End Subroutine Read_CFL_SpG
 
@@ -711,5 +756,406 @@ SubModule (CFML_IOForm) IO_CFL
       end if
 
    End Subroutine Write_CFL_File
+
+   !!--++
+   !!--++ READ_XTAL_CFL
+   !!--++
+   !!--++ Read Crystal Information in a CFL File
+   !!--++
+   !!--++ 10/05/2020
+   !!
+   Module Subroutine Read_XTal_CFL(cfl, Cell, SpG, AtmList, Nphase, CFrame, Job_Info)
+      !---- Arguments ----!
+      type(File_Type),               intent(in)  :: cfl
+      class(Cell_Type),              intent(out) :: Cell
+      class(SpG_Type),               intent(out) :: SpG
+      Type(AtList_Type),             intent(out) :: Atmlist
+      Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+      character(len=*),    optional, intent(in)  :: CFrame
+      Type(Job_Info_type), optional, intent(out) :: Job_Info
+
+      !---- Local variables ----!
+      logical                          :: set_moment, set_matm_std
+      character(len=132)               :: line
+      character(len= 40),dimension(192):: gen
+
+      integer, dimension(MAX_PHASES)   :: ip
+      integer                          :: i, j,nt_phases, iph, n_ini, n_end
+      integer                          :: ngen, nsym, k
+      integer                          :: nt_atm
+
+      real(kind=cp),dimension(6)       :: vet1,vet2
+      real(kind=cp),dimension(3)       :: vet
+
+      type(kvect_info_Type)            :: Kvec
+
+      !> Init
+      call clear_error()
+
+      if (cfl%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_XTal_CFL: No lines in the file!"
+         return
+      end if
+
+      !> Calculating number of Phases
+      nt_phases=0; ip=cfl%nlines; ip(1)=1
+      do i=1,cfl%nlines
+         line=adjustl(cfl%line(i)%str)
+         if (l_case(line(1:6)) == "phase_")  then
+            nt_phases=nt_phases+1
+            ip(nt_phases)=i
+         end if
+      end do
+
+      !> Read the Phase information
+      iph=1
+      if (present(nphase)) then
+         iph=min(nphase, nt_phases)
+         iph=max(1,iph)
+      end if
+
+      n_ini=ip(iph)
+      n_end=ip(iph+1)
+
+      if (present(Job_Info)) then
+         call Get_Job_Info(cfl,Job_info, n_ini, n_end)
+      end if
+
+      !> Reading Cell Parameters
+      if (present(CFrame)) then
+         call read_cfl_cell(cfl, Cell, CFrame,n_ini,n_end)
+      else
+         call read_cfl_cell(cfl, Cell, i_ini=n_ini,i_end=n_end)
+      end if
+      if (Err_CFML%IErr==1) return
+
+      !> Reading Space groups
+      call read_CFL_SpG(cfl,SpG, i_ini=n_ini, i_end=n_end)
+      if (Err_CFML%IErr==1) return
+
+      !> Read Atoms information
+      set_moment=.false.
+      set_matm_std=.false.
+      do i=n_ini,n_end
+         line=adjustl(cfl%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '!') cycle
+
+         if (u_case(line(1:4)) /= 'ATOM') cycle
+
+         do j=i+1,n_end
+            line=adjustl(cfl%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '!') cycle
+
+            if (l_case(line(1:4)) == 'atom') exit
+            if (l_case(line(1:6)) == 'moment') set_moment=.true.
+            if (l_case(line(2:4)) == '_cs')    set_matm_std=.true.
+         end do
+      end do
+
+      if ((.not. set_moment) .and. (.not. set_matm_std)) then
+         !> Type of Atoms: Atm_std
+         call read_cfl_Atoms(cfl,AtmList,'Atm_std',0,n_ini,n_end)
+
+      elseif (set_moment .and. (.not. set_matm_std)) then
+         !> Type of Atoms: Atm_std
+         call read_cfl_Atoms(cfl,AtmList,'Atm_std',0,n_ini,n_end)
+
+      elseif (set_moment .and. set_matm_std) then
+         !> Type of Atoms: Matm_std
+         call read_cfl_kvectors(cfl,kvec,n_ini,n_end)
+         if (err_CFML%Ierr ==1) return
+         call read_cfl_Atoms(cfl,AtmList,'Matm_std',Kvec%nk,n_ini,n_end)
+
+      else
+         !> Type of atoms not defined
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_XTal_CFL: Impossible to define the type of Atoms. Please, check it!"
+         return
+      end if
+
+      !> Convert Us to Betas and Uiso to Biso
+      do i=1,AtmList%natoms
+         vet=AtmList%atom(i)%x
+         AtmList%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
+
+         select case (AtmList%atom(i)%thtype)
+            case ("iso")
+               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+
+            case ("ani")
+               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u(1)*78.95683521 !by default
+
+               select type (cell)
+                  class is (Cell_G_Type)
+                     Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
+                     Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+
+                     select case (Atmlist%atom(i)%Utype)
+                        case ("u_ij")
+                           Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
+
+                        case ("b_ij")
+                           Atmlist%atom(i)%u(1:6) = Get_Betas_from_B(Atmlist%atom(i)%u(1:6),Cell)
+                     end select
+               end select
+               Atmlist%atom(i)%Utype="beta"
+
+            case default
+               Atmlist%atom(i)%u_iso=0.05
+               Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
+               Atmlist%atom(i)%thtype = "iso"
+         end select
+      end do
+
+   End Subroutine Read_XTal_CFL
+
+   !!----
+   !!---- GET_JOB_INFO
+   !!----
+   !!----    Constructor of the object Job_info.
+   !!----
+   !!---- 10/05/2020
+   !!
+   Module Subroutine Get_Job_Info(cfl,Job_info, i_ini,i_end)
+      !---- Arguments ----!
+      type(File_Type),      intent(in)  :: cfl              ! Containing information
+      type(job_info_type),  intent(out) :: Job_info         ! Object to be constructed
+      integer,              intent(in)  :: i_ini, i_end     ! Lines to explore
+
+      !---- Local Variables ----!
+      integer                           :: i,nphas, ncmd,n_pat,ier, j
+      integer, dimension(i_end-i_ini+1) :: ip,ic,ipt
+      real(kind=sp)                     :: a1,a2,a3,a4,a5
+      character(len=120)                :: line, fmtfields, fmtformat
+
+      !> Init
+      if (cfl%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Get_Job_Info: 0 lines "
+         return
+      end if
+
+      !> Initialize FindFMT
+      call Init_FindFMT(i_ini)
+
+      nphas=0
+      ncmd=0
+      n_pat=0
+      ip=i_end
+      ic=0
+      ipt=0
+
+      Job_info%title=" General Job: CrysFML"
+      Job_info%Num_Patterns=1
+
+      do i=i_ini,i_end
+         line=u_case(adjustl(cfl%line(i)%str))
+
+         if (line(1:5) == "TITLE") Job_info%title=line(7:)
+
+         if (line(1:5) == "NPATT") then
+            read(unit=line(7:), fmt=*,iostat=ier) Job_info%Num_Patterns
+            if (ier /= 0) Job_info%Num_Patterns=1
+         end if
+
+         if (line(1:6) == "PHASE_") then
+            nphas=nphas+1
+            ip(nphas)=i
+         end if
+
+         if (line(1:4) == "CMDL") then
+            ncmd=ncmd+1
+            ic(ncmd)=i
+         end if
+
+         if (line(1:5) == "PATT_") then
+            n_pat=n_pat+1
+            ipt(n_pat)=i
+         end if
+      end do
+
+      if (nphas == 0) then
+         nphas=1
+         ip(nphas)=0
+      end if
+      if (n_pat == 0) then
+         n_pat=1
+         ipt(n_pat) = 0
+      end if
+
+      if (Job_info%Num_Patterns /= n_pat) Job_info%Num_Patterns = n_pat
+      Job_info%Num_Phases=nphas
+      Job_info%Num_Cmd=ncmd
+
+      if (allocated(Job_Info%Patt_typ))     deallocate(Job_Info%Patt_typ)
+      if (allocated(Job_Info%Phas_nam))     deallocate(Job_Info%Phas_nam)
+      if (allocated(Job_Info%range_stl))    deallocate(Job_Info%range_stl)
+      if (allocated(Job_Info%range_q))      deallocate(Job_Info%range_q)
+      if (allocated(Job_Info%range_d))      deallocate(Job_Info%range_d)
+      if (allocated(Job_Info%range_2theta)) deallocate(Job_Info%range_2theta)
+      if (allocated(Job_Info%range_energy)) deallocate(Job_Info%range_energy)
+      if (allocated(Job_Info%range_tof))    deallocate(Job_Info%range_tof)
+      if (allocated(Job_Info%lambda))       deallocate(Job_Info%lambda)
+      if (allocated(Job_Info%ratio))        deallocate(Job_Info%ratio)
+      if (allocated(Job_Info%dtt1))         deallocate(Job_Info%dtt1)
+      if (allocated(Job_Info%dtt2))         deallocate(Job_Info%dtt2)
+
+      allocate(Job_Info%Patt_typ(n_pat))
+      allocate(Job_Info%Phas_nam(nphas))
+      allocate(Job_Info%range_stl(n_pat))
+      allocate(Job_Info%range_q(n_pat))
+      allocate(Job_Info%range_d(n_pat))
+      allocate(Job_Info%range_2theta(n_pat))
+      allocate(Job_Info%range_energy(n_pat))
+      allocate(Job_Info%range_tof(n_pat))
+      allocate(Job_Info%lambda(n_pat))
+      allocate(Job_Info%ratio(n_pat))
+      allocate(Job_Info%dtt1(n_pat))
+      allocate(Job_Info%dtt2(n_pat))
+
+      !> Initialize all variables
+      Job_Info%Patt_typ    =" "
+      Job_Info%Phas_nam    =" "
+      Job_Info%range_stl%mina=0.0
+      Job_Info%range_stl%maxb=0.0
+      Job_Info%range_q%mina=0.0
+      Job_Info%range_q%maxb=0.0
+      Job_Info%range_d%mina=0.0
+      Job_Info%range_d%maxb=0.0
+      Job_Info%range_2theta%mina=0.0
+      Job_Info%range_2theta%maxb=0.0
+      Job_Info%range_Energy%mina=0.0
+      Job_Info%range_Energy%maxb=0.0
+      Job_Info%range_tof%mina=0.0
+      Job_Info%range_tof%maxb=0.0
+      Job_Info%Lambda%mina=0.0
+      Job_Info%Lambda%maxb=0.0
+      Job_Info%ratio = 0.0
+      Job_Info%dtt1 = 0.0
+      Job_Info%dtt2 = 0.0
+
+      if (ncmd > 0) then
+         if (allocated(Job_Info%cmd)) deallocate(Job_Info%cmd)
+         allocate(Job_Info%cmd(ncmd))
+         Job_Info%cmd=" "
+      end if
+
+      !> Fill the different fields of Job_Info
+      !> Start with patterns
+      fmtfields = "9fffff"
+
+      !> First asks if there is a PATT_ card, if not a standard is taken
+      if (ipt(1) /= 0) then
+         do n_pat=1, Job_info%Num_Patterns
+            i=ipt(n_pat)
+
+            line=u_case(adjustl(cfl%line(i)%str))
+            line=line(8:)
+            call findfmt(0,line,fmtfields,fmtformat)
+            read(unit=line,fmt=fmtformat) Job_Info%Patt_typ(n_pat), a1,a2,a3,a4,a5
+            if (Err_CFML%Ierr /= 0) return
+
+            line=u_case(Job_Info%Patt_typ(n_pat))
+
+            select case(line(1:9))
+               case("XRAY_2THE","NEUT_2THE","XRAY_SXTA","NEUT_SXTA")
+                  if ( a1 <= 0.000001) a1=1.5405
+                  if ( a2 <= 0.000001) then
+                     a2=a1
+                     a3=0.0
+                  end if
+                  if (a5 <= a4) a5=120.0
+                  Job_Info%Lambda(n_pat)%mina=a1
+                  Job_Info%Lambda(n_pat)%maxb=a2
+                  Job_Info%ratio(n_pat)=a3
+                  Job_Info%range_2theta(n_pat)%mina=a4
+                  Job_Info%range_2theta(n_pat)%maxb=a5
+                  a4=sind(0.5*a4)/a1
+                  a5=sind(0.5*a5)/a2
+                  Job_Info%range_stl(n_pat)%mina=a4
+                  Job_Info%range_stl(n_pat)%maxb=a5
+                  Job_Info%range_q(n_pat)%mina=a4*4.0*pi
+                  Job_Info%range_q(n_pat)%maxb=a5*4.0*pi
+                  Job_Info%range_d(n_pat)%mina=0.5/a5
+                  Job_Info%range_d(n_pat)%maxb=0.5/a4
+
+               case("NEUT_TOF ")
+                  if (a1 <= 0.000001) a1=1000.0
+                  if (a4 <= a3) a4=2.0*abs(a3)
+                  Job_Info%dtt1(n_pat)=a1
+                  Job_Info%dtt2(n_pat)=a2
+                  Job_Info%range_tof(n_pat)%mina=a3
+                  Job_Info%range_tof(n_pat)%maxb=a4
+                  Job_Info%range_d(n_pat)%mina=0.5*(-1.0+sqrt(1.0+4.0*a2*a3/a1/a1))
+                  Job_Info%range_d(n_pat)%maxb=0.5*(-1.0+sqrt(1.0+4.0*a2*a4/a1/a1))
+                  Job_Info%range_stl(n_pat)%mina=0.5/Job_Info%range_d(n_pat)%maxb
+                  Job_Info%range_stl(n_pat)%maxb=0.5/Job_Info%range_d(n_pat)%mina
+                  Job_Info%range_q(n_pat)%mina=Job_Info%range_stl(n_pat)%mina*4.0*pi
+                  Job_Info%range_q(n_pat)%maxb=Job_Info%range_stl(n_pat)%maxb*4.0*pi
+
+               case("XRAY_ENER")
+                  if (a1 <= 0.000001) a1=12.4 !(=hc(keV.Angstr.)
+                  Job_Info%dtt1(n_pat)=a1
+                  Job_Info%dtt2(n_pat)=0.0
+                  Job_Info%range_energy(n_pat)%mina=a3
+                  Job_Info%range_energy(n_pat)%maxb=a4
+                  if (a3 <= 0.00001) a3=0.01
+                  if (a4 <= 0.00001) a4=2.00
+                  Job_Info%range_d(n_pat)%mina=a1/a4
+                  Job_Info%range_d(n_pat)%maxb=a1/a3
+                  Job_Info%range_stl(n_pat)%mina=0.5/Job_Info%range_d(n_pat)%maxb
+                  Job_Info%range_stl(n_pat)%maxb=0.5/Job_Info%range_d(n_pat)%mina
+                  Job_Info%range_q(n_pat)%mina=Job_Info%range_stl(n_pat)%mina*4.0*pi
+                  Job_Info%range_q(n_pat)%maxb=Job_Info%range_stl(n_pat)%maxb*4.0*pi
+
+            end select
+         end do
+
+      else
+         n_pat=1
+         a1=1.5405
+         a2=a1
+         a3=0.0
+         a4=0.0
+         a5=120.0
+         Job_Info%Patt_typ(n_pat)="XRAY_2THE"
+         Job_Info%Lambda(n_pat)%mina=a1
+         Job_Info%Lambda(n_pat)%maxb=a2
+         Job_Info%ratio(n_pat)=a3
+         Job_Info%range_2theta(n_pat)%mina=a4
+         Job_Info%range_2theta(n_pat)%maxb=a5
+         a4=sind(0.5*a4)/a1
+         a5=sind(0.5*a5)/a2
+         Job_Info%range_stl(n_pat)%mina=a4
+         Job_Info%range_stl(n_pat)%maxb=a5
+         Job_Info%range_q(n_pat)%mina=a4*4.0*pi
+         Job_Info%range_q(n_pat)%maxb=a5*4.0*pi
+         Job_Info%range_d(n_pat)%mina=0.5/a5
+         Job_Info%range_d(n_pat)%maxb=0.5/a4
+      end if
+
+      !> Phase names
+      if (ip(1) /= 0) then
+         do i=1,nphas
+            j=ip(i)
+            line=adjustl(cfl%line(j)%str)
+            Job_Info%Phas_nam(i)=line(8:)
+         end do
+      else
+         Job_Info%Phas_nam(1)= Job_info%title
+      end if
+
+      !> Command Lines, stored but not analysed here
+      do i=1,ncmd
+         j=ic(i)
+         line=adjustl(cfl%line(j)%str)
+         Job_Info%cmd(i)=line(8:)
+      end do
+
+   End Subroutine Get_Job_Info
 
 End SubModule IO_CFL

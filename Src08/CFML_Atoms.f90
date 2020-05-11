@@ -60,9 +60,9 @@
 
 
     !---- Parameters ----!
-    real(kind=cp), parameter :: R_ATOM=1.1_cp      ! Average atomic radius
+    integer, public, parameter :: MAX_MOD=8          ! ??????
+    real(kind=cp),   parameter :: R_ATOM=1.1_cp      ! Average atomic radius
 
-    integer,public, parameter :: max_mod=8
 
     !---- Types ----!
 

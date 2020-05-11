@@ -112,27 +112,27 @@ SubModule (CFML_Atoms)  Write_Atoms
       end if
 
       car2="ISO"
-      if(any(A%Atom(:)%Thtype == "ANI")) car2="ANI"
+      if (any(A%Atom(:)%Thtype == "ANI") .or. any(A%Atom(:)%Thtype == "ani") ) car2="ANI"
 
-      if(car2 == "ISO") then
-          line="    Atom  Scatt/Chem    Mult      x/a       y/b       z/c      B[iso]     Occ"
+      if (car2 == "ISO") then
+         line="  Atom    Scatt/Chem    Mult     x/a       y/b       z/c      B[iso]    Occ"
+
       else
-          car2=trim(u_case(A%Atom(1)%Utype))
-          select case (car2)
-             case ("BETA")
-                line="    Atom  Scatt/Chem    Mult      x/a       y/b       z/c     B[iso]      Occ  "
-                line=line//"  beta_11   beta_22   beta_33   beta_12   beta_13   beta_23"
-             case ("U")
-                line="    Atom  Scatt/Chem    Mult      x/a       y/b       z/c    U[iso/eq]   Occ  "
-                line=line//"     U_11      U_22      U_33      U_12      U_13      U_23"
-             case ("B")
-                line="    Atom  Scatt/Chem    Mult      x/a       y/b       z/c     B[iso]      Occ"
-                line=line//"      B_11      B_22      B_33      B_12      B_13      B_23"
-             case default
-                line="    Atom  Scatt/Chem    Mult      x/a       y/b       z/c     B[iso]      Occ"
-          end select
+         car2=trim(u_case(A%Atom(1)%Utype))
+         select case (trim(car2))
+            case ("BETA")
+               line="  Atom    Scatt/Chem    Mult     x/a       y/b       z/c     B[iso]      Occ  "
+               line=line//"   beta_11   beta_22   beta_33   beta_12   beta_13   beta_23"
+            case ("U")
+               line="  Atom    Scatt/Chem    Mult     x/a       y/b       z/c    U[iso/eq]    Occ  "
+               line=line//"      U_11      U_22      U_33      U_12      U_13      U_23"
+            case ("B")
+               line="  Atom    Scatt/Chem    Mult     x/a       y/b       z/c     B[iso]      Occ"
+               line=line//"      B_11      B_22      B_33      B_12      B_13      B_23"
+            case default
+               line="  Atom    Scatt/Chem    Mult     x/a       y/b       z/c     B[iso]      Occ"
+         end select
       end if
-           !1234567890123456781234567
       write(unit=lun,fmt="(T3,a)") trim(line)
 
       line=repeat("=", len_trim(line))
