@@ -1,7 +1,7 @@
 macro(set_compiler_flags)
 
     # Nullify all the Fortran flags.
-    #set(CMAKE_Fortran_FLAGS "")
+    set(CMAKE_Fortran_FLAGS "")
 
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 

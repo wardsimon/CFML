@@ -260,8 +260,8 @@ else()
 endif()
 
 # CFML_IOForm
-#file(GLOB SUBMOD_IOFORM_SRC CFML_IOForm/*.f90)
-set(IOFORM_SRC CFML_IOForm.f90 CFML_IOForm/Format_CFL.f90 CFML_IOForm/Write_CIF.f90)
+file(GLOB SUBMOD_IOFORM_SRC CFML_IOForm/*.f90)
+set(IOFORM_SRC CFML_IOForm.f90 ${SUBMOD_IOFORM_SRC})
 if(${COMPILER_NAME} STREQUAL ifort)
     set_source_files_properties(${IOFORM_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
