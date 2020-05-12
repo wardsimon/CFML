@@ -223,6 +223,13 @@ Module CFML_IOForm
           character(len=*),  optional,   intent(in)    :: Title
       End Subroutine Write_CFL_File
 
+      Module Subroutine Get_CIF_NPhases(cif, NPhas, PhasesName, IPhas)
+         type(File_Type),                  intent(in)  :: cif
+         integer,                          intent(out) :: NPhas
+         character(len=*), dimension(:),   intent(out) :: PhasesName
+         integer,          dimension(:),   intent(out) :: IPhas
+      End Subroutine Get_CIF_NPhases
+
       Module Subroutine Read_CIF_Atoms(cif, AtmList, i_ini, i_end)
          type(File_Type),    intent(in)  :: cif
          type(atList_type),  intent(out) :: AtmList

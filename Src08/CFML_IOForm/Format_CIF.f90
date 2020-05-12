@@ -2810,4 +2810,54 @@ SubModule (CFML_IOForm) IO_CIF
 
    End Subroutine Read_XTal_CIF
 
+   !!--++
+   !!--++ GET_CIF_NPHASES
+   !!--++
+   !!--++ Determine the number of phases included into the CIF
+   !!--++
+   !!--++ 12/05/2020
+   !!
+   Module Subroutine Get_CIF_NPhases(cif, NPhas, PhasesName, IPhas)
+      !---- Arguments ----!
+      type(File_Type),                  intent(in)  :: cif
+      integer,                          intent(out) :: NPhas       ! Number of Phases in the file
+      character(len=*), dimension(:),   intent(out) :: PhasesName  ! Name of Phases in the file
+      integer,          dimension(:),   intent(out) :: IPhas       ! Index for lines for each Phase
+
+      !---- Local Variables ----!
+      integer :: i,j
+
+      !> Init
+      NPhas=0; IPhas=0
+      PhasesName=' '
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Get_CIF_NPhases: 0 lines "
+         return
+      end if
+
+      !> Number of Phases
+      IPhas=cif%nlines; IPhas(1)=1
+      do i=1,cif%nlines
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <= 0) cycle
+         if (line(1:1) =='#')     cycle
+
+         !> No data_global
+         j=index(line,'data_global')
+         if (j > 0) cycle
+
+         !> Just only lines beginning with data...
+         j=index(line,'data_')
+         if (j /= 1) cycle
+
+         nphas=nphas+1
+         IPhas(Nphas)=i
+         PhasesName(nphas)=trim(adjustl(line(6:)))
+      end do
+
+   End Subroutine Get_CIF_NPhases
+
 End SubModule IO_CIF
