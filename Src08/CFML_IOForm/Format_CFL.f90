@@ -791,7 +791,6 @@ SubModule (CFML_IOForm) IO_CFL
 
       !> Init
       call clear_error()
-
       if (cfl%nlines <=0) then
          err_CFML%Ierr=1
          err_CFML%Msg="Read_XTal_CFL: No lines in the file!"

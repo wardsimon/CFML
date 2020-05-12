@@ -215,7 +215,7 @@ Module CFML_IOForm
          class(Cell_G_Type), optional, intent(in) :: Cell
       End Subroutine Write_CFL_Atoms
 
-       Module Subroutine Write_CFL_File(Lun,Cell, SpG, Atm, Title)
+      Module Subroutine Write_CFL_File(Lun,Cell, SpG, Atm, Title)
           integer,                       intent(in)    :: lun
           class(Cell_G_Type),            intent(in)    :: Cell
           class(SpG_Type)  ,             intent(in)    :: SpG
@@ -223,93 +223,87 @@ Module CFML_IOForm
           character(len=*),  optional,   intent(in)    :: Title
       End Subroutine Write_CFL_File
 
-      Module Subroutine Read_CIF_Atom(lines,n_ini,n_end, AtmList)
-         character(len=*), dimension(:),   intent(in)      :: lines
-         integer,                          intent(in out)  :: n_ini
-         integer,                          intent(in)      :: n_end
-         type (AtList_type),               intent(out)     :: AtmList
-      End Subroutine Read_CIF_Atom
+      Module Subroutine Read_CIF_Atoms(cif, AtmList, i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         type(atList_type),  intent(out) :: AtmList
+         integer, optional,  intent(in)  :: i_ini, i_end
+      End Subroutine Read_CIF_Atoms
 
-      Module Subroutine Read_CIF_Cell(lines, n_ini, n_end, Cell)
-         character(len=*), dimension(:),  intent(in)     :: lines
-         integer,                         intent(in out) :: n_ini
-         integer,                         intent(in)     :: n_end
-         class(Cell_Type),                intent(out)    :: Cell
+      Module Subroutine Read_CIF_Cell(cif, Cell, i_Ini, i_End)
+         type(File_Type),    intent(in)  :: cif
+         class(Cell_Type),   intent(out) :: Cell
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Cell
 
-      Module Subroutine Read_CIF_ChemName(lines,N_ini,N_End,ChemName)
-         character(len=*),  dimension(:), intent(in) :: lines
-         integer,           intent(in out)           :: n_ini
-         integer,           intent(in)               :: n_end
-         character(len=*),  intent(out)              :: ChemName
+      Module Subroutine Read_CIF_ChemName(cif, ChemName, i_ini,i_end)
+         type(File_Type),    intent(in)  :: cif
+         character(len=*),   intent(out) :: ChemName
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_Cif_ChemName
 
-      Module Subroutine Read_CIF_Z(lines, n_ini, n_end, Z)
-         character(len=*), dimension(:),  intent(in)     :: lines
-         integer,                         intent(in out) :: n_ini
-         integer,                         intent(in)     :: n_end
-         real(kind=cp),                   intent(out)    :: Z
+      Module Subroutine Read_CIF_Z(cif,Z, i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         real(kind=cp),      intent(out) :: Z
+         integer, optional,  intent(in)  :: i_ini,i_end
       End Subroutine Read_CIF_Z
 
-      Module Subroutine Read_CIF_Wave(lines, n_ini, n_end, Wave)
-         character(len=*), dimension(:),  intent(in)     :: lines
-         integer,                         intent(in out) :: n_ini
-         integer,                         intent(in)     :: n_end
-         real(kind=cp),                   intent(out)    :: Wave
+      Module Subroutine Read_CIF_Wave(cif, Wave,i_ini,i_end)
+         type(File_Type),    intent(in)  :: cif
+         real(kind=cp),      intent(out) :: Wave
+         integer, optional,  intent(in)  :: i_ini,i_end
       End Subroutine Read_CIF_Wave
 
-      Module Subroutine Read_CIF_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
-         character(len=*), dimension(:),      intent(in)      :: lines
-         integer,                             intent(in out)  :: n_ini
-         integer,                             intent(in)      :: n_end
-         integer,                             intent(out)     :: n_elem_type
-         character(len=*), dimension(:),      intent(out)     :: elem_type
-         real(kind=cp), dimension(:),optional,intent(out)     :: n_elem
+      Module Subroutine Read_CIF_Cont(cif,N_Elem_Type,Elem_Type,N_Elem,i_ini,i_end)
+         type(File_Type),                      intent(in)  :: cif
+         integer,                              intent(out) :: n_elem_type
+         character(len=*), dimension(:),       intent(out) :: elem_type
+         real(kind=cp), dimension(:),optional, intent(out) :: n_elem
+         integer,                    optional, intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Cont
 
-      Module Subroutine Read_CIF_Pressure(lines,N_ini,N_End, P, SigP)
-         character(len=*),  dimension(:), intent(in) :: lines
-         integer,           intent(in out)           :: n_ini
-         integer,           intent(in)               :: n_end
-         real(kind=cp),     intent(out)              :: p
-         real(kind=cp),     intent(out)              :: sigp
+      Module Subroutine Read_CIF_IT(cif,IT,i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         integer,            intent(out) :: IT
+         integer, optional,  intent(in)  :: i_ini, i_end
+      End Subroutine Read_CIF_IT
+
+      Module Subroutine Read_CIF_Pressure(cif, P, SigP, i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         real(kind=cp),      intent(out) :: p
+         real(kind=cp),      intent(out) :: sigp
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Pressure
 
-      Module Subroutine Read_CIF_Title(lines,N_Ini,N_End,Title)
-         character(len=*),  dimension(:), intent(in) :: lines
-         integer,           intent(in out)           :: n_ini
-         integer,           intent(in)               :: n_end
-         character(len=*),  intent(out)              :: title
+      Module Subroutine Read_CIF_Title(cif,Title,i_Ini,i_End)
+         type(File_Type),    intent(in)  :: cif
+         character(len=*),   intent(out) :: title
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Title
 
-      Module Subroutine Read_CIF_Temp(lines,N_Ini,N_End,T,SigT)
-         character(len=*),  dimension(:), intent(in) :: lines
-         integer,           intent(in out)           :: n_ini
-         integer,           intent(in)               :: n_end
-         real(kind=cp),     intent(out)              :: T
-         real(kind=cp),     intent(out)              :: sigT
+      Module Subroutine Read_CIF_Temp(cif,T,SigT,i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         real(kind=cp),      intent(out) :: T
+         real(kind=cp),      intent(out) :: SigT
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Temp
 
-      Module Subroutine Read_CIF_Hall(lines, N_Ini, N_End, Hall)
-         character(len=*), dimension(:), intent(in) :: lines
-         integer,          intent(in out)           :: n_ini
-         integer,          intent(in)               :: n_end
-         character(len=*), intent(out)              :: Hall
+      Module Subroutine Read_CIF_Hall(cif, Hall, i_Ini, i_End)
+         type(File_Type),    intent(in)  :: cif
+         character(len=*),   intent(out) :: Hall
+         integer, optional,  intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Hall
 
-      Module Subroutine Read_CIF_HM(lines, N_Ini, N_End, Spgr_Hm)
-         character(len=*),  dimension(:), intent(in) :: lines
-         integer,           intent(in out)           :: n_ini
-         integer,           intent(in)               :: n_end
-         character(len=*),  intent(out)              :: spgr_hm
+      Module Subroutine Read_CIF_HM(cif, Spgr_Hm, i_ini, i_end)
+         type(File_Type),    intent(in)  :: cif
+         character(len=*),   intent(out) :: spgr_hm
+         integer, optional,  intent(in)  :: i_ini,i_end
       End Subroutine Read_CIF_HM
 
-      Module Subroutine Read_CIF_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
-         character(len=*), dimension(:), intent(in)     :: lines
-         integer,                        intent(in out) :: n_ini
-         integer,                        intent(in)     :: n_end
-         integer,                        intent(out)    :: n_oper
-         character(len=*), dimension(:), intent(out)    :: oper_symm
+      Module Subroutine Read_CIF_Symm(cif, N_Oper, Oper_Symm,i_ini,i_end)
+         type(File_Type),    intent(in)              :: cif
+         integer,                        intent(out) :: n_oper
+         character(len=*), dimension(:), intent(out) :: oper_symm
+         integer, optional,              intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Symm
 
       Module Subroutine Write_CIF_Powder_Profile(filename,Pat,r_facts)
@@ -393,6 +387,14 @@ Module CFML_IOForm
          Type(Job_Info_type), optional, intent(out) :: Job_Info
       End Subroutine Read_XTal_CFL
 
+      Module Subroutine Read_XTal_CIF(cif, Cell, Spg, AtmList, Nphase)
+         type(File_Type),               intent(in)  :: cif
+         class(Cell_Type),              intent(out) :: Cell
+         class(SpG_Type),               intent(out) :: SpG
+         Type(AtList_Type),             intent(out) :: Atmlist
+         Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+      End Subroutine Read_XTal_CIF
+
       Module Subroutine Read_XTal_SHX(shx, Cell, SpG, Atm)
          type(File_Type),                 intent(in)  :: shx
          class (Cell_G_Type),             intent(out) :: Cell
@@ -454,6 +456,7 @@ Module CFML_IOForm
           case ('CFL')
              call Read_XTal_CFL(f, Cell, SpG, Atm)
           case ('CIF')
+             call Read_XTal_CIF(f, Cell, SpG, Atm)
           case ('INS','RES')
              call Read_XTal_SHX(f, Cell, SpG, Atm)
           case ('PCR')

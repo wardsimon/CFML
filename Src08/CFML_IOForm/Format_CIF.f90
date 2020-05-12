@@ -2,6 +2,12 @@
 !!----
 !!----
 SubModule (CFML_IOForm) IO_CIF
+
+   !---- Local Variables ----!
+   character(len=132)            :: line
+   character(len=:), allocatable :: str
+   integer                       :: j_ini, j_end
+
    Contains
 
 
@@ -11,16 +17,14 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 26/06/2019
    !!
-   Module Subroutine Read_CIF_Atom(cif, AtmList, n_ini, n_end)
+   Module Subroutine Read_CIF_Atoms(cif, AtmList, i_ini, i_end)
       !---- Arguments ----!
       type(File_Type),    intent(in)  :: cif
-      type (atList_type), intent(out) :: AtmList
-      integer, optional,  intent(in)  :: n_ini, n_end
+      type(atList_type),  intent(out) :: AtmList
+      integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local Variables ----!
-      character(len=132), allocatable     :: line
       character(len=20),dimension(15)     :: label
-      integer                             :: j_ini, j_end
       integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
       integer, dimension( 8)              :: lugar   !   1 -> label
                                                      !   2 -> Symbol
@@ -30,6 +34,7 @@ SubModule (CFML_IOForm) IO_CIF
                                                      !   8 -> Biso
       real(kind=cp), dimension(1)     :: vet1,vet2
       integer,       dimension(1)     :: ivet
+
       type(atlist_type)               :: Atm
 
       type (atm_type)                 :: atm1
@@ -41,101 +46,127 @@ SubModule (CFML_IOForm) IO_CIF
 
       !> Init
       call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Atom: 0 lines "
+         return
+      end if
 
-      call allocate_atom_list(0,AtmList,'Atm_std',0)
-      call allocate_atom_list(n_end-n_ini+1,Atm,'Atm_std',0)
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      if (AtmList%natoms > 0) call allocate_atom_list(0, AtmList,'Atm_std',0)
+
+      !> Search loop for atoms
+      str="_atom_site_label"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
 
       lugar=0
-      num_ini=n_ini
-
-      !> Change of _atom_site by _atom_site_label in order to be able the reading
-      !> the atoms positions even when the anisotropic parameters are given before
-      call Read_Key_StrVal(lines,n_ini,n_end,"_atom_site_label",line)
-
-      !> Look for the possibility that _atom_site_label is not the first item in the loop
-      do i=n_ini,num_ini,-1
-         line=adjustl(lines(i))
-         if (line(1:) == "loop_") then
-            n_ini=i+1
-            exit
-         end if
-      end do
       j=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if ("_atom_site_label" == line(1:16)) then
-            j=j+1
-            lugar(1)=j
-            cycle
-         end if
-         if ("_atom_site_type_symbol" == line(1:22)) then
-            j=j+1
-            lugar(2)=j
-            cycle
-         end if
-         if ("_atom_site_fract_x" == line(1:18)) then
-            j=j+1
-            lugar(3)=j
-            cycle
-         end if
-         if ("_atom_site_fract_y" == line(1:18)) then
-            j=j+1
-            lugar(4)=j
-            cycle
-         end if
-         if ("_atom_site_fract_z" == line(1:18)) then
-            j=j+1
-            lugar(5)=j
-            cycle
-         end if
-         if ("_atom_site_occupancy" == line(1:20)) then
-            j=j+1
-            lugar(6)=j
-            cycle
-         end if
-         if ("_atom_site_U_iso_or_equiv" == line(1:25)) then
-            j=j+1
-            lugar(7)=j
-            cycle
-         end if
-         if ("_atom_site_B_iso_or_equiv" == line(1:25)) then
-            j=j+1
-            lugar(8)=j
-            cycle
-         end if
-         if ("_atom_site_" == line(1:11)) then
-            j=j+1
-            cycle
-         end if
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
 
-         if ("_oxford_atom_site_" == line(1:18)) then
-            j=j+1
-            cycle
-         end if
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:5) /='_atom') exit
 
-         nline=i
-         exit
+         select case (trim(line))
+            case ('_atom_site_label')
+               j=j+1
+               lugar(1)=j
+            case ('_atom_site_type_symbol')
+               j=j+1
+               lugar(2)=j
+            case ('_atom_site_fract_x')
+               j=j+1
+               lugar(3)=j
+            case ('_atom_site_fract_y')
+               j=j+1
+               lugar(4)=j
+            case ('_atom_site_fract_z')
+               j=j+1
+               lugar(5)=j
+            case ('_atom_site_occupancy')
+               j=j+1
+               lugar(6)=j
+            case ('_atom_site_U_iso_or_equiv')
+               j=j+1
+               lugar(7)=j
+            case ('_atom_site_adp_type')
+               j=j+1
+               lugar(8)=j
+         end select
       end do
 
       if (any(lugar(3:5) == 0)) then
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_Cif_Atom@CFML_IOFORM: Error reading atoms in CIF format!"
+         err_CFML%Msg="Read_Cif_Atom: Error reading atoms in CIF format!"
          return
       end if
 
-      nct=count(lugar > 0)
-      nline_big=nline
-      nline_ini=nline
+      !> Calculating atoms
       n=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if (line(1:1) == "#" .or. line(1:1) == "?") cycle
-         if (len_trim(line) == 0) exit
+      j_ini=i
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
          if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
+         n=n+1
+         cycle
+      end do
+      if (n <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_Cif_Atom: Error reading atoms in CIF format!"
+         return
+      end if
+      call allocate_atom_list(n,Atm,'Atm_std',0)
+
+      !> reading atoms
+      n=0
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+         if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
+
          call get_words(line, label, nc)
-         if (nc < nct) then
-            nline=i
-            exit
+         if (nc <=0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_CIF_Atom: Something is wrong in "//trim(line)
+            return
          end if
 
          n=n+1
@@ -160,23 +191,24 @@ SubModule (CFML_IOForm) IO_CIF
             atm%atom(n)%SfacSymb=atm%atom(n)%chemSymb
          end if
 
+         !> Coordinates
          select type (at => atm%atom)
             type is (atm_type)
-               call get_num(label(lugar(3)),vet1,ivet,iv)    ! _atom_site_fract_x
+               call get_numstd(label(lugar(3)),vet1,vet2,iv)
                at(n)%x(1)=vet1(1)
-               call get_num(label(lugar(4)),vet1,ivet,iv)    ! _atom_site_fract_y
+               call get_numstd(label(lugar(4)),vet1,vet2,iv)
                at(n)%x(2)=vet1(1)
-               call get_num(label(lugar(5)),vet1,ivet,iv)    ! _atom_site_fract_z
+               call get_numstd(label(lugar(5)),vet1,vet2,iv)
                at(n)%x(3)=vet1(1)
 
             class is (atm_std_type)
-               call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_fract_x
+               call get_numstd(label(lugar(3)),vet1,vet2,iv)
                at(n)%x(1)=vet1(1)
                at(n)%x_std(1)=vet2(1)
-               call get_numstd(label(lugar(4)),vet1,vet2,iv)    ! _atom_site_fract_y
+               call get_numstd(label(lugar(4)),vet1,vet2,iv)
                at(n)%x(2)=vet1(1)
                at(n)%x_std(2)=vet2(1)
-               call get_numstd(label(lugar(5)),vet1,vet2,iv)    ! _atom_site_fract_z
+               call get_numstd(label(lugar(5)),vet1,vet2,iv)
                at(n)%x(3)=vet1(1)
                at(n)%x_std(3)=vet2(1)
          end select
@@ -197,185 +229,202 @@ SubModule (CFML_IOForm) IO_CIF
                at(n)%occ_std=vet2(1)
          end select
 
+         !> U_iso
          if (lugar(7) /= 0) then
             call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_U_iso_or_equiv
             select type (at => atm%atom)
                type is (atm_type)
                   at(n)%U_iso=vet1(1)
+
                class is (atm_std_type)
                   at(n)%U_iso=vet1(1)
                   at(n)%U_iso_std=vet2(1)
             end select
             atm%atom(n)%utype="U"
-
-         else if (lugar(8) /= 0) then
-            call get_numstd(label(lugar(8)),vet1,vet2,iv)    ! _atom_site_B_iso_or_equiv
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(n)%U_iso=vet1(1)
-               class is (atm_std_type)
-                  at(n)%U_iso=vet1(1)
-                  at(n)%U_iso_std=vet2(1)
-            end select
-            atm%atom(n)%utype="B"
          else
             select type (at => atm%atom)
                type is (atm_type)
-                  at(n)%U_iso=0.0_cp
+                  at(n)%U_iso=0.5_cp
                class is (atm_std_type)
-                  at(n)%U_iso=0.0_cp
+                  at(n)%U_iso=0.5_cp
                   at(n)%U_iso_std=0.0_cp
             end select
             atm%atom(n)%utype="U"
          end if
+
+         !> Iso or Ani
+         if (lugar(8) /= 0) then
+            select case (trim(l_case(label(lugar(8)))))
+               case('uiso')
+                  atm%atom(n)%thtype='iso'
+               case('uani')
+                  atm%atom(n)%thtype='ani'
+            end select
+         end if
       end do
 
-      if (nline >= nline_big) nline_big=nline
+      !> Search loop for atoms in aniso
+      str="_atom_site_aniso_label"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
 
-      !> Anisotropic
-      nline_ini=num_ini !Changed to be able the reading of anisotropic parameters
-                        !even if given before the coordinates
-      lugar=0
-      call Read_Key_StrVal(lines,n_ini,n_end,"_atom_site_aniso_", line)
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
 
-      j=0
-      do i=n_ini,n_end
-         line=adjustl(lines(i))
-         if ("_atom_site_aniso_label" == line(1:22)) then
-            j=j+1
-            lugar(1)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_type_symbol" == line(1:28)) then
-            j=j+1
-            lugar(8)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_11" == line(1:21)) then
-            j=j+1
-            lugar(2)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_22" == line(1:21)) then
-            j=j+1
-            lugar(3)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_33" == line(1:21)) then
-            j=j+1
-            lugar(4)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_12" == line(1:21)) then
-            j=j+1
-            lugar(5)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_13" == line(1:21)) then
-            j=j+1
-            lugar(6)=j
-            cycle
-         end if
-         if ("_atom_site_aniso_U_23" == line(1:21)) then
-            j=j+1
-            lugar(7)=j
-            cycle
-         end if
-
-         if ("_atom_site_aniso" == line(1:16) ) then
-            j=j+1
-            cycle
-         end if
-
-         nline=i
-         exit
-      end do
-      if(nline >= nline_big) nline_big=nline
-      if (all(lugar(1:7) > 0)) then        ! T.R. June 2017
-         nct=count(lugar > 0)
-         nline_ini=nline
-         mm=0
-         do i=n_ini,n_end
-            line=adjustl(lines(i))
-            if (line(1:1) == "#" .or. line(1:1) =="?") cycle
-            if (len_trim(line) == 0) exit
-            call getword(line,label,nc)
-            if (nc < nct) then
-               nline=i
-               exit
-            end if
-            do j=1,n
-               if (atm%atom(j)%thtype == "ani") cycle ! already assigned
-               if (trim(atm%atom(j)%lab) /= trim(label(lugar(1))) ) cycle
-
-               call get_numstd(label(lugar(2)),vet1,vet2,iv)    ! _atom_site_aniso_U_11
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(1)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(1)    =vet1(1)
-                     at(j)%u_std(1)=vet2(1)
-               end select
-
-               call get_numstd(label(lugar(3)),vet1,vet2,iv)    ! _atom_site_aniso_U_22
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(2)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(2)    =vet1(1)
-                     at(j)%u_std(2)=vet2(1)
-               end select
-
-               call get_numstd(label(lugar(4)),vet1,vet2,iv)    ! _atom_site_aniso_U_33
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(3)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(3)    =vet1(1)
-                     at(j)%u_std(3)=vet2(1)
-               end select
-
-               call get_numstd(label(lugar(5)),vet1,vet2,iv)    ! _atom_site_aniso_U_12
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(4)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(4)    =vet1(1)
-                     at(j)%u_std(4)=vet2(1)
-               end select
-
-               call get_numstd(label(lugar(6)),vet1,vet2,iv)    ! _atom_site_aniso_U_13
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(5)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(5)    =vet1(1)
-                     at(j)%u_std(5)=vet2(1)
-               end select
-
-               call get_numstd(label(lugar(7)),vet1,vet2,iv)    ! _atom_site_aniso_U_23
-               select type (at => atm%atom)
-                  type is (atm_type)
-                     at(j)%u(6)    =vet1(1)
-                  class is (atm_std_type)
-                     at(j)%u(6)    =vet1(1)
-                     at(j)%u_std(6)=vet2(1)
-               end select
-
-               atm%atom(j)%thtype="ani"
-               mm=mm+1
-               exit
-            end do
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
          end do
 
-      end if
-      if (nline >= nline_big) nline_big=nline
-      n_ini=nline_big
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:5) /='_atom') exit
+
+         select case (trim(line))
+            case ('_atom_site_aniso_label')
+               j=j+1
+               lugar(1)=j
+            case ('_atom_site_aniso_U_11')
+               j=j+1
+               lugar(2)=j
+            case ('_atom_site_aniso_U_22')
+               j=j+1
+               lugar(3)=j
+            case ('_atom_site_aniso_U_33')
+               j=j+1
+               lugar(4)=j
+            case ('_atom_site_aniso_U_23')
+               j=j+1
+               lugar(5)=j
+            case ('_atom_site_aniso_U_13')
+               j=j+1
+               lugar(6)=j
+            case ('_atom_site_aniso_U_12')
+               j=j+1
+               lugar(7)=j
+         end select
+      end do
+
+      !> reading anisotropic thermal parameters
+      j_ini=i
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+         if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
+
+         call get_words(line, label, nc)
+
+         if (nc <=0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_CIF_Atom: Something is wrong in "//trim(line)
+            return
+         end if
+
+         do j=1,n
+            !> Found the anisotropic atom
+            if (trim(label(lugar(1))) /= trim(atm%atom(j)%lab)) cycle
+
+            if (atm%atom(j)%thtype /='ani') then
+               err_CFML%Ierr=1
+               err_CFML%Msg="Read_CIF_Atom: Something is wrong in Anisotropic thermal parameters!"
+               return
+            end if
+
+            !> _atom_site_aniso_U_11
+            call get_numstd(label(lugar(2)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(1)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(1)    =vet1(1)
+                  at(j)%u_std(1)=vet2(1)
+            end select
+
+            !> _atom_site_aniso_U_22
+            call get_numstd(label(lugar(3)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(2)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(2)    =vet1(1)
+                  at(j)%u_std(2)=vet2(1)
+            end select
+
+            !> _atom_site_aniso_U_33
+            call get_numstd(label(lugar(4)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(3)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(3)    =vet1(1)
+                  at(j)%u_std(3)=vet2(1)
+            end select
+
+            !> _atom_site_aniso_U_12
+            call get_numstd(label(lugar(7)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(4)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(4)    =vet1(1)
+                  at(j)%u_std(4)=vet2(1)
+            end select
+
+            !> _atom_site_aniso_U_13
+            call get_numstd(label(lugar(6)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(5)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(5)    =vet1(1)
+                  at(j)%u_std(5)=vet2(1)
+            end select
+
+            !> _atom_site_aniso_U_23
+            call get_numstd(label(lugar(5)),vet1,vet2,iv)
+            select type (at => atm%atom)
+               type is (atm_type)
+                  at(j)%u(6)    =vet1(1)
+               class is (atm_std_type)
+                  at(j)%u(6)    =vet1(1)
+                  at(j)%u_std(6)=vet2(1)
+            end select
+         end do
+
+      end do
 
       !> Look for the first atoms fully occupying the site and put it in first position
       !> This is needed for properly calculating the occupation factors
       !> after normalization in subroutine Readn_Set_XTal_CIF
-      vet1(1)=maxval(atm%atom(1:n)%occ)  !Normalize occupancies
+
+      vet1=maxval(atm%atom(1:n)%occ)  !Normalize occupancies
       atm%atom%occ=atm%atom%occ/vet1(1)
       First=1
       do i=1,n
@@ -394,20 +443,23 @@ SubModule (CFML_IOForm) IO_CIF
                at(first)=atm1
 
             type is (atm_std_type)
+               atm2=at(1)
+               at(1)=at(first)
+               at(first)=atm2
+
             type is (matm_std_type)
             type is (atm_ref_type)
          end select
       end if
 
       !> Put the first atom the first having a full occupation factor 1.0
-      if (n > 0) then
-         call allocate_atom_list(n,AtmList,'Atm_std',0)
-         AtmList%atom=atm%atom(1:n)
-      end if
+      if (n <=0) return
 
-      call allocate_atom_list(0,Atm,'Atm_std',0)
+      call allocate_atom_list(n, AtmList,'atm_std',0)
+      AtmList%atom=atm%atom(1:n)
+      call allocate_atom_list(0,Atm,'atm_std',0)
 
-   End Subroutine Read_CIF_Atom
+   End Subroutine Read_CIF_Atoms
 
    !!----
    !!---- READ_CIF_CELL
@@ -422,12 +474,10 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                         :: i,npos,iv
-      integer,                        :: j_ini, j_end
+      integer                         :: i,npos,nl,iv
       real(kind=cp), dimension(1)     :: vet1,vet2
       real(kind=cp), dimension(6)     :: vcell, std
       logical                         :: ierror
-      character(len=132)              :: line
 
       !> Init
       call clear_error()
@@ -444,76 +494,183 @@ SubModule (CFML_IOForm) IO_CIF
       vcell=0.0_cp; std=0.0_cp
       ierror=.false.
 
-      !> Celda
+      !> a
+      str="_cell_length_a"
+      nl=len_trim(str)
       do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
          !> eliminar tabs
          do
-            iv=index(lines,TAB)
+            iv=index(line,TAB)
             if (iv == 0) exit
             line(iv:iv)=' '
          end do
 
-      initl=n_ini  ! Preserve initial line => some CIF files have random order for cell parameters
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_a",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(1)=vet1(1)
-         std(1)=vet2(1)
-      else
-         ierror=.true.
-      end if
+         npos=index(line,str)
+         if (npos ==0) cycle
 
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_b",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(2)=vet1(1)
-         std(2)=vet2(1)
-      else
-         ierror=.true.
-      end if
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(1)=vet1(1)
+            std(1)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
 
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_length_c",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(3)=vet1(1)
-         std(3)=vet2(1)
-      else
-         ierror=.true.
-      end if
+      !> b
+      str="_cell_length_b"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
 
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_alpha",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(4)=vet1(1)
-         std(4)=vet2(1)
-      else
-         ierror=.true.
-      end if
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
 
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_beta",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(5)=vet1(1)
-         std(5)=vet2(1)
-      else
-         ierror=.true.
-      end if
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
 
-      nline_ini=initl
-      call read_key_valueSTD(lines,n_ini,n_end,"_cell_angle_gamma",vet1,vet2,iv)
-      if (iv == 1) then
-         vcell(6)=vet1(1)
-         std(6)=vet2(1)
-      else
-         ierror=.true.
-      end if
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(2)=vet1(1)
+            std(2)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
+
+      !> c
+       str="_cell_length_c"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(3)=vet1(1)
+            std(3)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
+
+      !> alpha
+      str="_cell_angle_alpha"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(4)=vet1(1)
+            std(4)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
+
+      !> beta
+      str="_cell_angle_beta"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(5)=vet1(1)
+            std(5)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
+
+      !> gamma
+      str="_cell_angle_gamma"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            vcell(6)=vet1(1)
+            std(6)=vet2(1)
+            exit
+         else
+            ierror=.true.
+         end if
+      end do
 
       if (ierror) then
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Cell@CFML_IOForm: Problems reading cell parameters!"
+         err_CFML%Msg="Read_CIF_Cell: Problems reading cell parameters!"
          return
       end if
+
       call Set_Crystal_Cell(vcell(1:3),vcell(4:6), Cell, Vscell=std(1:3), Vsang=std(4:6))
 
    End Subroutine Read_Cif_Cell
@@ -524,29 +681,56 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Wave(lines, n_ini, n_end, Wave)
+   Module Subroutine Read_CIF_Wave(cif, Wave,i_ini,i_end)
       !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      real(kind=cp),                   intent(out)    :: Wave    ! Wavelength
+      type(File_Type),    intent(in)  :: cif
+      real(kind=cp),      intent(out) :: Wave    ! Wavelength
+      integer, optional,  intent(in)  :: i_ini,i_end
 
       !---- Local Variables ----!
-      integer                    :: iv
+      integer                    :: i,nl,iv
       integer,dimension(1)       :: ivet
       real(kind=cp), dimension(1):: vet
 
       !> Init
       wave=0.0_cp
       call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Wave: 0 lines "
+         return
+      end if
 
-      call read_key_value(lines,n_ini,n_end, "_diffrn_radiation_wavelength",vet,ivet,iv)
+      str="_diffrn_radiation_wavelength"
+      nl=len_trim(str)
+
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_num(line(npos+nl:),vet,ivet,iv)
+         exit
+      end do
+
       if (iv == 1) then
          wave=vet(1)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Wave@CFML_IOForm: Problems reading wavelenth value!"
+         err_CFML%Msg="Read_CIF_Wave: Problems reading wavelenth value!"
       end if
+
    End Subroutine Read_CIF_Wave
 
    !!----
@@ -555,29 +739,60 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Z(lines, n_ini, n_end, Z)
+   Module Subroutine Read_CIF_Z(cif,Z, i_ini, i_end)
       !---- Arguments ----!
-      character(len=*), dimension(:),  intent(in)     :: lines   ! Containing information
-      integer,                         intent(in out) :: n_ini   ! Index to start
-      integer,                         intent(in)     :: n_end   ! Index to Finish
-      real(kind=cp),                   intent(out)    :: Z       ! Z number
+      type(File_Type),    intent(in)  :: cif
+      real(kind=cp),      intent(out) :: Z             ! Z number
+      integer, optional,  intent(in)  :: i_ini,i_end   ! Index to Finish
 
       !---- Local Variables ----!
-      integer                     :: iv
+      integer                     :: i,nl,npos,iv
       integer,dimension(1)        :: ivet
       real(kind=cp), dimension(1) :: vet
 
       !> Init
+      z=0.0_cp
       call clear_error()
-      z=0
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Z: 0 lines "
+         return
+      end if
 
-      call read_key_value(lines,n_ini,n_end, "_cell_formula_units_Z",vet,ivet,iv)
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_cell_formula_units_Z"
+      nl=len_trim(str)
+
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_num(line(npos+nl:),vet,ivet,iv)
+         exit
+      end do
+
       if (iv == 1) then
          z=vet(1)
       else
          err_CFML%Ierr=1
-         err_CFML%Msg="Read_CIF_Z@CFML_IOForm: Problems reading Z value!"
+         err_CFML%Msg="Read_CIF_Z: Problems reading Z value!"
       end if
+
    End Subroutine Read_CIF_Z
 
    !!----
@@ -586,37 +801,88 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_ChemName(lines,N_ini,N_End,ChemName)
+   Module Subroutine Read_CIF_ChemName(cif, ChemName, i_ini,i_end)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in)     :: lines
-      integer,                         intent(in out) :: n_ini
-      integer,                         intent(in)     :: n_end
-      character(len=*),                intent(out)    :: ChemName
+      type(File_Type),    intent(in)  :: cif
+      character(len=*),   intent(out) :: ChemName
+      integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer :: np1, np2
+      integer :: i,nl,np1, np2
 
       !> Init
       ChemName=" "
-
-      call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_name_common",ChemName)
-
-      if (len_trim(chemname) == 0) then
-         call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_name_systematic",ChemName)
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_ChemName: 0 lines "
+         return
       end if
 
-      if (len_trim(chemname) > 0) then
-         if (trim(chemname) =="; ?" .or. trim(chemname)=="#") chemname=" "
-         np1=index(chemname,"'")
-         np2=index(chemname,"'",back=.true.)
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> First tentative
+      str="_chemical_name_common"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         ChemName=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(ChemName) =="?" .or. trim(ChemName)=="#" .or. trim(ChemName)=="''") ChemName=" "
+      if (len_trim(ChemName) > 0) then
+         np1=index(ChemName,"'")
+         np2=index(ChemName,"'",back=.true.)
          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-            chemname=chemname(np1+1:np2-1)
-         else
-            np1=index(chemname,'"')
-            np2=index(chemname,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               chemname=chemname(np1+1:np2-1)
-            end if
+            ChemName=ChemName(np1+1:np2-1)
+         end if
+         return
+      end if
+
+      !> Second tentative
+      str="_chemical_name_systematic"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         ChemName=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(ChemName) =="?" .or. trim(ChemName)=="#" .or. trim(ChemName)=="''") ChemName=" "
+      if (len_trim(ChemName) > 0) then
+         np1=index(ChemName,"'")
+         np2=index(ChemName,"'",back=.true.)
+         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+            ChemName=ChemName(np1+1:np2-1)
          end if
       end if
 
@@ -628,109 +894,167 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Cont(lines,N_Ini,N_End,N_Elem_Type,Elem_Type,N_Elem)
+   Module Subroutine Read_CIF_Cont(cif,N_Elem_Type,Elem_Type,N_Elem,i_ini,i_end)
       !---- Arguments ----!
-      character(len=*), dimension(:),      intent(in)      :: lines
-      integer,                             intent(in out)  :: n_ini
-      integer,                             intent(in)      :: n_end
-      integer,                             intent(out)     :: n_elem_type
-      character(len=*), dimension(:),      intent(out)     :: elem_type
-      real(kind=cp), dimension(:),optional,intent(out)     :: n_elem
+      type(File_Type),                      intent(in)  :: cif
+      integer,                              intent(out) :: n_elem_type
+      character(len=*), dimension(:),       intent(out) :: elem_type
+      real(kind=cp), dimension(:),optional, intent(out) :: n_elem
+      integer,                    optional, intent(in)  :: i_ini, i_end
 
       !---- Local  variables ----!
-      character(len=132)                   :: line
-      character(len=10), dimension(15)     :: label
+      character(len=10), dimension(15) :: label
 
-      integer                     :: iv
-      integer                     :: i,np1,np2,nlabel,nlong
+      integer                     :: i,nl,iv
+      integer                     :: np1,np2,nlabel,nlong
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
 
       !> Init
-      call clear_error()
-
       n_elem_type = 0
       elem_type   = " "
       if (present(n_elem)) n_elem = 0.0_cp
 
-      call Read_Key_StrVal(lines,n_ini,n_end, "_chemical_formula_sum",line)
-      if (len_trim(line) ==0) line=lines(n_ini+1)
-      line=adjustl(line)
-      if (line(1:1) == "?") return
-
-      np1=index(line,"'")
-      np2=index(line,"'",back=.true.)
-      nlabel=0
-      if (np1 /= 0 .and. np2 /= 0 .and. np2 > np1) then
-         call get_words(line(np1+1:np2-1), label, nlabel)
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Hall: 0 lines "
+         return
       end if
-      if (nlabel /=0) then
-         n_elem_type = nlabel
-         do i=1,nlabel
-            nlong=len_trim(label(i))
-            select case (nlong)
-                case (1)
-                   elem_type(i)=label(i)(1:1)
-                   if (present(n_elem)) n_elem(i)   = 1.0_cp
 
-                case (2)
-                   call get_num(label(i)(2:),vet,ivet,iv)
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_chemical_formula_sum"
+      nl=len_trim(str)
+      line=" "
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         line=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(line) =="?" .or. trim(line)=="#" .or. trim(line)=="''") line=" "
+      if (len_trim(line) > 0) then
+         np1=index(line,"'")
+         np2=index(line,"'",back=.true.)
+         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+            line=line(np1+1:np2-1)
+         end if
+      end if
+      if (len_trim(line) <= 0) return
+
+      call get_words(line, label, nlabel)
+      if (nlabel ==0) return
+
+      n_elem_type = nlabel
+      do i=1,nlabel
+         nlong=len_trim(label(i))
+         select case (nlong)
+             case (1)
+                elem_type(i)=label(i)(1:1)
+                if (present(n_elem)) n_elem(i)   = 1.0_cp
+
+             case (2)
+                call get_num(label(i)(2:),vet,ivet,iv)
+                if (iv == 1) then
+                   elem_type(i)=label(i)(1:1)
+                   if (present(n_elem)) n_elem(i)   =vet(1)
+                else
+                   elem_type(i)=label(i)(1:2)
+                   if (present(n_elem)) n_elem(i)   = 1.0_cp
+                end if
+
+             case (3:)
+                call get_num(label(i)(2:),vet,ivet,iv)
+                if (iv == 1) then
+                   elem_type(i)=label(i)(1:1)
+                   if (present(n_elem)) n_elem(i)   =vet(1)
+                else
+                   call get_num(label(i)(3:),vet,ivet,iv)
                    if (iv == 1) then
-                      elem_type(i)=label(i)(1:1)
+                      elem_type(i)=label(i)(1:2)
                       if (present(n_elem)) n_elem(i)   =vet(1)
                    else
                       elem_type(i)=label(i)(1:2)
                       if (present(n_elem)) n_elem(i)   = 1.0_cp
                    end if
-
-                case (3:)
-                   call get_num(label(i)(2:),vet,ivet,iv)
-                   if (iv == 1) then
-                      elem_type(i)=label(i)(1:1)
-                      if (present(n_elem)) n_elem(i)   =vet(1)
-                   else
-                      call get_num(label(i)(3:),vet,ivet,iv)
-                      if (iv == 1) then
-                         elem_type(i)=label(i)(1:2)
-                         if (present(n_elem)) n_elem(i)   =vet(1)
-                      else
-                         elem_type(i)=label(i)(1:2)
-                         if (present(n_elem)) n_elem(i)   = 1.0
-                      end if
-                   end if
-            end select
-         end do
-      end if
+                end if
+         end select
+      end do
 
    End Subroutine Read_CIF_Cont
 
    !!----
    !!---- READ_CIF_PRESSURE
-   !!----    Pressure and Sigma
+   !!----    Pressure and Sigma in GPa
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Pressure(lines,N_ini,N_End, P, SigP)
+   Module Subroutine Read_CIF_Pressure(cif, P, SigP, i_ini, i_end)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in)     :: lines
-      integer,                         intent(in out) :: n_ini
-      integer,                         intent(in)     :: n_end
-      real(kind=cp),                   intent(out)    :: p
-      real(kind=cp),                   intent(out)    :: sigp
+      type(File_Type),    intent(in)  :: cif
+      real(kind=cp),      intent(out) :: p
+      real(kind=cp),      intent(out) :: sigp
+      integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                    :: iv
-      real(kind=cp),dimension(1) :: vet1,vet2
+      integer                       :: i,iv
+      real(kind=cp),dimension(1)    :: vet1,vet2
 
       !> Init
-      p=0.0_cp
-      sigp=1.0e-5
+      p=0.0_cp; SigP=1.0e-5
 
-      call read_key_valuestd(lines,n_ini,n_end, "_diffrn_ambient_pressure",vet1,vet2,iv)
-      if (iv == 1) then
-         p=vet1(1)*1.0e-6
-         sigp=vet2(1)*1.0e-6
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Pressure: 0 lines "
+         return
       end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_diffrn_ambient_pressure"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            p=vet1(1)*1.0e6
+            sigp=vet2(1)*1.0e6
+            exit
+         end if
+      end do
 
    End Subroutine Read_CIF_Pressure
 
@@ -740,40 +1064,120 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Title(lines,N_Ini,N_End,Title)
+   Module Subroutine Read_CIF_Title(cif,Title,i_Ini,i_End)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in)     :: lines
-      integer,                         intent(in out) :: n_ini
-      integer,                         intent(in)     :: n_end
-      character(len=*),                intent(out)    :: title
+      type(File_Type),    intent(in)  :: cif
+      character(len=*),   intent(out) :: title
+      integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local variables ----!
-      integer :: np, np1, np2
+      integer :: i, iv,nl,npos, np1, np2
 
       !> Init
       title=" "
-      call Read_Key_StrVal(lines,n_ini,n_end, "_publ_section_title",title)
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Title: 0 lines "
+         return
+      end if
 
-      if (len_trim(title) ==0 ) title=adjustl(lines(n_ini+1))
-      if (title =="; ?" .or. title=="#") then
-         title=" "
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_publ_section_title"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         title=adjustl(line(npos+nl:))
+         exit
+      end do
+
+      !> Check
+      if (trim(title)=='?' .or. trim(title)=='#' .or. trim(title)==''  ) then
+         title=' '
       else
-         np=len_trim(title)
-         if (np <= 3) title=adjustl(lines(n_ini+2))
          np1=index(title,"'")
          np2=index(title,"'",back=.true.)
          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
             title=title(np1+1:np2-1)
-         else
-            np1=index(title,'"')
-            np2=index(title,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               title=title(np1+1:np2-1)
-            end if
          end if
       end if
 
    End Subroutine Read_CIF_Title
+
+   !!----
+   !!---- READ_CIF_IT
+   !!----    Space group defined by I.T.
+   !!----
+   !!---- 11/05/2020
+   !!
+   Module Subroutine Read_CIF_IT(cif,IT,i_ini, i_end)
+      !---- Arguments ----!
+      type(File_Type),    intent(in)  :: cif
+      integer,            intent(out) :: IT
+      integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
+
+      !---- Local Variables ----!
+      integer                       :: i,iv
+      integer, dimension(1)         :: ivet
+      real(kind=cp),dimension(1)    :: vet
+
+      !> Init
+      it=0
+
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_IT: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_space_group_IT_number"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Num(line(npos+nl:), vet, ivet, iv)
+         if (iv == 1) then
+            it=ivet(1)
+            exit
+         end if
+      end do
+
+   End Subroutine Read_CIF_IT
 
    !!----
    !!---- READ_CIF_TEMP
@@ -781,27 +1185,56 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Temp(lines,N_Ini,N_End,T,SigT)
+   Module Subroutine Read_CIF_Temp(cif,T,SigT,i_ini, i_end)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in)      :: lines
-      integer,                         intent(in out)  :: n_ini
-      integer,                         intent(in)      :: n_end
-      real(kind=cp),                   intent(out)     :: T
-      real(kind=cp),                   intent(out)     :: sigT
+      type(File_Type),    intent(in)  :: cif
+      real(kind=cp),      intent(out) :: T
+      real(kind=cp),      intent(out) :: SigT
+      integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                    :: iv
-      real(kind=cp),dimension(1) :: vet1,vet2
+      integer                       :: i,iv
+      real(kind=cp),dimension(1)    :: vet1,vet2
 
       !> Init
-      T=298.0_cp
-      sigt=1.0_cp
+      t=298.0_cp; Sigt=1.0_cp
 
-      call read_key_valuestd(lines,n_ini,n_end, "_diffrn_ambient_temperature",vet1,vet2,iv)
-      if (iv == 1) then
-         t=vet1(1)
-         sigt=vet2(1)
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Temp: 0 lines "
+         return
       end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      str="_diffrn_ambient_temperature"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call get_Numstd(line(npos+nl:), vet1, vet2, iv)
+         if (iv == 1) then
+            t=vet1(1)
+            sigt=vet2(1)
+            exit
+         end if
+      end do
 
    End Subroutine Read_CIF_Temp
 
@@ -811,42 +1244,88 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Hall(lines, N_Ini, N_End, Hall)
+   Module Subroutine Read_CIF_Hall(cif, Hall, i_Ini, i_End)
       !---- Arguments ----!
-      character(len=*), dimension(:), intent(in)     :: lines
-      integer,                        intent(in out) :: n_ini
-      integer,                        intent(in)     :: n_end
-      character(len=*),               intent(out)    :: Hall
+      type(File_Type),    intent(in)  :: cif
+      character(len=*),   intent(out) :: Hall
+      integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer :: np1, np2
+      integer           :: i,nl, np1, np2
 
       !> Init
       Hall=" "
-      call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_space_group_name_Hall",hall)
-      if (len_trim(Hall)==0) Hall=adjustl(lines(n_ini+1))
-
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (len_trim(Hall) == 0) then
-         call Read_Key_StrVal(lines,n_ini,n_end, "_space_group_name_Hall",hall)
-         if (len_trim(Hall)==0) Hall=adjustl(lines(n_ini+1))
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_Hall: 0 lines "
+         return
       end if
 
-      if (trim(Hall) =="?" .or. trim(Hall)=="#") then
-         Hall=" "
-      else
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> First tentative
+      str="_space_group_name_Hall"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         hall=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(Hall) =="?" .or. trim(Hall)=="#" .or. trim(Hall)=="''") hall=" "
+      if (len_trim(hall) > 0) then
          np1=index(Hall,"'")
          np2=index(Hall,"'",back=.true.)
          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
             Hall=Hall(np1+1:np2-1)
-         else
-            np1=index(Hall,'"')
-            np2=index(Hall,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               Hall=Hall(np1+1:np2-1)
-            else
-               Hall=" "
-            end if
+         end if
+         return
+      end if
+
+      !> Second tentative
+      str="_symmetry_space_group_name_Hall"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         hall=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(Hall) =="?" .or. trim(Hall)=="#" .or. trim(Hall)=="''") hall=" "
+      if (len_trim(hall) > 0) then
+         np1=index(Hall,"'")
+         np2=index(Hall,"'",back=.true.)
+         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+            Hall=Hall(np1+1:np2-1)
          end if
       end if
 
@@ -858,45 +1337,126 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_HM(lines, N_Ini, N_End, Spgr_Hm)
+   Module Subroutine Read_CIF_HM(cif, Spgr_Hm, i_ini, i_end)
       !---- Arguments ----!
-      character(len=*),  dimension(:), intent(in)     :: lines
-      integer,                         intent(in out) :: n_ini
-      integer,                         intent(in)     :: n_end
-      character(len=*),                intent(out)    :: spgr_hm
+      type(File_Type),    intent(in)  :: cif
+      character(len=*),   intent(out) :: spgr_hm
+      integer, optional,  intent(in)  :: i_ini,i_end
 
       !---- Local variables ----!
       character(len=1) :: csym, csym2
-      integer          :: np1, np2
+      integer          :: i,nl,np1, np2
 
       !> Init
       spgr_hm=" "
-      np1=n_ini
-      call Read_Key_Str(lines,n_ini,n_end, "_symmetry_space_group_name_H-M",spgr_hm)
-
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (len_trim(spgr_hm) == 0) then
-         n_ini=np1
-         spgr_hm = " "
-         call Read_Key_Str(lines,n_ini,n_end, "_space_group_name_H-M_alt",spgr_hm)
-         if (len_trim(spgr_hm) ==0 ) spgr_hm=adjustl(lines(n_ini+1))
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_CIF_HM: 0 lines "
+         return
       end if
 
-      if (trim(spgr_hm) =="?" .or. trim(spgr_hm)=="#") then
-         spgr_hm=" "
-      else
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> First tentative
+      str="_space_group_name_H-M_alt"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         spgr_hm=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(spgr_hm) =="?" .or. trim(spgr_hm)=="#" .or. trim(spgr_hm)=="''") spgr_hm=" "
+      if (len_trim(spgr_hm) > 0) then
          np1=index(spgr_hm,"'")
          np2=index(spgr_hm,"'",back=.true.)
          if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
             spgr_hm=spgr_hm(np1+1:np2-1)
-         else
-            np1=index(spgr_hm,'"')
-            np2=index(spgr_hm,'"',back=.true.)
-            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-               spgr_hm=spgr_hm(np1+1:np2-1)
-            else
-               spgr_hm=" "
-            end if
+         end if
+      end if
+
+      !> Adapting Nomenclature from ICSD to our model
+      np1=len_trim(spgr_hm)
+      if (np1 > 0) then
+         csym=u_case(spgr_hm(np1:np1))
+         select case (csym)
+            case("1")
+               csym2=u_case(spgr_hm(np1-1:np1-1))
+               if (csym2 == "Z" .or. csym2 =="S") then
+                  spgr_hm=spgr_hm(:np1-2)//":1"
+               end if
+
+            case("S","Z")
+               csym2=u_case(spgr_hm(np1-1:np1-1))
+               select case (csym2)
+                  case ("H")
+                     spgr_hm=spgr_hm(:np1-2)
+                  case ("R")
+                     spgr_hm=spgr_hm(:np1-2)//":R"
+                  case default
+                     spgr_hm=spgr_hm(:np1-1)
+               end select
+
+            case("R")
+               csym2=u_case(spgr_hm(np1-1:np1-1))
+               if (csym2 == "H" ) then
+                  spgr_hm=spgr_hm(:np1-2)
+               else
+                  spgr_hm=spgr_hm(:np1-1)//":R"
+               end if
+
+            case("H")
+               spgr_hm=spgr_hm(:np1-1)
+               csym2=u_case(spgr_hm(np1-1:np1-1))
+               if(csym2 == ":") spgr_hm=spgr_hm(:np1-2)
+         end select
+      end if
+      if (len_trim(spgr_hm) > 0) return
+
+      !> Second tentative
+      str="_symmetry_space_group_name_H-M"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         spgr_hm=adjustl(line(npos+nl:))
+         exit
+      end do
+      if (trim(spgr_hm) =="?" .or. trim(spgr_hm)=="#" .or. trim(spgr_hm)=="''") spgr_hm=" "
+      if (len_trim(spgr_hm) > 0) then
+         np1=index(spgr_hm,"'")
+         np2=index(spgr_hm,"'",back=.true.)
+         if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+            spgr_hm=spgr_hm(np1+1:np2-1)
          end if
       end if
 
@@ -944,73 +1504,94 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 27/06/2019
    !!
-   Module Subroutine Read_CIF_Symm(lines,N_Ini,N_End, N_Oper, Oper_Symm)
+   Module Subroutine Read_CIF_Symm(cif, N_Oper, Oper_Symm,i_ini,i_end)
       !---- Arguments ----!
-      character(len=*), dimension(:), intent(in)     :: lines
-      integer,                        intent(in out) :: n_ini
-      integer,                        intent(in)     :: n_end
-      integer,                        intent(out)    :: n_oper
-      character(len=*), dimension(:), intent(out)    :: oper_symm
+      type(File_Type),    intent(in)              :: cif
+      integer,                        intent(out) :: n_oper
+      character(len=*), dimension(:), intent(out) :: oper_symm
+      integer, optional,              intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      character(len=132) :: line
-      integer            :: i,np1,np2
+      integer            :: i,j,nl,np1,np2
 
       !> Init
       n_oper=0
       oper_symm=" "
+      call clear_error()
 
-      np1=n_ini
-      call Read_Key_StrVal(lines,n_ini,n_end, "_symmetry_equiv_pos_as_xyz",line)
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
 
-      !> TR  feb. 2015 .(re-reading the same item with another name)
-      if (n_ini == 1) then   ! TR june 2016
-         n_ini=np1
-         call Read_Key_StrVal(lines,n_ini,n_end, "_space_group_symop_operation_xyz",line)
-      end if
+      !> First tentative
+      str="_space_group_symop_operation_xyz"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
 
-      if (len_trim(line) /=0) then
-         line=adjustl(line)
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
 
-         if (line(1:1) /="#" .and. line(1:1) /= "?") then
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         do j=i+1,j_end
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) exit
+            if (line(1:1) == '_') exit
+            if (line(1:1) == '#') cycle
+
             np1=index(line,"'")
             np2=index(line,"'",back=.true.)
             if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
                n_oper=n_oper+1
                oper_symm(n_oper)=line(np1+1:np2-1)
-            else
-               np1=index(line,'"')
-               np2=index(line,'"',back=.true.)
-               if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                  n_oper=n_oper+1
-                  oper_symm(n_oper)=line(np1+1:np2-1)
-               end if
             end if
-         end if
-      end if
+         end do
+         exit
+      end do
+      if (n_oper > 0) return
 
-      do i=n_ini+1,n_end
-         line=adjustl(lines(i))
-         if (len_trim(line) /=0) then
-            if (line(1:1) /="#" .and. line(1:1) /= "?") then
-               np1=index(line,"'")
-               np2=index(line,"'",back=.true.)
-               if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                  n_oper=n_oper+1
-                  oper_symm(n_oper)=line(np1+1:np2-1)
-               else
-                  np1=index(line,'"')
-                  np2=index(line,'"',back=.true.)
-                  if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
-                     n_oper=n_oper+1
-                     oper_symm(n_oper)=line(np1+1:np2-1)
-                  end if
-               end if
+      !> Second tentative
+      str="_symmetry_equiv_pos_as_xyz"
+      nl=len_trim(str)
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         do j=i+1,j_end
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) exit
+            if (line(1:1) == '_') exit
+            if (line(1:1) == '#') cycle
+
+            np1=index(line,"'")
+            np2=index(line,"'",back=.true.)
+            if (np1 > 0 .and. np2 > 0 .and. np2 > np1) then
+               n_oper=n_oper+1
+               oper_symm(n_oper)=line(np1+1:np2-1)
             end if
-         else
-            n_ini=i+1
-            exit
-         end if
+         end do
+         exit
       end do
 
    End Subroutine Read_CIF_Symm
@@ -1030,7 +1611,6 @@ SubModule (CFML_IOForm) IO_CIF
 
       !---- Local Variables ----!
       logical             :: info
-      character(len=132)  :: line
       character(len=8)    :: date,time
       character(len=30)   :: comm
       integer             :: iunit
@@ -1286,7 +1866,6 @@ SubModule (CFML_IOForm) IO_CIF
       !---- Local Variables ----!
       logical                                 :: info, aniso
       character(len=1), parameter             :: QMARK='?'
-      character(len=132)                      :: line
       character(len=30)                       :: comm,adptyp
       character(len=30),dimension(6)          :: text
       real(kind=cp)                           :: u, su, ocf,rval
@@ -2010,8 +2589,7 @@ SubModule (CFML_IOForm) IO_CIF
             end select
 
             do j=1,6
-              comm=" "
-              call setnum_std(ua(j),sua(j),comm)
+              comm=String_NumStd(ua(j),sua(j))
               line=trim(line)//" "//trim(comm)
             end do
             write(iunit,"(a)") trim(line)//"  "//Atmlist%atom(i)%SfacSymb
@@ -2125,128 +2703,111 @@ SubModule (CFML_IOForm) IO_CIF
    !!--++
    !!--++ 11/05/2020
    !!
-   Module Subroutine Read_XTal_CIF(cif, Cell, Spg, AtmList, Nphase, CFrame)
+   Module Subroutine Read_XTal_CIF(cif, Cell, Spg, AtmList, Nphase)
       !---- Arguments ----!
       type(File_Type),               intent(in)  :: cif
       class(Cell_Type),              intent(out) :: Cell
       class(SpG_Type),               intent(out) :: SpG
       Type(AtList_Type),             intent(out) :: Atmlist
       Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
-      character(len=*),    optional, intent(in)  :: CFrame
 
       !---- Local Variables ----!
-      character(len=132)                :: line
-      character(len= 20)                :: Spp
-      character(len=60), dimension(192) :: symm_car
-
-      integer                   :: i, nauas, ndata, iph, n_ini,n_end,noper
-      integer, parameter        :: maxph=250  !Maximum number of phases "maxph-1"
-      integer, dimension(maxph) :: ip
+      character(len= 20)             :: Spp
+      integer                        :: i, iph, nt_phases, it, n_ini,n_end
+      integer, dimension(MAX_PHASES) :: ip
 
       real(kind=cp),dimension(6):: vet,vet2
 
-      ip=nlines
-      ip(1)=1
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_XTal_CIF: No lines in the file!"
+         return
+      end if
 
-      !---- First determine if there is more than one structure ----!
-      do i=1,nlines
-         line=adjustl(file_dat(i))
+      !> Calculating number of Phases
+      nt_phases=0; ip=cif%nlines; ip(1)=1
+      do i=1,cif%nlines
+         line=adjustl(cif%line(i)%str)
          if (l_case(line(1:5)) == "data_" .and. l_case(line(1:11)) /= "data_global" )  then
-            n_ini=i
-            ip(1)=i
-            exit
+            nt_phases=nt_phases+1
+            ip(nt_phases)=i
          end if
       end do
 
-      ndata=0
-      do i=n_ini,nlines
-         line=adjustl(file_dat(i))
-         if (l_case(line(1:5)) == "data_")  then
-            ndata=ndata+1
-            if (ndata > maxph-1) then
-               err_form=.true.
-               ERR_Form_Mess=" => Too many phases in this file "
-               return
-            end if
-            ip(ndata)=i   !Pointer to the number of the line starting a single phase
-         end if
-      end do
-
+      !> Read the Phase information
       iph=1
-      if (present(nphase)) iph=nphase
-
-      !---- Read Cell Parameters ----!
-      n_ini=ip(iph)           !Updated values to handle non-conventional order
-      n_end=ip(iph+1)
-      call Read_Cif_Cell(file_dat,n_ini,n_end,vet,vet2)
-      if (err_form) return
-      if(present(CFrame)) then
-        call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,CFrame,vet2(1:3),vet2(4:6))
-      else
-        call Set_Crystal_Cell(vet(1:3),vet(4:6),Cell,"A",vet2(1:3),vet2(4:6))
-      end if
-      !---- Read Atoms Information ----!
-      n_ini=ip(iph)           !Updated values to handle non-conventional order
-      n_end=ip(iph+1)
-      call Read_Cif_Atom(file_dat,n_ini,n_end,nauas,A)
-      if (err_form) return
-
-      !---- SpaceGroup Information ----!
-      n_ini=ip(iph)           !Updated values to handle non-conventional order
-      n_end=ip(iph+1)
-      call Read_Cif_Hm(file_dat,n_ini,n_end,Spp)
-
-      n_ini=ip(iph)           !Updated values to handle non-conventional order
-      n_end=ip(iph+1)
-      if (len_trim(Spp) == 0) call Read_Cif_Hall(file_dat,n_ini,n_end,Spp)
-
-      if (len_trim(Spp) == 0) then
-         n_ini=ip(iph)           !Updated values to handle non-conventional order
-         n_end=ip(iph+1)
-         call Read_Cif_Symm(file_dat,n_ini,n_end,noper,symm_car)
-
-         if (noper ==0) then
-            err_form=.true.
-            ERR_Form_Mess=" => No Space Group/No Symmetry information in this file "
-            return
-         else
-            call Set_SpaceGroup("  ",SpG,symm_car,noper,"GEN")
-         end if
-      else
-         call Set_SpaceGroup(Spp,SpG) !Construct the space group
+      if (present(nphase)) then
+         iph=min(nphase, nt_phases)
+         iph=max(1,iph)
       end if
 
-      !---- Modify occupation factors and set multiplicity of atoms
-      !---- in order to be in agreement with the definitions of Sfac in CrysFML
-      !---- Convert Us to Betas and Uiso to Biso
-      do i=1,A%natoms
-         vet(1:3)=A%atom(i)%x
-         A%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
-         A%atom(i)%Occ=A%atom(i)%Occ*real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
-         if(A%atom(i)%occ < epsv) A%atom(i)%occ=real(A%atom(i)%Mult)/max(1.0,real(SpG%Multip))
+      n_ini=ip(iph)
+      n_end=ip(iph+1)
 
-         select case (A%atom(i)%thtype)
-            case ("isotr")
-               A%atom(i)%biso= A%atom(i)%ueq*78.95683521
+      !> Reading Cell Parameters
+      call Read_Cif_Cell(cif,Cell,n_ini,n_end)
+      if (Err_CFML%IErr==1) return
 
-            case ("aniso")
-               select case (A%atom(i)%Utype)
-                  case ("u_ij")
-                     A%atom(i)%u(1:6) =  Convert_U_Betas(A%atom(i)%u(1:6),Cell)
-                  case ("b_ij")
-                     A%atom(i)%u(1:6) = Convert_B_Betas(A%atom(i)%u(1:6),Cell)
+      !> SpaceGroup Information
+      spp=" "
+      call read_cif_it(cif,it,n_ini,n_end)
+      if (it > 0) write(unit=spp,fmt='(i4)') it
+      call set_spacegroup(spp,Spg)
+
+      if (len_trim(Spg%spg_symb) <= 0) then
+         call read_cif_hm(cif,spp,n_ini,n_end)
+         call set_spacegroup(spp,Spg)
+      end if
+      if (len_trim(Spg%spg_symb) <= 0) then
+         call read_cif_hall(cif,spp,n_ini,n_end)
+         call set_spacegroup(spp,Spg)
+      end if
+      if (len_trim(Spg%spg_symb) <= 0 .or. Err_CFML%IErr ==1) return
+
+      !> Atoms information
+      call read_cif_Atoms(cif,AtmList,n_ini,n_end)
+      if (Err_CFML%IErr==1) return
+
+      !> Modify occupation factors and set multiplicity of atoms
+      !> in order to be in agreement with the definitions of Sfac in CrysFML
+      !> Convert Us to Betas and Uiso to Biso
+      do i=1,Atmlist%natoms
+         vet(1:3)=Atmlist%atom(i)%x
+         Atmlist%atom(i)%Mult=Get_Multip_Pos(vet(1:3),SpG)
+         Atmlist%atom(i)%Occ=Atmlist%atom(i)%Occ*real(Atmlist%atom(i)%Mult)/max(1.0_cp,real(SpG%Multip))
+         if (Atmlist%atom(i)%occ < EPSV) Atmlist%atom(i)%occ=real(Atmlist%atom(i)%Mult)/max(1.0,real(SpG%Multip))
+
+         select case (AtmList%atom(i)%thtype)
+            case ("iso")
+               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+
+            case ("ani")
+               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u(1)*78.95683521 !by default
+
+               select type (cell)
+                  class is (Cell_G_Type)
+                     Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
+                     Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+
+                     select case (Atmlist%atom(i)%Utype)
+                        case ("u_ij")
+                           Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
+
+                        case ("b_ij")
+                           Atmlist%atom(i)%u(1:6) = Get_Betas_from_B(Atmlist%atom(i)%u(1:6),Cell)
+                     end select
                end select
-               A%atom(i)%Utype="beta"
 
             case default
-               A%atom(i)%biso = A%atom(i)%ueq*78.95683521
-               A%atom(i)%thtype = "isotr"
+               Atmlist%atom(i)%u_iso=0.05
+               Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
+               Atmlist%atom(i)%thtype = "iso"
          end select
+         Atmlist%atom(i)%Utype="beta"
       end do
 
-      return
-   End Subroutine Readn_Set_XTal_CIF
-
-
+   End Subroutine Read_XTal_CIF
 
 End SubModule IO_CIF

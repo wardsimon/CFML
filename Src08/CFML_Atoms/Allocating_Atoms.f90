@@ -198,9 +198,10 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
 
       allocate (A%active(n),stat=ier)
 
-      if(ier /= 0) then
-        Err_CFML%Ierr=1
-        write(unit=Err_CFML%Msg,fmt="(a,i6,a)") "Error allocating atom List for N =",N," atoms"
+      if (ier /= 0) then
+         Err_CFML%Ierr=1
+         write(unit=Err_CFML%Msg,fmt="(a,i6,a)") "Error allocating atom List for N =",N," atoms"
+         return
       end if
 
       A%active=.true.

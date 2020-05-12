@@ -2,7 +2,7 @@
 rem ****
 rem ****---- Compilation for IO_FILES Program ----****
 rem ****
-   (set _DEBUG=N)
+   (set _DEBUG=Y)
 rem ****
 rem **** COMP=ifort|gfortran
    (set _COMP=ifort)
@@ -33,7 +33,7 @@ rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
       ifort /c io_files.f90           /nologo %OPT1% /I%CRYSFML%\ifort\LibC08
-      ifort /exe:io_files *.obj  %CRYSFML%\ifort\LibC08\crysfml.lib /link /stack:150000000
+      ifort /exe:io_files *.obj  %CRYSFML%\ifort\LibC08\crysfml.lib /link /stack:250000000
    )
 rem
    if [%_COMP%]==[gfortran] (
