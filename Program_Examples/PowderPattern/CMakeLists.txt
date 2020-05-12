@@ -14,10 +14,19 @@ project(calc_powder Fortran)
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 include_directories(${CRYSFML_MODULE_DIRECTORY})
 
+
 add_executable(calc_powder calc_powder.f90)
+target_link_libraries(calc_powder crysfml)
 
-target_link_libraries(calc_powder
-  crysfml
-  crysfml_common)
+add_executable(simple_calc_powder Simple_calc_powder.f90)
+target_link_libraries(simple_calc_powder crysfml)
+
+add_executable(simple_calc_mag_powder Simple_Calc_Mag_Powder.f90)
+target_link_libraries(simple_calc_mag_powder crysfml)
 
 
+#add_executable(laue_powder Laue_Powder.f90)
+#target_link_libraries(laue_powder crysfml)
+
+#add_executable(corr_cells Corr_Cells.f90)
+#target_link_libraries(corr_cells crysfml)
