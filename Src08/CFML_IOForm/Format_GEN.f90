@@ -69,22 +69,17 @@ SubModule (CFML_IOForm) IO_GEN
        !> Atom Type (Chemical symbol & Scattering Factor)
        call cut_string(line,nlong1,label)
 
-       if ((trim(label) == trim(u_case(label)) .and. len_trim(label) > 1) .or. len_trim(magmom) > 0) then
-          !> Magnetic atom
-          n=index(DIGCAR,label(4:4))
-          if (u_case(label(1:1)) /= "M" .and. u_case(label(1:1)) /= "J") then
-             Err_CFML%IErr=1  ! Error
-             Err_CFML%Msg=" Error reading the magnetic form factor of ATOM: "//trim(label)
-             return
-          end if
-          atm%chemsymb=u_case(label(2:2))//l_case(label(3:3))
-
+       !> Magnetic?
+       if ((u_case(label(1:1)) == "M" .or. u_case(label(1:1)) == "J" ) &
+          .and. index(DIGCAR(1:10),label(4:4)) /= 0 .and. index(label,"+") == 0) then
+          atm%ChemSymb=u_case(label(2:2))//l_case(label(3:3))
+          atm%magnetic=.true.
        else
           n=index(DIGCAR,label(2:2))
           if (n /=0) then
-             atm%chemsymb=u_case(label(1:1))
+            atm%ChemSymb=u_case(label(1:1))
           else
-             atm%chemsymb=u_case(label(1:1))//l_case(label(2:2))
+            atm%ChemSymb=u_case(label(1:1))//l_case(label(2:2))
           end if
        end if
        atm%SfacSymb=label(1:4)
@@ -112,7 +107,7 @@ SubModule (CFML_IOForm) IO_GEN
        if (iv > 4) atm%occ=vet1(5)
        if (iv > 5) then
           atm%mom=vet1(6)
-          atm%magnetic=.true.
+          !atm%magnetic=.true.
        end if
        if (iv > 6) atm%charge=vet1(7)
 
@@ -179,7 +174,7 @@ SubModule (CFML_IOForm) IO_GEN
              return
           end if
           atm%moment=vet1(1:3)
-          atm%magnetic=.true.
+          !atm%magnetic=.true.
           select type(atm)
              class is (Atm_Std_Type)
                  atm%moment_std=vet2(1:3)
