@@ -56,7 +56,7 @@
     !---- List of public procedures ----!
     public :: Allocate_Atom_List, Extend_Atom_List, Init_Atom_Type, Read_Bin_Atom_List, &
               Write_Bin_atom_List, Write_Atom_List
-    public :: Equiv_Atm, Wrt_Lab
+    public :: Equiv_Atm, Wrt_Lab, Check_Symmetry_Constraints
 
 
     !---- Parameters ----!
@@ -288,6 +288,11 @@
           character(len=*),    intent(in)       :: Type_Atm !Atomic type: Atm, Atm_Std, MAtm_Std, Atm_Ref, MAtm_Ref
           integer,             intent(in)       :: d    ! Number of k-vectors
        End Subroutine Allocate_Atom_List
+
+       Module Subroutine Check_Symmetry_Constraints(SpG,Atm)
+         class(SpG_Type),   intent(in)     :: SpG
+         type(AtList_Type), intent(in out) :: Atm
+       End Subroutine Check_Symmetry_Constraints
 
        Module Subroutine Read_Bin_Atom_List(filename, A, Type_Atm)
           !---- Arguments ----!

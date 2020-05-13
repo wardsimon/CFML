@@ -1,0 +1,95 @@
+Instructions to work with CrysFML and CrysFML08 using Cmake
+===========================================================
+
+ - Dowload and install Cmake (Windows, Linux or Mac)
+ 
+ - Once Cmake is installed and in the path, go to the CrysFML directory and create a subfolder called "build"
+ 
+ - Within "build", create subdirectories for different compilers and kind of compilations.
+   Example:
+   Windows:  %CRYSFML%\build\ifort_64_debug
+             %CRYSFML%\build\ifort_64_production
+             %CRYSFML%\build\ifort_64_debug08
+             %CRYSFML%\build\ifort_64_production08
+             %CRYSFML%\build\ifort_32_production
+             %CRYSFML%\build\gfortran_debug
+             %CRYSFML%\build\gfortran_production
+
+   Linux:    $CRYSFML/build/ifort_64_debug
+             $CRYSFML/build/ifort_64_production
+             $CRYSFML/build/ifort_64_debug08
+             $CRYSFML/build/ifort_64_production08
+             $CRYSFML/build/ifort_32_production
+             $CRYSFML/build/gfortran_debug
+             $CRYSFML/build/gfortran_production
+
+ - Go to the appropriate subdirectory of the build directory and execute a command of the type:
+   cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON         ..\..\.
+                 ^                       ^                        ^               ^
+       Generator of OS dependent        Specify compiler   Kind of library     root CrysFML directory
+       makefiles
+                                                                     
+   The Cmake scripts are already in the CrysFML directory and in CrysFML\cmake (or CrysFML/cmake)
+   
+   By default: 
+     compiler: CMAKE_Fortran_COMPILER=ifort   
+                                  GUI=OFF
+                     CMAKE_BUILD_TYPE=Release
+    Other options should be provided explicitly
+   
+   ========
+   Windows:
+   ======== 
+    Building CrysFML  
+    ================
+    Within %CRYSFML%\build\ifort_64_debug, execute the command:
+    Prompt> cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+    
+    If everything is OK, you have created the appropriate makefiles for building CrysFML in console mode and with Winteracter.
+    For effectively compile and build the library, within the same directory execute the command:
+    Prompt> nmake install
+    
+    The libraries (LibC and LibW) will be installed in %CRYSFML%\ifort64_debug
+    
+    Thats all!
+    
+    For release mode (production) yo do similarly:
+    Within %CRYSFML%\build\ifort_64_production, execute the commands:
+    
+    Prompt> cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+    Prompt> nmake install
+    
+    The libraries (LibC and LibW) will be installed in %CRYSFML%\ifort64
+
+    For gfortran within MinGW64, the generator of makefiles is "MinGW Makefiles", as an example in debug mode the commands
+    to be executed within %CRYSFML%\build\gfortran_debug are:
+    Prompt> cmake -G "MinGW Makefiles"  -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC  ..\..\.
+    Prompt> mingw32-make install
+    The library (LibC) will be installed in %CRYSFML%\gfortran_debug
+    
+    Building CrysFML08  
+    ==================
+    # For the moment only console mode is available
+      Debug:
+      Prompt> cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug   -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+      Prompt> nmake install
+      The library (LibC08) will be installed in %CRYSFML%\ifort64_debug
+      
+      Release:
+      Prompt> cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+      Prompt> nmake install
+      The library (LibC08) will be installed in %CRYSFML%\ifort64
+      
+   ====== 
+   Linux:
+   ====== 
+      
+   The commands are identical except for "/" instead of "\" and the generators of makefiles is "Unix makefiles"
+
+   Examples for working only with console programs:
+   Prompt> cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ../../.
+   or with gfortran:
+   Prompt> cmake -G "Unix Makefiles" -D CMAKE_Fortran_COMPILER=gfortran -D GUI=OFF -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=$CRYSFML/GFortran -D CRYSFML_PREFIX=LibC ../../.
+   
+   Build the library using:
+   Prompt> make install
