@@ -119,7 +119,8 @@
           write(unit=*,fmt="(a)") " File: "//trim(filcod)//".cif (or .cfl) doesn't exist!"
           stop
         end if
-        call Readn_Set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpaceGroup,A,"Atm",Mode="CFL",file_list=file_dat)
+        !call Readn_Set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpaceGroup,A,"Atm",Mode="CFL",file_list=file_dat)
+        call Read_Xtal_Structure(trim(filcod)//".cfl",Cell,SpaceGroup,A,Ftype=file_dat)
       !end if
       If(err_CFML%Ierr == 1) then
         write(unit=*,fmt="(a)") trim(err_CFML%Msg)
