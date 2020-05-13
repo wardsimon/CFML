@@ -68,7 +68,7 @@ Module CFML_IOForm
 
    !---- Public subroutines ----!
 
-   public :: Read_Xtal_Structure, &
+   public :: Read_Xtal_Structure, Readn_Set_Xtal_Structure,&
              Write_Cif_Template, Write_SHX_Template
 
    !--------------------!
@@ -116,10 +116,10 @@ Module CFML_IOForm
    End Type Job_Info_type
 
    !---- Overloaded Zone ----!
-   !Interface Readn_Set_Xtal_Structure
-   !   Module Procedure Readn_Set_Xtal_Structure_Split  ! For Cell, Spg, A types
-   !   !Module Procedure Readn_Set_Xtal_Structure_Molcr ! For Molecular Crystal Type
-   !End Interface
+   Interface Readn_Set_Xtal_Structure
+      Module Procedure Readn_Set_Xtal_Structure_Split  ! For Cell, Spg, A types
+      !Module Procedure Readn_Set_Xtal_Structure_Molcr ! For Molecular Crystal Type
+   End Interface
 
    !---- Interface zone ----!
    Interface
@@ -501,75 +501,107 @@ Module CFML_IOForm
     !!--++
     !!--++ Update: April - 2005, Febraury 2020
     !!
-    !Subroutine Readn_Set_Xtal_Structure_Split(Filenam, Cell, SpG, A,Type_Atm,Mode,Iphase,Job_Info,file_list,CFrame)
-    !
-    !   select case(modec)
-    !
-    !       !case("cif")
-    !       !   if (present(iphase)) then
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
-    !       !      else
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
-    !       !      end if
-    !       !   else
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,CFrame)
-    !       !      else
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
-    !       !      end if
-    !       !   end if
-    !       !
-    !       !case("pcr")
-    !       !   if (present(iphase)) then
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
-    !       !      else
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
-    !       !      end if
-    !       !   else
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,CFrame)
-    !       !      else
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
-    !       !      end if
-    !       !   end if
-    !       !
-    !       case default
-    !          !---- CFL Format ----!
-    !          if (present(Job_Info)) then
-    !             if (present(iphase)) then
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase,Job_Info=Job_Info)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase,Job_Info=Job_Info)
-    !                end if
-    !             else
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,Job_Info=Job_Info)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,Job_Info=Job_Info)
-    !                end if
-    !             end if
-    !          else
-    !             if (present(iphase)) then
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase)
-    !                end if
-    !             else
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm)
-    !                end if
-    !             end if
-    !          end if
-    !
-    !   end select
-    !
-    !End Subroutine Readn_Set_Xtal_Structure_Split
+    Subroutine Readn_Set_Xtal_Structure_Split(Filenam, Cell, SpG, A,Type_Atm,Mode,Iphase,Job_Info,file_list,CFrame)
+       character(len=*),              intent( in)     :: filenam
+       Type (Cell_G_Type),            intent(out)     :: Cell
+       Type (SpG_Type),               intent(out)     :: SpG
+       Type (Atlist_type),            intent(out)     :: A
+       Character(len=*),              intent( in)     :: Type_Atm
+       Character(len=*),    optional, intent( in)     :: Mode
+       Integer,             optional, intent( in)     :: Iphase
+       Type(Job_Info_type), optional, intent(out)     :: Job_Info
+       Type(file_type),     optional, intent(in out)  :: file_list
+       Character(len=*),    optional, intent( in)     :: CFrame
+
+       !Local variables
+       character(len=6):: Ext
+       type(File_Type) :: File_dat
+
+       !> Init
+       call clear_error()
+
+       !> Load filename
+       File_dat=Reading_File(trim(filenam))
+       if (err_CFML%Ierr /= 0) return
+
+       if (File_dat%nlines ==0) then
+          Err_CFML%Ierr=1
+          Err_CFML%Msg="Zero lines in the file "//trim(filenam)
+          return
+       end if
+
+       !> Extension
+       Ext=get_extension(trim(filenam))
+
+       !> Init
+       call clear_error()
+       select case(Ext)
+
+           !case("cif")
+           !   if (present(iphase)) then
+           !      if(present(CFrame)) then
+           !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
+           !      else
+           !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
+           !      end if
+           !   else
+           !      if(present(CFrame)) then
+           !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,CFrame)
+           !      else
+           !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
+           !      end if
+           !   end if
+           !
+           !case("pcr")
+           !   if (present(iphase)) then
+           !      if(present(CFrame)) then
+           !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
+           !      else
+           !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
+           !      end if
+           !   else
+           !      if(present(CFrame)) then
+           !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,CFrame)
+           !      else
+           !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
+           !      end if
+           !   end if
+           !
+           case default
+              !---- CFL Format ----!
+              if (present(Job_Info)) then
+                 if (present(iphase)) then
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase,Job_Info=Job_Info)
+                    end if
+                 else
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,Job_Info=Job_Info)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,Job_Info=Job_Info)
+                    end if
+                 end if
+              else
+                 if (present(iphase)) then
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase)
+                    end if
+                 else
+                    if(present(CFrame)) then
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame)
+                    else
+                      call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm)
+                    end if
+                 end if
+              end if
+
+       end select
+
+    End Subroutine Readn_Set_Xtal_Structure_Split
 
 End Module CFML_IOForm
 
