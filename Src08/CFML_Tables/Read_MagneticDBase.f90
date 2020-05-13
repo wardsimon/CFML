@@ -12,41 +12,48 @@ SubModule (CFML_Magnetic_Database) MagDB_002
    !!----
    !!---- 24/04/2019
    !!
-   Module Subroutine Read_Magnetic_Data(database_path)
-      character(len=*), optional, intent(in) :: database_path
+   Module Subroutine Read_Magnetic_Data(DB_Path, EnvDB)
+      !---- Arguments ----!
+      character(len=*), optional, intent(in) :: DB_Path
+      character(len=*), optional, intent(in) :: EnvDB
+
+
       !---- Local Variables ----!
       integer            :: i,j,k,n,m,i_mag,ier
-      character(len=512) :: fullprof_suite, database
+      character(len=40)  :: Env
+      character(len=512) :: database
 
       !> Init
       call clear_error()
 
-      if(present(database_path)) then
-         database = trim(database_path)//'magnetic_data.txt'
+      !> Path
+      Database=" "
+      if (present(DB_Path)) then
+         database = trim(DB_Path)
+         n=len_trim(database)
+         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
       else
-         !> open data file
-         call GET_ENVIRONMENT_VARIABLE("FULLPROF",fullprof_suite)
-         n=len_trim(fullprof_suite)
+         Env="FULLPROF"
+         if (present(EnvDB)) Env=trim(EnvDB)
+
+         call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
+         n=len_trim(database)
          if (n == 0) then
             err_CFML%IErr=1
-            write(unit=err_cfml%msg,fmt="(a)") " => The FULLPROF environment variable is not defined! "//newline// &
+            write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
                                                "    This is needed for localizing the data base: magnetic_data.txt"//newline// &
-                                               "    that should be within the %FULLPROF%/Databases directory"
+                                               "    that should be within the %"//trim(Env)//"%/Databases directory"
             return
          end if
-
-         if (fullprof_suite(n:n) /= OPS_SEP) then
-            database=trim(fullprof_suite)//OPS_SEP//"Databases"//OPS_SEP//'magnetic_data.txt'
-         else
-            database=trim(fullprof_suite)//"Databases"//OPS_SEP//'magnetic_data.txt'
-         end if
+         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+         database=trim(database)//"Databases"//OPS_SEP
       end if
 
       !> Open
-      open(newunit=i_mag,File=trim(database),status="old",action="read",position="rewind",iostat=ier)
+      open(newunit=i_mag,File=trim(database)//'magnetic_data.txt',status="old",action="read",position="rewind",iostat=ier)
       if ( ier /= 0) then
          err_CFML%IErr=1
-         err_CFML%Msg="Read_Magnetic_Data@SPACEG: Problem opening the data base: "//trim(database)
+         err_CFML%Msg="Read_Magnetic_Data@SPACEG: Problem opening the data base: "//trim(database)//'magnetic_data.txt'
          return
       end if
 

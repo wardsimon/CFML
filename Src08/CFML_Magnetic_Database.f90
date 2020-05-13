@@ -132,20 +132,17 @@ Module CFML_Magnetic_Database
     !------------------------!
     Interface
        Module Subroutine Allocate_Magnetic_DBase()
-          !---- Arguments ----!
        End Subroutine Allocate_Magnetic_DBase
 
        Module Subroutine Deallocate_Magnetic_DBase()
-          !---- Arguments ----!
        End Subroutine Deallocate_Magnetic_DBase
 
        Module Subroutine Read_Magnetic_Binary()
-          !---- Arguments ----!
        End Subroutine Read_Magnetic_Binary
 
-       Module Subroutine Read_Magnetic_Data(database_path)
-          !---- Arguments ----!
-          character(len=*), optional, intent(in) :: database_path
+       Module Subroutine Read_Magnetic_Data(DB_Path, EnvDB)
+          character(len=*), optional, intent(in) :: DB_Path
+          character(len=*), optional, intent(in) :: EnvDB
        End Subroutine Read_Magnetic_Data
 
     End Interface
