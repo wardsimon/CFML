@@ -52,7 +52,7 @@ SubModule (CFML_IOForm) IO_CFL
           if (len_trim(line) == 0) cycle
           if (line(1:1) == "!" .or. line(1:1) == "#") cycle
 
-          if (u_case(line(1:12)) == "ATM_MOM_COMP") then
+          if (index(u_case(line),"ATM_MOM_COMP") /= 0) then
              j=index(line,"!")
              if ( j /= 0) then
                 mom_comp=adjustl(line(13:j-1))
@@ -87,9 +87,12 @@ SubModule (CFML_IOForm) IO_CFL
          end do
 
          !> ATOM Directive
-         dire=adjustl(u_case(line(1:4)))
+         if(len_trim(line) < 4) then
+           cycle
+         else
+           dire=adjustl(u_case(line(1:4)))
+         end if
          if (trim(dire) /= "ATOM") cycle
-
 
          na=na+1
          call read_atom(line, Atmlist%atom(na))
@@ -106,8 +109,9 @@ SubModule (CFML_IOForm) IO_CFL
 
                if (len_trim(line) == 0) cycle
                if (line(1:1) == "!" .or. line(1:1) == "#") cycle
-
-               if (u_case(line(1:4)) == "ATOM") exit
+               if(len_trim(line) >= 4) then
+                 if (u_case(line(1:4)) == "ATOM") exit
+               end if
 
                npos=index(line," ")
                if (npos <= 1) then
@@ -154,7 +158,9 @@ SubModule (CFML_IOForm) IO_CFL
                      if (len_trim(line) == 0) cycle
                      if (line(1:1) == "!" .or. line(1:1) == "#") cycle
 
-                     if (u_case(line(1:4)) == "ATOM") exit
+                     if(len_trim(line) >= 4) then
+                       if (u_case(line(1:4)) == "ATOM") exit
+                     end if
 
                      npos=index(line," ")
                      if (npos <= 1) then
@@ -489,8 +495,6 @@ SubModule (CFML_IOForm) IO_CFL
       end if
       if (Err_CFML%Ierr == 1) return
 
-      print*,'....Hasta aquí hemos llegado!'
-
       !> Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
       Select Type (SpG)
          Class is (SuperSpaceGroup_Type)
@@ -793,10 +797,6 @@ SubModule (CFML_IOForm) IO_CFL
 
       type(kvect_info_Type)            :: Kvec
 
-      print*,'====================='
-      print*,'==== CFL Reading ===='
-      print*,'====================='
-
       !> Init
       call clear_error()
       if (cfl%nlines <=0) then
@@ -839,12 +839,8 @@ SubModule (CFML_IOForm) IO_CFL
       if (Err_CFML%IErr==1) return
 
       !> Reading Space groups
-      print*,' ... leyendo grupo espacial'
       call read_CFL_SpG(cfl,SpG, i_ini=n_ini, i_end=n_end)
       if (Err_CFML%IErr==1) return
-
-      print*,' .... grupo espacial leido!'
-
 
       !> Read Atoms information
       set_moment=.false.
@@ -888,8 +884,6 @@ SubModule (CFML_IOForm) IO_CFL
          err_CFML%Msg="Read_XTal_CFL: Impossible to define the type of Atoms. Please, check it!"
          return
       end if
-
-      print*,'**** Atomos leidos!!!!'
 
       if (allocated(xvet)) deallocate(xvet)
       Select Type (SpG)
