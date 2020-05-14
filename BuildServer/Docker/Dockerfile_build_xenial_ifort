@@ -12,4 +12,4 @@ ENV HDF5_INCLUDE_PATH=/hdf5/include
 COPY ./ /app/
 WORKDIR /app
 
-CMD BuildServer/Unix/build.sh ifort; cp -a build_ifort /artifacts/
+CMD BuildServer/Unix/build.sh ifort && cp -a build_ifort /artifacts/
