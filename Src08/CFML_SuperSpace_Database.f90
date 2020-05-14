@@ -99,17 +99,16 @@ Module CFML_SuperSpace_Database
           !---- Arguments ----!
        End Subroutine Deallocate_SSG_DBase
 
-
-       Module Subroutine Read_SSG_DBase(database_path)
-          !---- Arguments ----!
-          character(len=*), optional, intent(in) :: database_path
+       Module Subroutine Read_SSG_DBase(DB_Path, EnvDB)
+          character(len=*), optional, intent(in)  :: DB_Path
+          character(len=*), optional, intent(in)  :: EnvDB
        End Subroutine Read_SSG_DBase
 
-       Module Subroutine Read_single_SSG(str,num,database_path)
-          !---- Arguments ----!
-          character(len=*),           intent(in) :: str
-          integer,                    intent(out):: num
-          character(len=*), optional, intent(in) :: database_path
+       Module Subroutine Read_single_SSG(str,num,DB_Path, EnvDB)
+          character(len=*),           intent(in)  :: str
+          integer,                    intent(out) :: num
+          character(len=*), optional, intent(in)  :: DB_Path
+          character(len=*), optional, intent(in)  :: EnvDB
        End Subroutine Read_single_SSG
 
     End Interface

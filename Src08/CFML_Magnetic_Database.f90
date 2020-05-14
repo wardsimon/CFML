@@ -137,7 +137,9 @@ Module CFML_Magnetic_Database
        Module Subroutine Deallocate_Magnetic_DBase()
        End Subroutine Deallocate_Magnetic_DBase
 
-       Module Subroutine Read_Magnetic_Binary()
+       Module Subroutine Read_Magnetic_Binary(DB_Path, EnvDB)
+          character(len=*), optional, intent(in) :: DB_Path
+          character(len=*), optional, intent(in) :: EnvDB
        End Subroutine Read_Magnetic_Binary
 
        Module Subroutine Read_Magnetic_Data(DB_Path, EnvDB)

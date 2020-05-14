@@ -33,7 +33,7 @@ SubModule (CFML_Magnetic_Database) MagDB_002
          n=len_trim(database)
          if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
       else
-         Env="FULLPROF"
+         Env="CRYSFML_DB"
          if (present(EnvDB)) Env=trim(EnvDB)
 
          call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
@@ -42,11 +42,10 @@ SubModule (CFML_Magnetic_Database) MagDB_002
             err_CFML%IErr=1
             write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
                                                "    This is needed for localizing the data base: magnetic_data.txt"//newline// &
-                                               "    that should be within the %"//trim(Env)//"%/Databases directory"
+                                               "    that should be within the %"//trim(Env)//"% directory"
             return
          end if
          if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
-         database=trim(database)//"Databases"//OPS_SEP
       end if
 
       !> Open
@@ -142,12 +141,43 @@ SubModule (CFML_Magnetic_Database) MagDB_002
    !!----
    !!---- 24/04/2019
    !!
-   Module Subroutine Read_Magnetic_Binary()
+   Module Subroutine Read_Magnetic_Binary(DB_Path, EnvDB)
+      !---- Arguments ----!
+      character(len=*), optional, intent(in) :: DB_Path
+      character(len=*), optional, intent(in) :: EnvDB
+
       !---- Local Variables ----!
-      integer :: i,j,k,n,m,i_mag
+      integer            :: i,j,k,n,m,i_mag
+      character(len=40)  :: Env
+      character(len=512) :: database
+
+      call clear_error()
+
+      !> Path
+      Database=" "
+      if (present(DB_Path)) then
+         database = trim(DB_Path)
+         n=len_trim(database)
+         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+
+      else
+         Env="CRYSFML_DB"
+         if (present(EnvDB)) Env=trim(EnvDB)
+
+         call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
+         n=len_trim(database)
+         if (n == 0) then
+            err_CFML%IErr=1
+            write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
+                                               "    This is needed for localizing the data base: magnetic_data.bin"//newline// &
+                                               "    that should be within the %"//trim(Env)//"% directory"
+            return
+         end if
+         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+      end if
 
       !> open data file
-      Open(newunit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="stream")
+      Open(newunit=i_mag,File=trim(database)//'magnetic_data.bin',status="old",action="read",form="unformatted",access="stream")
 
       !>For the old Lahey compiler use this
       !Open(unit=i_mag,File='magnetic_data.bin',status="old",action="read",form="unformatted",access="transparent") ! For Lahey
