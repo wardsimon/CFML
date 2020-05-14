@@ -52,7 +52,7 @@ SubModule (CFML_IOForm) IO_CFL
           if (len_trim(line) == 0) cycle
           if (line(1:1) == "!" .or. line(1:1) == "#") cycle
 
-          if (u_case(line(1:12)) == "ATM_MOM_COMP") then
+          if (index(u_case(line), "ATM_MOM_COMP") /= 0) then
              j=index(line,"!")
              if ( j /= 0) then
                 mom_comp=adjustl(line(13:j-1))
