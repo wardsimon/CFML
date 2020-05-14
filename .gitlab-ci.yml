@@ -90,7 +90,7 @@ make:windows_gfortran:
   script:
     - set PATH=%PATH:C:\Program Files\Git\bin;=%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include
-    - call "%BuildServer\\Windows\\build.bat" gfortran
+    - call "BuildServer\\Windows\\build.bat" gfortran
   artifacts:
     paths:
     - "%CI_PROJECT_DIR%\\build_gfortran"
@@ -105,7 +105,7 @@ make:windows_ifort:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
-    - call "%BuildServer\\Windows\\build.bat" ifort
+    - call "BuildServer\\Windows\\build.bat" ifort
   artifacts:
     paths:
     - "%CI_PROJECT_DIR%\\build_ifort"
