@@ -884,26 +884,26 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       !> Spacegroup from Str argument
       if (n_gen == 0) then
 
-         !Check if we are providing a generator list as the first argument
-         if(index(Str,";") > 4 .or. index(Str,",1") /= 0 .or. index(Str,",-1") /= 0 ) then !Call directly to the space group constructor
-           call Group_Constructor(Str,SpaceG)
-           if(SpaceG%D == 4) then
-             if(present(debug)) then
-                call Identify_Group(SpaceG)
-             else
-                call Identify_Group(SpaceG)
-             end if
-             if(Err_CFML%Ierr == 1) then
-                write(unit=*,fmt="(a)") "  WARNING: "//Err_CFML%Msg
-                call clear_error()
-             end if
-             call set_Shubnikov_info()
-             if(len_trim(SpaceG%BNS_num) /= 0 .and. SpaceG%numshu /= 0 .and. len_trim(SpaceG%BNS_symb) == 0) then
+         !> Check if we are providing a generator list as the first argument
+         if (index(Str,";") > 4 .or. index(Str,",1") /= 0 .or. index(Str,",-1") /= 0 ) then !Call directly to the space group constructor
+            call Group_Constructor(Str,SpaceG)
+            if (SpaceG%D == 4) then
+               if (present(debug)) then
+                  call Identify_Group(SpaceG)
+               else
+                  call Identify_Group(SpaceG)
+               end if
+               if (Err_CFML%Ierr == 1) then
+                  write(unit=*,fmt="(a)") "  WARNING: "//Err_CFML%Msg
+                  call clear_error()
+               end if
                call set_Shubnikov_info()
-               SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
-             end if
-           end if
-           return
+               if (len_trim(SpaceG%BNS_num) /= 0 .and. SpaceG%numshu /= 0 .and. len_trim(SpaceG%BNS_symb) == 0) then
+                  call set_Shubnikov_info()
+                  SpaceG%BNS_symb=Shubnikov_Info(Litvin2IT(SpaceG%numshu))%BNS
+               end if
+            end if
+            return
          end if
 
          !> Init Spgr_Info

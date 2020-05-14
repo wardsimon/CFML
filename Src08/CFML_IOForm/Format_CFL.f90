@@ -465,6 +465,7 @@ SubModule (CFML_IOForm) IO_CFL
                exit
 
             case("SSG","SUPER","SSPG")
+               print*,'SSPG -> ', trim(line), strcode
                call Set_SpaceGroup(line,"SUPER",SpG, strcode)
                exit
 
@@ -488,6 +489,8 @@ SubModule (CFML_IOForm) IO_CFL
          end if
       end if
       if (Err_CFML%Ierr == 1) return
+
+      print*,'....Hasta aquí hemos llegado!'
 
       !> Now read q-vectors and other items if the class of SpG is SuperSpaceGroup_Type
       Select Type (SpG)
@@ -787,7 +790,13 @@ SubModule (CFML_IOForm) IO_CFL
       real(kind=cp),dimension(6)       :: vet1,vet2
       real(kind=cp),dimension(3)       :: vet
 
+      real(kind=cp),dimension(:),allocatable:: xvet
+
       type(kvect_info_Type)            :: Kvec
+
+      print*,'====================='
+      print*,'==== CFL Reading ===='
+      print*,'====================='
 
       !> Init
       call clear_error()
@@ -806,6 +815,7 @@ SubModule (CFML_IOForm) IO_CFL
             ip(nt_phases)=i
          end if
       end do
+      if (nt_phases ==0) nt_phases=1
 
       !> Read the Phase information
       iph=1
@@ -830,8 +840,12 @@ SubModule (CFML_IOForm) IO_CFL
       if (Err_CFML%IErr==1) return
 
       !> Reading Space groups
+      print*,' ... leyendo grupo espacial'
       call read_CFL_SpG(cfl,SpG, i_ini=n_ini, i_end=n_end)
       if (Err_CFML%IErr==1) return
+
+      print*,' .... grupo espacial leido!'
+
 
       !> Read Atoms information
       set_moment=.false.
@@ -876,11 +890,36 @@ SubModule (CFML_IOForm) IO_CFL
          return
       end if
 
+      print*,'**** Atomos leidos!!!!'
+
+      if (allocated(xvet)) deallocate(xvet)
+      Select Type (SpG)
+         type is (SuperSpaceGroup_Type)
+             allocate(xvet(SpG%D-1))
+             do i=1,Atmlist%natoms
+                xvet(1:3)=Atmlist%atom(i)%x
+                do k=1,Spg%nk
+                   xvet(3+k)=dot_product(xvet(1:3),SpG%kv(:,k))
+                end do
+                Atmlist%atom(i)%Mult=Get_Multip_Pos(xvet,SpG)
+                if (Atmlist%atom(i)%occ < EPSV) Atmlist%atom(i)%occ=real(Atmlist%atom(i)%Mult)/real(SpG%Multip)
+                select type (at => Atmlist%atom(i))
+                   class is (MAtm_Std_Type)
+                      At%Xs=xvet
+                end select
+             end do
+
+         class Default
+             allocate(xvet(3))
+             do i=1,Atmlist%natoms
+                xvet=Atmlist%atom(i)%x
+                Atmlist%atom(i)%Mult=Get_Multip_Pos(xvet,SpG)
+                if (Atmlist%atom(i)%occ < EPSV) Atmlist%atom(i)%occ=real(Atmlist%atom(i)%Mult)/real(SpG%Multip)
+             end do
+      End Select
+
       !> Convert Us to Betas and Uiso to Biso
       do i=1,AtmList%natoms
-         vet=AtmList%atom(i)%x
-         AtmList%atom(i)%Mult=Get_Multip_Pos(vet,SpG)
-
          select case (AtmList%atom(i)%thtype)
             case ("iso")
                Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
