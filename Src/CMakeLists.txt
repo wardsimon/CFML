@@ -2,9 +2,10 @@
 # Include section
 #################################
 
-#if(USE_HDF)
-#  add_definitions(-DUSE_HDF)
-#endif()
+if(USE_HDF)
+   add_definitions(-DUSE_HDF)
+   find_package(hdf5_crysfml)
+endif()
 
 # Build crysfml_common library.
 include(crysfml_common.cmake)
@@ -16,4 +17,3 @@ include(crysfml.cmake)
 if(GUI)
     include(wcrysfml.cmake)
 endif()
-

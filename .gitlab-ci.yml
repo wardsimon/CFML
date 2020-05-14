@@ -45,7 +45,7 @@ make:linux_ifort:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_setup_xenial_ifort .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_ifort_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_build_xenial_ifort .
-    - docker run -iv${PWD}:/artifacts/ -v/users/ci/intel:/opt/intel ci_crysfml_xenial_ifort_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_ifort_build
   artifacts:
     paths:
     - ${CI_PROJECT_DIR}/build_ifort
@@ -60,6 +60,7 @@ make:linux_ifort:
 make:macos_gfortran:
   stage: make
   script:
+    - export HDF5_INCLUDE_PATH="/Users/ci/Projects/fullprof/hdf5-gfortran/include"
     - BuildServer/Unix/build.sh gfortran
   artifacts:
     paths:
@@ -71,12 +72,13 @@ make:macos_gfortran:
     
 make:macos_ifort:
   stage: make
+  script:
+    - export HDF5_INCLUDE_PATH="/Users/ci/Projects/fullprof/hdf5-ifort/include"
+    - BuildServer/Unix/build.sh ifort
   artifacts:
     paths:
     - ${CI_PROJECT_DIR}/build_ifort
     expire_in: 1 day
-  script:
-    - BuildServer/Unix/build.sh ifort
   tags:
     - sci
     - osx-10.13   
@@ -87,11 +89,8 @@ make:windows_gfortran:
   stage: make
   script:
     - set PATH=%PATH:C:\Program Files\Git\bin;=%
-    - set CRYSFML_HDF5_DIR=C:\\Projects\\fullprof\\hdf5
-    - set CRYSFML_BOOST_DIR=C:\\Projects\\fullprof\\boost
-    - set CRYSFML_NEXUS_DIR=C:\\Projects\\fullprof\\NeXuS
-    - set CRYSFML_BLOSC_DIR=C:\\Projects\\fullprof\\blosc
-    - call "%BuildServer\\Windows\\build.bat" gfortran
+    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include
+    - call "BuildServer\\Windows\\build.bat" gfortran
   artifacts:
     paths:
     - "%CI_PROJECT_DIR%\\build_gfortran"
@@ -105,11 +104,8 @@ make:windows_ifort:
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
-    - set CRYSFML_HDF5_DIR=C:\\Projects\\fullprof\\hdf5
-    - set CRYSFML_BOOST_DIR=C:\\Projects\\fullprof\\boost
-    - set CRYSFML_NEXUS_DIR=C:\\Projects\\fullprof\\NeXuS
-    - set CRYSFML_BLOSC_DIR=C:\\Projects\\fullprof\\blosc
-    - call "%BuildServer\\Windows\\build.bat" ifort
+    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
+    - call "BuildServer\\Windows\\build.bat" ifort
   artifacts:
     paths:
     - "%CI_PROJECT_DIR%\\build_ifort"
