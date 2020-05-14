@@ -11,4 +11,4 @@ ENV CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME}
 COPY ./ /app/
 WORKDIR /app
 
-CMD BuildServer/Unix/build.sh gfortran; cp -a build_gfortran /artifacts/
+CMD BuildServer/Unix/build.sh gfortran && cp -a build_gfortran /artifacts/

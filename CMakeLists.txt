@@ -48,13 +48,13 @@ message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
 # Include and library paths for HDF5. 
 # They must be set by the user.
-if(DEFINED HDF5_INCLUDE_PATH)   
+if(DEFINED HDF5_INCLUDE_PATH)
     set(HDF5_INCLUDE_PATH ${HDF5_INCLUDE_PATH} CACHE PATH "HDF5 include path")
 else()
     set(HDF5_INCLUDE_PATH "" CACHE PATH "HDF5 include path")
 endif()
 
-if(NOT DEFINED HDF5_LIBRARY_PATH)    
+if(DEFINED HDF5_LIBRARY_PATH)
     set(HDF5_LIBRARY_PATH ${HDF5_LIBRARY_PATH} CACHE PATH "HDF5 library path")
 else()
     set(HDF5_LIBRARY_PATH "" CACHE PATH "HDF5 library path")
@@ -95,9 +95,6 @@ if (NOT CRYSFML08)
     set_compiler_flags()
     # The subdirectories of the project.
     add_subdirectory(Src)
-    #if (USE_HDF)
-    #    add_subdirectory(SrcCpp)
-    #endif()
 else()
     include(set_compiler_flags_08)
     set_compiler_flags_08()    
