@@ -21,7 +21,7 @@ target_link_libraries(calc_powder crysfml)
 add_executable(simple_calc_powder Simple_calc_powder.f90)
 target_link_libraries(simple_calc_powder crysfml)
 
-add_executable(simple_calc_mag_powder Simple_Calc_Mag_Powder.f90)
+add_executable(simple_calc_mag_powder Simple_calc_Mag_Powder.f90)
 target_link_libraries(simple_calc_mag_powder crysfml)
 
 
