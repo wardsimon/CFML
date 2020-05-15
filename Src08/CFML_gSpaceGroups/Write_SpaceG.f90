@@ -113,9 +113,7 @@ SubModule (CFML_gSpaceGroups) Write_SPG_Info
          write(unit=iout,fmt="(a,10a)") "                  Centre_coord: [ ",(trim(Rational_String(Grp%centre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
 
-      if (Grp%anticentred == 1) then
-         write(unit=iout,fmt="(a)")     "             Anti-Centre_coord: none!"
-      else
+      if (Grp%anticentred /= 1) then
          write(unit=iout,fmt="(a,10a)") "             Anti-Centre_coord: [ ",(trim(Rational_String(Grp%anticentre_coord(i)))//" ",i=1,Grp%d-1),"]"
       end if
 

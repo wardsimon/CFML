@@ -19,6 +19,7 @@ docker_post_clean:
     - ${CI_PROJECT_DIR}/BuildServer/Docker/clean.sh
   allow_failure: true
   when: always
+  dependencies: []
   tags:
     - docker
     - sci
