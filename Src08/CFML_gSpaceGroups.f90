@@ -144,7 +144,7 @@ Module CFML_gSpaceGroups
     Type, public, extends(Spg_Oreal_Type) :: SuperSpaceGroup_Type
        integer                                    :: nk=0      ! (nk=1,2,3, ...) number of k-vectors
        integer                                    :: nq=0      ! number of effective set of Q_coeff >= nk
-       real,          allocatable,dimension(:,:)  :: kv        ! k-vectors (3,nk)
+       real(kind=cp), allocatable,dimension(:,:)  :: kv        ! k-vectors (3,nk)
        real(kind=cp), allocatable,dimension(:)    :: sintlim   ! sintheta/lambda limits (nk)
        integer,       allocatable,dimension(:)    :: nharm     ! number of harmonics along each k-vector
        integer,       allocatable,dimension(:,:)  :: q_coeff   ! Q_coeff(nk,nq)

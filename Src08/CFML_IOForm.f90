@@ -46,7 +46,8 @@ Module CFML_IOForm
                                      get_numstd, Read_Key_Value, Read_Key_ValueSTD,  &
                                      string_numstd, Number_Lines, Reading_Lines,     &
                                      FindFMT, Init_FindFMT, String_Array_Type,       &
-                                     File_type, Reading_File, Get_Transf, Get_Extension
+                                     File_type, Reading_File, Get_Transf,            &
+                                     Get_Extension, Get_Datetime
 
    Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                      AtList_Type, Allocate_Atom_List, Init_Atom_Type
@@ -313,6 +314,30 @@ Module CFML_IOForm
          integer, optional,              intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Symm
 
+      Module Subroutine Write_CIF_Atoms(Ipr, AtmList, Cell)
+         integer,                      intent(in) :: Ipr
+         Type(AtList_Type),            intent(in) :: AtmList
+         class(Cell_G_Type), optional, intent(in) :: Cell
+      End Subroutine Write_CIF_Atoms
+
+      Module Subroutine Write_CIF_Cell(Ipr, Cell)
+         integer,          intent(in) :: Ipr
+         class(Cell_Type), intent(in) :: Cell
+      End Subroutine Write_CIF_Cell
+
+      Module Subroutine Write_CIF_ChemData(Ipr)
+         integer, intent(in) :: Ipr
+      End Subroutine Write_CIF_ChemData
+
+      Module Subroutine Write_CIF_End(Ipr)
+         integer, intent(in) :: Ipr
+      End Subroutine Write_CIF_End
+
+      Module Subroutine Write_CIF_Header(Ipr,str)
+         integer,                    intent(in) :: Ipr
+         character(len=*), optional, intent(in) :: Str
+      End Subroutine Write_CIF_Header
+
       Module Subroutine Write_CIF_Powder_Profile(filename,Pat,r_facts)
          character(len=*),                      intent(in) :: filename
          class(DiffPat_Type),                   intent(in) :: Pat
@@ -409,6 +434,11 @@ Module CFML_IOForm
          type (AtList_type),              intent(out) :: Atm
       End Subroutine Read_XTal_SHX
 
+      Module Subroutine Write_CIF_Spg(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_CIF_Spg
+
       Module Subroutine Write_CIF_Template(filename, Cell, SpG, Atmlist, Type_data, Code)
          character(len=*),           intent(in) :: filename     ! Filename
          class(Cell_G_Type),         intent(in) :: Cell         ! Cell parameters
@@ -417,6 +447,23 @@ Module CFML_IOForm
          integer,                    intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
          character(len=*),           intent(in) :: Code         ! Code or name of the structure
       End Subroutine Write_CIF_Template
+
+      Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
+         character(len=*),        intent(in) :: filename     ! Filename
+         class(Cell_G_Type),      intent(in) :: Cell         ! Cell parameters
+         class(SpG_Type),         intent(in) :: SpG          ! Space group information
+         Type(AtList_Type),       intent(in) :: AtmList      ! Atoms
+      End Subroutine Write_MCIF_Template
+
+      Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
+         integer,           intent(in) :: Ipr
+         Type(AtList_Type), intent(in) :: AtmList
+      End Subroutine Write_MCIF_AtomSite_Moment
+
+      Module Subroutine Write_MCIF_Spg(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_Spg
 
     End Interface
 
@@ -477,131 +524,6 @@ Module CFML_IOForm
        if (present(FType)) FType=F
 
     End Subroutine Read_Xtal_Structure
-
-    !!--++
-    !!--++ Subroutine Readn_Set_Xtal_Structure_Split(filenam,Cell,SpG,A,Type_Atm,Mode,Iphase,Job_Type,File_List,CFrame)
-    !!--++    character(len=*),              intent( in)     :: filenam    ! In -> Name of the file
-    !!--++    Type (Crystal_Cell_Type),      intent(out)     :: Cell       ! Out -> Cell object
-    !!--++    Type (Space_Group_Type),       intent(out)     :: SpG        ! Out -> Space Group object
-    !!--++    Type (atom_list_type),         intent(out)     :: A          ! Out -> Atom_List object
-    !!--++    Character(len=*),              intent( in)     :: Type_Atm   ! In ->  Type of atoms (Atm,Atm_Std, Matm_std,Atm_ref,Matm_Ref
-    !!--++    Character(len=*),    optional, intent( in)     :: Mode       ! In -> if Mode="CIF" filenam
-    !!--++                                                                         is of CIF type format
-    !!--++    Integer,             optional, intent( in)     :: Iphase     ! Number of the phase.
-    !!--++    Type(Job_Info_type), optional, intent(out)     :: Job_Info   ! Diffraction conditions
-    !!--++    Type(file_list_type),optional, intent(in out)  :: file_list  ! Complete file to be used by
-    !!--++                                                                   the calling program or other procedures
-    !!--++    Character(len=*),    optional, intent( in)     :: CFrame     !Cartesian Frame
-    !!--++
-    !!--++    Overloaded
-    !!--++    Subroutine to read and input file and construct the crystal structure
-    !!--++    in terms of the objects Cell, SpG and A. The optional argument Iphase is an integer
-    !!--++    telling to the program to read the phase number Iphase in the case of the presence
-    !!--++    of more than one phase. If absent only the first phase is read.
-    !!--++
-    !!--++ Update: April - 2005, Febraury 2020
-    !!
-    !Subroutine Readn_Set_Xtal_Structure_Split(Filenam, Cell, SpG, A,Type_Atm,Mode,Iphase,Job_Info,file_list,CFrame)
-    !   character(len=*),              intent( in)     :: filenam
-    !   Type (Cell_G_Type),            intent(out)     :: Cell
-    !   Type (SpG_Type),               intent(out)     :: SpG
-    !   Type (Atlist_type),            intent(out)     :: A
-    !   Character(len=*),              intent( in)     :: Type_Atm
-    !   Character(len=*),    optional, intent( in)     :: Mode
-    !   Integer,             optional, intent( in)     :: Iphase
-    !   Type(Job_Info_type), optional, intent(out)     :: Job_Info
-    !   Type(file_type),     optional, intent(in out)  :: file_list
-    !   Character(len=*),    optional, intent( in)     :: CFrame
-    !
-    !   !Local variables
-    !   character(len=6):: Ext
-    !   type(File_Type) :: File_dat
-    !
-    !   !> Init
-    !   call clear_error()
-    !
-    !   !> Load filename
-    !   File_dat=Reading_File(trim(filenam))
-    !   if (err_CFML%Ierr /= 0) return
-    !
-    !   if (File_dat%nlines ==0) then
-    !      Err_CFML%Ierr=1
-    !      Err_CFML%Msg="Zero lines in the file "//trim(filenam)
-    !      return
-    !   end if
-    !
-    !   !> Extension
-    !   Ext=get_extension(trim(filenam))
-    !
-    !   !> Init
-    !   call clear_error()
-    !   select case(Ext)
-    !
-    !       !case("cif")
-    !       !   if (present(iphase)) then
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
-    !       !      else
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
-    !       !      end if
-    !       !   else
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A,CFrame)
-    !       !      else
-    !       !        call readn_set_xtal_cif(file_dat,nlines,Cell,Spg,A)
-    !       !      end if
-    !       !   end if
-    !       !
-    !       !case("pcr")
-    !       !   if (present(iphase)) then
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,CFrame,NPhase=IPhase)
-    !       !      else
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg, A,NPhase=IPhase)
-    !       !      end if
-    !       !   else
-    !       !      if(present(CFrame)) then
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A,CFrame)
-    !       !      else
-    !       !        call readn_set_xtal_pcr(file_dat,nlines,Cell,Spg,A)
-    !       !      end if
-    !       !   end if
-    !       !
-    !       case default
-    !          !---- CFL Format ----!
-    !          if (present(Job_Info)) then
-    !             if (present(iphase)) then
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase,Job_Info=Job_Info)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase,Job_Info=Job_Info)
-    !                end if
-    !             else
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,Job_Info=Job_Info)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,Job_Info=Job_Info)
-    !                end if
-    !             end if
-    !          else
-    !             if (present(iphase)) then
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame,NPhase=IPhase)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,NPhase=IPhase)
-    !                end if
-    !             else
-    !                if(present(CFrame)) then
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm,CFrame)
-    !                else
-    !                  call readn_set_xtal_cfl(file_dat,nlines,Cell,Spg,A,Type_Atm)
-    !                end if
-    !             end if
-    !          end if
-    !
-    !   end select
-    !
-    !End Subroutine Readn_Set_Xtal_Structure_Split
 
 End Module CFML_IOForm
 
