@@ -46,8 +46,8 @@ include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 # HDF
 if(USE_HDF)
     include_directories(${HDF5_INCLUDE_DIR})
-    link_directories(${HDF5_LIBRARY_DIR})
-    target_link_libraries(${LIBRARY_NAME} ${HDF5_LIBS})
+    # target_link_libraries should be useless here
+    #target_link_libraries(${LIBRARY_NAME} ${HDF5_LIBRARIES})
 endif()
 
 #################################
