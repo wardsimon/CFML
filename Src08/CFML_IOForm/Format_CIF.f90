@@ -2761,6 +2761,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, dimension(MAX_PHASES) :: ip
 
       real(kind=cp),dimension(6):: vet,vet2
+      real(kind=cp)             :: val
 
       !> Init
       call clear_error()
@@ -2823,31 +2824,49 @@ SubModule (CFML_IOForm) IO_CIF
          Atmlist%atom(i)%Occ=Atmlist%atom(i)%Occ*real(Atmlist%atom(i)%Mult)/max(1.0_cp,real(SpG%Multip))
          if (Atmlist%atom(i)%occ < EPSV) Atmlist%atom(i)%occ=real(Atmlist%atom(i)%Mult)/max(1.0,real(SpG%Multip))
 
-         select case (AtmList%atom(i)%thtype)
-            case ("iso")
-               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+         select case (l_case(Atmlist%atom(i)%Utype))
+            case ('u_ij')
+               select case (l_case(AtmList%atom(i)%thtype))
+                  case ('iso')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           val=Atmlist%atom(i)%u_iso
+                           vet=[val,val,val,0.0,0.0,0.0]
+                           vet=Get_Betas_from_U(vet,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
+                     end select
 
-            case ("ani")
-               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u(1)*78.95683521 !by default
-
-               select type (cell)
-                  class is (Cell_G_Type)
-                     Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
-                     Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
-
-                     select case (Atmlist%atom(i)%Utype)
-                        case ("u_ij")
-                           Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
-
-                        case ("b_ij")
-                           Atmlist%atom(i)%u(1:6) = Get_Betas_from_B(Atmlist%atom(i)%u(1:6),Cell)
+                  case ('ani')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           Atmlist%atom(i)%u=Get_Betas_from_U(Atmlist%atom(i)%u,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
                      end select
                end select
 
-            case default
-               Atmlist%atom(i)%u_iso=0.05
-               Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
-               Atmlist%atom(i)%thtype = "iso"
+            case ('b_ij')
+               select case (l_case(AtmList%atom(i)%thtype))
+                  case ('iso')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           val=Atmlist%atom(i)%u_iso
+                           vet=[val,val,val,0.0,0.0,0.0]
+                           vet=Get_Betas_from_B(vet,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
+                     end select
+
+                  case ('ani')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           Atmlist%atom(i)%u=Get_Betas_from_B(Atmlist%atom(i)%u,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
+                     end select
+
+               end select
          end select
          Atmlist%atom(i)%Utype="beta"
       end do
