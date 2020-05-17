@@ -57,15 +57,19 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
             Atm%Moment_Std= 0.0_cp
 
             Atm%n_oc      = 0
+            Atm%n_bc      = 0
             Atm%n_mc      = 0
             Atm%n_dc      = 0
             Atm%n_uc      = 0
             Atm%poc_q     = 0
+            Atm%pbc_q     = 0
             Atm%pmc_q     = 0
             Atm%pdc_q     = 0
             Atm%puc_q     = 0
             Atm%Ocs       = 0.0_cp
             Atm%Ocs_std   = 0.0_cp
+            Atm%Bcs       = 0.0_cp
+            Atm%Bcs_std   = 0.0_cp
             Atm%Mcs       = 0.0_cp
             Atm%Mcs_std   = 0.0_cp
             Atm%Dcs       = 0.0_cp
@@ -104,15 +108,19 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
             Atm%Moment_Std= 0.0_cp
 
             Atm%n_oc      = 0
+            Atm%n_bc      = 0
             Atm%n_mc      = 0
             Atm%n_dc      = 0
             Atm%n_uc      = 0
             Atm%poc_q     = 0
+            Atm%pbc_q     = 0
             Atm%pmc_q     = 0
             Atm%pdc_q     = 0
             Atm%puc_q     = 0
             Atm%Ocs       = 0.0_cp
             Atm%Ocs_std   = 0.0_cp
+            Atm%Bcs       = 0.0_cp
+            Atm%Bcs_std   = 0.0_cp
             Atm%Mcs       = 0.0_cp
             Atm%Mcs_std   = 0.0_cp
             Atm%Dcs       = 0.0_cp
@@ -130,10 +138,12 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
             Atm%M_U       =0.0_cp
 
             Atm%L_Ocs       = 0.0_cp
+            Atm%L_Bcs       = 0.0_cp
             Atm%L_Mcs       = 0.0_cp
             Atm%L_Dcs       = 0.0_cp
             Atm%L_Ucs       = 0.0_cp
             Atm%M_Ocs       = 0.0_cp
+            Atm%M_Bcs       = 0.0_cp
             Atm%M_Mcs       = 0.0_cp
             Atm%M_Dcs       = 0.0_cp
             Atm%M_Ucs       = 0.0_cp

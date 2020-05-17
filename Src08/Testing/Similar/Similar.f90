@@ -56,7 +56,7 @@
     real, dimension(3)       :: orig       !origin of the transformed cell in old cell
     real, dimension(3)       :: xp         !auxiliary 3D-vector
     real, dimension(6)       :: cel        !cell parameters
-    logical                  :: iprin, trans_given, trn_std, index_given, fix_given, full_given, esta
+    logical                  :: iprin, trans_given, trn_std, index_given, fix_given, full_given, esta, none_given
     real,   dimension(:,:), allocatable   :: xo !orbits matrix
     character(len=1)         :: fix_lat
     integer                  :: narg
@@ -149,19 +149,22 @@
     call Write_Crystal_Cell(Cell,lun)
     call Write_Atom_List(A,lun)
     call Extend_Atom_List(SpaceGroup,cell,A,Ate,lun)
-
     n_ini=1
     n_end=file_dat%nlines
+    write(*,*) " => Number of lines in file: ",n_end
     trans_given=.false.
     trn_std = .false.
     index_given=.false.
     indice=48
     fix_given=.false.
     full_given=.false.
+    none_given=.false.
     call clear_error()
     do i=4,n_end
       line=l_case(adjustl(file_dat%line(i)%str))
+      write(*,"(a)") " -> "//line
       if(line(1:1) == "!") cycle
+      if(line(1:4) == "none") none_given=.true.
       j=index(line," ")
       if(line(1:5) == "trans") then
         line=adjustl(line(j:))
@@ -262,6 +265,7 @@
         call Extend_Atom_List(SpaceGroup_n,cell_n,A_n,Ate_n,lun)
       end if
 
+      if(none_given) exit !no calculation of subgroups
 
       call allocate_point_list(SpaceGroup%multip,pl,ier)  !Allocate the point list for original cell
       if(ier /= 0) then

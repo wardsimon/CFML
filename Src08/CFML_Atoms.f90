@@ -116,27 +116,35 @@
     !!---- This type Modulated Atom type extends Atm_Std_Type by adding modulation
     !!---- Cosine(c) and Sine amplitudes(s) to each model parameter characterizing
     !!---- normal atoms. Up to max_mod harmonic numbers (Q_coeffs) are allowed
+    !!---- Still to implement special modulation functions (crenel-type)
+    !!---- Probably extending MAtm_Std_Type or its descendents
+
     !!----
     Type, Public, Extends(Atm_Std_Type)    :: MAtm_Std_Type
        integer                             :: n_oc   = 0       ! Number of occupation amplitudes
+       integer                             :: n_bc   = 0       ! Number of B_iso amplitudes
        integer                             :: n_mc   = 0       ! Number of moment amplitudes
        integer                             :: n_dc   = 0       ! Number of static displacement amplitudes
        integer                             :: n_uc   = 0       ! Number of thermal displacement amplitudes
        integer,      dimension(max_mod)    :: poc_q  = 0       ! Pointer to Q_coeffs of occupatiom amplitudes
+       integer,      dimension(max_mod)    :: pbc_q  = 0       ! Pointer to Q_coeffs of B_iso amplitudes
        integer,      dimension(max_mod)    :: pmc_q  = 0       ! Pointer to Q_coeffs of moment amplitudes
        integer,      dimension(max_mod)    :: pdc_q  = 0       ! Pointer to Q_coeffs of displacement amplitudes
        integer,      dimension(max_mod)    :: puc_q  = 0       ! Pointer to Q_coeffs of thermal displacement amplitudes
        real(kind=cp),dimension(2, max_mod) :: Ocs    = 0.0_cp  ! Ocos,Osin up to 8  (Oc, Os)
        real(kind=cp),dimension(2, max_mod) :: Ocs_std= 0.0_cp  !
+       real(kind=cp),dimension(2, max_mod) :: Bcs    = 0.0_cp  ! Bcos,Bsin up to 8  (Bc, Bs) B_Iso modulation amplitudes
+       real(kind=cp),dimension(2, max_mod) :: Bcs_std= 0.0_cp  !
        real(kind=cp),dimension(6, max_mod) :: Mcs    = 0.0_cp  ! Mcos,Msin up to 8  (Mcx Mcy  Mcz , Msx  Msy  Msz)
        real(kind=cp),dimension(6, max_mod) :: Mcs_std= 0.0_cp  !
        real(kind=cp),dimension(6, max_mod) :: Dcs    = 0.0_cp  ! Dcos,Dsin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
        real(kind=cp),dimension(6, max_mod) :: Dcs_std= 0.0_cp  !
-       real(kind=cp),dimension(12,max_mod) :: Ucs    = 0.0_cp  ! Ucos,Usin up to 8  (Dcx Dcy  Dcz , Dsx  Dsy  Dsz)
+       real(kind=cp),dimension(12,max_mod) :: Ucs    = 0.0_cp  ! Ucos,Usin up to 8  (Uc11 Uc22  Uc33, Uc12, Uc13, Uc23 , Us11 Us22  Us33, Us12, Us13, Us23)
        real(kind=cp),dimension(12,max_mod) :: Ucs_std= 0.0_cp  !
-       real(kind=cp),dimension(:),   allocatable :: Xs      ! Position in superspace
-       real(kind=cp),dimension(:),   allocatable :: Moms    ! Moment in superspace
-       real(kind=cp),dimension(:,:), allocatable :: Us      ! Thermal factos in superspace
+                                                               ! The items below are not yet used and they are not in CIFs
+       real(kind=cp),dimension(:),   allocatable :: Xs         ! Position in superspace
+       real(kind=cp),dimension(:),   allocatable :: Moms       ! Moment in superspace
+       real(kind=cp),dimension(:,:), allocatable :: Us         ! Thermal factors in superspace
     End Type MAtm_Std_Type
 
     !!----
@@ -176,10 +184,12 @@
        real(kind=cp)                            :: M_U_iso   =0.0_cp
        real(kind=cp),dimension(6)               :: M_U       =0.0_cp
        integer,      dimension(2, max_mod)      :: L_Ocs    = 0       ! Code Numbers of parameter
+       integer,      dimension(2, max_mod)      :: L_Bcs    = 0       !
        integer,      dimension(6, max_mod)      :: L_Mcs    = 0       !
        integer,      dimension(6, max_mod)      :: L_Dcs    = 0       !
        integer,      dimension(12,max_mod)      :: L_Ucs    = 0       !
        real(kind=cp),dimension(2, max_mod)      :: M_Ocs    = 0.0_cp  ! Multipliers
+       real(kind=cp),dimension(2, max_mod)      :: M_Bcs    = 0.0_cp  ! Multipliers
        real(kind=cp),dimension(6, max_mod)      :: M_Mcs    = 0.0_cp  !
        real(kind=cp),dimension(6, max_mod)      :: M_Dcs    = 0.0_cp  !
        real(kind=cp),dimension(12,max_mod)      :: M_Ucs    = 0.0_cp  !
