@@ -85,6 +85,7 @@
       end if
       !call Readn_Set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpaceGroup,A,"Atm",Mode="CFL",file_list=file_dat)
       call Read_Xtal_Structure(trim(filcod)//".cfl",Cell,SpaceGroup,A)
+      call Write_Atom_List(A)
       If(err_CFML%Ierr == 1) then
         write(unit=*,fmt="(a)") trim(err_CFML%Msg)
         call CloseProgram()

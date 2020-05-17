@@ -84,9 +84,9 @@
        integer                       :: Mult    = 0      ! Multiplicity of the Wyckoff position
        integer                       :: Charge  = 0      ! Charge, ionic state
        real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Fractional Coordinates
-       real(kind=cp)                 :: U_iso   = 0.0_cp ! Biso, Uiso or Ueq (if iso =Biso)
+       real(kind=cp)                 :: U_iso   = 0.0_cp ! Biso, Uiso or Ueq (if ThType ="iso" normally U_iso = Biso)
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
-       character(len=4)              :: UType   ="beta"  ! Options: U, B, beta
+       character(len=4)              :: UType   ="B"     ! Options: U, B, beta (U & beta are for anisotropic thermal factors)
        character(len=3)              :: ThType  ="iso"   ! Options: iso, ani
        real(kind=cp), dimension(6)   :: U       = 0.0_cp ! Anisotropic thermal factors
        logical                       :: Magnetic=.false. ! Flag indication if the atom is magnetic or not.

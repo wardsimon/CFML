@@ -205,9 +205,10 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=ipr,fmt='(a)') "    _atom_site_type_symbol"
       write(unit=Ipr,fmt="(a)") "    _atom_site_symmetry_multiplicity"
 
-      !> Calculation of the factor corresponding to the occupation factor provided in A
       if (allocated(occup)) deallocate(occup)
       if (allocated(soccup)) deallocate(soccup)
+
+      !> Calculation of the factor corresponding to the occupation factor provided in A
       if (Atmlist%natoms > 0) then
          allocate(occup(Atmlist%natoms))
          allocate(soccup(Atmlist%natoms))
@@ -230,11 +231,10 @@ SubModule (CFML_IOForm) IO_CIF
          occup=occup/ocf; soccup=soccup/ocf
       end if
 
-      !> Calculation of the factor corresponding to the occupation factor
       aniso=.false.
       do i=1,AtmList%natoms
          line=" "
-         line(2:)= Atmlist%Atom(i)%Lab//"  "//Atmlist%Atom(i)%SfacSymb
+         line(2:)= trim(Atmlist%Atom(i)%Lab)//"  "//Atmlist%Atom(i)%SfacSymb
 
          do j=1,3
             rval=0.0
@@ -246,16 +246,10 @@ SubModule (CFML_IOForm) IO_CIF
             line=trim(line)//" "//trim(comm)
          end do
 
-         !occ_std=0.0
-         !occ=Atmlist%atom(i)%occ
-         !select type (at => AtmList%Atom)
-         !      class is (Atm_Std_Type)
-         !          occ_std=At(i)%occ_std
-         !end select
-
          comm=" "
          select case (AtmList%Atom(i)%Thtype)
             case ('iso')
+
                select case (l_case(AtmList%Atom(i)%UType))
                   case ("u_ij")
                      u=Atmlist%Atom(i)%U_iso
@@ -275,21 +269,16 @@ SubModule (CFML_IOForm) IO_CIF
                      end select
                      adptyp='Biso'
 
-                  case ("beta")
-                     if (present(Cell)) then
-                        aux=[Atmlist%Atom(i)%U_iso,Atmlist%Atom(i)%U_iso,Atmlist%Atom(i)%U_iso, &
-                             0.0,0.0,0.0]
-                        aux=Get_U_from_Betas(aux,Cell)
-                        u=U_Equiv(Cell, aux)
-                     else
-                        u=1.0
-                     end if
+                  case default  !This is the normal case when using isotropic thermal factors
+                               !and the construction of the structure does not come from another CIF
+                     u=Atmlist%Atom(i)%U_iso
                      su=0.0
                      select type (at => AtmList%Atom)
                         class is (Atm_Std_Type)
                             su=At(i)%U_iso_std
                      end select
-                     adptyp='Uiso'
+                     adptyp='Biso'
+
                end select
                comm=string_numstd(u,su)
 
