@@ -191,7 +191,7 @@ endif()
 
 # CFML_DiffPatt
 file(GLOB SUBMOD_DIFFPATT_SRC CFML_DiffPatt/*.f90)
-set(DIFFPATT_SRC CFML_DiffPatt.f90
+set(DIFFPATT_SRC CFML_Diffpatt.f90
                  ${SUBMOD_DIFFPATT_SRC})
 if(${COMPILER_NAME} STREQUAL ifort)
     set_source_files_properties(${DIFFPATT_SRC}
