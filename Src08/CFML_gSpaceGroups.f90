@@ -73,7 +73,7 @@ Module CFML_gSpaceGroups
               Get_Rotation_Order, get_Symb_from_Mat, Get_Symb_from_OP,            &
               Inverse_OP, Get_Orbit, Get_moment_ctr, Get_TFourier_Ctr
 
-    public :: Allocate_OP, Allocate_SpaceGroup, Change_Setting_SpaceG,            &
+    public :: Allocate_OP, Allocate_SpaceGroup, Allocate_KVector, Change_Setting_SpaceG, &
               Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
               Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups, Group_Constructor,&
               Identify_Group, Init_SpaceGroup,  Is_OP_Inversion_Centre,           &
@@ -240,6 +240,13 @@ Module CFML_gSpaceGroups
     !---- Interface Zone ----!
     !------------------------!
     Interface
+       Module Subroutine Allocate_KVector(nk, nq, Kvec)
+          !---- Arguments ----!
+          integer,               intent(in)    :: nk
+          integer,               intent(in)    :: nq
+          type(Kvect_Info_Type), intent(inout) :: Kvec
+       End Subroutine Allocate_KVector
+
        Module Function Apply_OP(Op, V) Result(S)
           !---- Arguments ----!
           Type(Symm_Oper_Type),         intent(in) :: Op    ! Symmetry Operator

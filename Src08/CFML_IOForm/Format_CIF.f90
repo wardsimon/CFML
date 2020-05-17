@@ -838,9 +838,9 @@ SubModule (CFML_IOForm) IO_CIF
       !> Look for the first atoms fully occupying the site and put it in first position
       !> This is needed for properly calculating the occupation factors
       !> after normalization in subroutine Readn_Set_XTal_CIF
-
       vet1=maxval(atm%atom(1:n)%occ)  !Normalize occupancies
       atm%atom%occ=atm%atom%occ/vet1(1)
+
       First=1
       do i=1,n
          if (abs(atm%atom(i)%occ-1.0_cp) < EPS) then
@@ -3234,6 +3234,112 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=Ipr,fmt="(a)") " "
 
    End Subroutine Write_MCIF_AtomSite_Moment
+
+   !!----
+   !!---- READ_MCIF_PARENT_PROPAGATION_VECTOR
+   !!----
+   !!---- 17/05/2020 11:45:38
+   !!
+   Module Subroutine Read_MCIF_Parent_Propagation_Vector(cif, Kvec,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),       intent(in)  :: cif
+      Type(Kvect_Info_Type), intent(out) :: Kvec
+      integer, optional,     intent(in)  :: i_ini,i_end   ! Index to Finish
+
+      !---- Local Variables ----!
+      logical                :: found
+      integer, dimension( 2) :: lugar   !   1:id, 2: kxkykz
+      integer                :: j_ini, j_end
+      integer                :: i,j,nl
+
+      !> Init
+      Kvec%nv=0
+      if (allocated(kvec%kv)) deallocate(kvec%kv)
+
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Parent_Propagation_Vector: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop for Propagation vectors
+      found=.false.
+      str="_parent_propagation_vector.kxkykz"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            j_ini=j+1
+            found=.true.
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (index(line,'_parent')==0) exit
+         if (len_trim(line) <=0) exit
+
+         select case (trim(line))
+            case ('_parent_propagation_vector.id')
+               j=j+1
+               lugar(1)=j
+            case ('_parent_propagation_vector.kxkykz')
+               j=j+1
+               lugar(2)=j
+         end select
+      end do
+
+      !> Number of k-vectors
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (index(line,'_parent') > 0) cycle
+         if (len_trim(line) <=0) exit
+         j=j+1
+      end do
+      if (j ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Parent_propagation_Vector: 0 K-vectors"
+         return
+      end if
+
+      kvec%nv=j
+      if (allocated(kvec%kv)) deallocate(kvec%kv)
+      real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
+       real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
+       integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
+       integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
+       integer,allocatable,dimension(:,:)           :: q_coeff     ! number of q_coeff(nk,nq)
+
+   End Subroutine Read_MCIF_Parent_Propagation_Vector
 
 
 End SubModule IO_CIF
