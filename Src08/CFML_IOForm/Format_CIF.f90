@@ -3249,8 +3249,11 @@ SubModule (CFML_IOForm) IO_CIF
       !---- Local Variables ----!
       logical                :: found
       integer, dimension( 2) :: lugar   !   1:id, 2: kxkykz
+      integer, dimension(3)  :: ivet
       integer                :: j_ini, j_end
-      integer                :: i,j,nl
+      integer                :: i,j,nl,iv
+      integer                :: np1,np2
+      real(kind=cp), dimension(3) :: vet
 
       !> Init
       call Allocate_KVector(0, 0, Kvec)
@@ -3329,10 +3332,72 @@ SubModule (CFML_IOForm) IO_CIF
          err_CFML%Msg="Read_MCIF_Parent_propagation_Vector: 0 K-vectors"
          return
       end if
-
       call allocate_Kvector(j,0,kvec)
 
+      !> Read k-vectors
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (index(line,'_parent') > 0) cycle
+         if (len_trim(line) <=0) exit
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         !> Id
+         if (lugar(1) == 1) call Cut_String(line)
+
+         !> vector
+         np1=index(line,'[')
+         np2=index(line,']')
+         call get_num(line(np1+1:np2-1),vet,ivet,iv)
+         if (iv /= 3) cycle
+
+         j=j+1
+         Kvec%kv(:,j)=vet
+
+      end do
+
    End Subroutine Read_MCIF_Parent_Propagation_Vector
+
+   !!----
+   !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
+   !!----
+   !!---- 17/05/2020
+   !!
+   Module Subroutine Write_MCIF_Parent_Propagation_Vector(Ipr,KVec)
+      !---- Arguments ----!
+      integer, intent(in)               :: Ipr
+      Type(Kvect_Info_Type), intent(in) :: Kvec
+
+      !---- Local Variables ----!
+      character(len=3) :: car
+      integer          :: i
+
+      !> K-vectors
+      if (Kvec%nk <=0) return
+
+      write(unit=Ipr,fmt="(a)") "loop_"
+      write(unit=Ipr,fmt="(a)") "    _parent_propagation_vector.id"
+      write(unit=Ipr,fmt="(a)") "    _parent_propagation_vector.kxkykz"
+      do i=1,kvec%nk
+         write(unit=car,fmt='(i3)') i
+         car=adjustl(car)
+
+         line=' '
+         write(unit=line,fmt='(3f5.2)') kvec%kv(:,i)
+
+         write(unit=ipr,fmt='(a, t10,a)') "   k"//trim(car), "["//trim(line)//"]"
+      end do
+      write(unit=ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_Parent_Propagation_Vector
 
 
 End SubModule IO_CIF
