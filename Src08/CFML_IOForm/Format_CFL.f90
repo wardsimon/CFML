@@ -114,11 +114,11 @@ SubModule (CFML_IOForm) IO_CFL
                end if
 
                npos=index(line," ")
-               if (npos <= 1) then
-                  err_CFML%Ierr=1
-                  err_CFML%Msg="Read_CFL_Atoms: Error in line "//trim(line)
-                  return
-               end if
+               if (npos <= 1) cycle
+               !   err_CFML%Ierr=1
+               !   err_CFML%Msg="Read_CFL_Atoms: Error in line "//trim(line)
+               !   return
+               !end if
 
                select case (u_case(line(1:npos-1)))
                   case ("MOMENT")
