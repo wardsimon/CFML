@@ -47,7 +47,7 @@ Module CFML_IOForm
                                      string_numstd, Number_Lines, Reading_Lines,     &
                                      FindFMT, Init_FindFMT, String_Array_Type,       &
                                      File_type, Reading_File, Get_Transf,            &
-                                     Get_Extension, Get_Datetime
+                                     Get_Extension, Get_Datetime,Read_Fract
 
    Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                      AtList_Type, Allocate_Atom_List, Init_Atom_Type
@@ -57,7 +57,7 @@ Module CFML_IOForm
 
    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
-                                     Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr
+                                     Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr, Allocate_Kvector
 
    Use CFML_DiffPatt,          only: DiffPat_Type, DiffPat_E_Type
 
@@ -314,9 +314,10 @@ Module CFML_IOForm
          integer, optional,              intent(in)  :: i_ini, i_end
       End Subroutine Read_CIF_Symm
 
-      Module Subroutine Write_CIF_Atoms(Ipr, AtmList, Cell)
+      Module Subroutine Write_CIF_Atoms(Ipr, AtmList, SpG, Cell)
          integer,                      intent(in) :: Ipr
          Type(AtList_Type),            intent(in) :: AtmList
+         class(SpG_Type),              intent(in) :: SpG
          class(Cell_G_Type), optional, intent(in) :: Cell
       End Subroutine Write_CIF_Atoms
 
@@ -424,8 +425,16 @@ Module CFML_IOForm
          class(Cell_Type),              intent(out) :: Cell
          class(SpG_Type),               intent(out) :: SpG
          Type(AtList_Type),             intent(out) :: Atmlist
-         Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+         Integer,             optional, intent(in)  :: Nphase
       End Subroutine Read_XTal_CIF
+
+      Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Nphase)
+         type(File_Type),               intent(in)  :: cif
+         class(Cell_Type),              intent(out) :: Cell
+         class(SpG_Type),               intent(out) :: SpG
+         Type(AtList_Type),             intent(out) :: Atmlist
+         Integer,             optional, intent(in)  :: Nphase
+      End Subroutine Read_XTal_MCIF
 
       Module Subroutine Read_XTal_SHX(shx, Cell, SpG, Atm)
          type(File_Type),                 intent(in)  :: shx
@@ -453,6 +462,12 @@ Module CFML_IOForm
          Type(Kvect_Info_Type), intent(out) :: Kvec
          integer, optional,     intent(in)  :: i_ini,i_end
       End Subroutine Read_MCIF_Parent_Propagation_Vector
+
+      Module Subroutine Read_MCIF_Parent_SpaceG(cif,Spg,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         class(SpG_Type),       intent(inout) :: SpG
+         integer, optional,     intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_Parent_SpaceG
 
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
          character(len=*),        intent(in) :: filename
@@ -525,6 +540,8 @@ Module CFML_IOForm
           case ('INS','RES')
              call Read_XTal_SHX(f, Cell, SpG, Atm)
           case ('PCR')
+          case ('MCIF')
+             call Read_XTal_MCIF(f, Cell, Spg, ATM)
           case default
              Err_CFML%Ierr=1
              Err_CFML%Msg="The extension file is unknown. Pease, check it! Ext= "//trim(filenam)

@@ -168,18 +168,20 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 15/05/2020
    !!
-   Module Subroutine Write_CIF_Atoms(Ipr, AtmList, Cell)
+   Module Subroutine Write_CIF_Atoms(Ipr, AtmList, SpG, Cell)
       !---- Arguments ----!
       integer,                      intent(in) :: Ipr
       Type(AtList_Type),            intent(in) :: AtmList
+      class(SpG_Type),              intent(in) :: SpG
       class(Cell_G_Type), optional, intent(in) :: Cell
 
       !---- Local Variables ----!
       logical                                 :: aniso
       integer                                 :: i,j
       character(len=30)                       :: comm, adptyp
-      real(kind=cp)                           :: u,su,rval,occ,occ_std
+      real(kind=cp)                           :: u,su,rval,occ,occ_std,ocf
       real(kind=cp), dimension(6)             :: Ua,sua,aux
+      real(kind=cp), dimension(:),allocatable :: occup,soccup
 
       !> Atomic Coordinates and Displacement Parameters
       write(unit=ipr,fmt="(a)") "# ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS"
@@ -203,6 +205,31 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=ipr,fmt='(a)') "    _atom_site_type_symbol"
       write(unit=Ipr,fmt="(a)") "    _atom_site_symmetry_multiplicity"
 
+      !> Calculation of the factor corresponding to the occupation factor provided in A
+      if (allocated(occup)) deallocate(occup)
+      if (allocated(soccup)) deallocate(soccup)
+      if (Atmlist%natoms > 0) then
+         allocate(occup(Atmlist%natoms))
+         allocate(soccup(Atmlist%natoms))
+         occup=0.0_cp
+         soccup=0.0_cp
+
+         do i=1,Atmlist%natoms
+            occup(i)=Atmlist%Atom(i)%occ/(real(Atmlist%Atom(i)%mult)/real(SpG%multip))
+            select type (at=>atmlist%atom)
+               class is (Atm_Std_Type)
+                  soccup(i)=At(i)%occ_std/(real(At(i)%mult)/real(SpG%multip))
+            end select
+         end do
+         ocf=sum(abs(Atmlist%atom(1)%x-Atmlist%atom(2)%x))
+         if ( ocf < 0.001) then
+            ocf=occup(1)+occup(2)
+         else
+            ocf=occup(1)
+         end if
+         occup=occup/ocf; soccup=soccup/ocf
+      end if
+
       !> Calculation of the factor corresponding to the occupation factor
       aniso=.false.
       do i=1,AtmList%natoms
@@ -219,12 +246,12 @@ SubModule (CFML_IOForm) IO_CIF
             line=trim(line)//" "//trim(comm)
          end do
 
-         occ_std=0.0
-         occ=Atmlist%atom(i)%occ
-         select type (at => AtmList%Atom)
-               class is (Atm_Std_Type)
-                   occ_std=At(i)%occ_std
-         end select
+         !occ_std=0.0
+         !occ=Atmlist%atom(i)%occ
+         !select type (at => AtmList%Atom)
+         !      class is (Atm_Std_Type)
+         !          occ_std=At(i)%occ_std
+         !end select
 
          comm=" "
          select case (AtmList%Atom(i)%Thtype)
@@ -307,8 +334,9 @@ SubModule (CFML_IOForm) IO_CIF
          end select
          line=trim(line)//" "//trim(comm)
 
-         comm=string_numstd(occ,occ_std)
+         comm=string_numstd(occup(i),soccup(i))
          line=trim(line)//" "//trim(comm)
+
          write(unit=ipr,fmt="(a,i4)") trim(line)//" "//trim(adptyp)//" "//Atmlist%atom(i)%SfacSymb, &
                                       Atmlist%atom(i)%Mult
       end do
@@ -2640,9 +2668,9 @@ SubModule (CFML_IOForm) IO_CIF
 
       !> Atomic Coordinates and Displacement Parameters
       if (l_case(atmlist%atom(1)%Utype) /= 'beta') then
-         call write_cif_atoms(iunit,Atmlist)
+         call write_cif_atoms(iunit,Atmlist,SpG)
       else
-         call write_cif_atoms(iunit,Atmlist,Cell)
+         call write_cif_atoms(iunit,Atmlist,SpG,Cell)
       end if
 
       if(type_data < 2) then
@@ -2874,6 +2902,74 @@ SubModule (CFML_IOForm) IO_CIF
    End Subroutine Read_XTal_CIF
 
    !!--++
+   !!--++ Read_XTal_MCIF
+   !!--++
+   !!--++ Read a MCIF File
+   !!--++
+   !!--++ 17/05/2020
+   !!
+   Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Nphase)
+      !---- Arguments ----!
+      type(File_Type),               intent(in)  :: cif
+      class(Cell_Type),              intent(out) :: Cell
+      class(SpG_Type),               intent(out) :: SpG
+      Type(AtList_Type),             intent(out) :: Atmlist
+      Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+
+      !---- Local Variables ----!
+      character(len= 20)             :: Spp
+      integer                        :: i, iph, nt_phases, it, n_ini,n_end
+      integer, dimension(MAX_PHASES) :: ip
+
+      real(kind=cp),dimension(6):: vet,vet2
+      real(kind=cp)             :: val
+
+      Type(Kvect_Info_Type)     :: Kvec
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_XTal_MCIF: No lines in the file!"
+         return
+      end if
+
+      !> Calculating number of Phases
+      nt_phases=0; ip=cif%nlines; ip(1)=1
+      do i=1,cif%nlines
+         line=adjustl(cif%line(i)%str)
+         if (l_case(line(1:5)) == "data_" .and. l_case(line(1:11)) /= "data_global" )  then
+            nt_phases=nt_phases+1
+            ip(nt_phases)=i
+         end if
+      end do
+
+      !> Read the Phase information
+      iph=1
+      if (present(nphase)) then
+         iph=min(nphase, nt_phases)
+         iph=max(1,iph)
+      end if
+
+      n_ini=ip(iph)
+      n_end=ip(iph+1)
+
+      !> Reading Cell Parameters
+      call Read_Cif_Cell(cif,Cell,n_ini,n_end)
+      if (Err_CFML%IErr==1) return
+      pause '...NEXT'
+
+      !> Parent Propagation vector
+      call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
+      call Write_MCIF_Parent_Propagation_Vector(6,Kvec)
+      pause '...NEXT'
+
+      !> SpaceGroup Information
+
+
+   End Subroutine Read_XTal_MCIF
+
+   !!--++
    !!--++ GET_CIF_NPHASES
    !!--++
    !!--++ Determine the number of phases included into the CIF
@@ -3006,9 +3102,9 @@ SubModule (CFML_IOForm) IO_CIF
       !> Atoms
       select case (l_case(Atmlist%atom(1)%UType))
          case ('beta')
-            call write_cif_atoms(ipr,atmlist,cell)
+            call write_cif_atoms(ipr,atmlist,spG,cell)
          case default
-            call write_cif_atoms(ipr,atmlist)
+            call write_cif_atoms(ipr,atmlist,SpG)
       end select
 
       !> Moment
@@ -3253,7 +3349,9 @@ SubModule (CFML_IOForm) IO_CIF
       integer                :: j_ini, j_end
       integer                :: i,j,nl,iv
       integer                :: np1,np2
-      real(kind=cp), dimension(3) :: vet
+
+      real(kind=cp),     dimension(3) :: vet
+      character(len=20), dimension(3) :: cvet
 
       !> Init
       call Allocate_KVector(0, 0, Kvec)
@@ -3356,11 +3454,30 @@ SubModule (CFML_IOForm) IO_CIF
          !> vector
          np1=index(line,'[')
          np2=index(line,']')
-         call get_num(line(np1+1:np2-1),vet,ivet,iv)
-         if (iv /= 3) cycle
 
-         j=j+1
-         Kvec%kv(:,j)=vet
+         call get_num(line(np1+1:np2-1),vet,ivet,iv)
+         if (iv == 3) then
+            j=j+1
+            Kvec%kv(:,j)=vet
+            cycle
+         end if
+
+         call get_words(line(np1+1:np2-1),cvet,iv)
+         if (iv == 3) then
+            vet=0.0_cp
+
+            vet(1)=read_fract(cvet(1))
+            if (err_CFML%Ierr==1) return
+
+            vet(2)=read_fract(cvet(2))
+            if (err_CFML%Ierr==1) return
+
+            vet(3)=read_fract(cvet(3))
+            if (err_CFML%Ierr==1) return
+
+            j=j+1
+            Kvec%kv(:,j)=vet
+         end if
 
       end do
 
@@ -3398,6 +3515,208 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=ipr,fmt="(a)") " "
 
    End Subroutine Write_MCIF_Parent_Propagation_Vector
+
+   !!----
+   !!---- READ_MCIF_PARENT_SPACE_GROUP
+   !!----
+   !!---- 17/05/2020
+   !!
+   Module Subroutine Read_MCIF_Parent_SpaceG(cif,Spg,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),       intent(in)    :: cif
+      class(SpG_Type),       intent(inout) :: SpG
+      integer, optional,     intent(in)    :: i_ini,i_end
+
+      !---- Local Variables ----!
+      integer                     :: j_ini, j_end
+      integer                     :: i,iv
+      integer,       dimension(1) :: ivet
+      real(kind=cp), dimension(1) :: vet
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Parent_SpaceG: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Child_Transform_Pp_abc
+      str="_parent_space_group.child_transform_Pp_abc"
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call cut_string(line)
+         line=adjustl(line)
+
+         do
+            iv=index(line,"'")
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+
+            iv=index(line,'"')
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+            exit
+         end do
+         SpG%tfrom_parent=trim(adjustl(line))
+
+         exit
+      end do
+
+      !> IT_number
+      str="_parent_space_group.IT_number"
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call cut_string(line)
+         line=adjustl(line)
+
+         do
+            iv=index(line,"'")
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+
+            iv=index(line,'"')
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+            exit
+         end do
+         call Get_num(line,vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="_parent_space_group.IT_number is a number. Please, check it!"
+            return
+         end if
+
+         Spg%Parent_num=ivet(1)
+         exit
+      end do
+
+      !> H-M
+      str="_parent_space_group.name_H-M_alt"
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call cut_string(line)
+         line=adjustl(line)
+
+         do
+            iv=index(line,"'")
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+
+            iv=index(line,'"')
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+            exit
+         end do
+         SpG%Parent_spg=trim(adjustl(line))
+
+         exit
+      end do
+
+      !> Reference_setting
+      str="_parent_space_group.reference_setting"
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call cut_string(line)
+         line=adjustl(line)
+
+         do
+            iv=index(line,"'")
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+
+            iv=index(line,'"')
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+            exit
+         end do
+         SpG%setting=trim(adjustl(line))
+
+         exit
+      end do
+
+      !> Transorm_Pp_abc
+      str="_parent_space_group.transform_Pp_abc"
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         call cut_string(line)
+         line=adjustl(line)
+
+         do
+            iv=index(line,"'")
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+
+            iv=index(line,'"')
+            if (iv > 0) then
+               line(iv:iv)=" "
+               cycle
+            end if
+            exit
+         end do
+         !SpG%XXXXX=trim(adjustl(line))
+
+         exit
+      end do
+
+   End Subroutine Read_MCIF_Parent_SpaceG
 
 
 End SubModule IO_CIF
