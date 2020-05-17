@@ -47,7 +47,8 @@ Module CFML_IOForm
                                      string_numstd, Number_Lines, Reading_Lines,     &
                                      FindFMT, Init_FindFMT, String_Array_Type,       &
                                      File_type, Reading_File, Get_Transf,            &
-                                     Get_Extension, Get_Datetime,Read_Fract
+                                     Get_Extension, Get_Datetime,Read_Fract,         &
+                                     Frac_Trans_2Dig
 
    Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                      AtList_Type, Allocate_Atom_List, Init_Atom_Type

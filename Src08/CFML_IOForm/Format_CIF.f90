@@ -3430,6 +3430,7 @@ SubModule (CFML_IOForm) IO_CIF
          err_CFML%Msg="Read_MCIF_Parent_propagation_Vector: 0 K-vectors"
          return
       end if
+
       call allocate_Kvector(j,0,kvec)
 
       !> Read k-vectors
@@ -3449,7 +3450,7 @@ SubModule (CFML_IOForm) IO_CIF
          end do
 
          !> Id
-         if (lugar(1) == 1) call Cut_String(line)
+         !if (lugar(1) == 1) call Cut_String(line)
 
          !> vector
          np1=index(line,'[')
@@ -3461,8 +3462,10 @@ SubModule (CFML_IOForm) IO_CIF
             Kvec%kv(:,j)=vet
             cycle
          end if
+         call clear_error()
 
          call get_words(line(np1+1:np2-1),cvet,iv)
+         call clear_error()
          if (iv == 3) then
             vet=0.0_cp
 
@@ -3495,7 +3498,7 @@ SubModule (CFML_IOForm) IO_CIF
 
       !---- Local Variables ----!
       character(len=3) :: car
-      integer          :: i
+      integer          :: i,np1,np2
 
       !> K-vectors
       if (Kvec%nk <=0) return
@@ -3507,8 +3510,17 @@ SubModule (CFML_IOForm) IO_CIF
          write(unit=car,fmt='(i3)') i
          car=adjustl(car)
 
-         line=' '
-         write(unit=line,fmt='(3f5.2)') kvec%kv(:,i)
+         line=Frac_Trans_2Dig(kvec%kv(:,i))
+         np1=index(line,'(')
+         np2=index(line,')')
+         if (np1 > 0) line(np1:np1)=" "
+         if (np2 > 0) line(np2:np2)=" "
+         line=adjustl(line)
+         do
+            np1=index(line,',')
+            if (np1 ==0) exit
+            line(np1:np1)=' '
+         end do
 
          write(unit=ipr,fmt='(a, t10,a)') "   k"//trim(car), "["//trim(line)//"]"
       end do
