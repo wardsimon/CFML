@@ -3253,8 +3253,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer                :: i,j,nl
 
       !> Init
-      Kvec%nv=0
-      if (allocated(kvec%kv)) deallocate(kvec%kv)
+      call Allocate_KVector(0, 0, Kvec)
 
       call clear_error()
       if (cif%nlines <=0) then
@@ -3331,13 +3330,7 @@ SubModule (CFML_IOForm) IO_CIF
          return
       end if
 
-      kvec%nv=j
-      if (allocated(kvec%kv)) deallocate(kvec%kv)
-      real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
-       real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
-       integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
-       integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
-       integer,allocatable,dimension(:,:)           :: q_coeff     ! number of q_coeff(nk,nq)
+      call allocate_Kvector(j,0,kvec)
 
    End Subroutine Read_MCIF_Parent_Propagation_Vector
 

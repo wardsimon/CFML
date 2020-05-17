@@ -53,7 +53,7 @@ SubModule (CFML_gSpaceGroups) SPG_008
          Kvec%nq=0
          if (allocated(Kvec%kv)) deallocate(kvec%kv)
          if (allocated(Kvec%sintlim)) deallocate(kvec%sintlim)
-         if (allocated(Kvec%harm)) deallocate(kvec%harm)
+         if (allocated(Kvec%nharm)) deallocate(kvec%nharm)
          if (allocated(Kvec%Q_Coeff)) deallocate(kvec%Q_Coeff)
          return
       end if
@@ -64,14 +64,14 @@ SubModule (CFML_gSpaceGroups) SPG_008
       allocate(Kvec%nharm(nk))
       Kvec%kv=0.0_cp
       Kvec%sintlim=0.0_cp
-      nharm=0
+      Kvec%nharm=0
 
       Kvec%nq=0
       if (nq < nk) return
 
       Kvec%nq=nq
-      allocate(q_coeff(nk,nq))
-      q_coeff=0
+      allocate(Kvec%q_coeff(nk,nq))
+      Kvec%q_coeff=0
 
    End Subroutine Allocate_KVector
 

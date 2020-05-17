@@ -440,19 +440,25 @@ Module CFML_IOForm
       End Subroutine Write_CIF_Spg
 
       Module Subroutine Write_CIF_Template(filename, Cell, SpG, Atmlist, Type_data, Code)
-         character(len=*),           intent(in) :: filename     ! Filename
-         class(Cell_G_Type),         intent(in) :: Cell         ! Cell parameters
-         class(SpG_Type),            intent(in) :: SpG          ! Space group information
-         Type (AtList_Type),         intent(in) :: AtmList      ! Atoms
-         integer,                    intent(in) :: Type_data    ! 0,2:Single crystal diffraction; 1:Powder
-         character(len=*),           intent(in) :: Code         ! Code or name of the structure
+         character(len=*),           intent(in) :: filename
+         class(Cell_G_Type),         intent(in) :: Cell
+         class(SpG_Type),            intent(in) :: SpG
+         Type (AtList_Type),         intent(in) :: AtmList
+         integer,                    intent(in) :: Type_data
+         character(len=*),           intent(in) :: Code
       End Subroutine Write_CIF_Template
 
+      Module Subroutine Read_MCIF_Parent_Propagation_Vector(cif, Kvec,i_ini,i_end)
+         Type(File_Type),       intent(in)  :: cif
+         Type(Kvect_Info_Type), intent(out) :: Kvec
+         integer, optional,     intent(in)  :: i_ini,i_end
+      End Subroutine Read_MCIF_Parent_Propagation_Vector
+
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
-         character(len=*),        intent(in) :: filename     ! Filename
-         class(Cell_G_Type),      intent(in) :: Cell         ! Cell parameters
-         class(SpG_Type),         intent(in) :: SpG          ! Space group information
-         Type(AtList_Type),       intent(in) :: AtmList      ! Atoms
+         character(len=*),        intent(in) :: filename
+         class(Cell_G_Type),      intent(in) :: Cell
+         class(SpG_Type),         intent(in) :: SpG
+         Type(AtList_Type),       intent(in) :: AtmList
       End Subroutine Write_MCIF_Template
 
       Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
