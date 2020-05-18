@@ -470,6 +470,18 @@ Module CFML_IOForm
          integer, optional,     intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_Parent_SpaceG
 
+      Module Subroutine Read_MCIF_SpaceG_Magn(cif,Spg,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         class(SpG_Type),       intent(inout) :: SpG
+         integer, optional,     intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_Magn
+
+      Module Subroutine Read_MCIF_SpaceG_Magn_SSG_Transf(cif,Spg,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         class(SpG_Type),       intent(inout) :: SpG
+         integer, optional,     intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_Magn_SSG_Transf
+
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
          character(len=*),        intent(in) :: filename
          class(Cell_G_Type),      intent(in) :: Cell
@@ -486,6 +498,21 @@ Module CFML_IOForm
          integer, intent(in)               :: Ipr
          Type(Kvect_Info_Type), intent(in) :: Kvec
       End Subroutine Write_MCIF_Parent_Propagation_Vector
+
+      Module Subroutine Write_MCIF_Parent_SpaceG(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_Parent_SpaceG
+
+      Module Subroutine Write_MCIF_SpaceG_Magn(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_SpaceG_Magn
+
+      Module Subroutine Write_MCIF_SpaceG_Magn_SSG_Transf(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_SpaceG_Magn_SSG_Transf
 
       Module Subroutine Write_MCIF_Spg(Ipr, Spg)
          integer,          intent(in) :: Ipr
