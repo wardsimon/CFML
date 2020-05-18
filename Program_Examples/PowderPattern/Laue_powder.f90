@@ -34,7 +34,7 @@
  !!---- The program uses CrysFML and a module called Gen_Powder_Pattern where the subroutine for
  !!---- calculating the powder diffraction pattern is stored
  !!----
- Module Gen_Powder_Pattern
+ Module Gen_Laue_Powder_Pattern
     !---- Use Modules ----!
     use CFML_GlobalDeps,           only: to_Deg,dp,cp,pi
     use CFML_Math_General,         only: asind,locate
@@ -129,7 +129,7 @@
        Pat%Tset=300.0
        Pat%npts=npts
        Pat%ct_step=.true.
-       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0/)
+       Pat%conv=(/PPC%Lambda,PPC%Lambda,0.0,0.0,0.0/)
        chw=15.0
        do i=1,npts
           Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
@@ -226,7 +226,7 @@
     End Function Maxwellian
 
 
-  End Module Gen_Powder_Pattern
+  End Module Gen_Laue_Powder_Pattern
 
   !!----
   !!----  Program Calculation_of_Powder_Patterns
@@ -249,7 +249,7 @@
                                                Allocate_Diffraction_Pattern
      use CFML_IO_Formats,                only: Readn_set_Xtal_Structure,err_form_mess,err_form,file_list_type
 
-     use Gen_Powder_Pattern
+     use Gen_Laue_Powder_Pattern
 
      !---- Variables ----!
      implicit none

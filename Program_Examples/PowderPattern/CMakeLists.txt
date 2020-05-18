@@ -25,8 +25,8 @@ add_executable(simple_calc_mag_powder Simple_calc_Mag_powder.f90)
 target_link_libraries(simple_calc_mag_powder crysfml)
 
 
-#add_executable(laue_powder Laue_Powder.f90)
-#target_link_libraries(laue_powder crysfml)
+add_executable(laue_powder Laue_Powder.f90)
+target_link_libraries(laue_powder crysfml)
 
-#add_executable(corr_cells Corr_Cells.f90)
-#target_link_libraries(corr_cells crysfml)
+add_executable(corr_cells Corr_Cells.f90)
+target_link_libraries(corr_cells crysfml)
