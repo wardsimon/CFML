@@ -42,10 +42,10 @@ SubModule (CFML_IOForm) IO_GEN
        ! Look for the item "Utyp" if we want to use Uiso instead of Biso
        iv= index(line,"Utyp")
        if( iv /= 0) then
-         atm%Utype="U"
+         atm%Utype="u_ij"
          line(iv:iv+3)=" "
        else
-         atm%Utype="B"
+         atm%Utype="b_ij"
        end if
 
 
@@ -285,13 +285,13 @@ SubModule (CFML_IOForm) IO_GEN
        call cut_string(line,nlong1,dire)
        select case (trim(U_case(dire)))
           case ('U_IJ')
-             Atm%UType='U'
+             Atm%UType='u_ij'
 
           case ('B_IJ')
-             Atm%UType='B'
+             Atm%UType='b_ij'
 
           case ('BETA')
-             Atm%UType='Beta'
+             Atm%UType='beta'
 
           case default
              Err_CFML%IErr=1  ! Error

@@ -923,7 +923,7 @@ SubModule (CFML_IOForm) IO_CFL
          select case (AtmList%atom(i)%thtype)
             case ("iso")
 
-               if(Atmlist%atom(i)%utype == "U") then  !Only multiply by 8 pi^2 when Utype is explicitly provided
+               if(l_case(Atmlist%atom(i)%utype) == "u_ij") then  !Only multiply by 8 pi^2 when Utype is explicitly provided
                  Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
                end if
 
@@ -936,7 +936,7 @@ SubModule (CFML_IOForm) IO_CFL
                      Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
                      Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
 
-                     select case (Atmlist%atom(i)%Utype)
+                     select case (l_case(Atmlist%atom(i)%Utype))
                         case ("u_ij")
                            Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
 
@@ -950,7 +950,7 @@ SubModule (CFML_IOForm) IO_CFL
 
                !Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
                Atmlist%atom(i)%thtype = "iso"
-               Atmlist%atom(i)%Utype="B"
+               Atmlist%atom(i)%Utype="b_ij"
 
          end select
       end do

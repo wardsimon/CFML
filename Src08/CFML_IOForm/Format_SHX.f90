@@ -98,7 +98,7 @@ SubModule (CFML_IOForm) IO_SHX
                at%atom(n)%x(3)=vet(1)
 
                !> Thermal
-               at%atom(n)%utype="U"
+               at%atom(n)%utype="u_ij"
                at%atom(n)%thtype="iso"
 
             case (6) ! Atomname Sfac X Y Z Occ
@@ -135,7 +135,7 @@ SubModule (CFML_IOForm) IO_SHX
                at%atom(n)%occ=vet(1)
 
                !> Thermal
-               at%atom(n)%utype="U"
+               at%atom(n)%utype="u_ij"
                at%atom(n)%thtype="iso"
 
             case (7,8) ! Atomname Sfac X Y Z Occ Uiso
@@ -179,7 +179,7 @@ SubModule (CFML_IOForm) IO_SHX
                at%atom(n)%U_iso=vet(1)
 
                !> Thermal
-               at%atom(n)%utype="U"
+               at%atom(n)%utype="u_ij"
                at%atom(n)%thtype="iso"
 
          case (12) ! Atomname Sfac X Y Z Occ U11 U22 U33 U23 U13 U12
@@ -242,7 +242,7 @@ SubModule (CFML_IOForm) IO_SHX
                at%atom(n)%U(6)=vet(1)
 
                !> Thermal
-               at%atom(n)%utype="U"
+               at%atom(n)%utype="u_ij"
                at%atom(n)%thtype="ani"
 
             case default
@@ -965,6 +965,7 @@ SubModule (CFML_IOForm) IO_SHX
          select case (Atm%atom(i)%thtype)
             case ("iso")
                Atm%atom(i)%u_iso= Atm%atom(i)%u_iso*78.95683521
+               Atm%atom(i)%Utype="b_ij"
 
             case ("ani")
                Atm%atom(i)%u_iso=U_Equiv(cell,atm%atom(i)%u(1:6))  ! Uequi
@@ -982,6 +983,7 @@ SubModule (CFML_IOForm) IO_SHX
                Atm%atom(i)%u_iso=0.05
                Atm%atom(i)%u_iso = Atm%atom(i)%u_iso*78.95683521
                Atm%atom(i)%thtype = "iso"
+               Atm%atom(i)%Utype="b_ij"
          end select
       end do
 

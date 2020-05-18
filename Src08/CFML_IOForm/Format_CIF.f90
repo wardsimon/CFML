@@ -2845,14 +2845,8 @@ SubModule (CFML_IOForm) IO_CIF
             case ('u_ij')
                select case (l_case(AtmList%atom(i)%thtype))
                   case ('iso')
-                     select type (cell)
-                        class is (Cell_G_Type)
-                           val=Atmlist%atom(i)%u_iso
-                           vet=[val,val,val,0.0,0.0,0.0]
-                           vet=Get_Betas_from_U(vet,Cell)
-                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
-                           Atmlist%atom(i)%u_iso=sqrt(val)
-                     end select
+                     Atmlist%atom(i)%u_iso=Atmlist%atom(i)%u_iso*78.95683521
+                     Atmlist%atom(i)%Utype='b_ij'
 
                   case ('ani')
                      select type (cell)
@@ -2860,20 +2854,14 @@ SubModule (CFML_IOForm) IO_CIF
                            Atmlist%atom(i)%u=Get_Betas_from_U(Atmlist%atom(i)%u,Cell)
                            val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
                            Atmlist%atom(i)%u_iso=sqrt(val)
+                           Atmlist%atom(i)%Utype="beta"
                      end select
                end select
 
             case ('b_ij')
                select case (l_case(AtmList%atom(i)%thtype))
                   case ('iso')
-                     select type (cell)
-                        class is (Cell_G_Type)
-                           val=Atmlist%atom(i)%u_iso
-                           vet=[val,val,val,0.0,0.0,0.0]
-                           vet=Get_Betas_from_B(vet,Cell)
-                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
-                           Atmlist%atom(i)%u_iso=sqrt(val)
-                     end select
+                     ! Nada
 
                   case ('ani')
                      select type (cell)
@@ -2882,10 +2870,10 @@ SubModule (CFML_IOForm) IO_CIF
                            val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
                            Atmlist%atom(i)%u_iso=sqrt(val)
                      end select
+                     Atmlist%atom(i)%Utype="beta"
 
                end select
          end select
-         Atmlist%atom(i)%Utype="beta"
       end do
 
    End Subroutine Read_XTal_CIF
