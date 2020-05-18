@@ -106,5 +106,24 @@ endif()
 
 # Build the program example executables
 if (PROG_EX)
+  enable_testing()
+
+  # copy test scripts to build/test
+  # FIXME this will not work on windows
+  execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Tests)
+  execute_process(COMMAND cp -r ${CMAKE_SOURCE_DIR}/Tests/runtest ${CMAKE_BINARY_DIR}/Tests)
+  execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/Tests/runtest_cfml.py ${CMAKE_BINARY_DIR}/Tests)
+  execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/Tests/runtest_v1.py ${CMAKE_BINARY_DIR}/Tests)
+  
+  macro(add_runtest _name _bindir)
+    add_test(
+      NAME ${_name}
+      COMMAND python3 ${CMAKE_SOURCE_DIR}/Tests/${_name}/test --binary-dir=${_bindir} --work-dir=${CMAKE_BINARY_DIR}/Tests/${_name} --verbose --log=${CMAKE_BINARY_DIR}/Tests/${_name}/runtest.stderr.log)
+     #if(NOT "${_labels}" STREQUAL "")
+     set_tests_properties(${_name} PROPERTIES
+       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Tests/${_name})
+     #endif()
+   endmacro()
+  
   add_subdirectory(Program_Examples/PowderPattern)
 endif()

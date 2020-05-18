@@ -341,7 +341,7 @@
        PPC%U=0.0002; PPC%V=-0.0002; PPC%W=0.012; PPC%LAMBDA=1.54056; PPC%X=0.0015
        PPC%Thmin=1.00; PPC%step=0.05;  PPC%Thmax= int(2.0*asind(stlmax*1.54056)); PPC%job=0
        PPC%Ls=1900.0; PPC%Gs=  1900.0; nf=30; PPC%bkg=50.0
-       powfile="powder_pattern.dat"
+       powfile=trim(filcod)//".dat" !"powder_pattern.dat"
        units=" seconds"
        tim=0.0
 
