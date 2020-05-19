@@ -83,6 +83,8 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Moment
       call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
+      call Write_MCIF_AtomSite_Moment(6, Atmlist)
+      read(*,*)
 
 
    End Subroutine Read_XTal_MCIF

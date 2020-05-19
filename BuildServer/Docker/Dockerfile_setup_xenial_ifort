@@ -1,9 +1,0 @@
-FROM ubuntu:xenial
-
-ENV https_proxy http://proxy.ill.fr:8888
-ENV http_proxy http://proxy.ill.fr:8888
-
-RUN apt-get update && apt-get install -y \
-    cmake
-
-ENV PATH=/opt/intel/bin:$PATH
