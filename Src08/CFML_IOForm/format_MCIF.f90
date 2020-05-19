@@ -84,7 +84,6 @@ SubModule (CFML_IOForm) IO_MCIF
       !> Moment
       call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
       call Write_MCIF_AtomSite_Moment(6, Atmlist)
-      read(*,*)
 
 
    End Subroutine Read_XTal_MCIF
@@ -670,6 +669,19 @@ SubModule (CFML_IOForm) IO_MCIF
          return
       end if
 
+      if (all(lugar(2:4) > 0)) then
+         atmlist%mcomp="Cartesian"
+      else if (all(lugar(5:7) > 0)) then
+         atmlist%mcomp="Crystal"
+      else if (all(lugar(8:10) > 0)) then
+         atmlist%mcomp="Spherical"
+      else if (lugar(11) > 0) then
+         atmlist%mcomp="Cartesian"
+      else if (lugar(12) > 0) then
+         atmlist%mcomp="Crystal"
+      end if
+
+
       if (allocated(dire)) deallocate(dire)
       allocate(dire(np))
       dire=" "
@@ -848,10 +860,23 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Moment
       write(unit=Ipr,fmt="(a)") "loop_"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.label"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_x"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_y"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_z"
+      write(unit=Ipr,fmt="(a)") "    _atom_site_moment.label"
+      select case (trim(l_case(atmlist%mcomp)))
+         case ("cartesian")
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.Cartn_x"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.Cartn_y"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.Cartn_z"
+
+         case ("crystal")
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.crystalaxis_x"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.crystalaxis_y"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.crystalaxis_z"
+
+         case ("spherical")
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.spherical_modulus"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.spherical_polar"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment.spherical_azimuthal"
+      end select
 
       select type(at=>atmlist%atom)
          type is (Atm_Type)
