@@ -193,7 +193,7 @@
     !!----    real(kind=cp),dimension(25)             :: VarF          ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
     !!----    real(kind=cp),dimension(25)             :: MVarF         ! Multiplier parameters
     !!----    integer,      dimension(25)             :: LVarF         ! Numbers
-    !!----    character(len=40)                       :: AtmInfo       ! Information string
+    !!----    character(len=80)                       :: AtmInfo       ! Information string
     !!---- End Type Atom_Type
     !!----
     !!---- Update: January - 2020 (adding moment for use with Shubnikov groups)
@@ -232,7 +232,7 @@
        real(kind=cp),dimension(25)              :: VarF
        real(kind=cp),dimension(25)              :: MVarF
        integer,      dimension(25)              :: LVarF
-       character(len=40)                        :: AtmInfo
+       character(len=80)                        :: AtmInfo
     End Type Atom_Type
 
     !!----
