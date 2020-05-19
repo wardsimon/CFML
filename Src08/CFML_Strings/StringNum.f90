@@ -1133,7 +1133,7 @@
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
-       character(len=40) :: aux
+       character(len=40) :: aux,sss
        integer           :: n,np,iy,long
        real(kind=cp)     :: y
 
@@ -1183,24 +1183,24 @@
 
        aux=" "
        write(unit=aux,fmt=fmtcar) value
-       str=trim(adjustl(aux))
-       n=len_trim(str)
-       if (str(n:n) == ".") then
-          str(n:n)=" "
+       sss=trim(adjustl(aux))
+       n=len_trim(sss)
+       if (sss(n:n) == ".") then
+          sss(n:n)=" "
        end if
-       str=trim(str)//"("
-       n=len_trim(str)
-       np=len(str)-n-1             !number of available places for writing
+       sss=trim(sss)//"("
+       n=len_trim(sss)
+       np=len(sss)-n-1             !number of available places for writing
        aux=" "
        write(unit=aux,fmt=*) iy
        aux=pack_string(aux)
        long=len_trim(aux)
        if (long > np) then
-          str=str(1:n-2)//"("//aux(1:np)//")"
+          sss=sss(1:n-2)//"("//aux(1:np)//")"
        else
-          str=str(1:n)//trim(aux)//")"
+          sss=sss(1:n)//trim(aux)//")"
        end if
-       aux=pack_string(str)
+       aux=pack_string(sss)
        if (aux(1:1) /= "-") aux=" "//trim(aux)
        str=trim(aux)
 

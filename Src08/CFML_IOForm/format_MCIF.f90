@@ -26,7 +26,6 @@ SubModule (CFML_IOForm) IO_MCIF
       Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
 
       !---- Local Variables ----!
-      character(len= 20)             :: Spp
       integer                        :: i, iph, nt_phases, it, n_ini,n_end
       integer, dimension(MAX_PHASES) :: ip
 
@@ -75,10 +74,17 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Space_Group_Magn
       call Read_MCIF_SpaceG_Magn(cif,SpG,n_ini,n_end)
-      call Write_MCIF_SpaceG_Magn(6,SpG)
-      pause '...NEXT'
+      line=SpG%BNS_symb
+      line=pack_string(line)
+      call Set_SpaceGroup(trim(line),"SHUBN",SpG)
 
-      !> SpaceGroup Information
+      !> Atomos
+      call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
+
+      !> Moment
+      call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
+      call Write_MCIF_AtomSite_Moment(6, Atmlist)
+      pause '... NEXT'
 
 
    End Subroutine Read_XTal_MCIF
@@ -359,6 +365,75 @@ SubModule (CFML_IOForm) IO_MCIF
    End Subroutine Write_MCIF_Spg
 
    !!----
+   !!---- WRITE_MCIF_SPACEG_SYMOP_MAGN_CENTERING
+   !!----
+   !!----
+   !!---- 18/05/2020
+   !!
+   Module Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering(Ipr, Spg)
+      !---- Arguments ----!
+      integer,          intent(in) :: Ipr
+      class (Spg_type), intent(in) :: Spg
+
+      !---- Local Variables ----!
+      integer                        :: i,j,L
+      type(rational), dimension(3,3) :: unidad
+
+      !> Init
+      call Rational_Identity_Matrix(unidad)
+
+      !> Centering
+      if (SpG%Num_Lat > 1 .or. SpG%Num_aLat > 0) then
+         write(unit=ipr,fmt="(a)")  "loop_"
+         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.id"
+         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.xyz"
+
+         do i=1,SpG%Multip
+            if (rational_equal(SpG%Op(i)%Mat(1:3,1:3),unidad)) then
+               j=j+1
+               line=trim(l_case(SpG%Symb_Op(i)))
+               line="'"//trim(line)//"'"
+               write(unit=ipr,fmt="(i4,5x,a)") j,trim(line)
+            end if
+         end do
+         write(unit=Ipr,fmt="(a)") " "
+      end if
+
+   End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering
+
+   !!----
+   !!---- WRITE_MCIF_SPACEG_SYMOP_MAGN_OPERATION
+   !!----
+   !!----
+   !!---- 19/05/2020
+   !!
+   Module Subroutine Write_MCIF_SpaceG_SymOP_Magn(Ipr, Spg)
+      !---- Arguments ----!
+      integer,          intent(in) :: Ipr
+      class (Spg_type), intent(in) :: Spg
+
+      !---- Local Variables ----!
+      integer                        :: i,j,L
+      type(rational), dimension(3,3) :: unidad
+
+      !> Init
+      call Rational_Identity_Matrix(unidad)
+
+      !> Operations
+      write(unit=ipr,fmt="(a)")  "loop_"
+      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.id"
+      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.xyz"
+
+      do i=1,SpG%Multip
+         line=trim(l_case(SpG%Symb_Op(i)))
+         line="'"//trim(line)//"'"
+         write(unit=ipr,fmt="(i4,5x,a)") i,trim(line)
+      end do
+      write(unit=Ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_SpaceG_SymOP_Magn
+
+   !!----
    !!---- WRITE_MCIF_SPACEG_MAGN
    !!----
    !!----
@@ -467,6 +542,295 @@ SubModule (CFML_IOForm) IO_MCIF
 
 
    End Subroutine Write_MCIF_SpaceG_Magn_SSG_Transf
+
+   !!----
+   !!---- READ_MCIF_ATOMSITE_MOMENT
+   !!----
+   !!----
+   !!---- 19/05/2020
+   !!
+   Module Subroutine Read_MCIF_AtomSite_Moment(cif, AtmList,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),   intent(in)    :: cif
+      Type(AtList_Type), intent(inout) :: AtmList
+      integer, optional, intent(in)  :: i_ini,i_end   ! Index to Finish
+
+      !---- Local Variables ----!
+      logical                                      :: found, is_new
+      character(len=40), dimension(:), allocatable :: dire
+      integer, dimension(15)                       :: lugar
+      integer, dimension(3)                        :: ivet
+      integer                                      :: i, j, k,nl, np, nt,ic, iv
+      integer                                      :: i1,i2,i3
+      real(kind=cp), dimension(3)                  :: vet1,vet2
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str="_atom_site_moment."
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            found=.true.
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /= trim(str)) exit
+
+         select case (trim(line))
+            case ('_atom_site_moment.label')
+               j=j+1
+               lugar(1)=j
+            case ('_atom_site_moment.Cartn_x')
+               j=j+1
+               lugar(2)=j
+            case ('_atom_site_moment.Cartn_y')
+               j=j+1
+               lugar(3)=j
+            case ('_atom_site_moment.Cartn_z')
+               j=j+1
+               lugar(4)=j
+            case ('_atom_site_moment.crystalaxis_x')
+               j=j+1
+               lugar(5)=j
+            case ('_atom_site_moment.crystalaxis_y')
+               j=j+1
+               lugar(6)=j
+            case ('_atom_site_moment.crystalaxis_z')
+               j=j+1
+               lugar(7)=j
+            case ('_atom_site_moment.spherical_azimuthal')
+               j=j+1
+               lugar(8)=j
+            case ('_atom_site_moment.spherical_modulus')
+               j=j+1
+               lugar(9)=j
+            case ('_atom_site_moment.spherical_polar')
+               j=j+1
+               lugar(10)=j
+            case ('_atom_site_moment.Cartn')
+               j=j+1
+               lugar(11)=j
+            case ('_atom_site_moment.crystalaxis')
+               j=j+1
+               lugar(12)=j
+            case ('_atom_site_moment.symmform')
+               j=j+1
+               lugar(13)=j
+            case ('_atom_site_moment.modulation_flag')
+               j=j+1
+               lugar(14)=j
+            case ('_atom_site_moment.refinement_flags_magnetic')
+               j=j+1
+               lugar(15)=j
+         end select
+      end do
+
+      np=count(lugar > 0)
+      if (np == 0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment: Check the loop! "
+         return
+      end if
+
+      if (allocated(dire)) deallocate(dire)
+      allocate(dire(np))
+      dire=" "
+
+      !> Read vales
+      is_new=.true.
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (is_new) then
+            if (line(1:1) == '#') cycle
+            if (line(1:1) == "_" ) cycle
+            if (len_trim(line) <=0) exit
+            j=1
+            nt=0
+         end if
+
+         call get_words(line,dire(j:),ic)
+         if (ic ==0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment: Revise the line: "//trim(line)
+            return
+         end if
+         nt=nt+ic
+         if (nt < np) then
+            j=ic+1
+            is_new=.false.
+            cycle
+         end if
+
+         !> Which atom
+         do k=1,Atmlist%natoms
+            if (l_case(trim(dire(lugar(1)))) /= l_case(trim(atmlist%atom(k)%lab))) cycle
+
+            !> Cartn[xyz]
+            if (all(lugar(2:4) > 0)) then
+               i1=index(dire(lugar(2)),'(')
+               i2=index(dire(lugar(3)),'(')
+               i3=index(dire(lugar(4)),'(')
+               if (i1==0 .and. i2==0 .and. i3==0) then
+                  line=trim(dire(lugar(2)))//"  "//trim(dire(lugar(3)))//"  "//trim(dire(lugar(3)))
+                  call get_num(line,vet1,ivet,iv)
+                  if (iv == 3) Atmlist%atom(k)%moment=vet1
+               else
+                  select type(at=>Atmlist%atom)
+                     class is (Atm_std_type)
+                        line=trim(dire(lugar(2)))//"  "//trim(dire(lugar(3)))//"  "//trim(dire(lugar(3)))
+                        call get_numstd(line,vet1,vet2,iv)
+                        if (iv == 3) then
+                           At(k)%moment=vet1
+                           At(k)%moment_std=vet2
+                        end if
+                  end select
+               end if
+
+            !> Crystalaxis[xyz]
+            else if (all(lugar(5:7) > 0)) then
+               i1=index(dire(lugar(5)),'(')
+               i2=index(dire(lugar(6)),'(')
+               i3=index(dire(lugar(7)),'(')
+               if (i1==0 .and. i2==0 .and. i3==0) then
+                  line=trim(dire(lugar(5)))//"  "//trim(dire(lugar(6)))//"  "//trim(dire(lugar(7)))
+                  call get_num(line,vet1,ivet,iv)
+                  if (iv == 3) Atmlist%atom(k)%moment=vet1
+               else
+                  select type(at=>Atmlist%atom)
+                     class is (Atm_std_type)
+                        line=trim(dire(lugar(5)))//"  "//trim(dire(lugar(6)))//"  "//trim(dire(lugar(7)))
+                        call get_numstd(line,vet1,vet2,iv)
+                        if (iv == 3) then
+                           At(k)%moment=vet1
+                           At(k)%moment_std=vet2
+                        end if
+                  end select
+               end if
+
+            !> Spherical
+            else if (all(lugar(8:10) > 0)) then
+               i1=index(dire(lugar(8)) ,'(')
+               i2=index(dire(lugar(9)) ,'(')
+               i3=index(dire(lugar(10)),'(')
+               if (i1==0 .and. i2==0 .and. i3==0) then
+                  line=trim(dire(lugar(9)))//"  "//trim(dire(lugar(10)))//"  "//trim(dire(lugar(8)))
+                  call get_num(line,vet1,ivet,iv)
+                  if (iv == 3)  Atmlist%atom(k)%moment=vet1
+               else
+                  select type(at=>Atmlist%atom)
+                     class is (Atm_std_type)
+                        line=trim(dire(lugar(9)))//"  "//trim(dire(lugar(10)))//"  "//trim(dire(lugar(8)))
+                        call get_numstd(line,vet1,vet2,iv)
+                        if (iv == 3) then
+                           At(k)%moment=vet1
+                           At(k)%moment_std=vet2
+                        end if
+                  end select
+               end if
+
+            !> Cartn
+            else if (lugar(11) > 0) then
+               i1=index(dire(lugar(11)),'(')
+               i2=index(dire(lugar(11)+1),'(')
+               i3=index(dire(lugar(11)+2),'(')
+               if (i1==0 .and. i2==0 .and. i3==0) then
+                  line=trim(dire(lugar(11)))//"  "//trim(dire(lugar(11)+1))//"  "//trim(dire(lugar(11)+2))
+                  call get_num(line, vet1,ivet,iv)
+                  if (iv == 3)  Atmlist%atom(k)%moment=vet1
+               else
+                  select type(at=>Atmlist%atom)
+                     class is (Atm_std_type)
+                        line=trim(dire(lugar(11)))//"  "//trim(dire(lugar(11)+1))//"  "//trim(dire(lugar(11)+2))
+                        call get_numstd(line, vet1,vet2,iv)
+                        if (iv == 3) then
+                           At(k)%moment=vet1
+                           At(k)%moment_std=vet2
+                        end if
+                  end select
+               end if
+
+            !> crystalaxis
+            else if (lugar(12) > 0) then
+               i1=index(dire(lugar(12)),'(')
+               i2=index(dire(lugar(12)+1),'(')
+               i3=index(dire(lugar(12)+2),'(')
+               if (i1==0 .and. i2==0 .and. i3==0) then
+                  line=trim(dire(lugar(12)))//"  "//trim(dire(lugar(12)+1))//"  "//trim(dire(lugar(12)+2))
+                  call get_num(line, vet1,ivet,iv)
+                  if (iv == 3)  Atmlist%atom(k)%moment=vet1
+               else
+                  select type(at=>Atmlist%atom)
+                     class is (Atm_std_type)
+                        line=trim(dire(lugar(12)))//"  "//trim(dire(lugar(12)+1))//"  "//trim(dire(lugar(12)+2))
+                        call get_numstd(line, vet1,vet2,iv)
+                        if (iv == 3) then
+                           At(k)%moment=vet1
+                           At(k)%moment_std=vet2
+                        end if
+                  end select
+               end if
+            end if
+            atmlist%atom(k)%mom=maxval(abs(atmlist%atom(k)%moment))
+
+            !> Symmform
+            if (lugar(13) > 0) then
+            end if
+
+            !> Modulation
+            if (lugar(14) > 0) then
+            end if
+
+            !> Refinement
+            if (lugar(15) > 0) then
+            end if
+         end do
+
+         is_new=.true.
+      end do
+
+      write(unit=Ipr,fmt="(a)") " "
+
+   End Subroutine Read_MCIF_AtomSite_Moment
+
    !!----
    !!---- WRITE_MCIF_ATOMSITE_MOMENT
    !!----
@@ -1046,6 +1410,227 @@ SubModule (CFML_IOForm) IO_MCIF
    !!----
    !!---- 17/05/2020
    !!
+   Module Subroutine Read_MCIF_SpaceG_Magn_Transf(cif, Spg,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),       intent(in)    :: cif
+      class(SpG_Type),       intent(inout) :: SpG
+      integer, optional,     intent(in)    :: i_ini,i_end
+
+      !---- Local Variables ----!
+      logical                     :: found
+      integer                     :: i,j,iv,np
+      integer,       dimension(5) :: lugar
+      integer,       dimension(1) :: ivet
+      real(kind=cp), dimension(1) :: vet
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_SpaceG_Magn_Transf: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str="_space_group_magn_transforms."
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         !> eliminar tabs
+         do
+            iv=index(line,TAB)
+            if (iv == 0) exit
+            line(iv:iv)=' '
+         end do
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            found=.true.
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /='_space_group_magn_transforms.') exit
+
+         select case (trim(line))
+            case ('_space_group_magn_transforms.id')
+               j=j+1
+               lugar(1)=j
+            case ('_space_group_magn_transforms.Pp_abc')
+               j=j+1
+               lugar(2)=j
+            case ('_space_group_magn_transforms.Pp')
+               j=j+1
+               lugar(3)=j
+            case ('_space_group_magn_transforms.description')
+               j=j+1
+               lugar(4)=j
+            case ('_space_group_magn_transforms.source')
+               j=j+1
+               lugar(5)=j
+         end select
+      end do
+
+      !> reading transformations
+      np=0
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+         if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
+
+         !!!! Completar
+      end do
+
+   End Subroutine Read_MCIF_SpaceG_Magn_Transf
+
+   !!----
+   !!---- READ_MCIF_SPACEG_SYMOP_MAGN_CENTERING
+   !!----      ???????
+   !!---- 17/05/2020
+   !!
+   Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, Spg,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),       intent(in)    :: cif
+      class(SpG_Type),       intent(inout) :: SpG
+      integer, optional,     intent(in)    :: i_ini,i_end
+
+      !---- Local Variables ----!
+      logical                     :: found
+      character(len=1)            :: sc
+      character(len=40)           :: line2
+      integer                     :: i,j,iv,np,nl,nl1
+      integer,       dimension(3) :: lugar
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Centering: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str="_space_group_symop_magn_centering."
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            found=.true.
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /='_space_group_symop_magn_centering.') exit
+
+         select case (trim(line))
+            case ('_space_group_symop_magn_centering.id')
+               j=j+1
+               lugar(1)=j
+            case ('_space_group_symop_magn_centering.xyz')
+               j=j+1
+               lugar(2)=j
+            case ('_space_group_symop_magn_centering.description')
+               j=j+1
+               lugar(3)=j
+         end select
+      end do
+
+      !> reading symop for centering or anticentering traslations
+      np=count(lugar > 0 )
+      j=0
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+         if (line(1:1) == "_") cycle
+
+         !> first word is the ID?
+         if (lugar(1) == 1) call Cut_String(line,nl1,line2)
+
+         line=adjustl(line)
+
+         !> comilla simple como marcador de caracter
+         select case (line(1:1))
+            case ("'")
+               sc="'"
+
+            case ('"')
+               sc='"'
+
+            case default
+               sc=" "
+         end select
+
+         !!!! COMPLETAR
+      end do
+
+   End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering
+
+   !!----
+   !!---- READ_MCIF_SPACEG_MAGN_TRANSFORMS
+   !!----
+   !!---- 17/05/2020
+   !!
    Module Subroutine Read_MCIF_SpaceG_Magn_SSG_Transf(cif,Spg,i_ini,i_end)
       !---- Arguments ----!
       Type(File_Type),       intent(in)    :: cif
@@ -1272,6 +1857,34 @@ SubModule (CFML_IOForm) IO_MCIF
       end do
 
    End Subroutine Read_MCIF_Parent_SpaceG
+
+   !!----
+   !!---- WRITE_MCIF_SPACEG_MAGN_TRANSF
+   !!----
+   !!----
+   !!---- 18/05/2020
+   !!
+   Module Subroutine Write_MCIF_SpaceG_Magn_Transf(Ipr, SpG)
+      !---- Arguments ----!
+      integer,          intent(in) :: Ipr
+      class(SpG_Type),  intent(in) :: Spg
+
+      !---- Local Variables ----!
+      integer                         :: i, j
+      character(len=40), dimension(3) :: text
+
+      !> Moment
+      write(unit=Ipr,fmt="(a)") "loop_"
+      write(unit=Ipr,fmt="(a)") "   _space_group_magn_transforms.id"
+      write(unit=Ipr,fmt="(a)") "   _space_group_magn_transforms.Pp_abc"
+      write(unit=Ipr,fmt="(a)") "   _space_group_magn_transforms.description"
+      write(unit=Ipr,fmt="(a)") "   _space_group_magn_transforms.source"
+
+      write(unit=Ipr,fmt="(a)") "   ?  ?   ?   ?"
+
+      write(unit=Ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_SpaceG_Magn_Transf
 
 
 End SubModule IO_MCIF

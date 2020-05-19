@@ -48,7 +48,7 @@ Module CFML_IOForm
                                      FindFMT, Init_FindFMT, String_Array_Type,       &
                                      File_type, Reading_File, Get_Transf,            &
                                      Get_Extension, Get_Datetime,Read_Fract,         &
-                                     Frac_Trans_2Dig
+                                     Frac_Trans_2Dig, Pack_String
 
    Use CFML_Atoms,             only: Atm_Type, Atm_Std_Type, Matm_std_type, Atm_Ref_Type, &
                                      AtList_Type, Allocate_Atom_List, Init_Atom_Type
@@ -58,7 +58,8 @@ Module CFML_IOForm
 
    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
-                                     Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr, Allocate_Kvector
+                                     Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr,       &
+                                     Allocate_Kvector, Write_SpaceGroup_Info
 
    Use CFML_DiffPatt,          only: DiffPat_Type, DiffPat_E_Type
 
@@ -470,6 +471,12 @@ Module CFML_IOForm
          integer, optional,     intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_Parent_SpaceG
 
+      Module Subroutine Read_MCIF_AtomSite_Moment(cif, AtmList,i_ini,i_end)
+         Type(File_Type),   intent(in)    :: cif
+         Type(AtList_Type), intent(inout) :: AtmList
+         integer, optional, intent(in)  :: i_ini,i_end
+      End Subroutine Read_MCIF_AtomSite_Moment
+
       Module Subroutine Read_MCIF_SpaceG_Magn(cif,Spg,i_ini,i_end)
          Type(File_Type),       intent(in)    :: cif
          class(SpG_Type),       intent(inout) :: SpG
@@ -482,12 +489,34 @@ Module CFML_IOForm
          integer, optional,     intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_SpaceG_Magn_SSG_Transf
 
+      Module Subroutine Read_MCIF_SpaceG_Magn_Transf(cif, Spg,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         class(SpG_Type),       intent(inout) :: SpG
+         integer, optional,     intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_Magn_Transf
+
+      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, Spg,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         class(SpG_Type),       intent(inout) :: SpG
+         integer, optional,     intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering
+
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
          character(len=*),        intent(in) :: filename
          class(Cell_G_Type),      intent(in) :: Cell
          class(SpG_Type),         intent(in) :: SpG
          Type(AtList_Type),       intent(in) :: AtmList
       End Subroutine Write_MCIF_Template
+
+      Module Subroutine Write_MCIF_SpaceG_SymOP_Magn(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_SpaceG_SymOP_Magn
+
+      Module Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering(Ipr, Spg)
+         integer,          intent(in) :: Ipr
+         class (Spg_type), intent(in) :: Spg
+      End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering
 
       Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
          integer,           intent(in) :: Ipr
@@ -513,6 +542,11 @@ Module CFML_IOForm
          integer,          intent(in) :: Ipr
          class (Spg_type), intent(in) :: Spg
       End Subroutine Write_MCIF_SpaceG_Magn_SSG_Transf
+
+      Module Subroutine Write_MCIF_SpaceG_Magn_Transf(Ipr, SpG)
+         integer,          intent(in) :: Ipr
+         class(SpG_Type),  intent(in) :: Spg
+      End Subroutine Write_MCIF_SpaceG_Magn_Transf
 
       Module Subroutine Write_MCIF_Spg(Ipr, Spg)
          integer,          intent(in) :: Ipr
