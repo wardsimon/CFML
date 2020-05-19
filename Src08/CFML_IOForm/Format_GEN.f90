@@ -39,6 +39,16 @@ SubModule (CFML_IOForm) IO_GEN
        !> Copy str to line
        line=adjustl(trim(str))
 
+       ! Look for the item "Utyp" if we want to use Uiso instead of Biso
+       iv= index(line,"Utyp")
+       if( iv /= 0) then
+         atm%Utype="u_ij"
+         line(iv:iv+3)=" "
+       else
+         atm%Utype="b_ij"
+       end if
+
+
        !> Cut ATOM Directive
        call cut_string(line,nlong1,dire)
        if (u_case(dire) /= "ATOM") then
@@ -46,6 +56,7 @@ SubModule (CFML_IOForm) IO_GEN
           Err_CFML%Msg=" Error reading the ATOM keyword"
           return
        end if
+
 
        !> Extra info
        iv=index(line,"#")
@@ -107,7 +118,6 @@ SubModule (CFML_IOForm) IO_GEN
        if (iv > 4) atm%occ=vet1(5)
        if (iv > 5) then
           atm%mom=vet1(6)
-          !atm%magnetic=.true.
        end if
        if (iv > 6) atm%charge=vet1(7)
 
@@ -174,7 +184,6 @@ SubModule (CFML_IOForm) IO_GEN
              return
           end if
           atm%moment=vet1(1:3)
-          !atm%magnetic=.true.
           select type(atm)
              class is (Atm_Std_Type)
                  atm%moment_std=vet2(1:3)
@@ -276,13 +285,13 @@ SubModule (CFML_IOForm) IO_GEN
        call cut_string(line,nlong1,dire)
        select case (trim(U_case(dire)))
           case ('U_IJ')
-             Atm%UType='U'
+             Atm%UType='u_ij'
 
           case ('B_IJ')
-             Atm%UType='B'
+             Atm%UType='b_ij'
 
           case ('BETA')
-             Atm%UType='Beta'
+             Atm%UType='beta'
 
           case default
              Err_CFML%IErr=1  ! Error

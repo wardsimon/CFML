@@ -29,6 +29,8 @@ SubModule (CFML_IOForm) IO_CFL
       character(len=:),   allocatable   :: dire
       integer                           :: i, j, na, npos, n_oc, n_mc,n_dc,n_uc
       integer                           :: j_ini, j_end
+      ! --- Debugging variables
+      !character(len=:),allocatable :: fmt1
 
       !> Init
       call clear_error()
@@ -69,6 +71,9 @@ SubModule (CFML_IOForm) IO_CFL
       call Allocate_Atom_List(na, Atmlist, Type_Atm, d)
       if (len_trim(mom_comp) > 2) Atmlist%mcomp=mom_comp
 
+      !debugging
+      !fmt1="(T6,a,T18,a,T28,i3,5f10.5,a)"
+
       na=0
       do i=j_ini,j_end
          line=adjustl(cfl%line(i)%str)
@@ -95,9 +100,15 @@ SubModule (CFML_IOForm) IO_CFL
          if (trim(dire) /= "ATOM") cycle
 
          na=na+1
-         call read_atom(line, Atmlist%atom(na))
-         Atmlist%atom(na)%UType="B"
-         Atmlist%atom(na)%ThType="ISO"
+         call read_atom(line, Atmlist%atom(na))  ! Utype is read now in the line
+         Atmlist%atom(na)%ThType="iso"
+
+         !Debugging
+         !associate (Atm => Atmlist%atom)
+         !  write(*,"(a)") " => "//trim(line)
+         !  write(*,fmt=fmt1)  trim(Atm(na)%Lab), trim(Atm(na)%SfacSymb), &
+         !     Atm(na)%mult,  Atm(na)%X, Atm(na)%U_iso, Atm(na)%Occ,"   "//Atm(na)%UType
+         !end associate
 
          !> Trial to read anisotropic thermal and
          !> magnetic moment parameters
@@ -114,11 +125,7 @@ SubModule (CFML_IOForm) IO_CFL
                end if
 
                npos=index(line," ")
-               if (npos <= 1) then
-                  err_CFML%Ierr=1
-                  err_CFML%Msg="Read_CFL_Atoms: Error in line "//trim(line)
-                  return
-               end if
+               if (npos <= 1) cycle
 
                select case (u_case(line(1:npos-1)))
                   case ("MOMENT")
@@ -868,11 +875,11 @@ SubModule (CFML_IOForm) IO_CFL
          !> Type of Atoms: Atm_std
          call read_cfl_Atoms(cfl,AtmList,'Atm_std',0,n_ini,n_end)
 
-      elseif (set_moment .and. (.not. set_matm_std)) then
+      else if (set_moment .and. (.not. set_matm_std)) then
          !> Type of Atoms: Atm_std
          call read_cfl_Atoms(cfl,AtmList,'Atm_std',0,n_ini,n_end)
 
-      elseif (set_moment .and. set_matm_std) then
+      else if (set_moment .and. set_matm_std) then
          !> Type of Atoms: Matm_std
          call read_cfl_kvectors(cfl,kvec,n_ini,n_end)
          if (err_CFML%Ierr ==1) return
@@ -915,9 +922,13 @@ SubModule (CFML_IOForm) IO_CFL
       do i=1,AtmList%natoms
          select case (AtmList%atom(i)%thtype)
             case ("iso")
-               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+
+               if(l_case(Atmlist%atom(i)%utype) == "u_ij") then  !Only multiply by 8 pi^2 when Utype is explicitly provided
+                 Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+               end if
 
             case ("ani")
+
                Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u(1)*78.95683521 !by default
 
                select type (cell)
@@ -925,7 +936,7 @@ SubModule (CFML_IOForm) IO_CFL
                      Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
                      Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
 
-                     select case (Atmlist%atom(i)%Utype)
+                     select case (l_case(Atmlist%atom(i)%Utype))
                         case ("u_ij")
                            Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
 
@@ -936,9 +947,11 @@ SubModule (CFML_IOForm) IO_CFL
                Atmlist%atom(i)%Utype="beta"
 
             case default
-               Atmlist%atom(i)%u_iso=0.05
-               Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
+
+               !Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
                Atmlist%atom(i)%thtype = "iso"
+               Atmlist%atom(i)%Utype="b_ij"
+
          end select
       end do
 

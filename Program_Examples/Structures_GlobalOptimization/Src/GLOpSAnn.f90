@@ -49,7 +49,8 @@ Program Global_Optimization_Xtal_structures
    character(len=256)                 :: line       !Text line
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
    character(len=80)                  :: title      !
-   integer                            :: lun=1, ier,i,j,k, n, i_cfl
+   character(len=140),dimension(200)  :: info_lines=" "     ! Information lines to be output in solution files
+   integer                            :: lun=1, ier,i,j,k, n, i_cfl,ninfo=0
    integer, dimension(:),allocatable  :: i_bvs
    real                               :: start,fin, mindspc, maxsintl
    integer                            :: narg
@@ -122,6 +123,26 @@ Program Global_Optimization_Xtal_structures
        call Close_GLOpSAnn()
      end if
      Call Write_CostFunctPars(lun)
+
+     !Look for information lines in the CFL (normally at the end of the instructions)
+     do i=1,fich_cfl%nlines
+       line=adjustl(u_case(fich_cfl%line(i)))
+       if(line(1:10) == "INFO_LINES") then
+         ninfo=1
+         info_lines(ninfo)= adjustl(fich_cfl%line(i))
+         do
+           ninfo=ninfo+1
+           j=i+ninfo-1
+           if(j > fich_cfl%nlines) then
+             ninfo=ninfo-1
+             exit
+           end if
+           line=adjustl(fich_cfl%line(j))
+           info_lines(ninfo)=line
+           if(u_case(line(1:14)) == "END_INFO_LINES") exit
+         end do
+       end if
+     end do
 
      !Allocate objects for restraints
      if(icost(2) == 1 .or. icost(3) == 1 .or. icost(4) == 1) then
@@ -430,7 +451,11 @@ Program Global_Optimization_Xtal_structures
            call Get_LogUnit(i_cfl)
            open(unit=i_cfl,file=trim(line),status="replace",action="write")
            write(unit=line,fmt="(a,i2,a,f12.2)") "  Configuration #",i," found by SimAnneal_MultiConf,  cost=",mvs%cost(i)
-           call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
+           if(ninfo > 0) then
+             call Write_CFL(i_cfl,Cell,SpG,A_Clone,line,info_lines)
+           else
+             call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
+           end if
            close(unit=i_cfl)
          end do
      end if

@@ -168,18 +168,20 @@ SubModule (CFML_IOForm) IO_CIF
    !!----
    !!---- 15/05/2020
    !!
-   Module Subroutine Write_CIF_Atoms(Ipr, AtmList, Cell)
+   Module Subroutine Write_CIF_Atoms(Ipr, AtmList, SpG, Cell)
       !---- Arguments ----!
       integer,                      intent(in) :: Ipr
       Type(AtList_Type),            intent(in) :: AtmList
+      class(SpG_Type),              intent(in) :: SpG
       class(Cell_G_Type), optional, intent(in) :: Cell
 
       !---- Local Variables ----!
       logical                                 :: aniso
       integer                                 :: i,j
       character(len=30)                       :: comm, adptyp
-      real(kind=cp)                           :: u,su,rval,occ,occ_std
+      real(kind=cp)                           :: u,su,rval,occ,occ_std,ocf
       real(kind=cp), dimension(6)             :: Ua,sua,aux
+      real(kind=cp), dimension(:),allocatable :: occup,soccup
 
       !> Atomic Coordinates and Displacement Parameters
       write(unit=ipr,fmt="(a)") "# ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS"
@@ -203,11 +205,36 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=ipr,fmt='(a)') "    _atom_site_type_symbol"
       write(unit=Ipr,fmt="(a)") "    _atom_site_symmetry_multiplicity"
 
-      !> Calculation of the factor corresponding to the occupation factor
+      if (allocated(occup)) deallocate(occup)
+      if (allocated(soccup)) deallocate(soccup)
+
+      !> Calculation of the factor corresponding to the occupation factor provided in A
+      if (Atmlist%natoms > 0) then
+         allocate(occup(Atmlist%natoms))
+         allocate(soccup(Atmlist%natoms))
+         occup=0.0_cp
+         soccup=0.0_cp
+
+         do i=1,Atmlist%natoms
+            occup(i)=Atmlist%Atom(i)%occ/(real(Atmlist%Atom(i)%mult)/real(SpG%multip))
+            select type (at=>atmlist%atom)
+               class is (Atm_Std_Type)
+                  soccup(i)=At(i)%occ_std/(real(At(i)%mult)/real(SpG%multip))
+            end select
+         end do
+         ocf=sum(abs(Atmlist%atom(1)%x-Atmlist%atom(2)%x))
+         if ( ocf < 0.001) then
+            ocf=occup(1)+occup(2)
+         else
+            ocf=occup(1)
+         end if
+         occup=occup/ocf; soccup=soccup/ocf
+      end if
+
       aniso=.false.
       do i=1,AtmList%natoms
          line=" "
-         line(2:)= Atmlist%Atom(i)%Lab//"  "//Atmlist%Atom(i)%SfacSymb
+         line(2:)= trim(Atmlist%Atom(i)%Lab)//"  "//Atmlist%Atom(i)%SfacSymb
 
          do j=1,3
             rval=0.0
@@ -219,16 +246,10 @@ SubModule (CFML_IOForm) IO_CIF
             line=trim(line)//" "//trim(comm)
          end do
 
-         occ_std=0.0
-         occ=Atmlist%atom(i)%occ
-         select type (at => AtmList%Atom)
-               class is (Atm_Std_Type)
-                   occ_std=At(i)%occ_std
-         end select
-
          comm=" "
          select case (AtmList%Atom(i)%Thtype)
             case ('iso')
+
                select case (l_case(AtmList%Atom(i)%UType))
                   case ("u_ij")
                      u=Atmlist%Atom(i)%U_iso
@@ -248,21 +269,16 @@ SubModule (CFML_IOForm) IO_CIF
                      end select
                      adptyp='Biso'
 
-                  case ("beta")
-                     if (present(Cell)) then
-                        aux=[Atmlist%Atom(i)%U_iso,Atmlist%Atom(i)%U_iso,Atmlist%Atom(i)%U_iso, &
-                             0.0,0.0,0.0]
-                        aux=Get_U_from_Betas(aux,Cell)
-                        u=U_Equiv(Cell, aux)
-                     else
-                        u=1.0
-                     end if
+                  case default  !This is the normal case when using isotropic thermal factors
+                               !and the construction of the structure does not come from another CIF
+                     u=Atmlist%Atom(i)%U_iso
                      su=0.0
                      select type (at => AtmList%Atom)
                         class is (Atm_Std_Type)
                             su=At(i)%U_iso_std
                      end select
-                     adptyp='Uiso'
+                     adptyp='Biso'
+
                end select
                comm=string_numstd(u,su)
 
@@ -307,8 +323,9 @@ SubModule (CFML_IOForm) IO_CIF
          end select
          line=trim(line)//" "//trim(comm)
 
-         comm=string_numstd(occ,occ_std)
+         comm=string_numstd(occup(i),soccup(i))
          line=trim(line)//" "//trim(comm)
+
          write(unit=ipr,fmt="(a,i4)") trim(line)//" "//trim(adptyp)//" "//Atmlist%atom(i)%SfacSymb, &
                                       Atmlist%atom(i)%Mult
       end do
@@ -838,9 +855,9 @@ SubModule (CFML_IOForm) IO_CIF
       !> Look for the first atoms fully occupying the site and put it in first position
       !> This is needed for properly calculating the occupation factors
       !> after normalization in subroutine Readn_Set_XTal_CIF
-
       vet1=maxval(atm%atom(1:n)%occ)  !Normalize occupancies
       atm%atom%occ=atm%atom%occ/vet1(1)
+
       First=1
       do i=1,n
          if (abs(atm%atom(i)%occ-1.0_cp) < EPS) then
@@ -2640,9 +2657,9 @@ SubModule (CFML_IOForm) IO_CIF
 
       !> Atomic Coordinates and Displacement Parameters
       if (l_case(atmlist%atom(1)%Utype) /= 'beta') then
-         call write_cif_atoms(iunit,Atmlist)
+         call write_cif_atoms(iunit,Atmlist,SpG)
       else
-         call write_cif_atoms(iunit,Atmlist,Cell)
+         call write_cif_atoms(iunit,Atmlist,SpG,Cell)
       end if
 
       if(type_data < 2) then
@@ -2761,6 +2778,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, dimension(MAX_PHASES) :: ip
 
       real(kind=cp),dimension(6):: vet,vet2
+      real(kind=cp)             :: val
 
       !> Init
       call clear_error()
@@ -2823,33 +2841,39 @@ SubModule (CFML_IOForm) IO_CIF
          Atmlist%atom(i)%Occ=Atmlist%atom(i)%Occ*real(Atmlist%atom(i)%Mult)/max(1.0_cp,real(SpG%Multip))
          if (Atmlist%atom(i)%occ < EPSV) Atmlist%atom(i)%occ=real(Atmlist%atom(i)%Mult)/max(1.0,real(SpG%Multip))
 
-         select case (AtmList%atom(i)%thtype)
-            case ("iso")
-               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
+         select case (l_case(Atmlist%atom(i)%Utype))
+            case ('u_ij')
+               select case (l_case(AtmList%atom(i)%thtype))
+                  case ('iso')
+                     Atmlist%atom(i)%u_iso=Atmlist%atom(i)%u_iso*78.95683521
+                     Atmlist%atom(i)%Utype='b_ij'
 
-            case ("ani")
-               Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u(1)*78.95683521 !by default
-
-               select type (cell)
-                  class is (Cell_G_Type)
-                     Atmlist%atom(i)%u_iso=U_Equiv(cell,Atmlist%atom(i)%u(1:6))  ! Uequi
-                     Atmlist%atom(i)%u_iso= Atmlist%atom(i)%u_iso*78.95683521
-
-                     select case (Atmlist%atom(i)%Utype)
-                        case ("u_ij")
-                           Atmlist%atom(i)%u(1:6) =  Get_Betas_from_U(Atmlist%atom(i)%u(1:6),Cell)
-
-                        case ("b_ij")
-                           Atmlist%atom(i)%u(1:6) = Get_Betas_from_B(Atmlist%atom(i)%u(1:6),Cell)
+                  case ('ani')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           Atmlist%atom(i)%u=Get_Betas_from_U(Atmlist%atom(i)%u,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
+                           Atmlist%atom(i)%Utype="beta"
                      end select
                end select
 
-            case default
-               Atmlist%atom(i)%u_iso=0.05
-               Atmlist%atom(i)%u_iso = Atmlist%atom(i)%u_iso*78.95683521
-               Atmlist%atom(i)%thtype = "iso"
+            case ('b_ij')
+               select case (l_case(AtmList%atom(i)%thtype))
+                  case ('iso')
+                     ! Nada
+
+                  case ('ani')
+                     select type (cell)
+                        class is (Cell_G_Type)
+                           Atmlist%atom(i)%u=Get_Betas_from_B(Atmlist%atom(i)%u,Cell)
+                           val=(vet(1)**2 + vet(2)**2 + vet(3)**2)/3.0_cp
+                           Atmlist%atom(i)%u_iso=sqrt(val)
+                     end select
+                     Atmlist%atom(i)%Utype="beta"
+
+               end select
          end select
-         Atmlist%atom(i)%Utype="beta"
       end do
 
    End Subroutine Read_XTal_CIF
@@ -2905,102 +2929,6 @@ SubModule (CFML_IOForm) IO_CIF
    End Subroutine Get_CIF_NPhases
 
    !!----
-   !!---- WRITE_MCIF
-   !!----
-   !!----
-   !!----
-   !!---- 14/05/2020
-   !!
-   Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
-      !---- Arguments ----!
-      character(len=*),        intent(in) :: filename     ! Filename
-      class(Cell_G_Type),      intent(in) :: Cell         ! Cell parameters
-      class(SpG_Type),         intent(in) :: SpG          ! Space group information
-      Type(AtList_Type),       intent(in) :: AtmList      ! Atoms
-
-      !---- Local Variables ----!
-      logical                        :: info
-      integer                        :: i,j,ipr,L
-
-      !> Init
-      ipr=0
-
-      !> Is this file opened?
-      inquire(file=trim(filename),opened=info)
-      if (info) then
-         inquire(file=trim(filename),number=ipr)
-         close(unit=ipr)
-      end if
-
-      !> Writing
-      open(newunit=ipr, file=trim(filename),status="unknown",action="write")
-      rewind(unit=ipr)
-
-      !> Heading Information
-      call write_cif_header(ipr)
-
-      !> Extra items
-      write(unit=ipr,fmt="(a)") " "
-      write(unit=ipr,fmt="(a)") "_Neel_temperature  ?"
-      write(unit=ipr,fmt="(a)") "_magn_diffrn_temperature  ?"
-      write(unit=ipr,fmt="(a)") "_exptl_crystal_magnetic_properties_details"
-      write(unit=ipr,fmt="(a)") ";"
-      write(unit=ipr,fmt="(a)") ";"
-      write(unit=ipr,fmt="(a)") "_active_magnetic_irreps_details"
-      write(unit=ipr,fmt="(a)") ";"
-      write(unit=ipr,fmt="(a)") ";"
-      write(unit=ipr,fmt="(a)") " "
-
-      !> Spg
-      call Write_MCIF_Spg(ipr,Spg)
-
-      !> Irrep
-      write(unit=Ipr,fmt="(a)") "loop_"
-      write(unit=Ipr,fmt="(a)") "_irrep_id"
-      write(unit=Ipr,fmt="(a)") "_irrep_dimension"
-      write(unit=Ipr,fmt="(a)") "_small_irrep_dimension"
-      write(unit=Ipr,fmt="(a)") "_irrep_direction_type"
-      write(unit=Ipr,fmt="(a)") "_irrep_action"
-      write(unit=Ipr,fmt="(a)") "_irrep_modes_number"
-      write(unit=Ipr,fmt="(a)") " ?  ?  ?  ?  ?  ?"
-      write(unit=Ipr,fmt="(a)") " "
-
-      !> Cell
-      call write_cif_cell(Ipr,cell)
-
-      !> Propag. Vectors
-      select type(SpG)
-         type is (SuperSpaceGroup_Type)
-            if (SpG%nk > 0) then
-               write(unit=Ipr,fmt="(a)") "_parent_propagation_vector.id"
-               write(unit=Ipr,fmt="(a)") "_parent_propagation_vector.kxkykz"
-               ! Incompleto
-               !do i=1,SpG%nk
-               !   line=Frac_Trans_2Dig(SpG%kv(:,i))
-               !   line=adjustl(line(2:len_trim(line)-1))
-               !   write(unit=Ipr,fmt="(a)") trim(SpG%kv_label(i))//"  '"//trim(line)//"'"
-               !end do
-               write(unit=Ipr,fmt="(a)") " "
-            end if
-      end select
-
-      !> Atoms
-      select case (l_case(Atmlist%atom(1)%UType))
-         case ('beta')
-            call write_cif_atoms(ipr,atmlist,cell)
-         case default
-            call write_cif_atoms(ipr,atmlist)
-      end select
-
-      !> Moment
-      call write_mcif_atomsite_moment(Ipr, Atmlist)
-
-      !> close
-      call write_cif_end(ipr)
-
-   End Subroutine Write_MCIF_Template
-
-   !!----
    !!---- WRITE_CIF_SPG
    !!----
    !!----
@@ -3053,169 +2981,6 @@ SubModule (CFML_IOForm) IO_CIF
       write(unit=ipr,fmt="(a)") " "
 
    End Subroutine Write_CIF_Spg
-
-   !!----
-   !!---- WRITE_MCIF_SPG
-   !!----
-   !!----
-   !!---- 15/05/2020
-   !!
-   Module Subroutine Write_MCIF_Spg(Ipr, Spg)
-      !---- Arguments ----!
-      integer,          intent(in) :: Ipr
-      class (Spg_type), intent(in) :: Spg
-
-      !---- Local Variables ----!
-      integer                        :: i,j,L
-      type(rational), dimension(3,3) :: unidad
-
-
-      write(unit=ipr,fmt="(a)") " "
-
-      !> setting
-      if (SpG%standard_setting) then
-         write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'yes'"
-      else
-         write(unit=Ipr,fmt="(a)") "_magnetic_space_group_standard_setting  'no'"
-      end if
-
-      !> Parent Space group
-      line=adjustl(SpG%tfrom_parent)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)") "_parent_space_group.child_transform_Pp_abc  "//trim(line)  ! Real(4,4)
-      !write(unit=ipr,fmt="(a)") "_parent_space_group.transform_Pp_abc    ?"
-
-      line=adjustl(SpG%Parent_spg)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)")    "_parent_space_group.name_H-M             "//trim(line)
-
-      if (SpG%Parent_num > 0) then
-         write(unit=ipr,fmt="(a,i6)")    "_parent_space_group.IT_number            ",Spg%Parent_num
-      end if
-
-      !> Space_group_Magn
-      line=adjustl(SpG%BNS_symb)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)") "_space_group_magn.name_BNS         "//trim(line)
-
-      line=adjustl(SpG%BNS_num)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)") "_space_group_magn.number_BNS       "//trim(line)
-
-      line=adjustl(SpG%OG_symb)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)") "_space_group_magn.name_OG          "//trim(line)
-
-      line=adjustl(SpG%OG_num)
-      if (len_trim(line) ==0) then
-         line="?"
-      else
-         line="'"//trim(line)//"'"
-      end if
-      write(unit=ipr,fmt="(a)") "_space_group_magn.number_OG        "//trim(line)
-
-      !> Space group SymOp Operation
-      write(unit=ipr,fmt="(a)")  "loop_"
-      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.id"
-      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.xyz"
-      L=SpG%Numops
-      if (SpG%centred == 2) L=L*2
-      do i=1,L
-         line=trim(l_case(SpG%Symb_Op(i)))
-         line="'"//trim(line)//"'"
-         write(unit=ipr,fmt="(i4,a)") i,"  "//trim(line)
-      end do
-      write(unit=Ipr,fmt="(a)") " "
-
-      !> Centering
-      if (SpG%Num_Lat > 1 .or. SpG%Num_aLat > 0) then
-         call Rational_Identity_Matrix(unidad)
-         write(unit=ipr,fmt="(a)")  "loop_"
-         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.id"
-         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.xyz"
-
-         j=1
-         line=trim(l_case(SpG%Symb_Op(j)))
-         line="'"//trim(line)//"'"
-         write(unit=ipr,fmt="(i4,a)") j,"  "//trim(line)
-         do i=L+1,SpG%Multip
-            if (rational_equal(SpG%Op(i)%Mat,unidad)) then
-               j=j+1
-               line=trim(l_case(SpG%Symb_Op(j)))
-               line="'"//trim(line)//"'"
-               write(unit=ipr,fmt="(i4,a)") j,"  "//trim(line)
-            end if
-         end do
-         write(unit=Ipr,fmt="(a)") " "
-      end if
-
-   End Subroutine Write_MCIF_Spg
-
-   !!----
-   !!---- WRITE_MCIF_ATOMSITE_MOMENT
-   !!----
-   !!----
-   !!---- 15/05/2020
-   !!
-   Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
-      !---- Arguments ----!
-      integer,           intent(in) :: Ipr
-      Type(AtList_Type), intent(in) :: AtmList
-
-      !---- Local Variables ----!
-      integer                         :: i, j
-      character(len=40), dimension(3) :: text
-
-      !> Moment
-      write(unit=Ipr,fmt="(a)") "loop_"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.label"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_x"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_y"
-      write(unit=Ipr,fmt="(a)") "_atom_site_moment.crystalaxis_z"
-
-      select type(at=>atmlist%atom)
-         type is (Atm_Type)
-            do i=1,Atmlist%natoms
-               if (At(i)%mom < 0.001) cycle
-               do j=1,3
-                  text(j)=String_NumStd(At(i)%moment(j),0.0)
-               end do
-               write(unit=Ipr,fmt="(a8,3a12)") At(i)%lab, (text(j),j=1,3)
-            end do
-
-         class is (Atm_std_type)
-            do i=1,Atmlist%natoms
-               if (At(i)%mom < 0.001) cycle
-               do j=1,3
-                  text(j)=String_NumStd(At(i)%moment(j),At(i)%moment_std(j))
-               end do
-               write(unit=Ipr,fmt="(a8,3a12)") At(i)%lab,(text(j),j=1,3)
-            end do
-      end select
-      write(unit=Ipr,fmt="(a)") " "
-
-   End Subroutine Write_MCIF_AtomSite_Moment
-
 
 End SubModule IO_CIF
 

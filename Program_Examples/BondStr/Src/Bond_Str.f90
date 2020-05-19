@@ -1,3 +1,10 @@
+!!-------------------------------------------------------------
+!!---- FullProf software
+!!
+!! @license   Copyright 2019, Juan Rodriguez Carvajal, Institut Laue-Langevin All rights reserved (see LICENSE)
+!! @authors   Juan Rodriguez Carvajal (see AUTHORS)
+!!
+!!-------------------------------------------------------------
 !!----
 !!---- Program Bond_STR
 !!----
