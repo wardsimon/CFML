@@ -26,13 +26,15 @@ SubModule (CFML_IOForm) IO_MCIF
       Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
 
       !---- Local Variables ----!
+      character(len=80) :: transf
       integer                        :: i, iph, nt_phases, it, n_ini,n_end
       integer, dimension(MAX_PHASES) :: ip
 
       real(kind=cp),dimension(6):: vet,vet2
       real(kind=cp)             :: val
 
-      Type(Kvect_Info_Type)     :: Kvec
+      Type(Kvect_Info_Type)                  :: Kvec
+      Type(rational), allocatable, dimension(:,:) :: Pmat, invPmat
 
       !> Init
       call clear_error()
@@ -67,7 +69,7 @@ SubModule (CFML_IOForm) IO_MCIF
       if (Err_CFML%IErr==1) return
 
       !> Parent Propagation vector
-      call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
+      !call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
 
       !> Parent_Space_Group
       call Read_MCIF_Parent_SpaceG(cif,SpG,n_ini,n_end)
@@ -76,14 +78,27 @@ SubModule (CFML_IOForm) IO_MCIF
       call Read_MCIF_SpaceG_Magn(cif,SpG,n_ini,n_end)
       line=SpG%BNS_symb
       line=pack_string(line)
+      transf=trim(SpG%mat2std_shu)
       call Set_SpaceGroup(trim(line),"SHUBN",SpG)
 
+      !> Applying transform givin in space_group_magn.transform_BNS_Pp_abc
+      if (allocated(Pmat)) deallocate(Pmat)
+      if (allocated(invPmat)) deallocate(invPmat)
+      allocate (Pmat(Spg%D,Spg%D))
+      allocate (invPmat(Spg%D,Spg%D))
+
+      call Get_Mat_From_Symb(transf, Pmat)
+      invPmat=Rational_Inverse_Matrix(Pmat)
+      line=Get_Symb_From_Mat(invPmat,StrCode="abc" )
+
+      call Change_Setting_SpaceG(trim(line), SpG)
+
       !> Atomos
-      call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
+      !call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
 
       !> Moment
-      call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
-      call Write_MCIF_AtomSite_Moment(6, Atmlist)
+      !call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
+      !call Write_MCIF_AtomSite_Moment(6, Atmlist)
 
 
    End Subroutine Read_XTal_MCIF
@@ -1320,7 +1335,7 @@ SubModule (CFML_IOForm) IO_MCIF
             end if
             exit
          end do
-         !SpG%XXXX=trim(adjustl(line))
+         SpG%mat2std_shu=trim(adjustl(line))
 
          exit
       end do

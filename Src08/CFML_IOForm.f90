@@ -58,8 +58,8 @@ Module CFML_IOForm
 
    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
-                                     Get_Orbit, Get_Moment_Ctr, Get_TFourier_Ctr,       &
-                                     Allocate_Kvector, Write_SpaceGroup_Info
+                                     Get_Orbit, Allocate_Kvector, Write_SpaceGroup_Info, &
+                                     Get_Mat_from_Symb, Get_Symb_From_Mat
 
    Use CFML_DiffPatt,          only: DiffPat_Type, DiffPat_E_Type
 
