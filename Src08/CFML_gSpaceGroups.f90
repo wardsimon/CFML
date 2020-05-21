@@ -125,7 +125,7 @@ Module CFML_gSpaceGroups
        character(len=:),              allocatable :: mag_pg            ! Magnetic PG
        character(len=:),              allocatable :: laue              ! Laue group
        character(len=:),              allocatable :: setting           ! Operators transformed by "setting" (e.g. -a+b,a+b,-c;1/2,0,0)
-       character(len=:),              allocatable :: mat2std           ! To standard space group
+       character(len=:),              allocatable :: mat2std           ! To standard space group (Parent)
        character(len=:),              allocatable :: mat2std_shu       ! To standard Shubnikov space group
        character(len=:),              allocatable :: generators_list   ! List of generators
        character(len=:),              allocatable :: SSG_symb          ! Symbol of the superspace  (if known)

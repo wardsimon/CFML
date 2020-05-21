@@ -610,7 +610,7 @@
 
           Subroutine Write_FST(fst_file,v,cost)
              Use CFML_GlobalDeps, only: Cp
-             character(len=*),     intent(in):: fst_file
+             character(len=*),              intent(in):: fst_file
              real(kind=cp),dimension(:),    intent(in):: v
              real(kind=cp),                 intent(in):: cost
           End Subroutine Write_FST
@@ -618,9 +618,9 @@
 
        !--- Local Variables ---!
        character (len=256)                         :: messag, strings
-       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt, minut !, last
        real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                                                      prob, rav, rati, plage, stepav, random !, shift
+                                                      prob, rav, rati, plage, stepav, random, tini,tf, sec !, shift
        integer, parameter                          :: i_conf=99
        integer, dimension(1)                       :: seed
        logical, dimension(np_CONF)                 :: dead
@@ -726,6 +726,7 @@
        neval=0
        nacp=0
        costav(:)=0.0
+       call cpu_time(tini)
        do ntp=1,c%num_temps     ! Global DO for changing temperature
             naj(:)   =0
            cost(:)   =0.0
@@ -735,14 +736,18 @@
           temp=c%anneal*Temp  ! Current temperature
 
           strings=" "
-          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
-               "       Number of function evaluations:",neval
+          call cpu_time(tf)
+          sec=(tf-tini)/60.0
+          minut=int(sec)
+          sec=(sec-real(minut))*60.0
+          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8,a,i5,a,f8.4,a)") "  => New Temp:",temp,"  NT: ",ntp, &
+               "       Number of function evaluations:",neval,"         Cumulated CPU-time: ",minut," minutes",sec," seconds"
           call mess(strings)
           write(unit=ipr,fmt="(/,a)") trim(strings)
 
           do j=1,vs%nconf   ! loop over different configuration state vectors
 
-             if(dead(j)) cycle  !skip is configuration is dead
+             if(dead(j)) cycle  !skip if configuration is dead
 
              do ncf=1,c%nm_cycl
                 ! last=vs%npar
@@ -892,7 +897,7 @@
 
             !Perform a local minimization if the cost function is lower than c%threshold
             !Use as starting point the average configuration
-            if(cost(j) < c%threshold .and. .not. dead(j)) then
+            if((cost(j) < c%threshold .and. .not. dead(j)) .or. ntp == c%num_temps) then
                write(unit=strings,fmt="(a,i3,a,f8.2)") " => Local Optimization of Configuration #",j,"   Average Cost: ",cost(j)
                call mess(strings)
                write(unit=ipr,fmt="(a)") trim(strings)
@@ -1612,9 +1617,9 @@
 
        !--- Local Variables ---!
        character (len=256)                         :: messag, strings
-       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt, minut  !, last
        real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                                                      prob, rav, rati, plage, stepav, random !, shift
+                                                      prob, rav, rati, plage, stepav, random,tini,tf,sec !, shift
        integer, parameter                          :: i_conf=99
        integer,          dimension(1)              :: seed
        logical,          dimension(np_CONF)        :: dead
@@ -1720,6 +1725,7 @@
        neval=0
        nacp=0
        costav(:)=0.0
+       call cpu_time(tini)
        do ntp=1,c%num_temps     ! Global DO for changing temperature
             naj(:)   =0
            cost(:)   =0.0
@@ -1729,8 +1735,12 @@
           temp=c%anneal*Temp  ! Current temperature
 
           strings=" "
-          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
-               "       Number of function evaluations:",neval
+          call cpu_time(tf)
+          sec=(tf-tini)/60.0
+          minut=int(sec)
+          sec=(sec-real(minut))*60.0
+          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8,a,i5,a,f8.4,a)") "  => New Temp:",temp,"  NT: ",ntp, &
+               "       Number of function evaluations:",neval,"         Cumulated CPU-time: ",minut," minutes",sec," seconds"
           call mess(strings)
           write(unit=ipr,fmt="(/,a)") trim(strings)
 

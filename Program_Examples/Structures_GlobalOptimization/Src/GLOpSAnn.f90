@@ -1,3 +1,59 @@
+Module glopsan
+   use CFML_GlobalDeps,                only: cp
+   use CFML_IO_Formats,                only: file_list_type
+   use CFML_crystal_Metrics,           only: Crystal_Cell_Type
+   use CFML_String_Utilities,          only: u_case
+   implicit none
+
+  contains
+
+    Subroutine expand_vary_fix(within,Cell,fcfl,fvarfix)
+      real(kind=cp),           intent(in)  :: within
+      type(Crystal_Cell_Type), intent(in)  :: Cell
+      type(file_list_type),    intent(in)  :: fcfl
+      type(file_list_type),    intent(out) :: fvarfix
+      !---- local variables ----!
+      integer :: i,j,k
+      character(len=256)           :: line
+      character(len=6)             :: label, scatt
+      real(kind=cp), dimension(3)  :: pos,low,high,step
+
+
+      fvarfix%nlines =4*fcfl%nlines
+      allocate(fvarfix%line(fvarfix%nlines))
+      j=0
+      do i=1,fcfl%nlines
+        j=j+1
+        fvarfix%line(j)=fcfl%line(i)
+      end do
+      do k=1,3
+        step(k)= 0.5_cp*within/cell%cell(k)
+      end do
+
+      !Calculate the limits for the new generated VARY lines
+      do i=1,fcfl%nlines
+        line=adjustl(u_case(fcfl%line(i)))
+        if(line(1:4) == "ATOM") then
+          read(unit=fcfl%line(i)(5:),fmt=*) label,scatt,pos
+          do k=1,3
+            low(k)=pos(k)-step(k)
+            high(k)=pos(k)+step(k)
+          end do
+          j=j+1
+          write(unit=fvarfix%line(j), fmt="(a,2f10.4,2i4)")  "VARY "//" x_"//trim(label), low(1),high(1),0,0
+          j=j+1
+          write(unit=fvarfix%line(j), fmt="(a,2f10.4,2i4)")  "VARY "//" y_"//trim(label), low(2),high(2),0,0
+          j=j+1
+          write(unit=fvarfix%line(j), fmt="(a,2f10.4,2i4)")  "VARY "//" z_"//trim(label), low(3),high(3),0,0
+        end if
+      end do
+      fvarfix%nlines=j
+
+    End Subroutine expand_vary_fix
+
+End Module glopsan
+
+
 !!---- GLOpSAnn : Global optimization by Simulated Annealing of crystal structures
 !!---- This program was an example of the use of CrysFML library. Currently it is
 !!---- distributed as an executable within the FullProf Suite since February 2015.
@@ -17,7 +73,7 @@ Program Global_Optimization_Xtal_structures
    use CFML_BVS_Energy_Calc,           only: calc_BVS
    use CFML_Structure_Factors,         only: Structure_Factors, Write_Structure_Factors, &
                                              Init_Structure_Factors, err_sfac,err_sfac_mess
-   use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,&
+   use CFML_Keywords_Code_Parser,      only: NP_Max,NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,V_Vec_std,&
                                              Allocate_VParam,Init_RefCodes, Read_RefCodes_File, &
                                              Write_Info_RefCodes, Err_RefCodes, err_refcodes_mess, &
                                              allocate_restparam, Write_restraints_ObsCalc,VState_to_AtomsPar
@@ -34,13 +90,14 @@ Program Global_Optimization_Xtal_structures
    use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
                                              Write_FinalCost,wavel,diff_mode,anti_bump, Write_PRF
-   !---- Local Variables ----!
+   use glopsan
+
    implicit none
-   type (file_list_type)              :: fich_cfl,fich_rest
+
+   type (file_list_type)              :: fich_cfl,fich_rest,fich_varfix
    type (SimAnn_Conditions_type),save :: c
    type (state_Vector_Type)           :: vs
    type (Multistate_Vector_Type)      :: mvs
-
 
    character(len=256)                 :: filcod     !Name of the input file
    character(len=256)                 :: filhkl     !Name of the hkl-file
@@ -50,11 +107,11 @@ Program Global_Optimization_Xtal_structures
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
    character(len=80)                  :: title      !
    character(len=140),dimension(200)  :: info_lines=" "     ! Information lines to be output in solution files
-   integer                            :: lun=1, ier,i,j,k, n, i_cfl,ninfo=0
+   integer                            :: lun=1,ifst=2, ier,i,j,k, n, i_cfl,ninfo=0
    integer, dimension(:),allocatable  :: i_bvs
-   real                               :: start,fin, mindspc, maxsintl
+   real                               :: start,fin, mindspc, maxsintl, within
    integer                            :: narg
-   Logical                            :: esta, arggiven=.false., &
+   Logical                            :: esta, arggiven=.false., ref_within=.false.,&
                                          fst_out=.false., local_opt=.false., rest_file=.false.
 
     !---- Arguments on the command line ----!
@@ -72,11 +129,11 @@ Program Global_Optimization_Xtal_structures
      "                                         G L O P S A N N"                      , &
      "                     ------ Global Optimization by Simulated Annealing ------" , &
      "                             ------  of Crystal Structures  ------"            , &
-     "                              ---- Version 0.5 February-2015 ----"                             , &
+     "                                ---- Version 1.0 May-2020 ----"                             , &
      "    ****************************************************************************************"  , &
      "    * Optimizes X-tal structures against combined cost functions described in a *.CFL file *"  , &
      "    ****************************************************************************************"  , &
-     "               (JRC - ILL - Created in December-2008, Updated in February 2015 )"
+     "                  (JRC - ILL - Created in December-2008, Updated in May 2020 )"
    write (unit=*,fmt=*) " "
 
    if(.not. arggiven) then
@@ -88,15 +145,15 @@ Program Global_Optimization_Xtal_structures
    end if
 
    open(unit=lun,file=trim(filcod)//".out", status="replace",action="write")
-    write(unit=lun,fmt="(/,/,6(a,/))")                                                            &
+    write(unit=lun,fmt="(/,/,6(a,/))")                                                 &
      "                                         G L O P S A N N"                      , &
      "                     ------ Global Optimization by Simulated Annealing ------" , &
      "                             ------  of Crystal Structures  ------"            , &
-     "                              ---- Version 0.5 February-2015 ----"                             , &
+     "                                ---- Version 1.0 May-2020 ----"                             , &
      "    ****************************************************************************************"  , &
      "    * Optimizes X-tal structures against combined cost functions described in a *.CFL file *"  , &
      "    ****************************************************************************************"  , &
-     "               (JRC - ILL - Created in December-2008, Updated in February 2015 )"
+     "                  (JRC - ILL - Created in December-2008, Updated in May 2020 )"
 
    inquire(file=trim(filcod)//".cfl",exist=esta)
    if( .not. esta) then
@@ -125,8 +182,16 @@ Program Global_Optimization_Xtal_structures
      Call Write_CostFunctPars(lun)
 
      !Look for information lines in the CFL (normally at the end of the instructions)
+     !and espcial instructions like REF_WINTHIN
      do i=1,fich_cfl%nlines
        line=adjustl(u_case(fich_cfl%line(i)))
+       if(line(1:10) == "REF_WITHIN") then
+         read(unit=line(12:),fmt=*,iostat=ier) within
+         if(ier == 0) then
+           ref_within=.true.
+           write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
+         end if
+       end if
        if(line(1:10) == "INFO_LINES") then
          ninfo=1
          info_lines(ninfo)= adjustl(fich_cfl%line(i))
@@ -139,6 +204,14 @@ Program Global_Optimization_Xtal_structures
            end if
            line=adjustl(fich_cfl%line(j))
            info_lines(ninfo)=line
+           !Put also here ref_within in case other programs will use the information lines
+           if(u_case(line(1:10)) == "REF_WITHIN") then
+             read(unit=line(12:),fmt=*,iostat=ier) within
+             if(ier == 0) then
+               ref_within=.true.
+               write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
+             end if
+           end if
            if(u_case(line(1:14)) == "END_INFO_LINES") exit
          end do
        end if
@@ -188,7 +261,18 @@ Program Global_Optimization_Xtal_structures
 
      !Determine the refinement codes from vary/fix instructions
      call Init_RefCodes(A)
-     call Read_RefCodes_File(fich_cfl,1,fich_cfl%nlines,A,Spg)
+     if(ref_within) then
+        call expand_vary_fix(within,Cell,fich_cfl,fich_varfix)
+        write(unit=lun, fmt="(/,a)") "  GENERATED VARY INSTRUCTIONS FROM REF_WITHIN OPTION"
+        write(unit=lun, fmt="(a,/)") "  =================================================="
+        do i=1,fich_varfix%nlines
+          if(index(fich_varfix%line(i),"VARY") == 0) cycle
+          write(unit=lun, fmt="(a)") "      "//trim(fich_varfix%line(i))
+        end do
+        call Read_RefCodes_File(fich_varfix,1,fich_varfix%nlines,A,Spg)
+     else
+        call Read_RefCodes_File(fich_cfl,1,fich_cfl%nlines,A,Spg)
+     end if
      if(Err_RefCodes) then
        write(unit=*,fmt="(a)") trim(err_refcodes_mess)
      end if
@@ -443,6 +527,7 @@ Program Global_Optimization_Xtal_structures
          !Write CFL files
          call Copy_Atom_List(A, A_clone)
          n=mvs%npar
+         V_vec_std(1:n)=mvs%sigma(1:n)
          do i=1,c%num_conf
            line=" "
            write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
@@ -462,6 +547,7 @@ Program Global_Optimization_Xtal_structures
 
      call Write_FinalCost(lun)
      call Write_Atom_List(A,lun=lun)
+     call Write_FST_A()
 
      if(Icost(1) == 1) call Write_ObsCalc_SFactors(lun,hkl,mode=diff_mode)
      if(Icost(7) == 1) call Write_FoFc_Powder(lun,Oh,hkl,mode=diff_mode)
@@ -476,6 +562,9 @@ Program Global_Optimization_Xtal_structures
      title=" CIF file generated by GLOpSAnn "
      call Write_Cif_Template(trim(filcod)//"_gen.cif",2,title,Cell,SpG,A)
      call Write_Vesta_File()
+
+     if(fst_out) Call modify_fst()
+
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING X-TAL STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
      call cpu_time(fin)
@@ -495,6 +584,35 @@ Program Global_Optimization_Xtal_structures
       read(unit=*,fmt="(a)") keyw
       stop
     End Subroutine Close_GLOpSAnn
+
+    Subroutine Write_fst_A()
+       open(unit=ifst, file=trim(filcod)//"_A.fst", status="replace",action="write",position="rewind",iostat=ier)
+          write(unit=ifst,fmt="(a)") "TITLE  FST-file generated with Write_FST"
+          write(unit=ifst,fmt="(a)") "SPACEG "//trim(Spg%SPG_Symb)
+          write(unit=ifst,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
+          write(unit=ifst,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
+          do i=1,A%natoms
+             write(unit=ifst,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%ChemSymb, A%atom(i)%x, A%atom(i)%AtmInfo
+          end do
+          write(unit=ifst,fmt="(a)") "!"
+          do i=1,ninfo
+            write(unit=ifst,fmt="(a)") trim(info_lines(i))
+          end do
+          call flush(ifst)
+          close(unit=ifst)
+    End Subroutine Write_fst_A
+
+    Subroutine modify_fst()
+
+      if(ninfo > 0) then
+        open(unit=ifst,file=trim(filcod)//".fst",status="old",action="write",position="append")
+        do i=1,ninfo
+          write(unit=ifst,fmt="(a)") trim(info_lines(i))
+        end do
+        close(unit=ifst)
+      end if
+
+    end Subroutine modify_fst
 
     Subroutine Write_Vesta_File()
 
@@ -608,9 +726,9 @@ Subroutine Write_FST(fst_file,v,cost)
    Use CFML_Keywords_Code_Parser,  only:  VState_to_AtomsPar
    use cost_functions,             only:  Cell,A,SpG
 
-   character(len=*),     intent(in):: fst_file
-   real,dimension(:),    intent(in):: v
-   real,                 intent(in):: cost
+   character(len=*),               intent(in) :: fst_file
+   real,dimension(:),              intent(in) :: v
+   real,                           intent(in) :: cost
 
    !----- Local variables -----!
    integer :: lun,i,nc, ier
@@ -646,7 +764,7 @@ Subroutine Write_FST(fst_file,v,cost)
       write(unit=lun,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
       write(unit=lun,fmt="(a)") "BOX   -0.20  1.20   -0.20  1.20    -0.20  1.20 "
       do i=1,A%natoms
-         write(unit=lun,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%SfacSymb, A%atom(i)%x, A%atom(i)%AtmInfo
+         write(unit=lun,fmt="(a,a,3f12.5,tr4,a)")"Atom "//A%atom(i)%lab, A%atom(i)%ChemSymb, A%atom(i)%x, A%atom(i)%AtmInfo
       end do
       do i=1,nc
          write(unit=lun,fmt="(a)") trim(cmds(i))
