@@ -563,7 +563,7 @@ Program Global_Optimization_Xtal_structures
      call Write_Cif_Template(trim(filcod)//"_gen.cif",2,title,Cell,SpG,A)
      call Write_Vesta_File()
 
-     Call modify_fst()
+     if(fst_out) Call modify_fst()
 
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING X-TAL STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
