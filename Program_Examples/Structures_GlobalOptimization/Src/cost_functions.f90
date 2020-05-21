@@ -945,8 +945,10 @@
        do i=1,Ac%natoms
           icm=coord_info%coord_num(i)
           ch1=Ac%Atom(i)%ChemSymb
+          if (Ac%Atom(i)%locc /= 0 ) cycle !do not consider atoms with refinement of occupation factor
           do j=1,icm
              ch2=A%Atom(coord_info%n_cooatm(j,i))%ChemSymb
+             if (A%Atom(coord_info%n_cooatm(j,i))%locc /= 0 ) cycle !do not consider atoms with refinement of occupation factor
              do k=1,anti_bump%nrel
                 if( ( ch1 == anti_bump%sp1(k) .or. ch1 == anti_bump%sp2(k)) .and. &
                     ( ch2 == anti_bump%sp1(k) .or. ch2 == anti_bump%sp2(k)) ) then

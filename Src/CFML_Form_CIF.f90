@@ -7916,20 +7916,22 @@
        return
     End Subroutine Get_NPhases_PCRFile
     !!----
-    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
-    !!----    integer,                  intent(in)    :: lun
-    !!----    type (Space_Group_Type),  intent(in)    :: SpG
-    !!----    type (Crystal_Cell_Type), intent(in)    :: Cel
-    !!----    type (atom_list_type),    intent(in)    :: Atm
-    !!----    character(len=*),optional,intent(in)    :: comment
+    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment,info_lines,scat)
+    !!----    integer,                               intent(in)    :: lun
+    !!----    type (Space_Group_Type),               intent(in)    :: SpG
+    !!----    type (Crystal_Cell_Type),              intent(in)    :: Cel
+    !!----    type (atom_list_type),                 intent(in)    :: Atm
+    !!----    character(len=*),             optional,intent(in)    :: comment
+    !!----    character(len=*),dimension(:),optional,intent(in)    :: info_lines
+    !!----    logical,                      optional,intent(in)    :: scat
     !!----
     !!----    (OVERLOADED)
     !!----
     !!----    Write a CFL-file with atom_list_type
     !!----
-    !!---- Update: July - 2014
+    !!---- Update: July - 2014, May -2020
     !!
-    Subroutine Write_CFL_Atom_List_Type(lun,Cel,SpG,Atm,comment,info_lines)
+    Subroutine Write_CFL_Atom_List_Type(lun,Cel,SpG,Atm,comment,info_lines,scat)
        !---- Arguments ----!
        integer,                               intent(in)    :: lun
        type (Space_Group_Type),               intent(in)    :: SpG
@@ -7937,7 +7939,7 @@
        type (atom_list_type),                 intent(in)    :: Atm
        character(len=*),             optional,intent(in)    :: comment
        character(len=*),dimension(:),optional,intent(in)    :: info_lines
-
+       logical,                      optional,intent(in)    :: scat
        !----- Local variables -----!
        integer                         :: j !,loc
        real(kind=cp), dimension(6)     :: a,sa
@@ -7957,7 +7959,11 @@
        write(unit=lun,fmt="(a,6a16)") "Cell ",text
        write(unit=lun,fmt="(a,i3)")"!     Space Group # ",SpG%NumSpg
        write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
-       call Write_Atoms_CFL(Atm,Lun,cel)
+       if(present(scat)) then
+         call Write_Atoms_CFL(Atm,Lun,cel,scat=scat)
+       else
+         call Write_Atoms_CFL(Atm,Lun,cel)
+       end if
 
        if(present(info_lines)) then
          j=0
@@ -8013,20 +8019,22 @@
        return
     End Subroutine Write_CFL_Molcrys
     !!----
-    !!---- Subroutine Write_Atoms_CFL(Ats,Lun,Cell)
+    !!---- Subroutine Write_Atoms_CFL(Ats,Lun,Cell,scat)
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
     !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
+    !!----    logical, optional,                   intent(in) :: scat    !  In -> if present output Scattering Symbol instead of chemical element
     !!----
     !!----    Write the atoms in the asymmetric unit for a CFL file
     !!----
-    !!---- Update: February - 2003
+    !!---- Update: February - 2003, May -2020
     !!
-    Subroutine Write_Atoms_CFL_ATM(Ats,Lun,cell)
+    Subroutine Write_Atoms_CFL_ATM(Ats,Lun,cell,scat)
        !---- Arguments ----!
        type (atom_list_type),            intent(in) :: Ats
        integer, optional,                intent(in) :: Lun
        Type(Crystal_Cell_Type), optional,intent(in) :: Cell
+       logical,                 optional,intent(in) :: scat
 
        !---- Local Variables ----!
        character(len=30),dimension(6) :: text
@@ -8072,11 +8080,15 @@
           end do
           call SetNum_Std(ats%atom(i)%Biso, ats%atom(i)%Biso_std, text(4))
           call SetNum_Std(ats%atom(i)%Occ, ats%atom(i)%Occ_std, text(5))
-
-          write (unit=iunit,fmt=forma) &
-                "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
-                 ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
-
+          if(present(scat)) then
+             write (unit=iunit,fmt=forma) &
+             "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%SfacSymb, (text(j),j=1,5), &
+              ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
+          else
+             write (unit=iunit,fmt=forma) &
+             "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
+              ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
+          end if
           if (ats%atom(i)%thtype == "aniso") then
 
              if (ats%atom(i)%utype == "beta") then
