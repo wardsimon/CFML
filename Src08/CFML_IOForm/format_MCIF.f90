@@ -11,6 +11,84 @@ SubModule (CFML_IOForm) IO_MCIF
    Contains
 
    !!--++
+   !!--++ GET_NELEM_LOOP
+   !!--++
+   !!--++ Get the number of elements there are in a loop_
+   !!--++
+   !!--++ 17/05/2020
+   !!
+   Module Function Get_NElem_Loop(cif, keyword, i_ini,i_end) Result(N)
+      !---- Arguments ----!
+      type(File_Type),   intent(in) :: cif
+      character(len=*),  intent(in) :: keyword
+      integer, optional, intent(in) :: i_ini, i_end
+      integer                       :: n
+
+      !---- local Variables ----!
+      logical :: found
+      integer :: i,j
+
+      !> Init
+      N=0
+      if (cif%nlines <=0) return
+      if (len_trim(keyword) <=0) return
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str=trim(keyword)
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            j_ini=j+1
+            found=.true.
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /=str) exit
+
+         j=j+1
+      end do
+
+      j_ini=j_ini+j
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+         n=n+1
+      end do
+
+   End Function Get_NElem_Loop
+
+   !!--++
    !!--++ Read_XTal_MCIF
    !!--++
    !!--++ Read a MCIF File
@@ -26,9 +104,12 @@ SubModule (CFML_IOForm) IO_MCIF
       Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
 
       !---- Local Variables ----!
-      character(len=80) :: transf
-      integer                        :: i, iph, nt_phases, it, n_ini,n_end
-      integer, dimension(MAX_PHASES) :: ip
+      character(len=60), dimension(:), allocatable :: symop
+      integer                          :: nsym,ncen
+
+      character(len=80)                            :: transf
+      integer                          :: i, iph, nt_phases, it, n_ini,n_end
+      integer, dimension(MAX_PHASES)   :: ip
 
       real(kind=cp),dimension(6):: vet,vet2
       real(kind=cp)             :: val
@@ -68,42 +149,32 @@ SubModule (CFML_IOForm) IO_MCIF
       call Read_Cif_Cell(cif,Cell,n_ini,n_end)
       if (Err_CFML%IErr==1) return
 
+      !> Space group determination
+      ncen=get_Nelem_Loop(cif,'_space_group_symop_magn_centering.')
+      nsym=get_Nelem_Loop(cif,'_space_group_symop_magn_operation.')
+
+      if (allocated(symop)) deallocate(symop)
+      allocate(symop(ncen+nsym))
+      symop=" "
+
+      call Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, ncen, symop,n_ini,n_end)
+      call Read_MCIF_SpaceG_SymOP_Magn_Operation(cif, nsym, symop(ncen+1:),n_ini,n_end)
+      call Set_SpaceGroup("  ",SpG,ncen+nsym,symop)
+
       !> Parent Propagation vector
-      !call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
-
-      !> Parent_Space_Group
-      call Read_MCIF_Parent_SpaceG(cif,SpG,n_ini,n_end)
-
-      !> Space_Group_Magn
-      call Read_MCIF_SpaceG_Magn(cif,SpG,n_ini,n_end)
-      line=SpG%BNS_symb
-      line=pack_string(line)
-      transf=trim(SpG%mat2std_shu)
-      call Set_SpaceGroup(trim(line),"SHUBN",SpG)
-
-      !> Applying transform givin in space_group_magn.transform_BNS_Pp_abc
-      if (allocated(Pmat)) deallocate(Pmat)
-      if (allocated(invPmat)) deallocate(invPmat)
-      allocate (Pmat(Spg%D,Spg%D))
-      allocate (invPmat(Spg%D,Spg%D))
-
-      call Get_Mat_From_Symb(transf, Pmat)
-      invPmat=Rational_Inverse_Matrix(Pmat)
-      line=Get_Symb_From_Mat(invPmat,StrCode="abc" )
-
-      call Change_Setting_SpaceG(trim(line), SpG)
+      call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
 
       !> Atomos
-      !call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
+      call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
+      do i=1,Atmlist%natoms
+         if (Atmlist%atom(i)%mult ==0) Atmlist%atom(i)%mult=Get_Multip_Pos(Atmlist%atom(i)%x,SpG)
+      end do
 
       !> Moment
-      !call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
-      !call Write_MCIF_AtomSite_Moment(6, Atmlist)
+      call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
 
 
    End Subroutine Read_XTal_MCIF
-
-
 
    !!----
    !!---- WRITE_MCIF
@@ -1555,23 +1626,27 @@ SubModule (CFML_IOForm) IO_MCIF
 
    !!----
    !!---- READ_MCIF_SPACEG_SYMOP_MAGN_CENTERING
-   !!----      ???????
+   !!----
    !!---- 17/05/2020
    !!
-   Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, Spg,i_ini,i_end)
+   Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, nsym, symop,i_ini,i_end)
       !---- Arguments ----!
-      Type(File_Type),       intent(in)    :: cif
-      class(SpG_Type),       intent(inout) :: SpG
-      integer, optional,     intent(in)    :: i_ini,i_end
+      Type(File_Type),                intent(in)    :: cif
+      integer,                        intent(out)   :: nsym
+      character(len=*), dimension(:), intent(out)   :: symop
+      integer, optional,              intent(in)    :: i_ini,i_end
 
       !---- Local Variables ----!
-      logical                     :: found
-      character(len=1)            :: sc
-      character(len=40)           :: line2
-      integer                     :: i,j,iv,np,nl,nl1
-      integer,       dimension(3) :: lugar
+      logical                                      :: found
+      character(len=1)                             :: sc
+      character(len=40)                            :: line2
+      character(len=80), dimension(3)              :: dire
+      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer,       dimension(3)                  :: lugar
 
       !> Init
+      nsym=0
+      symop=" "
       call clear_error()
       if (cif%nlines <=0) then
          err_CFML%Ierr=1
@@ -1619,7 +1694,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
          if (len_trim(line) <=0) cycle
          if (line(1:1) == '#') cycle
-         if (line(1:nl) /='_space_group_symop_magn_centering.') exit
+         if (line(1:nl) /=str) exit
 
          select case (trim(line))
             case ('_space_group_symop_magn_centering.id')
@@ -1636,35 +1711,178 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> reading symop for centering or anticentering traslations
       np=count(lugar > 0 )
-      j=0
+      if (np ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Centering: No items for traslations"
+         return
+      end if
+
+      !> How many operators
+      j_ini=j_ini+j
+
       do i=j_ini, j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
          if (len_trim(line) <=0) exit
-         if (line(1:1) == "_") cycle
 
-         !> first word is the ID?
-         if (lugar(1) == 1) call Cut_String(line,nl1,line2)
+         call get_words(line,dire,ic)
+         if (ic /= np) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Centering: Problems reading symmetry operators"
+            return
+         end if
 
-         line=adjustl(line)
+         line=adjustl(dire(lugar(2)))
+         if (index(line,"'") > 0) then
+            do
+               iv=index(line,"'")
+               if (iv ==0) exit
+               line(iv:iv)=" "
+            end do
+         end if
+         if (index(line,'"') > 0) then
+            do
+               iv=index(line,'"')
+               if (iv ==0) exit
+               line(iv:iv)=" "
+            end do
+         end if
 
-         !> comilla simple como marcador de caracter
-         select case (line(1:1))
-            case ("'")
-               sc="'"
-
-            case ('"')
-               sc='"'
-
-            case default
-               sc=" "
-         end select
-
-         !!!! COMPLETAR
+         nsym=nsym+1
+         symop(nsym)=trim(adjustl(line))
       end do
 
    End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering
+
+   !!----
+   !!---- READ_MCIF_SPACEG_SYMOP_MAGN_OPERATION
+   !!----
+   !!---- 21/05/2020
+   !!
+   Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation(cif, nsym, symop,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),                intent(in)    :: cif
+      integer,                        intent(out)   :: nsym
+      character(len=*), dimension(:), intent(out)   :: symop
+      integer, optional,              intent(in)    :: i_ini,i_end
+
+      !---- Local Variables ----!
+      logical                                      :: found
+      character(len=1)                             :: sc
+      character(len=40)                            :: line2
+      character(len=80), dimension(3)              :: dire
+      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer,       dimension(3)                  :: lugar
+
+      !> Init
+      nsym=0
+      symop=" "
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Operation: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str="_space_group_symop_magn_operation."
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            found=.true.
+            j_ini=j+1
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /=str) exit
+
+         select case (trim(line))
+            case ('_space_group_symop_magn_operation.id')
+               j=j+1
+               lugar(1)=j
+            case ('_space_group_symop_magn_operation.xyz')
+               j=j+1
+               lugar(2)=j
+            case ('_space_group_symop_magn_operation.description')
+               j=j+1
+               lugar(3)=j
+         end select
+      end do
+
+      !> reading symop for centering or anticentering traslations
+      np=count(lugar > 0 )
+      if (np ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Operation: No items for traslations"
+         return
+      end if
+
+      j_ini=j_ini+j
+      do i=j_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+
+         call get_words(line,dire,ic)
+         if (ic /= np) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_SpaceG_SymOP_Magn_Operations: Problems reading symmetry operators"
+            return
+         end if
+
+         line=adjustl(dire(lugar(2)))
+         if (index(line,"'") > 0) then
+            do
+               iv=index(line,"'")
+               if (iv ==0) exit
+               line(iv:iv)=" "
+            end do
+         end if
+         if (index(line,'"') > 0) then
+            do
+               iv=index(line,'"')
+               if (iv ==0) exit
+               line(iv:iv)=" "
+            end do
+         end if
+
+         nsym=nsym+1
+         symop(nsym)=trim(adjustl(line))
+      end do
+
+   End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation
 
    !!----
    !!---- READ_MCIF_SPACEG_MAGN_TRANSFORMS

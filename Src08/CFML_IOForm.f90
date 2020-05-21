@@ -126,6 +126,13 @@ Module CFML_IOForm
 
    !---- Interface zone ----!
    Interface
+      Module Function Get_NElem_Loop(cif, keyword, i_ini,i_end) Result(N)
+         type(File_Type),   intent(in) :: cif
+         character(len=*),  intent(in) :: keyword
+         integer, optional, intent(in) :: i_ini, i_end
+         integer                       :: n
+      End Function Get_NElem_Loop
+
       Module Subroutine Get_Job_Info(cfl,Job_info, i_ini,i_end)
          type(File_Type),      intent(in)  :: cfl
          type(job_info_type),  intent(out) :: Job_info
@@ -495,11 +502,19 @@ Module CFML_IOForm
          integer, optional,     intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_SpaceG_Magn_Transf
 
-      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, Spg,i_ini,i_end)
+      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering(cif, nsym, symop,i_ini,i_end)
          Type(File_Type),       intent(in)    :: cif
-         class(SpG_Type),       intent(inout) :: SpG
-         integer, optional,     intent(in)    :: i_ini,i_end
+         integer,                        intent(out)   :: nsym
+         character(len=*), dimension(:), intent(out)   :: symop
+         integer, optional,              intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering
+
+      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation(cif, nsym, symop,i_ini,i_end)
+         Type(File_Type),       intent(in)    :: cif
+         integer,                        intent(out)   :: nsym
+         character(len=*), dimension(:), intent(out)   :: symop
+         integer, optional,              intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation
 
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
          character(len=*),        intent(in) :: filename
