@@ -72,7 +72,7 @@ Module CFML_IOForm
    !---- Public subroutines ----!
 
    public :: Read_Xtal_Structure, &
-             Write_Cif_Template, Write_SHX_Template
+             Write_Cif_Template, Write_SHX_Template, Write_MCIF_Template
 
    !--------------------!
    !---- PARAMETERS ----!
@@ -523,10 +523,10 @@ Module CFML_IOForm
          Type(AtList_Type),       intent(in) :: AtmList
       End Subroutine Write_MCIF_Template
 
-      Module Subroutine Write_MCIF_SpaceG_SymOP_Magn(Ipr, Spg)
+      Module Subroutine Write_MCIF_SpaceG_SymOP_Magn_Operation(Ipr, Spg)
          integer,          intent(in) :: Ipr
          class (Spg_type), intent(in) :: Spg
-      End Subroutine Write_MCIF_SpaceG_SymOP_Magn
+      End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Operation
 
       Module Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering(Ipr, Spg)
          integer,          intent(in) :: Ipr

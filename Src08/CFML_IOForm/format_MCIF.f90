@@ -223,9 +223,6 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=ipr,fmt="(a)") ";"
       write(unit=ipr,fmt="(a)") " "
 
-      !> Spg
-      call Write_MCIF_Spg(ipr,Spg)
-
       !> Irrep
       write(unit=Ipr,fmt="(a)") "loop_"
       write(unit=Ipr,fmt="(a)") "_irrep_id"
@@ -240,21 +237,12 @@ SubModule (CFML_IOForm) IO_MCIF
       !> Cell
       call write_cif_cell(Ipr,cell)
 
+      !> Spg
+      call Write_MCIF_Spg(ipr,Spg)
+
       !> Propag. Vectors
-      select type(SpG)
-         type is (SuperSpaceGroup_Type)
-            if (SpG%nk > 0) then
-               write(unit=Ipr,fmt="(a)") "_parent_propagation_vector.id"
-               write(unit=Ipr,fmt="(a)") "_parent_propagation_vector.kxkykz"
-               ! Incompleto
-               !do i=1,SpG%nk
-               !   line=Frac_Trans_2Dig(SpG%kv(:,i))
-               !   line=adjustl(line(2:len_trim(line)-1))
-               !   write(unit=Ipr,fmt="(a)") trim(SpG%kv_label(i))//"  '"//trim(line)//"'"
-               !end do
-               write(unit=Ipr,fmt="(a)") " "
-            end if
-      end select
+      !call Write_mcif_parent_propagation_Vector(Ipr,Kvect)
+
 
       !> Atoms
       select case (l_case(Atmlist%atom(1)%UType))
@@ -413,39 +401,10 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=ipr,fmt="(a)") "_space_group_magn.number_OG        "//trim(line)
 
       !> Space group SymOp Operation
-      write(unit=ipr,fmt="(a)")  "loop_"
-      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.id"
-      write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.xyz"
-      L=SpG%Numops
-      if (SpG%centred == 2) L=L*2
-      do i=1,L
-         line=trim(l_case(SpG%Symb_Op(i)))
-         line="'"//trim(line)//"'"
-         write(unit=ipr,fmt="(i4,a)") i,"  "//trim(line)
-      end do
-      write(unit=Ipr,fmt="(a)") " "
+      call write_mcif_spaceg_symop_magn_operation(Ipr,SpG)
 
       !> Centering
-      if (SpG%Num_Lat > 1 .or. SpG%Num_aLat > 0) then
-         call Rational_Identity_Matrix(unidad)
-         write(unit=ipr,fmt="(a)")  "loop_"
-         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.id"
-         write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_centering.xyz"
-
-         j=1
-         line=trim(l_case(SpG%Symb_Op(j)))
-         line="'"//trim(line)//"'"
-         write(unit=ipr,fmt="(i4,a)") j,"  "//trim(line)
-         do i=L+1,SpG%Multip
-            if (rational_equal(SpG%Op(i)%Mat,unidad)) then
-               j=j+1
-               line=trim(l_case(SpG%Symb_Op(j)))
-               line="'"//trim(line)//"'"
-               write(unit=ipr,fmt="(i4,a)") j,"  "//trim(line)
-            end if
-         end do
-         write(unit=Ipr,fmt="(a)") " "
-      end if
+      call write_mcif_spaceg_symop_magn_centering(Ipr,SpG)
 
    End Subroutine Write_MCIF_Spg
 
@@ -492,7 +451,7 @@ SubModule (CFML_IOForm) IO_MCIF
    !!----
    !!---- 19/05/2020
    !!
-   Module Subroutine Write_MCIF_SpaceG_SymOP_Magn(Ipr, Spg)
+   Module Subroutine Write_MCIF_SpaceG_SymOP_Magn_Operation(Ipr, Spg)
       !---- Arguments ----!
       integer,          intent(in) :: Ipr
       class (Spg_type), intent(in) :: Spg
@@ -509,14 +468,14 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.id"
       write(unit=ipr,fmt="(a)")  "    _space_group_symop_magn_operation.xyz"
 
-      do i=1,SpG%Multip
+      do i=1,SpG%Numops
          line=trim(l_case(SpG%Symb_Op(i)))
          line="'"//trim(line)//"'"
          write(unit=ipr,fmt="(i4,5x,a)") i,trim(line)
       end do
       write(unit=Ipr,fmt="(a)") " "
 
-   End Subroutine Write_MCIF_SpaceG_SymOP_Magn
+   End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Operation
 
    !!----
    !!---- WRITE_MCIF_SPACEG_MAGN
