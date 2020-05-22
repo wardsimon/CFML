@@ -443,12 +443,13 @@ Module CFML_IOForm
          Integer,             optional, intent(in)  :: Nphase
       End Subroutine Read_XTal_CIF
 
-      Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Nphase)
-         type(File_Type),               intent(in)  :: cif
-         class(Cell_Type),              intent(out) :: Cell
-         class(SpG_Type),               intent(out) :: SpG
-         Type(AtList_Type),             intent(out) :: Atmlist
-         Integer,             optional, intent(in)  :: Nphase
+      Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Kvec, Nphase)
+         type(File_Type),                 intent(in)  :: cif
+         class(Cell_Type),                intent(out) :: Cell
+         class(SpG_Type),                 intent(out) :: SpG
+         Type(AtList_Type),               intent(out) :: Atmlist
+         Type(Kvect_Info_Type), optional, intent(out) :: Kvec
+         Integer,               optional, intent(in)  :: Nphase
       End Subroutine Read_XTal_MCIF
 
       Module Subroutine Read_XTal_SHX(shx, Cell, SpG, Atm)
@@ -477,6 +478,13 @@ Module CFML_IOForm
          Type(Kvect_Info_Type), intent(out) :: Kvec
          integer, optional,     intent(in)  :: i_ini,i_end
       End Subroutine Read_MCIF_Parent_Propagation_Vector
+
+      Module Subroutine Read_MCIF_Cell_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+         Type(File_Type),                 intent(in)    :: cif
+         class(SpG_Type),       optional, intent(inout) :: SpG
+         Type(Kvect_Info_Type), optional, intent(out)   :: Kvec
+         integer,               optional, intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_Cell_Wave_Vector
 
       Module Subroutine Read_MCIF_Parent_SpaceG(cif,Spg,i_ini,i_end)
          Type(File_Type),       intent(in)    :: cif
@@ -562,6 +570,12 @@ Module CFML_IOForm
          integer, intent(in)               :: Ipr
          Type(Kvect_Info_Type), intent(in) :: Kvec
       End Subroutine Write_MCIF_Parent_Propagation_Vector
+
+      Module Subroutine Write_MCIF_Cell_Wave_Vector(Ipr,SpG,KVec)
+         integer, intent(in)                         :: Ipr
+         class(SpG_Type),       optional, intent(in) :: Spg
+         Type(Kvect_Info_Type), optional, intent(in) :: Kvec
+      End Subroutine Write_MCIF_Cell_Wave_Vector
 
       Module Subroutine Write_MCIF_Parent_SpaceG(Ipr, Spg)
          integer,          intent(in) :: Ipr

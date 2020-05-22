@@ -66,22 +66,22 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- local Variables ----!
       logical :: found
-      integer :: i,j
+      integer :: i,j,k_ini,k_end
 
       !> Init
       N=0
       if (cif%nlines <=0) return
       if (len_trim(keyword) <=0) return
 
-      j_ini=1; j_end=cif%nlines
-      if (present(i_ini)) j_ini=i_ini
-      if (present(i_end)) j_end=i_end
+      k_ini=1; k_end=cif%nlines
+      if (present(i_ini)) k_ini=i_ini
+      if (present(i_end)) k_end=i_end
 
       !> Search loop
       found=.false.
       str=trim(keyword)
       nl=len_trim(str)
-      do i=j_ini,j_end
+      do i=k_ini,k_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -91,14 +91,14 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,j_ini,-1
+         do j=i-1,k_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
             if (npos ==0) cycle
-            j_ini=j+1
+            k_ini=j+1
             found=.true.
             exit
          end do
@@ -107,7 +107,7 @@ SubModule (CFML_IOForm) IO_MCIF
       if (.not. found) return
 
       j=0
-      do i=j_ini,j_end
+      do i=k_ini,k_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -117,8 +117,8 @@ SubModule (CFML_IOForm) IO_MCIF
          j=j+1
       end do
 
-      j_ini=j_ini+j
-      do i=j_ini, j_end
+      k_ini=k_ini+j
+      do i=k_ini, k_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -135,13 +135,14 @@ SubModule (CFML_IOForm) IO_MCIF
    !!--++
    !!--++ 17/05/2020
    !!
-   Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Nphase)
+   Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Kvec, Nphase)
       !---- Arguments ----!
-      type(File_Type),               intent(in)  :: cif
-      class(Cell_Type),              intent(out) :: Cell
-      class(SpG_Type),               intent(out) :: SpG
-      Type(AtList_Type),             intent(out) :: Atmlist
-      Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
+      type(File_Type),                 intent(in)  :: cif
+      class(Cell_Type),                intent(out) :: Cell
+      class(SpG_Type),                 intent(out) :: SpG
+      Type(AtList_Type),               intent(out) :: Atmlist
+      Type(Kvect_Info_Type), optional, intent(out) :: Kvec
+      Integer,               optional, intent(in)  :: Nphase   ! Select the Phase to read
 
       !---- Local Variables ----!
       logical                                      :: SSG
@@ -150,8 +151,6 @@ SubModule (CFML_IOForm) IO_MCIF
       integer                                      :: i, iph, nt_phases, it, n_ini,n_end
       integer, dimension(MAX_PHASES)               :: ip
 
-
-      Type(Kvect_Info_Type)                        :: Kvec
 
       !> Init
       call clear_error()
@@ -213,8 +212,18 @@ SubModule (CFML_IOForm) IO_MCIF
          call Set_SpaceGroup("  ",SpG,ncen+nsym,symop)
       end if
 
-      !> Parent Propagation vector
-      call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
+      !> Parent Propagation vector / Cell_wave_vector
+      if (.not. ssg) then
+         if (present(Kvec)) call Read_MCIF_Parent_Propagation_Vector(cif, Kvec,n_ini,n_end)
+      else
+         select type (Spg)
+            type is (SuperSpaceGroup_Type)
+               call Read_MCIF_Cell_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
+         end select
+         if (present(Kvec)) then
+            call Read_MCIF_Cell_Wave_Vector(cif, Kvec=Kvec,i_ini=n_ini, i_end=n_end)
+         end if
+      end if
 
       !> Atomos
       call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
@@ -1153,6 +1162,185 @@ SubModule (CFML_IOForm) IO_MCIF
    End Subroutine Read_MCIF_Parent_Propagation_Vector
 
    !!----
+   !!---- READ_MCIF_CELL_WAVE_VECTOR
+   !!----
+   !!---- 22/05/2020
+   !!
+   Module Subroutine Read_MCIF_Cell_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),                 intent(in)    :: cif
+      class(SpG_Type),       optional, intent(inout) :: SpG
+      Type(Kvect_Info_Type), optional, intent(out)   :: Kvec
+      integer,               optional, intent(in)    :: i_ini,i_end   ! Index to Finish
+
+      !---- Local Variables ----!
+      logical                         :: found
+      integer, dimension(4)           :: lugar   !   1:id, 2: x, 3: y, 4:z
+      character(len=40), dimension(4) :: dire
+      integer, dimension(3)           :: ivet
+      integer                         :: i,j,k,nl,iv,np
+      real(kind=cp),     dimension(3) :: vet,xv
+      Type(Kvect_Info_Type)           :: Kv
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop for Wave vectors
+      found=.false.
+      str="_cell_wave_vector_"
+      nl=len_trim(str)
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,j_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            j_ini=j+1
+            found=.true.
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (index(line,str)==0) exit
+
+         select case (trim(line))
+            case ('_cell_wave_vector_seq_id')
+               j=j+1
+               lugar(1)=j
+            case ('_cell_wave_vector_x')
+               j=j+1
+               lugar(2)=j
+            case ('_cell_wave_vector_y')
+               j=j+1
+               lugar(3)=j
+            case ('_cell_wave_vector_z')
+               j=j+1
+               lugar(4)=j
+         end select
+      end do
+
+      np=count(lugar > 0)
+      if (np ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error in loop"
+         return
+      end if
+
+      !> Number of modulation vectors
+      k=get_NElem_Loop(cif,str,j_ini,j_end)
+      if (k ==0) return
+
+      call allocate_Kvector(k,0,kv)
+
+      !> Read k-vectors
+      j_ini=j_ini+np
+
+      do i=j_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+
+         call get_words(line, dire,ic)
+
+         if (ic /= np) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the values in loop"
+            return
+         end if
+
+         !> Id
+         call get_num(dire(lugar(1)),vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the ID value"
+            return
+         end if
+         if (ivet(1) == 0 .or. ivet(1) > k) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the ID value"
+            return
+         end if
+         j=ivet(1)
+
+         !> x
+         call get_num(dire(lugar(2)),vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the X value"
+            return
+         end if
+         xv(1)=vet(1)
+
+         !> y
+         call get_num(dire(lugar(3)),vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the Y value"
+            return
+         end if
+         xv(2)=vet(1)
+
+         !> z
+         call get_num(dire(lugar(4)),vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the Z value"
+            return
+         end if
+         xv(3)=vet(1)
+
+         Kv%kv(:,j)=xv
+      end do
+
+      if (present(SpG)) then
+         select type (SpG)
+            type is (SuperSpaceGroup_Type)
+               Spg%nk=Kv%nk
+               if (allocated(Spg%kv)) deallocate(Spg%kv)
+               allocate(Spg%kv(3,Spg%nk))
+               Spg%kv=Kv%kv
+         end select
+      end if
+
+      if (present(Kvec)) then
+         call allocate_Kvector(Kv%nk,0,kvec)
+         Kvec%kv=Kv%kv
+      end if
+
+      call allocate_Kvector(0,0,kv)
+
+   End Subroutine Read_MCIF_Cell_Wave_Vector
+
+   !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
    !!----
    !!---- 17/05/2020
@@ -1193,6 +1381,49 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=ipr,fmt="(a)") " "
 
    End Subroutine Write_MCIF_Parent_Propagation_Vector
+
+   !!----
+   !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
+   !!----
+   !!---- 17/05/2020
+   !!
+   Module Subroutine Write_MCIF_Cell_Wave_Vector(Ipr,SpG,KVec)
+      !---- Arguments ----!
+      integer, intent(in)                         :: Ipr
+      class(SpG_Type),       optional, intent(in) :: Spg
+      Type(Kvect_Info_Type), optional, intent(in) :: Kvec
+
+      !---- Local Variables ----!
+      integer               :: i
+      Type(Kvect_Info_Type) :: K
+
+      !> K-vectors
+      if (present(Spg).and. (.not. present(Kvec))) then
+         select type (SpG)
+            type is (SuperSpaceGroup_Type)
+               call allocate_Kvector(SpG%nk,Spg%nq,k)
+               K%kv=SpG%kv
+         end select
+
+      else if (present(Kvec) .and. (.not. present(SpG))) then
+         call allocate_Kvector(kvec%nk,Kvec%nq,k)
+         K%kv=Kvec%kv
+      else
+         return
+      end if
+      if (K%nk <=0) return
+
+      write(unit=Ipr,fmt="(a)") "loop_"
+      write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_seq_id"
+      write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_x"
+      write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_y"
+      write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_z"
+      do i=1,k%nk
+         write(unit=Ipr,fmt='(5x,i4, 3f12.6)') i, K%kv(:,i)
+      end do
+      write(unit=ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_Cell_Wave_Vector
 
    !!----
    !!---- READ_MCIF_SPACEG_MAGN
