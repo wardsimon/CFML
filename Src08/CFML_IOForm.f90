@@ -133,6 +133,12 @@ Module CFML_IOForm
          integer                       :: n
       End Function Get_NElem_Loop
 
+      Module Function Is_SSG_Struct(cif, i_ini,i_end) Result(ok)
+         type(File_Type),   intent(in) :: cif
+         integer, optional, intent(in) :: i_ini, i_end
+         logical                       :: ok
+      End Function Is_SSG_Struct
+
       Module Subroutine Get_Job_Info(cfl,Job_info, i_ini,i_end)
          type(File_Type),      intent(in)  :: cfl
          type(job_info_type),  intent(out) :: Job_info
@@ -509,12 +515,26 @@ Module CFML_IOForm
          integer, optional,              intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Centering
 
+      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Ssg_Centering(cif, nsym, symop,i_ini,i_end)
+         Type(File_Type),                intent(in)    :: cif
+         integer,                        intent(out)   :: nsym
+         character(len=*), dimension(:), intent(out)   :: symop
+         integer, optional,              intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Ssg_Centering
+
       Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation(cif, nsym, symop,i_ini,i_end)
          Type(File_Type),       intent(in)    :: cif
          integer,                        intent(out)   :: nsym
          character(len=*), dimension(:), intent(out)   :: symop
          integer, optional,              intent(in)    :: i_ini,i_end
       End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Operation
+
+      Module Subroutine Read_MCIF_SpaceG_SymOP_Magn_Ssg_Operation(cif, nsym, symop,i_ini,i_end)
+         Type(File_Type),                intent(in)    :: cif
+         integer,                        intent(out)   :: nsym
+         character(len=*), dimension(:), intent(out)   :: symop
+         integer, optional,              intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_SpaceG_SymOP_Magn_Ssg_Operation
 
       Module Subroutine Write_MCIF_Template(filename,Cell,SpG,AtmList)
          character(len=*),        intent(in) :: filename

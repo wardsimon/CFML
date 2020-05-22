@@ -15,7 +15,7 @@ rem > Compilers
          (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
       ) else (
          (set OPT0=/Od)
-         (set OPT1=/O2)
+         (set OPT1=/Ox)
       )
       (set OPT2=/fpp /Qopt-report:0)
    )
@@ -32,8 +32,8 @@ rem
    )
 rem > Compilation
    if [%_COMP%]==[ifort] (
-      ifort /c io_files.f90           /nologo %OPT1% /I%CRYSFML%\ifort\LibC08
-      ifort /exe:io_files *.obj  %CRYSFML%\ifort\LibC08\crysfml.lib /link /stack:250000000
+      ifort /c io_files.f90           /heap-arrays  /nologo %OPT1% /I%CRYSFML%\ifort\LibC08
+      ifort /exe:io_files *.obj  %CRYSFML%\ifort\LibC08\crysfml.lib /link /stack:300000000
    )
 rem
    if [%_COMP%]==[gfortran] (

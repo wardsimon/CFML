@@ -450,6 +450,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local Variables ----!
+      logical                             :: ssg
       character(len=20),dimension(15)     :: label
       integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
       integer, dimension( 8)              :: lugar   !   1 -> label
@@ -482,7 +483,13 @@ SubModule (CFML_IOForm) IO_CIF
       if (present(i_ini)) j_ini=i_ini
       if (present(i_end)) j_end=i_end
 
-      if (AtmList%natoms > 0) call allocate_atom_list(0, AtmList,'Atm_std',0)
+      ssg=is_ssg_struct(cif,j_ini,j_end)
+
+      if (.not. ssg) then
+         if (AtmList%natoms > 0) call allocate_atom_list(0, AtmList,'Atm_std',0)
+      else
+         if (AtmList%natoms > 0) call allocate_atom_list(0, AtmList,'MAtm_Std',0)
+      end if
 
       !> Search loop for atoms
       str="_atom_site_label"
@@ -577,7 +584,12 @@ SubModule (CFML_IOForm) IO_CIF
          err_CFML%Msg="Read_Cif_Atom: Error reading atoms in CIF format!"
          return
       end if
-      call allocate_atom_list(n,Atm,'Atm_std',0)
+
+      if (.not. ssg) then
+         call allocate_atom_list(n,Atm,'Atm_std',0)
+      else
+         call allocate_atom_list(n,Atm,'MAtm_std',0)
+      end if
 
       !> reading atoms
       n=0
