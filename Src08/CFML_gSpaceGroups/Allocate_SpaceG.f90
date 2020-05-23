@@ -50,24 +50,28 @@ SubModule (CFML_gSpaceGroups) SPG_008
       !> Init
       if (nk == 0 .and. nq ==0) then
          Kvec%nk=0; Kvec%nq=0
-         if (allocated(Kvec%kv)) deallocate(kvec%kv)
+         if (allocated(Kvec%kv))      deallocate(kvec%kv)
+         if (allocated(Kvec%kv_std))  deallocate(kvec%kv_std)
          if (allocated(Kvec%sintlim)) deallocate(kvec%sintlim)
-         if (allocated(Kvec%nharm)) deallocate(kvec%nharm)
+         if (allocated(Kvec%nharm))   deallocate(kvec%nharm)
          if (allocated(Kvec%Q_Coeff)) deallocate(kvec%Q_Coeff)
          return
       end if
 
       if (nk > 0) then
          if (nk /= Kvec%nk) then
-            if (allocated(Kvec%kv)) deallocate(kvec%kv)
+            if (allocated(Kvec%kv))      deallocate(kvec%kv)
+            if (allocated(Kvec%kv_std))  deallocate(kvec%kv_std)
             if (allocated(Kvec%sintlim)) deallocate(kvec%sintlim)
-            if (allocated(Kvec%nharm)) deallocate(kvec%nharm)
+            if (allocated(Kvec%nharm))   deallocate(kvec%nharm)
             allocate(Kvec%kv(3,nk))
+            allocate(Kvec%kv_std(3,nk))
             allocate(Kvec%sintlim(nk))
             allocate(Kvec%nharm(nk))
          end if
          Kvec%nk=nk
          Kvec%kv=0.0_cp
+         Kvec%kv_std=0.0_cp
          Kvec%sintlim=1.0_cp
          Kvec%nharm=0
       end if

@@ -24,7 +24,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                       :: ok
 
       !---- local Variables ----!
-      integer :: i
+      integer :: i,npos
 
       !> Init
       ok=.false.
@@ -188,7 +188,7 @@ SubModule (CFML_IOForm) IO_MCIF
       end if
 
       !> SSG Space group?
-      ssg=Is_SSG_struct(cif,n_ini_n_end)
+      ssg=Is_SSG_struct(cif,n_ini,n_end)
 
       !> Space group determination
       if (.not. ssg) Then
@@ -1515,7 +1515,8 @@ SubModule (CFML_IOForm) IO_MCIF
       character(len=40), dimension(4) :: dire
       integer, dimension(3)           :: ivet
       integer                         :: i,j,k,nl,iv,np,k_ini
-      real(kind=cp),     dimension(3) :: vet,vet2,xv
+      real(kind=cp),     dimension(3) :: vet,vet2,xv,xv_std
+
       Type(Kvect_Info_Type)           :: Kv
 
       !> Init
@@ -1640,6 +1641,7 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(1)=vet(1)
+         xv_std(1)=vet2(1)
 
          !> y
          call get_numstd(dire(lugar(3)),vet,vet2,iv)
@@ -1649,6 +1651,7 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(2)=vet(1)
+         xv_std(2)=vet2(1)
 
          !> z
          call get_numstd(dire(lugar(4)),vet,vet2,iv)
@@ -1658,21 +1661,26 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(3)=vet(1)
+         xv_std(3)=vet2(1)
 
          Kv%kv(:,j)=xv
+         Kv%kv_std(:,j)=xv_std
       end do
 
       if (present(SpG)) then
          select type (SpG)
             type is (SuperSpaceGroup_Type)
                Spg%nk=Kv%nk
-               if (allocated(Spg%kv)) deallocate(Spg%kv)
+               if (allocated(Spg%kv))      deallocate(Spg%kv)
+               if (allocated(Spg%kv_std))  deallocate(Spg%kv_std)
                if (allocated(Spg%sintlim)) deallocate(Spg%sintlim)
-               if (allocated(Spg%nharm)) deallocate(Spg%nharm)
+               if (allocated(Spg%nharm))   deallocate(Spg%nharm)
                allocate(Spg%kv(3,Spg%nk))
+               allocate(Spg%kv_std(3,Spg%nk))
                allocate(Spg%sintlim(Spg%nk))
                allocate(Spg%nharm(Spg%nk))
                Spg%kv=Kv%kv
+               Spg%kv_std=Kv%kv_std
                Spg%sintlim=1.0_cp
                Spg%nharm=0
          end select
@@ -1681,6 +1689,7 @@ SubModule (CFML_IOForm) IO_MCIF
       if (present(Kvec)) then
          call allocate_Kvector(Kv%nk,0,kvec)
          Kvec%kv=Kv%kv
+         Kvec%kv_std=Kv%kv_std
       end if
 
       call allocate_Kvector(0,0,kv)
@@ -1978,7 +1987,7 @@ SubModule (CFML_IOForm) IO_MCIF
       Type(Kvect_Info_Type), optional, intent(in) :: Kvec
 
       !---- Local Variables ----!
-      integer               :: i
+      integer               :: i,j
       Type(Kvect_Info_Type) :: K
 
       !> K-vectors
@@ -1987,11 +1996,13 @@ SubModule (CFML_IOForm) IO_MCIF
             type is (SuperSpaceGroup_Type)
                call allocate_Kvector(SpG%nk,0,k)
                K%kv=SpG%kv
+               K%kv_std=SpG%kv_std
          end select
 
       else if (present(Kvec) .and. (.not. present(SpG))) then
          call allocate_Kvector(kvec%nk,0,k)
          K%kv=Kvec%kv
+         K%kv_std=Kvec%kv_std
       else
          return
       end if
@@ -2003,7 +2014,12 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_y"
       write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_z"
       do i=1,k%nk
-         write(unit=Ipr,fmt='(5x,i4, 3f12.6)') i, K%kv(:,i)
+         line=' '
+         do j=1,3
+            line=trim(line)//"    "//string_Numstd(K%Kv(j,i),K%Kv_std(j,i))
+            line=adjustl(line)
+         end do
+         write(unit=Ipr,fmt='(5x,i4,3x, a)') i, trim(line)
       end do
       write(unit=ipr,fmt="(a)") " "
 

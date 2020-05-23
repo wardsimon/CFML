@@ -145,6 +145,7 @@ Module CFML_gSpaceGroups
        integer                                    :: nk=0      ! (nk=1,2,3, ...) number of k-vectors
        integer                                    :: nq=0      ! number of effective set of Q_coeff >= nk
        real(kind=cp), allocatable,dimension(:,:)  :: kv        ! k-vectors (3,nk)
+       real(kind=cp), allocatable,dimension(:,:)  :: kv_std    ! k-vectors sigmas(3,nk)
        real(kind=cp), allocatable,dimension(:)    :: sintlim   ! sintheta/lambda limits (nk)
        integer,       allocatable,dimension(:)    :: nharm     ! number of harmonics along each k-vector
        integer,       allocatable,dimension(:,:)  :: q_coeff   ! Q_coeff(nk,nq)
@@ -157,6 +158,7 @@ Module CFML_gSpaceGroups
     Type, public :: Kvect_Info_Type
        integer                                      :: nk=0        ! Number of independent k-vectors
        real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
+       real(kind=cp),allocatable,dimension(:,:)     :: kv_std      ! k-vectors sigmas(3,nk)
        real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
        integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
        integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
