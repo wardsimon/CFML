@@ -1271,8 +1271,8 @@ SubModule (CFML_IOForm) IO_MCIF
                   At(k)%Mcs_std(i2,nq)=xv_std(2)
                   At(k)%Magnetic=.true.
 
-                  At(k)%n_mc=max(At(k)%n_mc,nq)   !!!! Es correcto?????
-                  At(k)%pmc_q=1     !!!!! CAMBIAR
+                  At(k)%n_mc=max(At(k)%n_mc,nq)
+                  At(k)%pmc_q(nq)=nq
             end select
             exit
          end do   ! Over atomList
