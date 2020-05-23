@@ -1247,7 +1247,7 @@
     !!----
     !!----    Subroutine to calculate the Global Instability Index.
     !!----    Before calling this subroutine it is the responsibility of the calling
-    !!----    program to make a previous call to "Set_TDist_Coordination" in order
+    !!----    program to make a previous call to "Set_TDist_Coordination" or "Set_TDist_Partial_Coordination" in order
     !!----    to update the internal private variables related to distance/angle calculations.
     !!----    Needs as input the object A (of type atom_Conf_list_type, that
     !!----    should be allocated in the calling program).
@@ -1296,7 +1296,7 @@
              if (dd > sig*(1.0+tol)) cycle
              efcn=efcn+A%Atom(coord_info%n_cooatm(j,i))%VarF(1)
              bv=EXP((Table_d0(l,k)-dd)/Table_b(l,k))
-             bv=bv*A%Atom(coord_info%n_cooatm(j,i))%VarF(1) !Occupacy
+             bv=bv*A%Atom(coord_info%n_cooatm(j,i))%VarF(1) !Occupancy
              sums=sums+bv
           end do
           A%Atom(i)%varF(3)=efcn
