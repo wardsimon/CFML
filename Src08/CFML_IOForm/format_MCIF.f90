@@ -228,15 +228,14 @@ SubModule (CFML_IOForm) IO_MCIF
                call Read_MCIF_Cell_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
                if (Err_CFML%IErr==1) return
 
-               call Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
+               call Read_MCIF_AtomSite_Fourier_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
                if (Err_CFML%IErr==1) return
-               call Write_MCIF_Atom_Site_Fourier_Wave_Vector(6, SpG)
 
          end select
          if (present(Kvec)) then
             call Read_MCIF_Cell_Wave_Vector(cif, Kvec=Kvec,i_ini=n_ini, i_end=n_end)
             if (Err_CFML%IErr==1) return
-            call Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif,  Kvec=Kvec,i_ini=n_ini, i_end=n_end)
+            call Read_MCIF_AtomSite_Fourier_Wave_Vector(cif,  Kvec=Kvec,i_ini=n_ini, i_end=n_end)
             if (Err_CFML%IErr==1) return
          end if
       end if
@@ -249,6 +248,14 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Moment
       call Read_MCIF_AtomSite_Moment(cif, AtmList, n_ini, n_end)
+      if (Err_CFML%IErr==1) return
+
+      !> Moment-Fourier
+      call Read_MCIF_AtomSite_Moment_Fourier(cif, AtmList,n_ini,n_end)
+      if (Err_CFML%IErr==1) then
+         call error_message(err_CFML%Msg)
+         return
+      end if
 
 
    End Subroutine Read_XTal_MCIF
@@ -733,7 +740,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
          if (len_trim(line) <=0) cycle
          if (line(1:1) == '#') cycle
-         if (line(1:nl) /= trim(str)) exit
+         if (line(1:nl) /= str) exit
 
          select case (trim(line))
             case ('_atom_site_moment.label')
@@ -944,6 +951,7 @@ SubModule (CFML_IOForm) IO_MCIF
                end if
             end if
             atmlist%atom(k)%mom=maxval(abs(atmlist%atom(k)%moment))
+            atmlist%atom(k)%magnetic=.true.
 
             !> Symmform
             if (lugar(13) > 0) then
@@ -964,6 +972,316 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=Ipr,fmt="(a)") " "
 
    End Subroutine Read_MCIF_AtomSite_Moment
+
+   !!----
+   !!---- READ_MCIF_ATOMSITE_MOMENT_FOURIER
+   !!----
+   !!----
+   !!---- 23/05/2020
+   !!
+   Module Subroutine Read_MCIF_AtomSite_Moment_Fourier(cif, AtmList,i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),   intent(in)    :: cif
+      Type(AtList_Type), intent(inout) :: AtmList
+      integer, optional, intent(in)    :: i_ini,i_end   ! Index to Finish
+
+      !---- Local Variables ----!
+      logical                                      :: found
+      character(len=40), dimension(:), allocatable :: dire
+      integer, dimension(15)                       :: lugar
+      integer, dimension(3)                        :: ivet
+      integer                                      :: i, j, k,nl, np, nq, ic, iv, k_ini
+      integer                                      :: i1,i2,i3
+      real(kind=cp), dimension(3)                  :: vet1,vet2
+      real(kind=cp), dimension(2)                  :: xv,xv_std
+
+      !> Init
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop
+      found=.false.
+      str="_atom_site_moment_Fourier"
+      nl=len_trim(str)
+
+      k_ini=j_ini
+      do i=k_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,k_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            found=.true.
+            k_ini=j+1
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=k_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+         if (line(1:nl) /= str) exit
+
+         select case (trim(line))
+            case ('_atom_site_moment_Fourier.atom_site_label')
+               j=j+1
+               lugar(1)=j
+            case ('_atom_site_moment_Fourier.axis')
+               j=j+1
+               lugar(2)=j
+            case ('_atom_site_moment_Fourier.id')
+               j=j+1
+               lugar(3)=j
+            case ('_atom_site_moment_Fourier.wave_vector_seq_id')
+               j=j+1
+               lugar(4)=j
+            case ('_atom_site_moment_Fourier_param.id')
+               j=j+1
+               lugar(5)=j
+            case ('_atom_site_moment_Fourier_param.cos')
+               j=j+1
+               lugar(6)=j
+            case ('_atom_site_moment_Fourier_param.sin')
+               j=j+1
+               lugar(7)=j
+            case ('_atom_site_moment_Fourier_param.modulus')
+               j=j+1
+               lugar(8)=j
+            case ('_atom_site_moment_Fourier_param.phase')
+               j=j+1
+               lugar(9)=j
+            case ('_atom_site_moment_Fourier_param.cos_symmform')
+               j=j+1
+               lugar(10)=j
+            case ('_atom_site_moment_Fourier_param.sin_symmform')
+               j=j+1
+               lugar(11)=j
+            case ('_atom_site_moment_Fourier_param.modulus_symmform')
+               j=j+1
+               lugar(12)=j
+            case ('_atom_site_moment_Fourier_param.phase_symmform')
+               j=j+1
+               lugar(13)=j
+         end select
+      end do
+
+      np=count(lugar > 0)
+      if (np == 0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Check the loop! "
+         return
+      end if
+
+      !> Check
+      if (lugar(1) ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: No atom label was identified! "
+         return
+      end if
+
+      if (lugar(2) ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: No specified the coordinate system!"
+         return
+      end if
+
+      if (lugar(4) ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: No specified the identification for wave vector!"
+         return
+      end if
+
+      if (lugar(6) > 0) then
+         if (lugar(7) ==0 .or. lugar(8)> 0 .or. lugar(9)> 0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Using only cosine/sine component of the magnetic modulation!"
+            return
+         end if
+      end if
+      if (lugar(7) > 0) then
+         if (lugar(6) ==0 .or. lugar(8)> 0 .or. lugar(9)> 0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Using only cosine/sine component of the magnetic modulation!"
+            return
+         end if
+      end if
+      if (lugar(8) > 0) then
+         if (lugar(9) ==0 .or. lugar(6)> 0 .or. lugar(7)> 0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Using only modulus/phase component of the magnetic modulation!"
+            return
+         end if
+      end if
+      if (lugar(9) > 0) then
+         if (lugar(8) ==0 .or. lugar(6)> 0 .or. lugar(7)> 0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Using only modulus/phase component of the magnetic modulation!"
+            return
+         end if
+      end if
+
+      if (allocated(dire)) deallocate(dire)
+      allocate(dire(np))
+      dire=" "
+
+      !> Read vales
+      k_ini=k_ini+np
+      do i=k_ini, j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+
+         call get_words(line,dire,ic)
+         if (ic ==0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Revise the line: "//trim(line)
+            return
+         end if
+
+         !> Which atom
+         do k=1,Atmlist%natoms
+            if (l_case(trim(dire(lugar(1)))) /= l_case(trim(atmlist%atom(k)%lab))) cycle
+
+            !> wave vector id
+            call get_num(dire(lugar(4)),vet1,ivet,iv)
+            if (iv /=1) then
+               err_CFML%Ierr=1
+               err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: ID for Wave vector identification!"
+               return
+            end if
+            nq=ivet(1)
+
+            if (lugar(6) > 0) then
+               !> Cos/Sin
+               call get_numstd(dire(lugar(6)),vet1,vet2,iv)
+               if (iv /=1) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Error in cosine component!"
+                  return
+               end if
+               xv(1)=vet1(1)
+               xv_std(1)=vet2(1)
+
+               call get_numstd(dire(lugar(7)),vet1,vet2,iv)
+               if (iv /=1) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Error in sine component!"
+                  return
+               end if
+               xv(2)=vet1(1)
+               xv_std(2)=vet2(1)
+
+               !> axis system
+               select case (trim(dire(lugar(2))))
+                  case ('Cx','x')
+                     i1=1
+                     i2=4
+                  case ('Cy','y')
+                     i1=2
+                     i2=5
+                  case ('Cz','z')
+                     i1=3
+                     i2=6
+                  case ('mod')
+                  case ('pol')
+                  case ('azi')
+                  case ('a1')
+                  case ('a2')
+                  case ('a3')
+                  case default
+                     err_CFML%Ierr=1
+                     err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Axis system is not defined!"
+                     return
+               end select
+
+            else if (lugar(8) > 0) then
+               !>Modulus/Phase
+               call get_numstd(dire(lugar(8)),vet1,vet2,iv)
+               if (iv /=1) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Error in modulus component!"
+                  return
+               end if
+               xv(1)=vet1(1)
+               xv_std(1)=vet2(1)
+
+               call get_numstd(dire(lugar(9)),vet1,vet2,iv)
+               if (iv /=1) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Error in phase component!"
+                  return
+               end if
+               xv(2)=vet1(1)
+               xv_std(2)=vet2(1)
+
+               !> axis system
+               select case (trim(dire(lugar(2))))
+                  case ('Cx','x')
+                  case ('Cy','y')
+                  case ('Cz','z')
+                  case ('mod')
+                  case ('pol')
+                  case ('azi')
+                  case ('a1')
+                  case ('a2')
+                  case ('a3')
+                  case default
+                     err_CFML%Ierr=1
+                     err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Axis system is not defined!"
+                     return
+               end select
+
+            else
+               err_CFML%Ierr=1
+               err_CFML%Msg="Read_MCIF_AtomSite_Moment_Fourier: Error in components of Modulation vector!"
+               return
+            end if
+
+            select type(At => Atmlist%atom)
+               class is (MAtm_Std_Type)
+                  At(k)%Mcs(i1,nq)=xv(1)
+                  At(k)%Mcs(i2,nq)=xv(2)
+                  At(k)%Mcs_std(i1,nq)=xv_std(1)
+                  At(k)%Mcs_std(i2,nq)=xv_std(2)
+                  At(k)%Magnetic=.true.
+
+                  At(k)%n_mc=max(At(k)%n_mc,nq)   !!!! Es correcto?????
+                  At(k)%pmc_q=1     !!!!! CAMBIAR
+            end select
+            exit
+         end do   ! Over atomList
+
+      end do
+
+      write(unit=Ipr,fmt="(a)") " "
+
+   End Subroutine Read_MCIF_AtomSite_Moment_Fourier
 
    !!----
    !!---- WRITE_MCIF_ATOMSITE_MOMENT
@@ -1376,7 +1694,7 @@ SubModule (CFML_IOForm) IO_MCIF
    !!----
    !!---- 23/05/2020
    !!
-   Module Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+   Module Subroutine Read_MCIF_AtomSite_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
       !---- Arguments ----!
       Type(File_Type),                 intent(in)    :: cif
       class(SpG_Type),       optional, intent(inout) :: SpG
@@ -1604,7 +1922,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       call allocate_Kvector(0,0,kv)
 
-   End Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector
+   End Subroutine Read_MCIF_AtomSite_Fourier_Wave_Vector
 
    !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
@@ -1698,7 +2016,7 @@ SubModule (CFML_IOForm) IO_MCIF
    !!----
    !!---- 23/05/2020
    !!
-   Module Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector(Ipr,SpG,KVec)
+   Module Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector(Ipr,SpG,KVec)
       !---- Arguments ----!
       integer, intent(in)                         :: Ipr
       class(SpG_Type),       optional, intent(in) :: Spg
@@ -1761,7 +2079,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       call allocate_Kvector(0,0,k)
 
-   End Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector
+   End Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector
 
    !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR

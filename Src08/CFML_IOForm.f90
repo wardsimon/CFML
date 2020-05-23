@@ -500,6 +500,12 @@ Module CFML_IOForm
          integer, optional, intent(in)  :: i_ini,i_end
       End Subroutine Read_MCIF_AtomSite_Moment
 
+      Module Subroutine Read_MCIF_AtomSite_Moment_Fourier(cif, AtmList,i_ini,i_end)
+         Type(File_Type),   intent(in)    :: cif
+         Type(AtList_Type), intent(inout) :: AtmList
+         integer, optional, intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_AtomSite_Moment_Fourier
+
       Module Subroutine Read_MCIF_SpaceG_Magn(cif,Spg,i_ini,i_end)
          Type(File_Type),       intent(in)    :: cif
          class(SpG_Type),       intent(inout) :: SpG
@@ -563,23 +569,23 @@ Module CFML_IOForm
          class (Spg_type), intent(in) :: Spg
       End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering
 
-      Module Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+      Module Subroutine Read_MCIF_AtomSite_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
          Type(File_Type),                 intent(in)    :: cif
          class(SpG_Type),       optional, intent(inout) :: SpG
          Type(Kvect_Info_Type), optional, intent(inout) :: Kvec
          integer,               optional, intent(in)    :: i_ini,i_end
-      End Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector
+      End Subroutine Read_MCIF_AtomSite_Fourier_Wave_Vector
 
       Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
          integer,           intent(in) :: Ipr
          Type(AtList_Type), intent(in) :: AtmList
       End Subroutine Write_MCIF_AtomSite_Moment
 
-      Module Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector(Ipr,SpG,KVec)
+      Module Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector(Ipr,SpG,KVec)
          integer, intent(in)                         :: Ipr
          class(SpG_Type),       optional, intent(in) :: Spg
          Type(Kvect_Info_Type), optional, intent(in) :: Kvec
-      End Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector
+      End Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector
 
       Module Subroutine Write_MCIF_Parent_Propagation_Vector(Ipr,KVec)
          integer, intent(in)               :: Ipr
