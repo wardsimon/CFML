@@ -229,10 +229,9 @@ SubModule (CFML_IOForm) IO_MCIF
                if (Err_CFML%IErr==1) return
 
                call Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
-               if (Err_CFML%IErr==1) then
-                  call error_message(err_CFML%Msg)
-                  return
-               end if
+               if (Err_CFML%IErr==1) return
+               call Write_MCIF_Atom_Site_Fourier_Wave_Vector(6, SpG)
+
          end select
          if (present(Kvec)) then
             call Read_MCIF_Cell_Wave_Vector(cif, Kvec=Kvec,i_ini=n_ini, i_end=n_end)
@@ -1198,7 +1197,7 @@ SubModule (CFML_IOForm) IO_MCIF
       character(len=40), dimension(4) :: dire
       integer, dimension(3)           :: ivet
       integer                         :: i,j,k,nl,iv,np,k_ini
-      real(kind=cp),     dimension(3) :: vet,xv
+      real(kind=cp),     dimension(3) :: vet,vet2,xv
       Type(Kvect_Info_Type)           :: Kv
 
       !> Init
@@ -1316,7 +1315,7 @@ SubModule (CFML_IOForm) IO_MCIF
          j=ivet(1)
 
          !> x
-         call get_num(dire(lugar(2)),vet,ivet,iv)
+         call get_numstd(dire(lugar(2)),vet,vet2,iv)
          if (iv /=1) then
             err_CFML%Ierr=1
             err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the X value"
@@ -1325,7 +1324,7 @@ SubModule (CFML_IOForm) IO_MCIF
          xv(1)=vet(1)
 
          !> y
-         call get_num(dire(lugar(3)),vet,ivet,iv)
+         call get_numstd(dire(lugar(3)),vet,vet2,iv)
          if (iv /=1) then
             err_CFML%Ierr=1
             err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the Y value"
@@ -1334,7 +1333,7 @@ SubModule (CFML_IOForm) IO_MCIF
          xv(2)=vet(1)
 
          !> z
-         call get_num(dire(lugar(4)),vet,ivet,iv)
+         call get_numstd(dire(lugar(4)),vet,vet2,iv)
          if (iv /=1) then
             err_CFML%Ierr=1
             err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: Error reading the Z value"
@@ -1693,6 +1692,76 @@ SubModule (CFML_IOForm) IO_MCIF
       call allocate_Kvector(0,0,k)
 
    End Subroutine Write_MCIF_Cell_Wave_Vector
+
+   !!----
+   !!---- WRITE_MCIF_ATOM_SITE_FOURIER_WAVE_VECTOR
+   !!----
+   !!---- 23/05/2020
+   !!
+   Module Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector(Ipr,SpG,KVec)
+      !---- Arguments ----!
+      integer, intent(in)                         :: Ipr
+      class(SpG_Type),       optional, intent(in) :: Spg
+      Type(Kvect_Info_Type), optional, intent(in) :: Kvec
+
+      !---- Local Variables ----!
+      integer                     :: i,j
+      real(kind=cp), dimension(3) :: xv
+      Type(Kvect_Info_Type)       :: K
+
+      !> K-vectors
+      if (present(Spg).and. (.not. present(Kvec))) then
+         select type (SpG)
+            type is (SuperSpaceGroup_Type)
+               call allocate_Kvector(SpG%nk,Spg%nq,k)
+               K%kv=SpG%kv
+               K%sintlim=Spg%sintlim
+               K%nharm=Spg%nharm
+               K%q_coeff=Spg%q_coeff
+         end select
+
+      else if (present(Kvec) .and. (.not. present(SpG))) then
+         call allocate_Kvector(kvec%nk,Kvec%nq,k)
+         K%kv=Kvec%kv
+         K%sintlim=Kvec%sintlim
+         K%nharm=Kvec%nharm
+         K%q_coeff=Kvec%q_coeff
+      else
+         return
+      end if
+
+      !> Check
+      if (K%nk ==0 .or. K%nq ==0) return
+
+      write(unit=Ipr,fmt="(a)") "loop_"
+      write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.seq_id"
+      write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.x"
+      write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.y"
+      write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.z"
+      select case (K%nk)
+         case (1)
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q1_coeff"
+         case (2)
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q1_coeff"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q2_coeff"
+         case (3)
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q1_coeff"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q2_coeff"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_Fourier_wave_vector.q3_coeff"
+      end select
+      do i=1,k%nq
+         xv=0.0_cp
+         do j=1,k%nk
+            xv=xv+ k%q_coeff(j,i)*k%kv(:,j)
+         end do
+         write(unit=line, fmt='(3i4)') k%q_coeff(:,i)
+         write(unit=Ipr,fmt='(10x,i4, 3f12.6,3x,a)') i, xv, trim(line)
+      end do
+      write(unit=ipr,fmt="(a)") " "
+
+      call allocate_Kvector(0,0,k)
+
+   End Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector
 
    !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR

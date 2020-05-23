@@ -575,6 +575,12 @@ Module CFML_IOForm
          Type(AtList_Type), intent(in) :: AtmList
       End Subroutine Write_MCIF_AtomSite_Moment
 
+      Module Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector(Ipr,SpG,KVec)
+         integer, intent(in)                         :: Ipr
+         class(SpG_Type),       optional, intent(in) :: Spg
+         Type(Kvect_Info_Type), optional, intent(in) :: Kvec
+      End Subroutine Write_MCIF_Atom_Site_Fourier_Wave_Vector
+
       Module Subroutine Write_MCIF_Parent_Propagation_Vector(Ipr,KVec)
          integer, intent(in)               :: Ipr
          Type(Kvect_Info_Type), intent(in) :: Kvec
