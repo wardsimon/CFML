@@ -182,7 +182,10 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Reading Cell Parameters
       call Read_Cif_Cell(cif,Cell,n_ini,n_end)
-      if (Err_CFML%IErr==1) return
+      if (Err_CFML%IErr==1) then
+         call error_message(err_CFML%Msg)
+         return
+      end if
 
       !> SSG Space group?
       ssg=Is_SSG_struct(cif,n_ini_n_end)
@@ -211,6 +214,10 @@ SubModule (CFML_IOForm) IO_MCIF
          end if
          call Set_SpaceGroup("  ",SpG,ncen+nsym,symop)
       end if
+      if (Err_CFML%IErr==1) then
+         call error_message(err_CFML%Msg)
+         return
+      end if
 
       !> Parent Propagation vector / Cell_wave_vector
       if (.not. ssg) then
@@ -219,9 +226,19 @@ SubModule (CFML_IOForm) IO_MCIF
          select type (Spg)
             type is (SuperSpaceGroup_Type)
                call Read_MCIF_Cell_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
+               if (Err_CFML%IErr==1) return
+
+               call Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG,i_ini=n_ini, i_end=n_end)
+               if (Err_CFML%IErr==1) then
+                  call error_message(err_CFML%Msg)
+                  return
+               end if
          end select
          if (present(Kvec)) then
             call Read_MCIF_Cell_Wave_Vector(cif, Kvec=Kvec,i_ini=n_ini, i_end=n_end)
+            if (Err_CFML%IErr==1) return
+            call Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif,  Kvec=Kvec,i_ini=n_ini, i_end=n_end)
+            if (Err_CFML%IErr==1) return
          end if
       end if
 
@@ -1164,6 +1181,8 @@ SubModule (CFML_IOForm) IO_MCIF
    !!----
    !!---- READ_MCIF_CELL_WAVE_VECTOR
    !!----
+   !!---- Load Wave vector / Modulation vector (nk)
+   !!----
    !!---- 22/05/2020
    !!
    Module Subroutine Read_MCIF_Cell_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
@@ -1178,7 +1197,7 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, dimension(4)           :: lugar   !   1:id, 2: x, 3: y, 4:z
       character(len=40), dimension(4) :: dire
       integer, dimension(3)           :: ivet
-      integer                         :: i,j,k,nl,iv,np
+      integer                         :: i,j,k,nl,iv,np,k_ini
       real(kind=cp),     dimension(3) :: vet,xv
       Type(Kvect_Info_Type)           :: Kv
 
@@ -1198,7 +1217,8 @@ SubModule (CFML_IOForm) IO_MCIF
       found=.false.
       str="_cell_wave_vector_"
       nl=len_trim(str)
-      do i=j_ini,j_end
+      k_ini=j_ini
+      do i=k_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -1208,14 +1228,14 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,j_ini,-1
+         do j=i-1,k_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
             if (npos ==0) cycle
-            j_ini=j+1
+            k_ini=j+1
             found=.true.
             exit
          end do
@@ -1225,7 +1245,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       lugar=0
       j=0
-      do i=j_ini,j_end
+      do i=k_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1256,14 +1276,18 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Number of modulation vectors
       k=get_NElem_Loop(cif,str,j_ini,j_end)
-      if (k ==0) return
+      if (k ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: No modulation vectors was determined!"
+         return
+      end if
 
       call allocate_Kvector(k,0,kv)
 
       !> Read k-vectors
-      j_ini=j_ini+np
+      k_ini=k_ini+np
 
-      do i=j_ini,j_end
+      do i=k_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1326,8 +1350,14 @@ SubModule (CFML_IOForm) IO_MCIF
             type is (SuperSpaceGroup_Type)
                Spg%nk=Kv%nk
                if (allocated(Spg%kv)) deallocate(Spg%kv)
+               if (allocated(Spg%sintlim)) deallocate(Spg%sintlim)
+               if (allocated(Spg%nharm)) deallocate(Spg%nharm)
                allocate(Spg%kv(3,Spg%nk))
+               allocate(Spg%sintlim(Spg%nk))
+               allocate(Spg%nharm(Spg%nk))
                Spg%kv=Kv%kv
+               Spg%sintlim=1.0_cp
+               Spg%nharm=0
          end select
       end if
 
@@ -1339,6 +1369,243 @@ SubModule (CFML_IOForm) IO_MCIF
       call allocate_Kvector(0,0,kv)
 
    End Subroutine Read_MCIF_Cell_Wave_Vector
+
+   !!----
+   !!---- READ_MCIF_ATOM_SITE_FOURIER_WAVE_VECTOR
+   !!----
+   !!---- Load Q_coeff. Nk vectors should be ready
+   !!----
+   !!---- 23/05/2020
+   !!
+   Module Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+      !---- Arguments ----!
+      Type(File_Type),                 intent(in)    :: cif
+      class(SpG_Type),       optional, intent(inout) :: SpG
+      Type(Kvect_Info_Type), optional, intent(inout) :: Kvec
+      integer,               optional, intent(in)    :: i_ini,i_end   ! Index to Finish
+
+      !---- Local Variables ----!
+      logical                          :: found
+      integer, dimension(8)            :: lugar
+      character(len=40), dimension(10) :: dire
+      integer, dimension(10)           :: ivet
+      integer                          :: i,j,k,nq,nl,nk,iv,np, k_ini
+      integer                          :: k1,k2
+      real(kind=cp), dimension(10)     :: vet
+
+      Type(Kvect_Info_Type)            :: Kv
+
+      !> Init
+      nk=0;nq=0
+
+      call clear_error()
+      if (cif%nlines <=0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: 0 lines "
+         return
+      end if
+
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
+
+      !> Search loop for Wave vectors
+      found=.false.
+      str="_atom_site_Fourier_wave_vector"
+      nl=len_trim(str)
+      k_ini=j_ini
+      do i=k_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (len_trim(line) <=0) cycle
+         if (line(1:1) == '#') cycle
+
+         npos=index(line,str)
+         if (npos ==0) cycle
+
+         !> search the loop
+         do j=i-1,k_ini,-1
+            line=adjustl(cif%line(j)%str)
+            if (len_trim(line) <=0) cycle
+            if (line(1:1) == '#') cycle
+
+            npos=index(line,'loop_')
+            if (npos ==0) cycle
+            k_ini=j+1
+            found=.true.
+            exit
+         end do
+         exit
+      end do
+      if (.not. found) return
+
+      lugar=0
+      j=0
+      do i=k_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (index(line,str)==0) exit
+
+         select case (trim(line))
+            case ('_atom_site_Fourier_wave_vector.seq_id','_atom_site_Fourier_wave_vector_seq_id')
+               j=j+1
+               lugar(1)=j
+            case ('_atom_site_Fourier_wave_vector.x','_atom_site_Fourier_wave_vector_x')
+               j=j+1
+               lugar(2)=j
+            case ('_atom_site_Fourier_wave_vector.y','_atom_site_Fourier_wave_vector_y')
+               j=j+1
+               lugar(3)=j
+            case ('_atom_site_Fourier_wave_vector.z','_atom_site_Fourier_wave_vector_z')
+               j=j+1
+               lugar(4)=j
+            case ('_atom_site_Fourier_wave_vector.q1_coeff','_atom_site_Fourier_wave_vector_q1_coeff')
+               j=j+1
+               lugar(5)=j
+            case ('_atom_site_Fourier_wave_vector.q2_coeff','_atom_site_Fourier_wave_vector_q2_coeff')
+               j=j+1
+               lugar(6)=j
+            case ('_atom_site_Fourier_wave_vector.q3_coeff','_atom_site_Fourier_wave_vector_q3_coeff')
+               j=j+1
+               lugar(7)=j
+            case ('_atom_site_Fourier_wave_vector.q_coeff','_atom_site_Fourier_wave_vector_q_coeff')
+               j=j+1
+               lugar(8)=j
+         end select
+      end do
+
+      np=count(lugar > 0)
+      if (np ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error in loop"
+         return
+      end if
+
+      !> Number of Q Coeff
+      Nq=get_NElem_Loop(cif,str,j_ini,j_end)
+      if (Nq ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error in loop"
+         return
+      end if
+
+      !> Copy info
+      if (present(SpG) .and. (.not. present(Kvec))) then
+         select type(Spg)
+            type is (SuperSpaceGroup_Type)
+               nk=Spg%nk
+               if (nk ==0) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error in number of modulation vectors"
+                  return
+               end if
+               call allocate_Kvector(nk,Nq,kv)
+               Kv%kv=Spg%kv
+               kv%sintlim=Spg%sintlim
+               kv%nharm=Spg%nharm
+         end select
+
+      else if (present(kvec) .and. (.not. present(SpG))) then
+         nk=Kvec%nk
+         if (nk ==0) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error in number of modulation vectors"
+            return
+         end if
+         call allocate_Kvector(nk,Nq,kv)
+         Kv%kv=Kvec%kv
+         kv%sintlim=Kvec%sintlim
+         kv%nharm=Kvec%nharm
+      else
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error Copying modulation vectors"
+         return
+      end if
+
+      !> Checks
+      if (lugar(1) ==0) then
+         err_CFML%Ierr=1
+         err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: No ID"
+         return
+      end if
+
+      !> Read Q_coeff
+      k_ini=k_ini+np
+
+      do i=k_ini,j_end
+         line=adjustl(cif%line(i)%str)
+
+         if (line(1:1) == '#') cycle
+         if (len_trim(line) <=0) exit
+
+         call get_words(line, dire,ic)
+
+         !> Id
+         call get_num(dire(lugar(1)),vet,ivet,iv)
+         if (iv /=1) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error reading the ID value"
+            return
+         end if
+         if (ivet(1) == 0 ) then
+            err_CFML%Ierr=1
+            err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error reading the ID value"
+            return
+         end if
+         j=ivet(1)
+
+         if (lugar(8) > 0) then
+            k1=index(line,'[')
+            k2=index(line,']')
+            if (k1 ==0 .or. k2 ==0) then
+               err_CFML%Ierr=1
+               err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error reading the Q_Coeff"
+               return
+            end if
+            call get_num(line(k1+1:k2-1),vet,ivet,iv)
+            if (iv > 0 .and. iv == nk) Kv%q_coeff(:,j)=ivet(1:iv)
+         else
+            do k=1,nk
+               if (lugar(4+k)==0) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error reading the Qi_Coeff"
+                  return
+               end if
+
+               call get_num(dire(lugar(4+k)),vet,ivet,iv)
+               if (iv /= 1) then
+                  err_CFML%Ierr=1
+                  err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error reading the Qi_Coeff"
+                  return
+               end if
+               Kv%q_coeff(k,j)=ivet(1)
+            end do
+         end if
+
+      end do
+
+      if (present(SpG)) then
+         select type (SpG)
+            type is (SuperSpaceGroup_Type)
+                  if (allocated(Spg%q_coeff)) deallocate(Spg%q_coeff)
+                  allocate(Spg%q_coeff(nk,nq))
+                  Spg%nq=nq
+                  SpG%q_coeff=kv%q_coeff
+
+         end select
+      end if
+
+      if (present(Kvec)) then
+         if (allocated(Kvec%q_coeff)) deallocate(Kvec%q_coeff)
+         allocate(Kvec%q_coeff(nk,nq))
+         Kvec%nq=nq
+         Kvec%q_coeff=kv%q_coeff
+      end if
+
+      call allocate_Kvector(0,0,kv)
+
+   End Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector
 
    !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
@@ -1401,12 +1668,12 @@ SubModule (CFML_IOForm) IO_MCIF
       if (present(Spg).and. (.not. present(Kvec))) then
          select type (SpG)
             type is (SuperSpaceGroup_Type)
-               call allocate_Kvector(SpG%nk,Spg%nq,k)
+               call allocate_Kvector(SpG%nk,0,k)
                K%kv=SpG%kv
          end select
 
       else if (present(Kvec) .and. (.not. present(SpG))) then
-         call allocate_Kvector(kvec%nk,Kvec%nq,k)
+         call allocate_Kvector(kvec%nk,0,k)
          K%kv=Kvec%kv
       else
          return
@@ -1423,7 +1690,29 @@ SubModule (CFML_IOForm) IO_MCIF
       end do
       write(unit=ipr,fmt="(a)") " "
 
+      call allocate_Kvector(0,0,k)
+
    End Subroutine Write_MCIF_Cell_Wave_Vector
+
+   !!----
+   !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR
+   !!----
+   !!---- 17/05/2020
+   !!
+   Module Subroutine Write_MCIF_Cell_Modulation_Dimension(Ipr,SpG)
+      !---- Arguments ----!
+      integer,         intent(in) :: Ipr
+      class(SpG_Type), intent(in) :: Spg
+
+      !---- Local Variables ----!
+      integer               :: i
+      Type(Kvect_Info_Type) :: K
+
+      !> d
+      write(unit=Ipr,fmt="(a,5x,i3)") "_cell_modulation_dimension", SpG%D-4
+      write(unit=ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_Cell_Modulation_Dimension
 
    !!----
    !!---- READ_MCIF_SPACEG_MAGN

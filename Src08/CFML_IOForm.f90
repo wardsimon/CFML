@@ -63,6 +63,8 @@ Module CFML_IOForm
 
    Use CFML_DiffPatt,          only: DiffPat_Type, DiffPat_E_Type
 
+   Use CFML_Messages
+
    !---- Variables ----!
    implicit none
 
@@ -561,6 +563,13 @@ Module CFML_IOForm
          class (Spg_type), intent(in) :: Spg
       End Subroutine Write_MCIF_SpaceG_SymOP_Magn_Centering
 
+      Module Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector(cif, SpG, Kvec, i_ini,i_end)
+         Type(File_Type),                 intent(in)    :: cif
+         class(SpG_Type),       optional, intent(inout) :: SpG
+         Type(Kvect_Info_Type), optional, intent(inout) :: Kvec
+         integer,               optional, intent(in)    :: i_ini,i_end
+      End Subroutine Read_MCIF_Atom_Site_Fourier_Wave_Vector
+
       Module Subroutine Write_MCIF_AtomSite_Moment(Ipr, AtmList)
          integer,           intent(in) :: Ipr
          Type(AtList_Type), intent(in) :: AtmList
@@ -570,6 +579,11 @@ Module CFML_IOForm
          integer, intent(in)               :: Ipr
          Type(Kvect_Info_Type), intent(in) :: Kvec
       End Subroutine Write_MCIF_Parent_Propagation_Vector
+
+      Module Subroutine Write_MCIF_Cell_Modulation_Dimension(Ipr,SpG)
+         integer,         intent(in) :: Ipr
+         class(SpG_Type), intent(in) :: Spg
+      End Subroutine Write_MCIF_Cell_Modulation_Dimension
 
       Module Subroutine Write_MCIF_Cell_Wave_Vector(Ipr,SpG,KVec)
          integer, intent(in)                         :: Ipr

@@ -48,9 +48,8 @@ SubModule (CFML_gSpaceGroups) SPG_008
       type(Kvect_Info_Type), intent(inout) :: Kvec
 
       !> Init
-      if (nk == 0) then
-         Kvec%nk=0
-         Kvec%nq=0
+      if (nk == 0 .and. nq ==0) then
+         Kvec%nk=0; Kvec%nq=0
          if (allocated(Kvec%kv)) deallocate(kvec%kv)
          if (allocated(Kvec%sintlim)) deallocate(kvec%sintlim)
          if (allocated(Kvec%nharm)) deallocate(kvec%nharm)
@@ -58,20 +57,29 @@ SubModule (CFML_gSpaceGroups) SPG_008
          return
       end if
 
-      Kvec%nk=nk
-      allocate(Kvec%kv(3,nk))
-      allocate(Kvec%sintlim(nk))
-      allocate(Kvec%nharm(nk))
-      Kvec%kv=0.0_cp
-      Kvec%sintlim=0.0_cp
-      Kvec%nharm=0
+      if (nk > 0) then
+         if (nk /= Kvec%nk) then
+            if (allocated(Kvec%kv)) deallocate(kvec%kv)
+            if (allocated(Kvec%sintlim)) deallocate(kvec%sintlim)
+            if (allocated(Kvec%nharm)) deallocate(kvec%nharm)
+            allocate(Kvec%kv(3,nk))
+            allocate(Kvec%sintlim(nk))
+            allocate(Kvec%nharm(nk))
+         end if
+         Kvec%nk=nk
+         Kvec%kv=0.0_cp
+         Kvec%sintlim=1.0_cp
+         Kvec%nharm=0
+      end if
 
-      Kvec%nq=0
-      if (nq < nk) return
-
-      Kvec%nq=nq
-      allocate(Kvec%q_coeff(nk,nq))
-      Kvec%q_coeff=0
+      if (nq > 0 .and. Kvec%nk > 0) then
+         if (nq /= Kvec%nq) then
+            if (allocated(Kvec%Q_Coeff)) deallocate(kvec%Q_Coeff)
+            allocate(Kvec%q_coeff(Kvec%nk,nq))
+         end if
+         Kvec%nq=nq
+         Kvec%q_coeff=0
+      end if
 
    End Subroutine Allocate_KVector
 
