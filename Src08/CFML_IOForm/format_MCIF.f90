@@ -4,9 +4,11 @@
 SubModule (CFML_IOForm) IO_MCIF
 
    !---- Local Variables ----!
+   implicit none
+
    character(len=132)            :: line
    character(len=:), allocatable :: str
-   integer                       :: j_ini, j_end
+
 
    Contains
 
@@ -24,7 +26,8 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                       :: ok
 
       !---- local Variables ----!
-      integer :: i
+      integer :: i,npos
+      integer :: j_ini, j_end
 
       !> Init
       ok=.false.
@@ -66,22 +69,23 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- local Variables ----!
       logical :: found
-      integer :: i,j,k_ini,k_end
+      integer :: i,j,npos,nl
+      integer :: j_ini, j_end
 
       !> Init
       N=0
       if (cif%nlines <=0) return
       if (len_trim(keyword) <=0) return
 
-      k_ini=1; k_end=cif%nlines
-      if (present(i_ini)) k_ini=i_ini
-      if (present(i_end)) k_end=i_end
+      j_ini=1; j_end=cif%nlines
+      if (present(i_ini)) j_ini=i_ini
+      if (present(i_end)) j_end=i_end
 
       !> Search loop
       found=.false.
       str=trim(keyword)
       nl=len_trim(str)
-      do i=k_ini,k_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -91,14 +95,14 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,k_ini,-1
+         do j=i-1,j_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
             if (npos ==0) cycle
-            k_ini=j+1
+            j_ini=j+1
             found=.true.
             exit
          end do
@@ -107,7 +111,7 @@ SubModule (CFML_IOForm) IO_MCIF
       if (.not. found) return
 
       j=0
-      do i=k_ini,k_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -117,8 +121,8 @@ SubModule (CFML_IOForm) IO_MCIF
          j=j+1
       end do
 
-      k_ini=k_ini+j
-      do i=k_ini, k_end
+      j_ini=j_ini+j
+      do i=j_ini, j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -188,7 +192,7 @@ SubModule (CFML_IOForm) IO_MCIF
       end if
 
       !> SSG Space group?
-      ssg=Is_SSG_struct(cif,n_ini_n_end)
+      ssg=Is_SSG_struct(cif,n_ini,n_end)
 
       !> Space group determination
       if (.not. ssg) Then
@@ -681,15 +685,16 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Arguments ----!
       Type(File_Type),   intent(in)    :: cif
       Type(AtList_Type), intent(inout) :: AtmList
-      integer, optional, intent(in)  :: i_ini,i_end   ! Index to Finish
+      integer, optional, intent(in)    :: i_ini,i_end   ! Index to Finish
 
       !---- Local Variables ----!
       logical                                      :: found, is_new
       character(len=40), dimension(:), allocatable :: dire
       integer, dimension(15)                       :: lugar
       integer, dimension(3)                        :: ivet
-      integer                                      :: i, j, k,nl, np, nt,ic, iv
+      integer                                      :: i, j, k,nl, np, nt,ic, iv, npos
       integer                                      :: i1,i2,i3
+      integer                                      :: j_ini, j_end
       real(kind=cp), dimension(3)                  :: vet1,vet2
 
       !> Init
@@ -969,8 +974,6 @@ SubModule (CFML_IOForm) IO_MCIF
          is_new=.true.
       end do
 
-      write(unit=Ipr,fmt="(a)") " "
-
    End Subroutine Read_MCIF_AtomSite_Moment
 
    !!----
@@ -990,7 +993,8 @@ SubModule (CFML_IOForm) IO_MCIF
       character(len=40), dimension(:), allocatable :: dire
       integer, dimension(15)                       :: lugar
       integer, dimension(3)                        :: ivet
-      integer                                      :: i, j, k,nl, np, nq, ic, iv, k_ini
+      integer                                      :: i, j, k,nl, np, nq, ic, iv, npos
+      integer                                      :: j_ini, j_end
       integer                                      :: i1,i2,i3
       real(kind=cp), dimension(3)                  :: vet1,vet2
       real(kind=cp), dimension(2)                  :: xv,xv_std
@@ -1012,8 +1016,7 @@ SubModule (CFML_IOForm) IO_MCIF
       str="_atom_site_moment_Fourier"
       nl=len_trim(str)
 
-      k_ini=j_ini
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -1023,7 +1026,7 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,k_ini,-1
+         do j=i-1,j_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
@@ -1031,7 +1034,7 @@ SubModule (CFML_IOForm) IO_MCIF
             npos=index(line,'loop_')
             if (npos ==0) cycle
             found=.true.
-            k_ini=j+1
+            j_ini=j+1
             exit
          end do
          exit
@@ -1040,7 +1043,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       lugar=0
       j=0
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -1150,8 +1153,8 @@ SubModule (CFML_IOForm) IO_MCIF
       dire=" "
 
       !> Read vales
-      k_ini=k_ini+np
-      do i=k_ini, j_end
+      j_ini=j_ini+np
+      do i=j_ini, j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1279,8 +1282,6 @@ SubModule (CFML_IOForm) IO_MCIF
 
       end do
 
-      write(unit=Ipr,fmt="(a)") " "
-
    End Subroutine Read_MCIF_AtomSite_Moment_Fourier
 
    !!----
@@ -1356,7 +1357,8 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                :: found
       integer, dimension( 2) :: lugar   !   1:id, 2: kxkykz
       integer, dimension(3)  :: ivet
-      integer                :: i,j,nl,iv
+      integer                :: j_ini, j_end
+      integer                :: i,j,nl,iv,npos
       integer                :: np1,np2
 
       real(kind=cp),     dimension(3) :: vet
@@ -1514,8 +1516,10 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, dimension(4)           :: lugar   !   1:id, 2: x, 3: y, 4:z
       character(len=40), dimension(4) :: dire
       integer, dimension(3)           :: ivet
-      integer                         :: i,j,k,nl,iv,np,k_ini
-      real(kind=cp),     dimension(3) :: vet,vet2,xv
+      integer                         :: j_ini, j_end
+      integer                         :: i,j,k,nl,iv,np,npos,ic
+      real(kind=cp),     dimension(3) :: vet,vet2,xv,xv_std
+
       Type(Kvect_Info_Type)           :: Kv
 
       !> Init
@@ -1534,8 +1538,7 @@ SubModule (CFML_IOForm) IO_MCIF
       found=.false.
       str="_cell_wave_vector_"
       nl=len_trim(str)
-      k_ini=j_ini
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -1545,14 +1548,14 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,k_ini,-1
+         do j=i-1,j_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
             if (npos ==0) cycle
-            k_ini=j+1
+            j_ini=j+1
             found=.true.
             exit
          end do
@@ -1562,7 +1565,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       lugar=0
       j=0
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1592,7 +1595,7 @@ SubModule (CFML_IOForm) IO_MCIF
       end if
 
       !> Number of modulation vectors
-      k=get_NElem_Loop(cif,str,j_ini,j_end)
+      k=get_NElem_Loop(cif,str,j_ini-1,j_end)
       if (k ==0) then
          err_CFML%Ierr=1
          err_CFML%Msg="Read_MCIF_Cell_Wave_Vector: No modulation vectors was determined!"
@@ -1602,9 +1605,9 @@ SubModule (CFML_IOForm) IO_MCIF
       call allocate_Kvector(k,0,kv)
 
       !> Read k-vectors
-      k_ini=k_ini+np
+      j_ini=j_ini+np
 
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1640,6 +1643,7 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(1)=vet(1)
+         xv_std(1)=vet2(1)
 
          !> y
          call get_numstd(dire(lugar(3)),vet,vet2,iv)
@@ -1649,6 +1653,7 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(2)=vet(1)
+         xv_std(2)=vet2(1)
 
          !> z
          call get_numstd(dire(lugar(4)),vet,vet2,iv)
@@ -1658,21 +1663,26 @@ SubModule (CFML_IOForm) IO_MCIF
             return
          end if
          xv(3)=vet(1)
+         xv_std(3)=vet2(1)
 
          Kv%kv(:,j)=xv
+         Kv%kv_std(:,j)=xv_std
       end do
 
       if (present(SpG)) then
          select type (SpG)
             type is (SuperSpaceGroup_Type)
                Spg%nk=Kv%nk
-               if (allocated(Spg%kv)) deallocate(Spg%kv)
+               if (allocated(Spg%kv))      deallocate(Spg%kv)
+               if (allocated(Spg%kv_std))  deallocate(Spg%kv_std)
                if (allocated(Spg%sintlim)) deallocate(Spg%sintlim)
-               if (allocated(Spg%nharm)) deallocate(Spg%nharm)
+               if (allocated(Spg%nharm))   deallocate(Spg%nharm)
                allocate(Spg%kv(3,Spg%nk))
+               allocate(Spg%kv_std(3,Spg%nk))
                allocate(Spg%sintlim(Spg%nk))
                allocate(Spg%nharm(Spg%nk))
                Spg%kv=Kv%kv
+               Spg%kv_std=Kv%kv_std
                Spg%sintlim=1.0_cp
                Spg%nharm=0
          end select
@@ -1681,6 +1691,7 @@ SubModule (CFML_IOForm) IO_MCIF
       if (present(Kvec)) then
          call allocate_Kvector(Kv%nk,0,kvec)
          Kvec%kv=Kv%kv
+         Kvec%kv_std=Kv%kv_std
       end if
 
       call allocate_Kvector(0,0,kv)
@@ -1706,7 +1717,8 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, dimension(8)            :: lugar
       character(len=40), dimension(10) :: dire
       integer, dimension(10)           :: ivet
-      integer                          :: i,j,k,nq,nl,nk,iv,np, k_ini
+      integer                          :: i,j,k,nq,nl,nk,iv,np, npos,ic
+      integer                          :: j_ini, j_end
       integer                          :: k1,k2
       real(kind=cp), dimension(10)     :: vet
 
@@ -1730,8 +1742,7 @@ SubModule (CFML_IOForm) IO_MCIF
       found=.false.
       str="_atom_site_Fourier_wave_vector"
       nl=len_trim(str)
-      k_ini=j_ini
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (len_trim(line) <=0) cycle
@@ -1741,14 +1752,14 @@ SubModule (CFML_IOForm) IO_MCIF
          if (npos ==0) cycle
 
          !> search the loop
-         do j=i-1,k_ini,-1
+         do j=i-1,j_ini,-1
             line=adjustl(cif%line(j)%str)
             if (len_trim(line) <=0) cycle
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
             if (npos ==0) cycle
-            k_ini=j+1
+            j_ini=j+1
             found=.true.
             exit
          end do
@@ -1758,7 +1769,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       lugar=0
       j=0
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1800,7 +1811,7 @@ SubModule (CFML_IOForm) IO_MCIF
       end if
 
       !> Number of Q Coeff
-      Nq=get_NElem_Loop(cif,str,j_ini,j_end)
+      Nq=get_NElem_Loop(cif,str,j_ini-1,j_end)
       if (Nq ==0) then
          err_CFML%Ierr=1
          err_CFML%Msg="Read_MCIF_Atom_Site_Fourier_Wave_Vector: Error in loop"
@@ -1848,9 +1859,9 @@ SubModule (CFML_IOForm) IO_MCIF
       end if
 
       !> Read Q_coeff
-      k_ini=k_ini+np
+      j_ini=j_ini+np
 
-      do i=k_ini,j_end
+      do i=j_ini,j_end
          line=adjustl(cif%line(i)%str)
 
          if (line(1:1) == '#') cycle
@@ -1978,7 +1989,7 @@ SubModule (CFML_IOForm) IO_MCIF
       Type(Kvect_Info_Type), optional, intent(in) :: Kvec
 
       !---- Local Variables ----!
-      integer               :: i
+      integer               :: i,j
       Type(Kvect_Info_Type) :: K
 
       !> K-vectors
@@ -1987,11 +1998,13 @@ SubModule (CFML_IOForm) IO_MCIF
             type is (SuperSpaceGroup_Type)
                call allocate_Kvector(SpG%nk,0,k)
                K%kv=SpG%kv
+               K%kv_std=SpG%kv_std
          end select
 
       else if (present(Kvec) .and. (.not. present(SpG))) then
          call allocate_Kvector(kvec%nk,0,k)
          K%kv=Kvec%kv
+         K%kv_std=Kvec%kv_std
       else
          return
       end if
@@ -2003,7 +2016,12 @@ SubModule (CFML_IOForm) IO_MCIF
       write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_y"
       write(unit=Ipr,fmt="(a)") "    _cell_wave_vector_z"
       do i=1,k%nk
-         write(unit=Ipr,fmt='(5x,i4, 3f12.6)') i, K%kv(:,i)
+         line=' '
+         do j=1,3
+            line=trim(line)//"    "//string_Numstd(K%Kv(j,i),K%Kv_std(j,i))
+            line=adjustl(line)
+         end do
+         write(unit=Ipr,fmt='(5x,i4,3x, a)') i, trim(line)
       end do
       write(unit=ipr,fmt="(a)") " "
 
@@ -2114,7 +2132,8 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- Local Variables ----!
       character(len=1)            :: car
-      integer                     :: i,iv,np
+      integer                     :: i,iv,np,npos
+      integer                     :: j_ini, j_end
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
 
@@ -2447,7 +2466,8 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- Local Variables ----!
       logical                     :: found
-      integer                     :: i,j,iv,np
+      integer                     :: i,j,iv,np, npos,nl
+      integer                     :: j_ini, j_end
       integer,       dimension(5) :: lugar
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
@@ -2557,7 +2577,8 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Local Variables ----!
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
-      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer                                      :: j_ini, j_end
+      integer                                      :: i,j,iv,np,nl,nl1,ic, npos
       integer,       dimension(3)                  :: lugar
 
       !> Init
@@ -2686,7 +2707,8 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Local Variables ----!
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
-      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer                                      :: j_ini, j_end
+      integer                                      :: i,j,iv,np,nl,nl1,ic,npos
       integer,       dimension(2)                  :: lugar
 
       !> Init
@@ -2811,6 +2833,7 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Local Variables ----!
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
+      integer                                      :: j_ini, j_end, npos
       integer                                      :: i,j,iv,np,nl,nl1,ic
       integer,       dimension(3)                  :: lugar
 
@@ -2938,7 +2961,8 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Local Variables ----!
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
-      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer                                      :: j_ini, j_end
+      integer                                      :: i,j,iv,np,nl,nl1,ic,npos
       integer,       dimension(3)                  :: lugar
 
       !> Init
@@ -3059,7 +3083,8 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- Local Variables ----!
       character(len=1)            :: car
-      integer                     :: i,iv,np
+      integer                     :: i,iv,np,npos
+      integer                     :: j_ini, j_end
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
 
@@ -3089,7 +3114,8 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, optional,     intent(in)    :: i_ini,i_end
 
       !---- Local Variables ----!
-      integer                     :: i,iv
+      integer                     :: i,iv,npos
+      integer                     :: j_ini, j_end
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
 
