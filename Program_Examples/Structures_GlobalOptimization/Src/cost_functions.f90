@@ -605,8 +605,8 @@
       if(numv == 1) then
          i=maxloc(abs(v_shift),dim=1)
          List(1)=v_list(i)
-         call VState_to_AtomsPar(A) !Update Atomic parameters with the proper constraints
-
+         call VState_to_AtomsPar(A,MultG=SpG%Multip) !Update Atomic parameters with the proper constraints
+         Ac%Atom=A%Atom
          cost=0.0
 
          do ic=0,N_costf
@@ -680,7 +680,8 @@
 
       else            !New configuration
 
-         call VState_to_AtomsPar(A,mode="V")   !Update Atomic parameters with the proper constraints
+         call VState_to_AtomsPar(A,mode="V",MultG=SpG%Multip)   !Update Atomic parameters with the proper constraints
+         Ac%Atom=A%Atom
          cost=0.0
 
          do ic=0,N_costf

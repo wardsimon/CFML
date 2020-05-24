@@ -8852,29 +8852,35 @@
     !!
 
     !!--++
-    !!--++ Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
+    !!--++ Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode,MultG)
     !!--++    type(Atom_List_Type),       intent(in out) :: FAtom
     !!--++    character(len=*), optional, intent(in)     :: Mode
+    !!--++    integer,          optional, intent(in)     :: MultG
     !!--++
     !!--++    (Overloaded)
     !!--++
     !!--++ Update: November 22 - 2013.
     !!--++ Modified to include standard deviations, November 3, 2013 (JRC)
     !!
-    Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
+    Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode,MultG)
        !---- Arguments ----!
        type(Atom_List_Type),       intent(in out) :: FAtom
        character(len=*), optional, intent(in)     :: Mode
+       integer,          optional, intent(in)     :: MultG
 
        !---- Local Variables ----!
        integer          :: i,j,l
+       real(kind=cp)    :: fac1,fac2
        character(len=1) :: car
 
        call init_err_refcodes()
 
        car="s"
        if (present(mode)) car=adjustl(mode)
-
+       if(present(MultG)) then
+         fac1=FAtom%atom(1)%Occ*real(MultG)/real(FAtom%atom(1)%mult)
+         fac1=1.0/fac1
+       end if
        do i=1,FAtom%natoms
           !---- XYZ ----!
           do j=1,3
@@ -8930,8 +8936,13 @@
 
               end select
               FAtom%atom(i)%occ_std=v_vec_std(l)*FAtom%atom(i)%mocc
-          end if
 
+              if(present(MultG)) then  !Update occupancy from occupation factors
+                fac2=fac1*real(MultG)/real(FAtom%atom(i)%mult)
+                FAtom%atom(i)%VarF(1)=FAtom%atom(i)%occ*fac2
+                FAtom%atom(i)%VarF(2)=FAtom%atom(i)%occ_std*fac2
+              end if
+          end if
 
           !---- BANIS ----!
           do j=1,6

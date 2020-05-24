@@ -3,6 +3,7 @@ Module glopsan
    use CFML_IO_Formats,                only: file_list_type
    use CFML_crystal_Metrics,           only: Crystal_Cell_Type
    use CFML_String_Utilities,          only: u_case
+   use CFML_Simulated_Annealing,       only: State_Vector_Type
    implicit none
 
   contains
@@ -51,6 +52,15 @@ Module glopsan
 
     End Subroutine expand_vary_fix
 
+    Subroutine Gen_random_initial_state(vs)
+      type(State_Vector_Type), intent(in out) :: vs
+      integer       :: i
+      real(kind=cp) :: random
+      do i=1,vs%npar
+        call random_number(random)
+        vs%config(i) = vs%low(i) + random*(vs%high(i)-vs%low(i))
+      end do
+    End Subroutine Gen_random_initial_state
 End Module glopsan
 
 
@@ -82,7 +92,7 @@ Program Global_Optimization_Xtal_structures
                                              err_san_mess,err_SAN, Simanneal_Gen,Set_SimAnn_Cond, &
                                              Set_SimAnn_StateV,Write_SimAnn_Cond, Write_SimAnn_StateV, &
                                              Write_SimAnn_MStateV, SimAnneal_MultiConf,Set_SimAnn_MStateV, &
-                                             Sann_Opt_MultiConf
+                                             Sann_Opt_MultiConf, Local_Optim
    use observed_reflections,           only: Read_observations,Observation_Type,Observation_List_Type, &
                                              Write_ObsCalc_SFactors,err_observ,err_mess_observ, SumGobs,&
                                              wavel_int, Write_FoFc_Powder, Nselr, Read_Profile_Type,    &
@@ -90,13 +100,16 @@ Program Global_Optimization_Xtal_structures
    use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
                                              Write_FinalCost,wavel,diff_mode,anti_bump, Write_PRF
+   use CFML_Geometry_Calc,             only: Set_TDist_Coordination, Coordination_Type, coord_info, Allocate_Coordination_Type
    use glopsan
 
    implicit none
 
    type (file_list_type)              :: fich_cfl,fich_rest,fich_varfix
    type (SimAnn_Conditions_type),save :: c
+   type (state_Vector_Type),dimension(:),allocatable :: vsp
    type (state_Vector_Type)           :: vs
+   real(kind=cp),dimension(:),allocatable :: v_av,v_sig
    type (Multistate_Vector_Type)      :: mvs
 
    character(len=256)                 :: filcod     !Name of the input file
@@ -107,12 +120,12 @@ Program Global_Optimization_Xtal_structures
    character(len=256)                 :: fst_cmd    !Commands for FP_Studio
    character(len=80)                  :: title      !
    character(len=140),dimension(200)  :: info_lines=" "     ! Information lines to be output in solution files
-   integer                            :: lun=1,ifst=2, ier,i,j,k, n, i_cfl,ninfo=0
+   integer                            :: lun=1,ifst=2, ier,i,j,k, n, i_cfl,ninfo=0,i_best
    integer, dimension(:),allocatable  :: i_bvs
-   real                               :: start,fin, mindspc, maxsintl, within
-   integer                            :: narg
+   real                               :: start,fin, mindspc, maxsintl, within, costop
+   integer                            :: narg, max_coor, num_p
    Logical                            :: esta, arggiven=.false., ref_within=.false.,&
-                                         fst_out=.false., local_opt=.false., rest_file=.false.
+                                         fst_out=.false., local_opt=.false., rest_file=.false., local_ref=.false.
 
     !---- Arguments on the command line ----!
     !narg=iargc()
@@ -189,7 +202,6 @@ Program Global_Optimization_Xtal_structures
          read(unit=line(12:),fmt=*,iostat=ier) within
          if(ier == 0) then
            ref_within=.true.
-           write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
          end if
        end if
        if(line(1:10) == "INFO_LINES") then
@@ -209,13 +221,13 @@ Program Global_Optimization_Xtal_structures
              read(unit=line(12:),fmt=*,iostat=ier) within
              if(ier == 0) then
                ref_within=.true.
-               write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
              end if
            end if
            if(u_case(line(1:14)) == "END_INFO_LINES") exit
          end do
        end if
      end do
+     if(ref_within) write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
 
      !Allocate objects for restraints
      if(icost(2) == 1 .or. icost(3) == 1 .or. icost(4) == 1) then
@@ -318,6 +330,13 @@ Program Global_Optimization_Xtal_structures
        line=adjustl(u_case(fich_cfl%line(i)))
        if(line(1:9) == "LOCAL_OPT") then
          Local_Opt=.true.
+         exit
+       end if
+       if(line(1:9) == "LOCAL_REF") then
+         read(unit=line(10:),fmt=*,iostat=ier) num_p   !number of starting points for local optimization
+         if(ier /= 0) num_p=1
+         allocate(vsp(num_p))
+         Local_Ref=.true.
          exit
        end if
      end do
@@ -464,100 +483,175 @@ Program Global_Optimization_Xtal_structures
           end if
      End if !Icost(1) == 1 .or. Icost(7) == 1 .or. Icost(10) == 1 .or. Icost(11) == 1
 
-    !Set up the simulated annealing conditions by reading the SimAnn_Conditions_type: c
-     call Set_SimAnn_Cond(fich_cfl,c)
-      if(err_SAN) then
-         write(unit=*,fmt="(a)") " => Error setting Simulated Annealing conditions"
-         write(unit=*,fmt="(a)") trim(err_san_mess)
-         call Close_GLOpSAnn()
-      end if
-     call Write_SimAnn_Cond(lun,c)
-
      call cpu_time(start)
 
-     if(c%num_conf == 1) then
-        !Set up the Simulated Annealing State Vector
-         call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vs)
+     if(local_ref) then
+       allocate(v_av(NP_Refi),v_sig(NP_Refi))
+       v_av=0.0_cp; v_sig=0.0_cp
+
+       n=NP_Refi
+       do i=1,num_p
+          call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vsp(i))
+          call  Gen_random_initial_state(vsp(i))
+          !call Write_SimAnn_StateV(lun,vsp(i),"STARTING STATE")
+          !Call directly to local optimization
+          call Local_Optim(General_Cost_function,n,vsp(i)%config,vsp(i)%cost,vsp(i)%low,vsp(i)%high,vsp(i)%bound)
+          write(unit=*,fmt="(a,i6,a,f14.4)") " Cost value resulting from refinement of configuration #",i,": ",vsp(i)%cost
+          v_av=v_av+vsp(i)%config
+       end do
+       v_av=v_av/real(NP_Refi)
+       costop=9.9e30
+       do i=1,num_p
+         if(vsp(i)%cost < costop) then
+           costop = vsp(i)%cost
+           i_best=i
+         end if
+         v_sig=v_sig+(vsp(i)%config-v_av)**2
+       end do
+       write(*,*) "  i_best: ",i_best
+       write(unit=*,fmt="(a,f12.2)") "  Configuration found by Local_Refinement,  cost=",costop
+        v_sig=sqrt(v_sig)/real(NP_Refi)
+        V_vec(1:n)=vsp(i_best)%config(1:n)
+        V_vec_std(1:n)=v_sig(1:n)
+        call VState_to_AtomsPar(A,mode="V") !This is the refined configuration
+
+        !Write a CFL file
+        call Get_LogUnit(i_cfl)
+        write(unit=line,fmt="(a,f12.2)") "  Configuration found by Local_Refinement,  cost=",costop
+        open(unit=i_cfl,file=trim(filcod)//"_ref.cfl",status="replace",action="write")
+        call Write_CFL(i_cfl,Cell,SpG,A,line,info_lines)
+        call flush(i_cfl)
+        close(unit=i_cfl)
+        write(unit=*,fmt="(a)") "  The file "//trim(filcod)//"_ref.cfl"//"  has been written!"
+
+     else
+
+        !Set up the simulated annealing conditions by reading the SimAnn_Conditions_type: c
+         call Set_SimAnn_Cond(fich_cfl,c)
           if(err_SAN) then
-             write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
+             write(unit=*,fmt="(a)") " => Error setting Simulated Annealing conditions"
              write(unit=*,fmt="(a)") trim(err_san_mess)
              call Close_GLOpSAnn()
           end if
-         call Write_SimAnn_StateV(lun,vs,"INITIAL STATE")
-         if(fst_out) then
-           call Simanneal_Gen(General_Cost_function,c,vs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
-         else
-           call Simanneal_Gen(General_Cost_function,c,vs,lun)
-         end if
-         call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
+         call Write_SimAnn_Cond(lun,c)
 
-         !Write a CFL file
-         call Copy_Atom_List(A, A_clone)
-         call Get_LogUnit(i_cfl)
-         write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
-         open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
-         call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
-         close(unit=i_cfl)
+         if(c%num_conf == 1) then
+            !Set up the Simulated Annealing State Vector
+             call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vs)
+              if(err_SAN) then
+                 write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
+                 write(unit=*,fmt="(a)") trim(err_san_mess)
+                 call Close_GLOpSAnn()
+              end if
+             call Write_SimAnn_StateV(lun,vs,"INITIAL STATE")
+             if(fst_out) then
+               call Simanneal_Gen(General_Cost_function,c,vs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
+             else
+               call Simanneal_Gen(General_Cost_function,c,vs,lun)
+             end if
+             call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
+             V_vec(1:n)=vs%config(1:n)
+             V_vec_std(1:n)=vs%stp(1:n)
+             call VState_to_AtomsPar(A,mode="V") !This is the best configuration
 
-     else   ! Multi-configuration Simulated Annealing
-
-         call Set_SimAnn_MStateV(NP_Refi,c%num_conf,V_BCon,V_Bounds,V_Name,V_Vec,mvs)
-          if(err_SAN) then
-             write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
-             write(unit=*,fmt="(a)") trim(err_san_mess)
-             call Close_GLOpSAnn()
-          end if
-         call Write_SimAnn_MStateV(lun,mvs,"INITIAL STATE")
-
-         if (Local_Opt) then
-           if(fst_out) then
-              call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
-           else
-              call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun)
-           end if
-         else
-           if(fst_out) then
-              call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
-           else
-              call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun)
-           end if
-         end if
-
-         call Write_SimAnn_MStateV(lun,mvs,"FINAL STATE",1)
-         !Write CFL files
-         call Copy_Atom_List(A, A_clone)
-         n=mvs%npar
-         V_vec_std(1:n)=mvs%sigma(1:n)
-         do i=1,c%num_conf
-           line=" "
-           write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
-           V_vec(1:n)=mvs%state(1:n,i)
-           call VState_to_AtomsPar(A_clone,mode="V")
-           call Get_LogUnit(i_cfl)
-           open(unit=i_cfl,file=trim(line),status="replace",action="write")
-           write(unit=line,fmt="(a,i2,a,f12.2)") "  Configuration #",i," found by SimAnneal_MultiConf,  cost=",mvs%cost(i)
-           if(ninfo > 0) then
+             !Write a CFL file
+             call Copy_Atom_List(A, A_clone)
+             call Get_LogUnit(i_cfl)
+             write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by Simanneal_Gen,  cost=",vs%cost
+             open(unit=i_cfl,file=trim(filcod)//"_sol.cfl",status="replace",action="write")
              call Write_CFL(i_cfl,Cell,SpG,A_Clone,line,info_lines)
-           else
-             call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
-           end if
-           close(unit=i_cfl)
-         end do
+             call flush(i_cfl)
+             close(unit=i_cfl)
+
+         else   ! Multi-configuration Simulated Annealing
+
+             call Set_SimAnn_MStateV(NP_Refi,c%num_conf,V_BCon,V_Bounds,V_Name,V_Vec,mvs)
+              if(err_SAN) then
+                 write(unit=*,fmt="(a)") " => Error setting Simulated Annealing State Vector"
+                 write(unit=*,fmt="(a)") trim(err_san_mess)
+                 call Close_GLOpSAnn()
+              end if
+             call Write_SimAnn_MStateV(lun,mvs,"INITIAL STATE")
+
+             if (Local_Opt) then
+               if(fst_out) then
+                  call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
+               else
+                  call SAnn_Opt_MultiConf(General_Cost_function,c,mvs,lun)
+               end if
+             else
+               if(fst_out) then
+                  call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun,fst=trim(filcod)//".fst  "//trim(fst_cmd))
+               else
+                  call SimAnneal_MultiConf(General_Cost_function,c,mvs,lun)
+               end if
+             end if
+
+             call Write_SimAnn_MStateV(lun,mvs,"FINAL STATE",1)
+
+             !Writing the Best configuration in a separated CFL file
+             n=mvs%npar
+             V_vec(1:n)=mvs%config(1:n)
+             V_vec_std(1:n)=mvs%sigma(1:n)
+             call VState_to_AtomsPar(A,mode="V") !This is the best configuration
+             call Get_LogUnit(i_cfl)
+             line=" "
+             write(unit=line,fmt="(a)") trim(filcod)//"_best.cfl"
+             open(unit=i_cfl,file=trim(line),status="replace",action="write")
+             write(unit=line,fmt="(a,f12.2)") "  Best Configuration found by SimAnneal_MultiConf,  cost=",mvs%best_cost
+             if(ninfo > 0) then
+               call Write_CFL(i_cfl,Cell,SpG,A,line,info_lines)
+             else
+               call Write_CFL(i_cfl,Cell,SpG,A,line)
+             end if
+             call flush(i_cfl)
+             close(unit=i_cfl)
+
+
+             !Write CFL files of each solution
+             call Copy_Atom_List(A, A_clone)
+             do i=1,c%num_conf
+               line=" "
+               write(unit=line,fmt="(a,i2.2,a)") trim(filcod)//"_sol",i,".cfl"
+               V_vec(1:n)=mvs%state(1:n,i)
+               call VState_to_AtomsPar(A_clone,mode="V")
+               call Get_LogUnit(i_cfl)
+               open(unit=i_cfl,file=trim(line),status="replace",action="write")
+               write(unit=line,fmt="(a,i2,a,f12.2)") "  Configuration #",i," found by SimAnneal_MultiConf,  cost=",mvs%cost(i)
+               if(ninfo > 0) then
+                 call Write_CFL(i_cfl,Cell,SpG,A_Clone,line,info_lines)
+               else
+                 call Write_CFL(i_cfl,Cell,SpG,A_Clone,line)
+               end if
+               close(unit=i_cfl)
+             end do
+         end if
      end if
 
      call Write_FinalCost(lun)
      call Write_Atom_List(A,lun=lun)
-     call Write_FST_A()
+     !call Write_FST_A()
 
      if(Icost(1) == 1) call Write_ObsCalc_SFactors(lun,hkl,mode=diff_mode)
      if(Icost(7) == 1) call Write_FoFc_Powder(lun,Oh,hkl,mode=diff_mode)
      if(icost(2) == 1 .or. icost(3) == 1 .or. icost(4) == 1) then
         call Write_restraints_ObsCalc(A,lun)
      end if
+
      if(icost(5) == 1 .or. icost(6) == 1) then
-       call Calc_BVS(Ac,lun)
+       write(*,*) " => Calling Bond_Str ...."
+       if(local_ref) then
+          inquire(file=trim(filcod)//"_ref.cfl",exist=esta)
+          if(esta) call system("Bond_Str "//trim(filcod)//"_ref.cfl")
+       else if(c%num_conf == 1) then
+          call system("Bond_Str "//trim(filcod)//"_sol.cfl")
+       else
+          call system("Bond_Str "//trim(filcod)//"_best.cfl")
+       end if
      end if
+
      if(Icost(10) == 1 .or. Icost(11) == 1 ) call Write_Prf(filcod)
+
      !Write a CIF file and a VESTA file
      title=" CIF file generated by GLOpSAnn "
      call Write_Cif_Template(trim(filcod)//"_gen.cif",2,title,Cell,SpG,A)
@@ -587,6 +681,7 @@ Program Global_Optimization_Xtal_structures
 
     Subroutine Write_fst_A()
        open(unit=ifst, file=trim(filcod)//"_A.fst", status="replace",action="write",position="rewind",iostat=ier)
+        if(ier == 0) then
           write(unit=ifst,fmt="(a)") "TITLE  FST-file generated with Write_FST"
           write(unit=ifst,fmt="(a)") "SPACEG "//trim(Spg%SPG_Symb)
           write(unit=ifst,fmt="(a,3f12.5,3f8.3)") "CELL ",cell%cell, cell%ang
@@ -600,18 +695,21 @@ Program Global_Optimization_Xtal_structures
           end do
           call flush(ifst)
           close(unit=ifst)
+        end if
     End Subroutine Write_fst_A
 
     Subroutine modify_fst()
-
+      logical :: esta
       if(ninfo > 0) then
-        open(unit=ifst,file=trim(filcod)//".fst",status="old",action="write",position="append")
-        do i=1,ninfo
-          write(unit=ifst,fmt="(a)") trim(info_lines(i))
-        end do
-        close(unit=ifst)
+        inquire(file=trim(filcod)//".fst",exist=esta)
+        if(esta) then
+           open(unit=ifst,file=trim(filcod)//".fst",status="old",action="write",position="append")
+           do i=1,ninfo
+             write(unit=ifst,fmt="(a)") trim(info_lines(i))
+           end do
+           close(unit=ifst)
+        end if
       end if
-
     end Subroutine modify_fst
 
     Subroutine Write_Vesta_File()
