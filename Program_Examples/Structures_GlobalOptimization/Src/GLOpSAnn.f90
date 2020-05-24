@@ -56,9 +56,11 @@ Module glopsan
       type(State_Vector_Type), intent(in out) :: vs
       integer       :: i
       real(kind=cp) :: random
+
       do i=1,vs%npar
         call random_number(random)
         vs%config(i) = vs%low(i) + random*(vs%high(i)-vs%low(i))
+        !write(*,"(a,2f9.5,a)") " Random number & value: ",random, vs%config(i),"   "//trim(vs%nampar(i))
       end do
     End Subroutine Gen_random_initial_state
 End Module glopsan
@@ -122,7 +124,7 @@ Program Global_Optimization_Xtal_structures
    character(len=140),dimension(200)  :: info_lines=" "     ! Information lines to be output in solution files
    integer                            :: lun=1,ifst=2, ier,i,j,k, n, i_cfl,ninfo=0,i_best
    integer, dimension(:),allocatable  :: i_bvs
-   real                               :: start,fin, mindspc, maxsintl, within, costop
+   real                               :: start,fin, mindspc, maxsintl, within, costop, costmax, thr
    integer                            :: narg, max_coor, num_p
    Logical                            :: esta, arggiven=.false., ref_within=.false.,&
                                          fst_out=.false., local_opt=.false., rest_file=.false., local_ref=.false.
@@ -227,6 +229,7 @@ Program Global_Optimization_Xtal_structures
          end do
        end if
      end do
+
      if(ref_within) write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
 
      !Allocate objects for restraints
@@ -488,29 +491,54 @@ Program Global_Optimization_Xtal_structures
      if(local_ref) then
        allocate(v_av(NP_Refi),v_sig(NP_Refi))
        v_av=0.0_cp; v_sig=0.0_cp
+       write(unit=lun,fmt="(/,a)")      "============================================================================"
+       write(unit=lun,fmt="(a,i5,a)")   "=  Local Refinement using UNIRANDI for ",num_p," initial random configurations ="
+       write(unit=lun,fmt="(a,/)")      "============================================================================"
 
        n=NP_Refi
+       call random_seed()
+       !do i=1,n
+       !   write(*,"(2f8.4,a,f9.5)") V_Bounds(1:2,i),"   "//V_Name(i), V_Vec(i)
+       !end do
        do i=1,num_p
           call Set_SimAnn_StateV(NP_Refi,V_BCon,V_Bounds,V_Name,V_Vec,vsp(i))
           call  Gen_random_initial_state(vsp(i))
           !call Write_SimAnn_StateV(lun,vsp(i),"STARTING STATE")
           !Call directly to local optimization
+          vsp(i)%state=vsp(i)%config
           call Local_Optim(General_Cost_function,n,vsp(i)%config,vsp(i)%cost,vsp(i)%low,vsp(i)%high,vsp(i)%bound)
           write(unit=*,fmt="(a,i6,a,f14.4)") " Cost value resulting from refinement of configuration #",i,": ",vsp(i)%cost
-          v_av=v_av+vsp(i)%config
+          !do j=1,n
+          !  write(*,"(2(a,f10.5),a)") "  Delta: ",vsp(i)%state(j)-vsp(i)%config(j),"  Value: ",vsp(i)%config(j),"   "//trim(vsp(i)%nampar(j))
+          !end do
+          write(unit=lun,fmt="(a,i6,a,f14.4)") " Cost value resulting from refinement of configuration #",i,": ",vsp(i)%cost
        end do
-       v_av=v_av/real(NP_Refi)
-       costop=9.9e30
+       costop=9.9e30; costmax=0.0_cp
        do i=1,num_p
          if(vsp(i)%cost < costop) then
            costop = vsp(i)%cost
            i_best=i
          end if
-         v_sig=v_sig+(vsp(i)%config-v_av)**2
+         if(vsp(i)%cost > costmax)  costmax = vsp(i)%cost
        end do
+       thr=0.25*(costmax-costop)+costop
+       k=0
+       do i=1,num_p
+         if(vsp(i)%cost <= thr) then
+           k=k+1
+           v_av=v_av+vsp(i)%config
+         end if
+       end do
+       v_av=v_av/real(max(1,k))
+       do i=1,num_p
+         if(vsp(i)%cost <= thr) then
+          v_sig=v_sig+(vsp(i)%config-v_av)**2
+         end if
+       end do
+       v_sig=sqrt(v_sig)/real(max(1,k))
+
        write(*,*) "  i_best: ",i_best
        write(unit=*,fmt="(a,f12.2)") "  Configuration found by Local_Refinement,  cost=",costop
-        v_sig=sqrt(v_sig)/real(NP_Refi)
         V_vec(1:n)=vsp(i_best)%config(1:n)
         V_vec_std(1:n)=v_sig(1:n)
         call VState_to_AtomsPar(A,mode="V") !This is the refined configuration
@@ -551,7 +579,7 @@ Program Global_Optimization_Xtal_structures
              end if
              call Write_SimAnn_StateV(lun,vs,"FINAL STATE")
              V_vec(1:n)=vs%config(1:n)
-             V_vec_std(1:n)=vs%stp(1:n)
+             V_vec_std(1:n)=0.0 !vs%stp(1:n)
              call VState_to_AtomsPar(A,mode="V") !This is the best configuration
 
              !Write a CFL file
@@ -629,7 +657,8 @@ Program Global_Optimization_Xtal_structures
      end if
 
      call Write_FinalCost(lun)
-     call Write_Atom_List(A,lun=lun)
+     !call Write_Atom_List(A,lun=lun)
+     call Write_CFL(lun,Cell,SpG,A,line)
      !call Write_FST_A()
 
      if(Icost(1) == 1) call Write_ObsCalc_SFactors(lun,hkl,mode=diff_mode)
@@ -638,17 +667,6 @@ Program Global_Optimization_Xtal_structures
         call Write_restraints_ObsCalc(A,lun)
      end if
 
-     if(icost(5) == 1 .or. icost(6) == 1) then
-       write(*,*) " => Calling Bond_Str ...."
-       if(local_ref) then
-          inquire(file=trim(filcod)//"_ref.cfl",exist=esta)
-          if(esta) call system("Bond_Str "//trim(filcod)//"_ref.cfl")
-       else if(c%num_conf == 1) then
-          call system("Bond_Str "//trim(filcod)//"_sol.cfl")
-       else
-          call system("Bond_Str "//trim(filcod)//"_best.cfl")
-       end if
-     end if
 
      if(Icost(10) == 1 .or. Icost(11) == 1 ) call Write_Prf(filcod)
 
@@ -659,12 +677,29 @@ Program Global_Optimization_Xtal_structures
 
      if(fst_out) Call modify_fst()
 
+      if(icost(5) == 1 .or. icost(6) == 1) then
+        write(*,*) " => Calling Bond_Str ...."
+        if(local_ref) then
+           inquire(file=trim(filcod)//"_ref.cfl",exist=esta)
+           if(esta) then
+             call execute_command_line("Bond_Str "//trim(filcod)//"_ref.cfl",exitstat=ier)
+             if(ier /= 0) write(*,*) "  Error calling Bond_Str"
+           end if
+        else if(c%num_conf == 1) then
+           call execute_command_line("Bond_Str "//trim(filcod)//"_sol.cfl")
+        else
+           call execute_command_line("Bond_Str "//trim(filcod)//"_best.cfl")
+        end if
+      end if
+
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING X-TAL STRUCTURES "
      write(unit=*,fmt="(a)") " Results in File: "//trim(filcod)//".out"
      call cpu_time(fin)
      write(unit=*,fmt="(a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
      write(unit=*,fmt="(a,f10.2,a)")  "  CPU-Time: ", (fin-start)/60.0," minutes"
      write(unit=lun,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
+     write(unit=lun,fmt="(  a,f10.2,a)")  "  CPU-Time: ", (fin-start)/60," Minutes"
+     write(unit=lun,fmt="(  a,f10.2,a)")  "  CPU-Time: ", (fin-start)/60/60," Hours"
    end if
 
    close(unit=lun)

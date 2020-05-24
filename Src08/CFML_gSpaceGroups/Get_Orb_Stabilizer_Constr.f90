@@ -131,6 +131,30 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
 
    End Subroutine Get_Orbit
 
+   !!
+   !!----  Module Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr,ctr_code)
+   !!----     real(kind=cp), dimension(3),            intent(in    ) :: xnr      ! Atom position (fractional coordinates)
+   !!----     real(kind=cp), dimension(3),            intent(in out) :: moment   ! Magnetic moment at position xnr
+   !!----     class(SuperSpaceGroup_Type),            intent(in)     :: Spg      ! Super Space Group
+   !!----     Integer,                                intent(in out) :: codini   ! Number of the Last attributed parameter
+   !!----     real(kind=cp), dimension(3),            intent(in out) :: codes    ! codewords for magnetic moment
+   !!----     integer,                       optional,intent(in)     :: ord      ! Order of stabilizer
+   !!----     integer, dimension(:),         optional,intent(in)     :: ss       ! Pointer to operators
+   !!----     real(kind=cp), dimension(:,:), optional,intent(in)     :: att      ! Translations of stabilizer operators
+   !!----     integer,                       optional,intent(in)     :: Ipr      ! Logical unit for writing
+   !!----     character(len=*),              optional,intent(out)    :: ctr_code ! Symmetry code
+   !!----
+   !!----  Subroutine to get the appropriate constraints in the refinement codes of
+   !!----  magnetic moment parameters.
+   !!----  Algorithm based in the Wigner theorem.
+   !!----  The vector Mom = Sum { R Moment} displays the symmetry constraints to be
+   !!----  applied to the magnetic moments. The sum runs over all magnetic
+   !!----  matrices of the stabilizer of the particular atom position in the given
+   !!----  space group.
+   !!----
+   !!----   Updated: March 2020
+   !!----
+   !!
    Module Subroutine Get_moment_ctr(xnr,moment,Spg,codini,codes,ord,ss,att,Ipr,ctr_code)
       real(kind=cp), dimension(3),            intent(in)     :: xnr
       real(kind=cp), dimension(:),            intent(in out) :: moment
@@ -363,17 +387,18 @@ SubModule (CFML_gSpaceGroups) Stabilizer_Constraints
    End Subroutine Get_Refinement_Codes
 
    !!
-   !!----  Subroutine get_moment_ctr(xnr,TFourier,Spg,codini,codes,ord,ss,att,Ipr,ctr_code)
-   !!----     real(kind=cp), dimension(3),            intent(in    ) :: xnr    !Atom position (fractional coordinates)
-   !!----     Complex(kind=cp), dimension(3),         intent(in out) :: TFourier !Fourier coefficients at position xnr
-   !!----     class(SuperSpaceGroup_Type),            intent(in)     :: Spg    !Super Space Group
-   !!----     Integer,                                intent(in out) :: codini !Last attributed parameter
-   !!----     real(kind=cp), dimension(3),            intent(in out) :: codes  !codewords for positions
-   !!----     integer,                       optional,intent(in)     :: ord
-   !!----     integer, dimension(:),         optional,intent(in)     :: ss
-   !!----     real(kind=cp), dimension(:,:), optional,intent(in)     :: att
-   !!----     integer,                       optional,intent(in)     :: Ipr
-   !!----     character(len=*),              optional,intent(out)    :: ctr_code
+   !!----  Module Subroutine Get_TFourier_ctr(xnr,TFourier,codes,SpG,codini,mode,ord,ss,att,Ipr,ctr_code)
+   !!----     real(kind=cp), dimension(3),            intent(in    ) :: xnr      ! Atom position (fractional coordinates)
+   !!----     real(kind=cp), dimension(:,:),          intent(in out) :: TFourier ! Fourier coefficients at position xnr
+   !!----     real(kind=cp), dimension(:,:),          intent(in out) :: codes    ! codewords for Fourier components
+   !!----     class(SuperSpaceGroup_Type),            intent(in)     :: Spg      ! Super Space Group
+   !!----     Integer,                                intent(in out) :: codini   ! Number of the Last attributed parameter
+   !!----     character(len=*),                       intent(in)     :: Mode     ! "M" or "D" for modulation moments or displacements
+   !!----     integer,                       optional,intent(in)     :: ord      ! Order of stabilizer
+   !!----     integer, dimension(:),         optional,intent(in)     :: ss       ! Pointer to operators
+   !!----     real(kind=cp), dimension(:,:), optional,intent(in)     :: att      ! Translations of stabilizer operators
+   !!----     integer,                       optional,intent(in)     :: Ipr      ! Logical unit for writing
+   !!----     character(len=*),              optional,intent(out)    :: ctr_code ! Symmetry code
    !!----
    !!----  Subroutine to get the appropriate constraints in the refinement codes of
    !!----  magnetic moment parameters.

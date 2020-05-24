@@ -18,6 +18,7 @@ cd ..\..\Src
    if x%1 == xlf95      goto LF95
    if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
+   if x%1 == xgfortrand  goto GFORD
    if x%1 == xifort     goto IFORT
    if x%1 == xifortd    goto IFORTD
    goto END
@@ -54,16 +55,25 @@ rem **---- G95 Compiler ----**
 rem
 rem **---- GFORTRAN Compiler ----**
 :GFOR
-   gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
-   gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
-   gfortran -c GLOpSAnn.f90        -O3 -funroll-loops  -msse2  -I%CRYSFML%\GFortran64\LibC
-   gfortran  *.o -o  GLOpSAnn_gf  -L%CRYSFML%\GFortran64\LibC -lcrysfml  -Wl,--heap=0x01000000
+   gfortran -c observ.f90          -O3 -funroll-loops  -msse2  -I%CRYSFML%\gfortran\LibC
+   gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -I%CRYSFML%\gfortran\LibC
+   gfortran -c GLOpSAnn.f90        -O3 -funroll-loops  -msse2  -I%CRYSFML%\gfortran\LibC
+   gfortran  *.o -o  GLOpSAnn_gf  -L%CRYSFML%\gfortran\LibC -lcrysfml  -Wl,--heap=0x01000000
    goto END
+:GFORD
+   gfortran -c observ.f90          -g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics   -I%CRYSFML%\gfortran_debug\LibC
+   gfortran -c cost_functions.f90  -g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics   -I%CRYSFML%\gfortran_debug\LibC
+   gfortran -c GLOpSAnn.f90        -g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics   -I%CRYSFML%\gfortran_debug\LibC
+   gfortran  *.o -o  GLOpSAnn_gf  -L%CRYSFML%\gfortran_debug\LibC -lcrysfml  -Wl,--heap=0x01000000
+   upx GLOpSAnn_gf.exe
+   if exist %FULLPROF%  copy GLOpSAnn_gf.exe %FULLPROF%\.
+   goto FIN
 rem
 :END
    upx GLOpSAnn.exe
 if exist %FULLPROF%  copy GLOpSAnn.exe %FULLPROF%\.
 if exist %PROGCFML%  move GLOpSAnn.exe %PROGCFML%\DistFPS_64b\.
 if exist %PROGCFML%  copy ..\Docs\GLOpSAnn.pdf %PROGCFML%\DistFPS\Docs\.
+:FIN
    del *.obj *.mod *.o *.map *.bak *.exe > nul
 cd ..\Scripts\Windows
