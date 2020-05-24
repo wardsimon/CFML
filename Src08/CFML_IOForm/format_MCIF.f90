@@ -259,8 +259,6 @@ SubModule (CFML_IOForm) IO_MCIF
       call Read_MCIF_AtomSite_Moment_Fourier(cif, AtmList,n_ini,n_end)
       if (Err_CFML%IErr==1) return
 
-      call Write_MCIF_AtomSite_Moment_Fourier(6,Atmlist)
-
    End Subroutine Read_XTal_MCIF
 
    !!----
