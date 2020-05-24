@@ -239,6 +239,7 @@ SubModule (CFML_IOForm) IO_MCIF
          if (present(Kvec)) then
             call Read_MCIF_Cell_Wave_Vector(cif, Kvec=Kvec,i_ini=n_ini, i_end=n_end)
             if (Err_CFML%IErr==1) return
+
             call Read_MCIF_AtomSite_Fourier_Wave_Vector(cif,  Kvec=Kvec,i_ini=n_ini, i_end=n_end)
             if (Err_CFML%IErr==1) return
          end if
@@ -256,11 +257,9 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Moment-Fourier
       call Read_MCIF_AtomSite_Moment_Fourier(cif, AtmList,n_ini,n_end)
-      if (Err_CFML%IErr==1) then
-         call error_message(err_CFML%Msg)
-         return
-      end if
+      if (Err_CFML%IErr==1) return
 
+      call Write_MCIF_AtomSite_Moment_Fourier(6,Atmlist)
 
    End Subroutine Read_XTal_MCIF
 
@@ -2098,6 +2097,104 @@ SubModule (CFML_IOForm) IO_MCIF
       call allocate_Kvector(0,0,k)
 
    End Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector
+
+   !!----
+   !!---- WRITE_MCIF_ATOMSITE_MOMENT_FOURIER
+   !!----
+   !!---- 23/05/2020
+   !!
+   Module Subroutine Write_MCIF_AtomSite_Moment_Fourier(Ipr,Atmlist)
+      !---- Arguments ----!
+      integer,            intent(in) :: Ipr
+      Type(AtList_Type),  intent(in) :: AtmList
+
+      !---- Local Variables ----!
+      integer          :: i,j,m,k,ii
+      real(kind=cp)    :: xv,xv_std
+      character(len=3) :: axis
+
+
+      !> Init
+
+      select type(At => Atmlist%atom)
+         class is (MAtm_Std_Type)
+            write(unit=Ipr,fmt="(a)") "loop_"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier.id"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier.atom_site_label"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier.wave_vector_seq_id"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier.axis"
+
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.cos"
+            write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.sin"
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.cos_symmform"
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.sin_symmform"
+
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.modulus"
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.phase"
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.modulus_symmform"
+            !write(unit=Ipr,fmt="(a)") "    _atom_site_moment_Fourier_param.phase_symmform"
+
+            j=0
+            do i=1,Atmlist%natoms
+               if (.not. At(i)%magnetic) cycle
+
+               do m=1,At(i)%n_mc
+                  k=At(i)%pmc_q(m)
+                  if (k ==0) cycle
+
+                  do ii=1,3
+                     line=" "
+                     xv=At(i)%Mcs(ii,m)
+                     xv_std=At(i)%Mcs_std(ii,m)
+                     line=string_NumStd(xv,xv_std)
+
+                     xv=At(i)%Mcs(ii+3,m)
+                     xv_std=At(i)%Mcs_std(ii+3,m)
+                     line=trim(line)//"   "//string_NumStd(xv,xv_std)
+
+                     select case (ii)
+                        case (1)
+                           select case (trim(l_case(Atmlist%mcomp)))
+                              case ('cartesian')
+                                 axis="Cx"
+                              case ('crystal')
+                                 axis="x"
+                              case ('spherical')
+                                 axis='mod'
+                           end select
+
+                        case (2)
+                           select case (trim(l_case(Atmlist%mcomp)))
+                              case ('cartesian')
+                                 axis="Cy"
+                              case ('crystal')
+                                 axis="y"
+                              case ('spherical')
+                                 axis='pol'
+                           end select
+
+                        case (3)
+                           select case (trim(l_case(Atmlist%mcomp)))
+                              case ('cartesian')
+                                 axis="Cz"
+                              case ('crystal')
+                                 axis="z"
+                              case ('spherical')
+                                 axis='azi'
+                           end select
+                     end select
+
+                     j=j+1
+                     write(unit=Ipr,fmt="(2x,i4,2x,a,t12,i4,t22,a,t30,a)") j, At(i)%Lab, m, axis, trim(line)
+                  end do
+               end do
+            end do
+
+      end select
+
+      write(unit=ipr,fmt="(a)") " "
+
+   End Subroutine Write_MCIF_AtomSite_Moment_Fourier
 
    !!----
    !!---- WRITE_MCIF_PARENT_PROPAGATION_VECTOR

@@ -581,6 +581,11 @@ Module CFML_IOForm
          Type(AtList_Type), intent(in) :: AtmList
       End Subroutine Write_MCIF_AtomSite_Moment
 
+      Module Subroutine Write_MCIF_AtomSite_Moment_Fourier(Ipr,Atmlist)
+         integer,            intent(in) :: Ipr
+         Type(AtList_Type),  intent(in) :: AtmList
+      End Subroutine Write_MCIF_AtomSite_Moment_Fourier
+
       Module Subroutine Write_MCIF_AtomSite_Fourier_Wave_Vector(Ipr,SpG,KVec)
          integer, intent(in)                         :: Ipr
          class(SpG_Type),       optional, intent(in) :: Spg
