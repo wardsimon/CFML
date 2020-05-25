@@ -511,6 +511,7 @@
        eps =  0.00001
        maxfn=10000
        CALL Model_Functn(x, f) !starting value of the function
+       !write(*,*) "  f=",f
        do_outm: do
           call random_number(r)              !  Evaluate 100 random vectors r(100,n)
           irndm = 0
@@ -529,6 +530,7 @@
             x1(1:n) = x(1:n)+h*r(irndm,1:n)
             call Boundary_Cond(n,x1,low,high,bound)
             CALL Model_Functn(x1, f1)
+           ! write(*,*) "  f1-1=",f1
             nfev = nfev+1
             IF (f1 >= f) then
                IF (nfev > maxfn) exit do_outm
@@ -536,6 +538,7 @@
                x1(1:n) = x(1:n)+h*r(irndm,1:n)
                call Boundary_Cond(n,x1,low,high,bound)
                CALL Model_Functn(x1, f1)
+              ! write(*,*) "  f1-2=",f1
                nfev = nfev+1
                IF (f1 >= f) then
                   IF (nfev > maxfn) exit do_outm

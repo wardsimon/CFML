@@ -14,7 +14,7 @@ Module glopsan
       type(file_list_type),    intent(in)  :: fcfl
       type(file_list_type),    intent(out) :: fvarfix
       !---- local variables ----!
-      integer :: i,j,k
+      integer :: i,j,jj,k
       character(len=256)           :: line
       character(len=6)             :: label, scatt
       real(kind=cp), dimension(3)  :: pos,low,high,step
@@ -33,9 +33,19 @@ Module glopsan
 
       !Calculate the limits for the new generated VARY lines
       do i=1,fcfl%nlines
-        line=adjustl(u_case(fcfl%line(i)))
-        if(line(1:4) == "ATOM") then
-          read(unit=fcfl%line(i)(5:),fmt=*) label,scatt,pos
+        line=adjustl(fcfl%line(i))
+        if(u_case(line(1:4)) == "ATOM") then
+          !Eliminate standard deviations
+          do jj=1,len_trim(line)
+             if(line(jj:jj) == "(") then
+               do k=jj+1,jj+5
+                   if(line(k:k) == ")") then
+                      line(jj:k)= " "
+                   end if
+               end do
+             end if
+          end do
+          read(unit=line(5:),fmt=*) label,scatt,pos
           do k=1,3
             low(k)=pos(k)-step(k)
             high(k)=pos(k)+step(k)
@@ -102,7 +112,6 @@ Program Global_Optimization_Xtal_structures
    use cost_functions,                 only: Cell,A,A_Clone,Ac,SpG,hkl,Oh,Icost,wcost,Err_cost,Err_Mess_cost, &
                                              General_Cost_function, readn_set_costfunctpars, write_costfunctpars, &
                                              Write_FinalCost,wavel,diff_mode,anti_bump, Write_PRF
-   use CFML_Geometry_Calc,             only: Set_TDist_Coordination, Coordination_Type, coord_info, Allocate_Coordination_Type
    use glopsan
 
    implicit none
@@ -230,7 +239,8 @@ Program Global_Optimization_Xtal_structures
        end if
      end do
 
-     if(ref_within) write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within," angstroms will be performed by expanding VARY directives"
+     if(ref_within) write(unit=lun,fmt="(/,a,f8.4,a/)") " => A Refinement within ",within, &
+                                         " angstroms will be performed by expanding VARY directives"
 
      !Allocate objects for restraints
      if(icost(2) == 1 .or. icost(3) == 1 .or. icost(4) == 1) then
@@ -506,6 +516,8 @@ Program Global_Optimization_Xtal_structures
           !call Write_SimAnn_StateV(lun,vsp(i),"STARTING STATE")
           !Call directly to local optimization
           vsp(i)%state=vsp(i)%config
+          !call General_Cost_function(vsp(i)%config, vsp(i)%cost)
+          !write(*,"(a,5f14.5,a,f14.5)") " Config: ", vsp(i)%config(1:5), " Cost: ", vsp(i)%cost
           call Local_Optim(General_Cost_function,n,vsp(i)%config,vsp(i)%cost,vsp(i)%low,vsp(i)%high,vsp(i)%bound)
           write(unit=*,fmt="(a,i6,a,f14.4)") " Cost value resulting from refinement of configuration #",i,": ",vsp(i)%cost
           !do j=1,n
@@ -678,18 +690,19 @@ Program Global_Optimization_Xtal_structures
      if(fst_out) Call modify_fst()
 
       if(icost(5) == 1 .or. icost(6) == 1) then
-        write(*,*) " => Calling Bond_Str ...."
-        if(local_ref) then
-           inquire(file=trim(filcod)//"_ref.cfl",exist=esta)
-           if(esta) then
-             call execute_command_line("Bond_Str "//trim(filcod)//"_ref.cfl",exitstat=ier)
-             if(ier /= 0) write(*,*) "  Error calling Bond_Str"
-           end if
-        else if(c%num_conf == 1) then
-           call execute_command_line("Bond_Str "//trim(filcod)//"_sol.cfl")
-        else
-           call execute_command_line("Bond_Str "//trim(filcod)//"_best.cfl")
-        end if
+        ! write(*,*) " => Calling Bond_Str ...."
+        ! if(local_ref) then
+        !    inquire(file=trim(filcod)//"_ref.cfl",exist=esta)
+        !    if(esta) then
+        !      call execute_command_line("Bond_Str "//trim(filcod)//"_ref.cfl",exitstat=ier)
+        !      if(ier /= 0) write(*,*) "  Error calling Bond_Str"
+        !    end if
+        ! else if(c%num_conf == 1) then
+        !    call execute_command_line("Bond_Str "//trim(filcod)//"_sol.cfl")
+        ! else
+        !    call execute_command_line("Bond_Str "//trim(filcod)//"_best.cfl")
+        ! end if
+       call Calc_BVS(Ac,lun)
       end if
 
      write(unit=*,fmt="(a)") " Normal End of: PROGRAM FOR OPTIMIZING X-TAL STRUCTURES "
@@ -703,7 +716,7 @@ Program Global_Optimization_Xtal_structures
    end if
 
    close(unit=lun)
-   call Close_GLOpSAnn()
+   !call Close_GLOpSAnn()
 
    Contains
 

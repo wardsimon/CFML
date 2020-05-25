@@ -59,7 +59,9 @@ rem **---- GFORTRAN Compiler ----**
    gfortran -c cost_functions.f90  -O3 -funroll-loops  -msse2  -I%CRYSFML%\gfortran\LibC
    gfortran -c GLOpSAnn.f90        -O3 -funroll-loops  -msse2  -I%CRYSFML%\gfortran\LibC
    gfortran  *.o -o  GLOpSAnn_gf  -L%CRYSFML%\gfortran\LibC -lcrysfml  -Wl,--heap=0x01000000
-   goto END
+   upx GLOpSAnn_gf.exe
+   if exist %FULLPROF%  copy GLOpSAnn_gf.exe %FULLPROF%\.
+   goto FIN
 :GFORD
    gfortran -c observ.f90          -g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics   -I%CRYSFML%\gfortran_debug\LibC
    gfortran -c cost_functions.f90  -g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics   -I%CRYSFML%\gfortran_debug\LibC
