@@ -104,12 +104,11 @@ else()
     add_subdirectory(Src08)
 endif()
 
-# Build the program example executables
+# Build the program example executables and use them as functional tests
 if (PROG_EX)
   enable_testing()
 
-  # copy test scripts to build/test
-  # FIXME this will not work on windows
+  # copy test scripts to build/Test
   execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Tests)
   execute_process(COMMAND cp -r ${CMAKE_SOURCE_DIR}/Tests/runtest ${CMAKE_BINARY_DIR}/Tests)
   execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/Tests/runtest_cfml.py ${CMAKE_BINARY_DIR}/Tests)

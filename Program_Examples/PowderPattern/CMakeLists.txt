@@ -32,6 +32,7 @@ add_executable(corr_cells corr_cells.f90)
 target_link_libraries(corr_cells crysfml)
 
 ### Unitests
+add_runtest(calc_powder_Si  ${CMAKE_CURRENT_BINARY_DIR})
 add_runtest(calc_powder_STO ${CMAKE_CURRENT_BINARY_DIR})
 
 # add_test(
