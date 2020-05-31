@@ -40,68 +40,6 @@
 !!----    Update: 06/03/2011
 !!----
 !!----
-!!---- DEPENDENCIES
-!!--++    CFML_Math_3D:  Cross_Product
-!!--++    CFML_GlobalDeps: Eps, Pi, Cp, Sp, To_Rad, To_Deg
-!!--++    CFML_Math_General: Acosd, Cosd, Sind
-!!--++    CFML_Crystal_Metrics: Cell_G_Type
-!!----
-!!---- VARIABLES
-!!----    COORDINATION_TYPE
-!!----    COORD_INFO
-!!--++    EPSI
-!!----    ERR_GEOM
-!!----    ERR_GEOM_MESS
-!!----    POINT_LIST_TYPE
-!!----
-!!---- PROCEDURES
-!!----    Functions:
-!!----       ANGLE_DIHEDRAL
-!!--++       ANGLE_DIHEDRAL_IJKN            [Overloaded]
-!!--++       ANGLE_DIHEDRAL_UVW             [Overloaded]
-!!----       ANGLE_MOD
-!!--++       ANGLE_MODN                     [Overloaded]
-!!--++       ANGLE_MODV                     [Overloaded]
-!!----       ANGLE_UV
-!!--++       ANGLE_UVI                      [Overloaded]
-!!--++       ANGLE_UVR                      [Overloaded]
-!!----       COORD_MOD
-!!--++       COORD_MODN                     [Overloaded]
-!!--++       COORD_MODV                     [Overloaded]
-!!----       DISTANCE
-!!--++       DISTANCE_FR                    [Overloaded]
-!!--++       DISTANCE_FR_DP                 [Overloaded]
-!!--++       DISTANCE_SC                    [Overloaded]
-!!----       MATRIX_PHITHECHI
-!!----       MATRIX_RX
-!!----       MATRIX_RY
-!!----       MATRIX_RZ
-!!----
-!!----    Subroutines:
-!!----       ALLOCATE_COORDINATION_TYPE
-!!----       ALLOCATE_POINT_LIST
-!!----       ANGLE_AND_SIGMA
-!!----       CALC_DIST_ANGLE
-!!----       CALC_DIST_ANGLE_SIGMA
-!!----       DEALLOCATE_COORDINATION_TYPE
-!!----       DEALLOCATE_POINT_LIST
-!!----       DISTANCE_AND_SIGMA
-!!----       GET_ANGLEN_AXIS_FROM_ROTMAT
-!!----       GET_EULER_FROM_FRACT
-!!----       GET_MATRIX_MOVING_V_TO_U
-!!----       GET_OMEGACHIPHI
-!!----       GET_PHITHECHI
-!!----       GET_TRANSF_LIST
-!!----       INIT_ERR_GEOM
-!!----       P1_DIST
-!!----       PRINT_DISTANCES
-!!----       SET_NEW_ASYMUNIT
-!!----       SET_ORBITS_INLIST
-!!----       SET_ROTATION_MATRIX
-!!----       SET_TDIST_COORDINATION
-!!----       SET_TDIST_PARTIAL_COORDINATION
-!!----       TORSION_AND_SIGMA
-!!----
 !!
  Module CFML_Geom
 
@@ -145,19 +83,7 @@
     !!----
     !!---- TYPE :: COORDINATION_TYPE
     !!--..
-    !!---- Type, public :: Coordination_Type
-    !!----    integer                                      :: Natoms    ! number of atoms
-    !!----    integer                                      :: Max_Coor  ! Maximum number of connected atoms to a given one
-    !!----    integer,       dimension(:),     allocatable :: Coord_Num ! Counter of distances connected to the current atom
-    !!----    integer,       dimension(:,:),   allocatable :: N_Cooatm  ! Pointer to the ordinal number in the list of the attached
-    !!----                                                              ! atom to the atom given by the first index
-    !!----    integer,       dimension(:,:),   allocatable :: N_Sym     !
-    !!----    real(kind=cp), dimension(:,:),   allocatable :: Dist      ! List of distances related to an atom
-    !!----    real(kind=cp), dimension(:,:),   allocatable :: S_Dist    ! List of Sigma(distances)
-    !!----    real(kind=cp), dimension(:,:,:), allocatable :: Tr_coo    !
-    !!---- End type Coordination_Type
-    !!----
-    !!---- Update: February - 2005
+    !!---- 31/05/2020
     !!
     Type, public :: Coordination_Type
        integer                                      :: Natoms    ! number of atoms
@@ -172,38 +98,9 @@
     End type Coordination_Type
 
     !!----
-    !!---- COORD_INFO
-    !!----    type(Coordination_Type), public :: coord_info
-    !!----
-    !!----    Coordination Information
-    !!----
-    !!---- Update: March - 2005
-    !!
-    type(Coordination_Type), public :: coord_info
-
-    !!--++
-    !!--++ EPSI
-    !!--++    real(kind=cp), parameter :: epsi=0.001
-    !!--++
-    !!--++    (PRIVATE)
-    !!--++    Epsilon for roughly comparing distances
-    !!--++
-    !!--++ Update: February - 2005
-    !!
-    real(kind=cp), parameter, private :: epsi=0.001
-
-
-    !!----
     !!---- TYPE :: POINT_LIST_TYPE
     !!--..
-    !!---- Type, public :: Point_List_Type
-    !!----    integer                                       :: np   !number of points in list
-    !!----    character(len=20), dimension(:),  allocatable :: nam  !name/label associated to each point
-    !!----    integer,           dimension(:),  allocatable :: p    !integer pointer for various purposes
-    !!----    real(kind=cp)      dimension(:,:),allocatable :: x    !fractional coordinates of points
-    !!---- End type Point_List_Type
-    !!----
-    !!---- Update: February - 2005
+    !!---- 31/05/2020
     !!
     Type, public :: point_list_type
        integer                                       :: np   !number of points in list
@@ -212,8 +109,14 @@
        real(kind=cp),     dimension(:,:),allocatable :: x    !fractional coordinates of points
     End type point_list_type
 
+    !---- Parameters ----!
+    real(kind=cp), parameter, private :: epsi=0.001  ! Epsilon for roughly comparing distances
 
-    !---- Interfaces - Overlapp ----!
+    !---- Variables ----!
+    type(Coordination_Type), public :: coord_info    ! Coordination Information
+
+
+    !---- Overlapp Zone ----!
     Interface  Angle_Dihedral
        Module Procedure Angle_Dihedral_Ijkn
        Module Procedure Angle_Dihedral_Uvw

@@ -442,6 +442,17 @@ rem    Submodules CFML_IOForm
       ifort /c Format_SHX.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Format_CIF.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
       ifort /c Format_CFL.f90                         /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Format_MCIF.f90                        /nologo %OPT1% %OPT2%  /module:..\mod
+      move /y *.obj .. > nul
+      cd ..
+rem
+      echo .... Maps/Percolation procedures
+      ifort /c CFML_Maps.f90                          /nologo %OPT1% %OPT2% /module:.\mod
+rem
+rem    Submodules CFML_Maps
+      cd .\CFML_Maps
+      ifort /c MarchingCubes.f90                      /nologo %OPT1% %OPT2%  /module:..\mod
+      ifort /c Maps.f90                               /nologo %OPT1% %OPT2%  /module:..\mod
       move /y *.obj .. > nul
       cd ..
       goto END
@@ -471,7 +482,6 @@ rem rem
 rem    echo .... Maps, BVS, Energy Configurations
 rem rem
 rem    ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
-rem    ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
 rem    ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
 rem rem
 rem    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser

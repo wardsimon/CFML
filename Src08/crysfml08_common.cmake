@@ -30,8 +30,8 @@ elseif(UNIX)
         set(GLOBAL_DEPS_SRC CFML_GlobalDeps_Linux_GFOR.f90)
     endif()
 endif()
-if(${COMPILER_NAME} STREQUAL ifort)  
-    set_source_files_properties(${GLOBAL_DEPS_SRC} 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${GLOBAL_DEPS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
     set_source_files_properties(${GLOBAL_DEPS_SRC}
@@ -282,6 +282,17 @@ else()
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
+# CFML_Maps
+file(GLOB SUBMOD_MAPS_SRC CFML_Maps/*.f90)
+set(MAPS_SRC CFML_Maps.f90
+                 ${SUBMOD_MAPS_SRC})
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${MAPS_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
+else()
+    set_source_files_properties(${MAPS_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
+endif()
 set(CRYSFML_COMMON_SRC
     ${GLOBAL_DEPS_SRC}
     ${MESSAGES_SRC}
@@ -302,7 +313,8 @@ set(CRYSFML_COMMON_SRC
     ${REFLECTIONS_SRC}
     ${PROPAGK_SRC}
     ${IOFORM_SRC}
-    ${GEOM_SRC})
+    ${GEOM_SRC}
+    ${MAPS_SRC})
 
 # Build the library
 set(LIBRARY_NAME crysfml)

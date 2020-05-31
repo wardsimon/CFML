@@ -430,12 +430,14 @@ rem
       gfortran -c %OPTC%  -J.\mod CFML_IOForm.f90                    %OPT1%
 rem
 rem   Submodules CFML_IOForm
-         cd .\CFML_IOForm
-rem      gfortran -c %OPTC% -J..\mod Format_SHX.f90                     %OPT1%
-         gfortran -c %OPTC% -J..\mod Format_CFL.f90                     %OPT1%
-rem      gfortran -c %OPTC% -J..\mod Format_CIF.f90                     %OPT1%
-         move /y *.o .. > nul
-         cd ..
+      cd .\CFML_IOForm
+      gfortran -c %OPTC% -J..\mod Format_GEN.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Format_SHX.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Format_CIF.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Format_CFL.f90                     %OPT1%
+      gfortran -c %OPTC% -J..\mod Format_MCIF.f90                    %OPT1%
+      move /y *.o .. > nul
+      cd ..
       goto END
 
 :END
