@@ -43,7 +43,7 @@
     Use CFML_GlobalDeps,   only: CP, DP, EPS, Err_CFML, Clear_Error
     Use CFML_Strings,      only: l_case
     Use CFML_gSpaceGroups, only: SpG_Type, Apply_OP
-    Use CFML_Metrics,      only: Cell_G_Type
+    Use CFML_Metrics,      only: Cell_Type, Cell_G_Type
     Use CFML_Geom,         only: Distance
 
     !---- Variables ----!
@@ -62,6 +62,9 @@
 
     !---- Definitions ----!
 
+    !---- Parameters ----!
+    integer, public, parameter ::  MAX_POINTS    = 500000   ! Number of maximum points permitted
+
     !!----
     !!----  TYPE :: CUBE_INFO_TYPE
     !!--..
@@ -73,11 +76,52 @@
        integer, dimension(12) :: Edges =0 ! Code for Edge connections
     End Type Cube_Info_Type
 
-    !---- Variables ----!
-    Type (Cube_Info_Type), dimension(0:255), public :: Cube_Info
+    !!----
+    !!----  TYPE :: NODE
+    !!----
+    !!----
+    !!----  31/05/2020
+    !!
+    Type, Private :: Node
+       Integer                     :: nbonds    =0    ! number of bonds of the node
+       Integer                     :: nbonds_pbc=0    ! number of bonds of the node with periodic boundary conditions (pbc)
+       Integer                     :: Type      =0    ! 0: inside unit cell 1: on a face 2: on an edge  3: on a coner
+       Integer                     :: state     =0    ! 0: non-visited, 1: visited
+       Integer                     :: cc        =0    ! connected component to which the node belongs before pbc
+       Integer                     :: cc_pbc    =0    ! connected component to which the node belongs after pbc
+       Integer, Dimension(3)       :: face      =0    !
+       Integer, Dimension(12)      :: bond      =0    ! bonds of the node
+       Integer, Dimension(12)      :: bond_pbc  =0    ! bonds of the node
+       Real(kind=cp), Dimension(3) :: xyz    =0.0_cp  ! coordinates of the node
+       Real(kind=cp), Dimension(3) :: xyz_aux=0.0_cp  ! coordinates of the node
+    End Type node
 
-    !---- Parameters ----!
-    integer, public, parameter ::  MAX_POINTS    = 500000   ! Number of maximum points permitted
+    !!----
+    !!----  TYPE :: COMPONENT
+    !!----
+    !!----  Type :: Component
+    !!----    Integer                            :: nbonds  ! number of bonds
+    !!----    Integer                            :: state   ! 0: non-visited
+    !!----                                                  ! 1: visited
+    !!----    Integer                            :: cc      ! component index
+    !!----    Integer                            :: pbc     ! bonds of the node
+    !!----    Integer, Dimension(:), Allocatable :: bond    ! component-component bonds
+    !!----  End Type Component
+    !!----
+    !!----  Update: July - 2016
+    !!
+    Type, Private :: Component
+       Integer                            :: nbonds=0   ! number of bonds
+       Integer                            :: state =0   ! 0: non-visited 1: visited
+       Integer                            :: cc    =0   ! component index
+       Integer                            :: pbc   =0   ! bonds of the node
+       Integer, Dimension(:), Allocatable :: bond       ! component-component bonds
+    End Type component
+
+    !---- Variables ----!
+    Type(Cube_Info_Type), dimension(0:255), public   :: Cube_Info
+    Type(Node),           Dimension(:), Allocatable  :: nodes        ! Nodes of the graph
+    Type(Component),      Dimension(:), Allocatable  :: cts          ! Connected components of the graph
 
 
     !---- Overlapp zone ----!
@@ -213,9 +257,70 @@
            logical, optional,                  intent(in)      :: Abs_Code    ! logical to use absolute value on Rho
         End Subroutine Search_Peaks
 
+        Module Subroutine Read_BVEL(Filename,rho)
+           character(len=*),                             intent(in)  :: filename
+           real(kind=cp), dimension(:,:,:), allocatable, intent(out) :: rho
+        End Subroutine Read_BVEL
+
+        Module Subroutine Percol_Analysis(rho, Emin, Eini, Eend, dE, E_percol, axis, Lun)
+           Real(kind=cp), Dimension(:,:,:), Intent(in)    :: rho
+           Real(kind=cp),                   Intent(in)    :: Emin
+           Real(kind=cp),                   Intent(in)    :: Eini
+           Real(kind=cp),                   Intent(in)    :: Eend
+           Real(kind=cp),                   Intent(in)    :: dE
+           Real(kind=cp), Dimension(3),     Intent(inout) :: E_percol
+           Integer, Optional,               Intent(in)    :: axis
+           Integer, Optional,               Intent(in)    :: lun
+        End Subroutine Percol_Analysis
+
     End Interface
 
  Contains
+
+    !!----
+    !!---- DFS_C
+    !!----
+    !!----
+    !!---- 31/05/2020
+    !!
+    Recursive Subroutine DFS_C(id,ncc)
+       !---- Arguments ----!
+       Integer, Intent(in) :: id, ncc
+
+       !---- Local variables ----!
+       Integer             :: j, k
+
+       cts(id)%state  = 1
+       cts(id)%cc     = ncc
+
+       Do j = 1, cts(id)%nbonds
+          k = cts(id)%bond(j)
+          if (cts(k)%state == 0) Call DFS_C(k,ncc)
+       End Do
+
+    End Subroutine DFS_C
+
+    !!----
+    !!---- DFS_N
+    !!----
+    !!----
+    !!---- 31/05/2020
+    !!
+    Recursive Subroutine DFS_N(id, ncc)
+       !---- Arguments ----!
+       integer, Intent(in) :: id, ncc
+
+       !---- Local variables ----!
+       Integer             :: j, k
+
+       nodes(id)%state  = 1
+       nodes(id)%cc     = ncc
+       Do j = 1, nodes(id)%nbonds
+          k = nodes(id)%bond(j)
+          if (nodes(k)%state == 0) Call DFS_N(k,ncc)
+       End Do
+
+    End Subroutine DFS_N
 
 
 
