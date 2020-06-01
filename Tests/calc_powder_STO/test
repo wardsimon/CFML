@@ -16,6 +16,9 @@ f.add(from_string = 'lambda',
       num_lines = 30,
       abs_tolerance = 1.0e-3)
 
-test.run('calc_powder',['STO.cfl'], {'dat': f})
+if os.name == "nt":
+    test.run('calc_powder.exe',['STO.cfl'], {'dat': f})
+else:
+    test.run('calc_powder',['STO.cfl'], {'dat': f})
 
 sys.exit(test.return_code)

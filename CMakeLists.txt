@@ -108,12 +108,6 @@ endif()
 if (PROG_EX)
   enable_testing()
 
-  # copy test scripts to build/Test
-  execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Tests)
-  execute_process(COMMAND cp -r ${CMAKE_SOURCE_DIR}/Tests/runtest ${CMAKE_BINARY_DIR}/Tests)
-  execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/Tests/runtest_cfml.py ${CMAKE_BINARY_DIR}/Tests)
-  execute_process(COMMAND cp ${CMAKE_SOURCE_DIR}/Tests/runtest_v1.py ${CMAKE_BINARY_DIR}/Tests)
-  
   macro(add_runtest _name _bindir)
     add_test(
       NAME ${_name}

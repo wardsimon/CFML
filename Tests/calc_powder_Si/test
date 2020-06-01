@@ -16,6 +16,9 @@ f.add(from_string = '|Fc|^2      Num',
       num_lines = 10,
       abs_tolerance = 1.0e-6)
 
-test.run('calc_powder',['Si_Laue.cfl'], {'powder': f})
+if os.name == "nt":
+    test.run('calc_powder.exe',['Si_Laue.cfl'], {'powder': f})
+else:
+    test.run('calc_powder',['Si_Laue.cfl'], {'powder': f})
 
 sys.exit(test.return_code)
