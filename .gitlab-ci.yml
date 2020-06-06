@@ -167,10 +167,10 @@ make_release:linux:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_setup .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_release_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_release_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_release_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof:/fullprof -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_release_build
   artifacts:
     paths:
-    - ${CI_PROJECT_DIR}/build_release
+    - ${CI_PROJECT_DIR}/ifort
     expire_in: 1 day
   tags:
     - docker
@@ -185,7 +185,7 @@ make_release:linux_F2008:
     - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel ci_crysfml_xenial_release_build_f2008
   artifacts:
     paths:
-    - ${CI_PROJECT_DIR}/build_release_F2008
+    - ${CI_PROJECT_DIR}/ifort
     expire_in: 1 day
   tags:
     - docker
@@ -198,10 +198,11 @@ make_release:macos:
   script:
     - export HDF5_INCLUDE_PATH="/Users/ci/Projects/fullprof/hdf5-ifort/include"
     - export HDF5_LIBRARY_PATH="/Users/ci/Projects/fullprof/hdf5-ifort/lib"
+    - export PYTHON_LIBRARY_PATH="/Users/ci/Projects/fullprof/libpython3.7.dylib"
     - BuildServer/Unix/build_release.sh
   artifacts:
     paths:
-    - ${CI_PROJECT_DIR}/build_release
+    - ${CI_PROJECT_DIR}/ifort
     expire_in: 1 day
   tags:
     - sci
@@ -213,7 +214,7 @@ make_release:macos_F2008:
     - BuildServer/Unix/build_release_F2008.sh
   artifacts:
     paths:
-    - ${CI_PROJECT_DIR}/build_release_F2008
+    - ${CI_PROJECT_DIR}/ifort
     expire_in: 1 day
   tags:
     - sci
@@ -228,10 +229,11 @@ make_release:windows:
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib
+    - set PYTHON_LIBRARY_PATH=C:\\Projects\\fullprof\\python37\\libs\\python37.lib
     - call "BuildServer\\Windows\\build_release.bat"
   artifacts:
     paths:
-    - "%CI_PROJECT_DIR%\\build_release"
+    - "%CI_PROJECT_DIR%\\ifort"
     expire_in: 1 day
   tags:
     - sci
@@ -245,7 +247,7 @@ make_release:windows_F2008:
     - call "BuildServer\\Windows\\build_release_F2008.bat"
   artifacts:
     paths:
-    - "%CI_PROJECT_DIR%\\build_release_F2008"
+    - "%CI_PROJECT_DIR%\\ifort"
     expire_in: 1 day
   tags:
     - sci

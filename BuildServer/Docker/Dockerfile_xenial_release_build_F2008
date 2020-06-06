@@ -13,4 +13,4 @@ ENV HDF5_LIBRARY_PATH=/hdf5/lib
 COPY ./ /app/
 WORKDIR /app
 
-CMD BuildServer/Unix/build_release_F2008.sh ifort && cp -a build_release_F2008 /artifacts/
+CMD BuildServer/Unix/build_release_F2008.sh ifort && cp -a ifort /artifacts/
