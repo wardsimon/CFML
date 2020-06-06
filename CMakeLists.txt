@@ -10,6 +10,7 @@ option(USE_HDF "Build crysfml and wcrysfml library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
+option(PYTHON_API "Build Python API" OFF)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
@@ -45,6 +46,14 @@ else()
 endif()
 set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
+
+# Include and library paths for Python. 
+# They must be set by the user.
+if(DEFINED PYTHON_LIBRARY_PATH)
+    set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH} CACHE PATH "Python library path")
+else()
+    set(PYTHON_LIBRARY_PATH "" CACHE PATH "Python library path")
+endif()
 
 # Include and library paths for HDF5. 
 # They must be set by the user.
@@ -100,4 +109,9 @@ else()
     set_compiler_flags_08()    
     # The subdirectories of the project.
     add_subdirectory(Src08)
+endif()
+
+if (PYTHON_API)
+    set(PYTHON_API_PREFIX ${CMAKE_INSTALL_PREFIX}/Python_API)
+    add_subdirectory(Python_API/Src)
 endif()
