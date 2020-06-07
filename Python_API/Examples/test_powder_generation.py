@@ -7,10 +7,6 @@ import matplotlib.pyplot as plt
 plt.figure(1)
 
 powder_pattern = CFML_api.PowderPatternSimulator()
-powder_pattern.compute("Data/Si_Laue")
-plt.plot(powder_pattern.x, powder_pattern.y, label="Si_Laue")
-
-powder_pattern = CFML_api.PowderPatternSimulator()
 powder_pattern.compute("Data/ponsin")
 plt.plot(powder_pattern.x, powder_pattern.y, label="ponsin")
 
