@@ -43,6 +43,7 @@ CONTAINS
 
 !! Initialisation function for Python 3
 function PyInit_powder_generation() bind(c, name="PyInit_powder_generation") result(m)
+  !DEC$ ATTRIBUTES DLLEXPORT :: PyInit_powder_generation
   type(c_ptr) :: m
   m = init()
 end function
