@@ -169,9 +169,10 @@ make_release:linux:
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_release_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_release_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
     - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof:/fullprof -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_release_build
   artifacts:
+    name: "CrysFML Linux"
     paths:
-    - ${CI_PROJECT_DIR}/ifort
-    expire_in: 1 day
+    - ${CI_PROJECT_DIR}/ifort/LibC
+    - ${CI_PROJECT_DIR}/ifort/Python_API
   tags:
     - docker
     - sci
@@ -184,9 +185,9 @@ make_release:linux_F2008:
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_release_build_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_release_build_F2008 --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
     - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel ci_crysfml_xenial_release_build_f2008
   artifacts:
+    name: "CrysFML08 Linux"
     paths:
-    - ${CI_PROJECT_DIR}/ifort
-    expire_in: 1 day
+    - ${CI_PROJECT_DIR}/ifort/LibC08
   tags:
     - docker
     - sci
@@ -201,9 +202,10 @@ make_release:macos:
     - export PYTHON_LIBRARY_PATH="/Users/ci/Projects/fullprof/libpython3.7.dylib"
     - BuildServer/Unix/build_release.sh
   artifacts:
+    name: "CrysFML macOS"
     paths:
-    - ${CI_PROJECT_DIR}/ifort
-    expire_in: 1 day
+    - ${CI_PROJECT_DIR}/ifort/LibC
+    - ${CI_PROJECT_DIR}/ifort/Python_API
   tags:
     - sci
     - osx-10.13
@@ -213,9 +215,9 @@ make_release:macos_F2008:
   script:
     - BuildServer/Unix/build_release_F2008.sh
   artifacts:
+    name: "CrysFML08 macOS"
     paths:
-    - ${CI_PROJECT_DIR}/ifort
-    expire_in: 1 day
+    - ${CI_PROJECT_DIR}/ifort/LibC08
   tags:
     - sci
     - osx-10.13
@@ -232,9 +234,10 @@ make_release:windows:
     - set PYTHON_LIBRARY_PATH=C:\\Projects\\fullprof\\python37\\libs\\python37.lib
     - call "BuildServer\\Windows\\build_release.bat"
   artifacts:
+    name: "CrysFML Windows"
     paths:
-    - "%CI_PROJECT_DIR%\\ifort"
-    expire_in: 1 day
+    - "%CI_PROJECT_DIR%\\ifort\\LibC"
+    - "%CI_PROJECT_DIR%\\ifort\\Python_API"
   tags:
     - sci
     - windows-10
@@ -246,9 +249,9 @@ make_release:windows_F2008:
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
     - call "BuildServer\\Windows\\build_release_F2008.bat"
   artifacts:
+    name: "CrysFML08 Windows"
     paths:
-    - "%CI_PROJECT_DIR%\\ifort"
-    expire_in: 1 day
+    - "%CI_PROJECT_DIR%\\ifort\\LibC08"
   tags:
     - sci
     - windows-10
