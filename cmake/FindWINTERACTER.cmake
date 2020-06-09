@@ -197,18 +197,19 @@ else()
 
         find_path(WINTERACTER_MOD_DIR
                   NAMES winteracter.mod
-                  PATHS ${WINTERACTER}/lib.gnu64
-                        ${WINTER}/lib.gnu64
-                        ${WINT}/lib.gnu64
-                        ${HOME}/wint/lib.gnu64
-                        ${HOME}/lib.gnu64
-                        /usr/local/lib/wint/lib.gnu64
-                        /usr/lib/wint/lib.gnu64
-                        /opt/lib/wint/lib.gnu64)
+                  PATHS ${WINTERACTER}/lib.gnu64/8.3
+                        ${WINTER}/lib.gnu64/8.3
+                        ${WINT}/lib.gnu64/8.3
+                        ${HOME}/wint/lib.gnu64/8.3
+                        ${HOME}/lib.gnu64/8.3
+                        /usr/local/lib/wint/lib.gnu64/8.3
+                        /usr/lib/wint/lib.gnu64/8.3
+                        /opt/lib/wint/lib.gnu64/8.3)
 
     endif()
 
-    libfind_library(XM Xm)
+    #libfind_library(XM Xm)
+    find_library(XM_LIBRARY NAMES Xm PATHS ENV LD_LIBRARY_PATH)
     libfind_library(XT Xt)
     libfind_library(XMU Xmu)
     libfind_library(X11 X11)
@@ -216,8 +217,8 @@ else()
     libfind_library(SM SM)
     libfind_library(ICE ICE)
     libfind_library(XFT Xft)
-    libfind_library(PNG png)
-    libfind_library(JPEG jpeg)
+    libfind_library(FONTCONFIG fontconfig)
+    libfind_library(XINERAMA Xinerama)
 
     find_library(WINTERACTER_LIBRARY NAMES winter wint PATHS ${WINTERACTER_MOD_DIR})
 
@@ -235,8 +236,8 @@ else()
                                  SM_LIBRARY
                                  ICE_LIBRARY
                                  XFT_LIBRARY
-                                 PNG_LIBRARY
-                                 JPEG_LIBRARY)
+                                 FONTCONFIG_LIBRARY
+                                 XINERAMA_LIBRARY)
 
 endif()
 
