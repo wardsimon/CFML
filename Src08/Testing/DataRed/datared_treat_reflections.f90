@@ -51,7 +51,7 @@
       integer, dimension(size(R%Ref(1)%h))            :: hh,kk
       integer, dimension(size(R%Ref(1)%h),R%nref)     :: h_rep
       integer, dimension(R%nref)                      :: inf_mag
-      integer, dimension(size(R%Ref(1)%h),SpG%Multip) :: h_list
+      integer, dimension(size(R%Ref(1)%h),2*SpG%Multip) :: h_list
       real(kind=cp),    dimension(3)                  :: hr
       real(kind=cp),    dimension(R%nref)             :: intav, sigmav, sigstat, warn
       real(kind=cp),    dimension(R%nref)             :: intav_mag
@@ -177,6 +177,7 @@
             fin(indp)=i
             inf_mag(indp)=R%Ref(i)%imag
             n=1
+            nt(indp)=n
             intav(indp)=R%Ref(i)%Intens
             sigmav(indp)=R%Ref(i)%sigma
             sigg=R%Ref(i)%sigma
@@ -242,9 +243,9 @@
                end if
             end do
             weight(1:n)=weight(1:n)/sig
-            sigstat(indp) = sqrt(sigstat(indp))/real(n)
-            intav(indp)=intav(indp)/real(n)
-            sigg=sigg/real(n)
+            sigstat(indp) = sqrt(sigstat(indp))/max(real(n),1.0)
+            intav(indp)=intav(indp)/max(real(n),1.0)
+            sigg=sigg/max(real(n),1.0)
             suma=0.0
             ns=0
             do j=ini(indp),fin(indp)
@@ -296,13 +297,13 @@
               write(unit=ihkl,fmt=fm3) h_rep(:,indp),intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,warn_mess(warn(indp))//"    "//inf(inf_mag(indp))
             end if
             if(cond%magnetic .and. R%Ref(i)%imag == 1) then
-              intav_mag(indp)=intav_mag(indp) / real(n_mag)
+              intav_mag(indp)=intav_mag(indp) / max(real(n_mag),1.0)
             end if
             if(D > 3) then
               if(sum(abs(hh(4:))) > 0) then
-                intav_sat(indp)=intav_sat(indp) / real(n_sat)
+                intav_sat(indp)=intav_sat(indp) / max(real(n_sat),1.0)
               else
-                intav_fun(indp)=+intav_fun(indp) / real(n_fun)
+                intav_fun(indp)=intav_fun(indp) / max(real(n_fun),1.0)
               end if
             end if
 
@@ -340,8 +341,8 @@
       end do
       Rint = 100.0*suma/max(1.0,suman)
       Rwint= 100.0*sqrt(sumaw/max(1.0,sumanw))
-      aver_sig= total/real(indp)
-      aver_int=suman/real(indp)
+      aver_sig= total/max(real(indp),1.0)
+      aver_int=suman/max(real(indp),1.0)
 
 
       write(unit=iou,fmt="(/,a,i10)")" => Number of reflections read               : ", R%nref

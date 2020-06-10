@@ -1,7 +1,7 @@
   Module DataRed_Mod
     Use CFML_GlobalDeps
     Use CFML_gSpaceGroups
-    Use CFML_IOForm, only : Read_CFL_SpG,Read_CFL_Cell,Read_kinfo
+    Use CFML_IOForm, only : Read_CFL_SpG,Read_CFL_Cell,Read_CFL_KVectors
     Use CFML_Metrics
     Use CFML_Strings, only: File_Type, Reading_File,u_case
     Use CFML_Reflections
@@ -98,7 +98,7 @@
       cond%spg_given=.true.
 
       D=3
-      call Read_kinfo(Cfl,kinfo)
+      call Read_CFL_KVectors(Cfl,kinfo)
       if(Err_CFML%Ierr /= 0) return
       if(kinfo%nk > 0) then
         cond%prop=.true.
@@ -361,9 +361,9 @@
        if(cond%hkl_type /= 10) then
          if(cond%statistics) then
             write(unit=*,fmt="(a)")   &
-            " => Statistical errors are considered for sigmas of average intensisites (propagation error formula)"
+            " => Statistical errors are considered for sigmas of average intensities (propagation error formula)"
             write(unit=iou,fmt="(a)") &
-            " => Statistical errors are considered for sigmas of average intensisites (propagation error formula)"
+            " => Statistical errors are considered for sigmas of average intensities (propagation error formula)"
          else
             write(unit=*,fmt="(a)")   &
             " => Statistics is NOT considered for sigmas of average intensities: exp. variance weighted with 1/sigmas^2"

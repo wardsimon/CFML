@@ -485,7 +485,7 @@ SubModule (CFML_IOForm) IO_CFL
                call Set_SpaceGroup(line,SpG)
                exit
 
-            case("GEN","SYMM")
+            case("GEN","GENR","SYMM")
                ngen=ngen+1
                gen(ngen)=line
          end select

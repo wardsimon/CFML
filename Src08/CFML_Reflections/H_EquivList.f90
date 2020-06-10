@@ -67,7 +67,7 @@ SubModule (CFML_Reflections) RFL_012
          end if
       end do
 
-      if (Friedel .or. SpG%centred == 2) then
+      if (Friedel .and. SpG%centred == 1) then
          j=mult
          mult=mult*2
          do i=j+1,mult

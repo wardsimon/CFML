@@ -112,7 +112,7 @@
                Ob(nr)%hr=Ob(nr)%h
             end do
 
-        Case(11)       !Shelx-like HKLF5 input file (xi4,2f8.2,i4) for superspace
+        Case(11,12)       !Shelx-like HKLF5 input file (xi4,2f8.2,i4) for superspace or free format
 
              if(.not. cond%cell_given) then
               Err_CFML%Msg=" => UNIT CELL not GIVEN! Modify your input file."
@@ -124,9 +124,12 @@
               Err_CFML%Ierr=1
               return
             end if
-
-            cond%forma="( i4,2f8.2,i4)"
-            write(unit=cond%forma(2:2),fmt="(i1)") 3+kinfo%nk
+            if(cond%hkl_type == 11) then
+              cond%forma="( i4,2f8.2,i4)"
+              write(unit=cond%forma(2:2),fmt="(i1)") 3+kinfo%nk
+            else if(cond%hkl_type == 12) then
+              cond%forma="*"
+            end if
             do
                nr=nr+1
                read(unit=inp,fmt=trim(cond%forma),iostat=ier)  Ob(nr)%h, Ob(nr)%intens, Ob(nr)%sigma, Ob(nr)%idomain

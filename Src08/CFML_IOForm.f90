@@ -73,7 +73,7 @@ Module CFML_IOForm
 
    !---- Public subroutines ----!
 
-   public :: Read_Xtal_Structure, &
+   public :: Read_Xtal_Structure, Read_CFL_KVectors, Read_CFL_Cell, Read_CFL_SpG, &
              Write_Cif_Template, Write_SHX_Template, Write_MCIF_Template
 
    !--------------------!
