@@ -307,6 +307,9 @@
             write(unit=iou,fmt="(a)")  " Data from JANA-format "
             write(unit=iou,fmt="(a)")  " Format of the reflections file => "//trim(forma)
             write(unit=iou,fmt="(a/)") " For reading the items: h k l m ... Int Sigma domain_code"
+         case(12)
+            write(unit=iou,fmt="(a)")  " Free-format for superspace "
+            write(unit=iou,fmt="(a/)") " For reading the items: h k l m ... Int Sigma domain_code"
        End Select
 
 
