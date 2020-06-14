@@ -13,5 +13,7 @@
 # **************************************************************************
 
 from CFML_api.PowderPatternSimulation import PowderPatternSimulator
+from CFML_api.PowderPatternSimulation import PowderPatternSimulationConditions
+from CFML_api.PowderPatternSimulation import PowderPatternSimulationSource
 
-API_version = 0.1
+API_version = 0.2

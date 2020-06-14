@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 # The project is declared. It is a Fortran project.
 project(Python_API Fortran)
 set(LIBRARY_NAME powder_generation)
-add_library(${LIBRARY_NAME} SHARED Extensions/powder_generation.f90 Extensions/forpy_mod.f90)
+add_library(${LIBRARY_NAME} SHARED Extensions/CFML_API_PowderSimulation.f90 Extensions/powder_generation.f90 Extensions/forpy_mod.f90)
 
 # Forpy must be preprocessed
 set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
