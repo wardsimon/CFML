@@ -46,7 +46,7 @@ endif()
 set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
-# Include and library paths for HDF5. 
+# Include and library paths for HDF5.
 # They must be set by the user.
 if(DEFINED HDF5_INCLUDE_PATH)
     set(HDF5_INCLUDE_PATH ${HDF5_INCLUDE_PATH} CACHE PATH "HDF5 include path")
@@ -89,15 +89,15 @@ endif()
 
 # Includes some modules and build the project.
 include(add_prefix)
-include(add_suffix)    
-if (NOT CRYSFML08)        
+include(add_suffix)
+if (NOT CRYSFML08)
     include(set_compiler_flags)
     set_compiler_flags()
     # The subdirectories of the project.
     add_subdirectory(Src)
 else()
     include(set_compiler_flags_08)
-    set_compiler_flags_08()    
+    set_compiler_flags_08()
     # The subdirectories of the project.
     add_subdirectory(Src08)
 endif()
