@@ -88,7 +88,7 @@ Module CFML_GlobalDeps
       integer                         :: nl=0                     ! number of lines
       character(len=132),dimension(5) :: Txt=" "                  ! Extra Message information
    End Type Err_Type
-   Type (Err_Type)       :: Err_CFML                             ! Error Information for CFML
+   Type (Err_Type)                    :: Err_CFML                 ! Error Information for CFML
 
    !---- Error Flags ----!
    logical :: CFML_DEBUG=.false. ! For checking test
