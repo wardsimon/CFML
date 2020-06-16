@@ -40,7 +40,7 @@ SubModule (CFML_Reflections) RFL_012
       mult=1
       h_list(:,1)=h(:)
       if(present(ipos)) then
-        mp=count(h > 0)
+        mp=count(h(1:3) > 0)
         ipos=1
       end if
       ng=SpG%multip
@@ -59,7 +59,7 @@ SubModule (CFML_Reflections) RFL_012
          mult=mult+1
          h_list(:,mult) = k
          if(present(ipos)) then
-           j=count(h_list(:,i) > 0)
+           j=count(h_list(1:3,i) > 0)
            if( j > mp) then
              mp=j
              ipos=mult
