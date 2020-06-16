@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_001
+SubModule (CFML_Profiles) PRF_Finger
    Contains
    !!----
    !!---- FUNCTION DFUNC_INT
@@ -337,4 +337,4 @@ SubModule (CFML_Profiles) PRF_001
       Return
    End Subroutine Prof_Val
 
-End SubModule PRF_001
+End SubModule PRF_Finger

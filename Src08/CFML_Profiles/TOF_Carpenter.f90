@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) TOF_001
+SubModule (CFML_Profiles) PRF_Tof_Carpenter
    Contains
    !!----
    !!---- TOF_CARPENTER
@@ -245,4 +245,4 @@ SubModule (CFML_Profiles) TOF_001
       return
    End Subroutine Tof_Carpenter
 
-End SubModule TOF_001
+End SubModule PRF_Tof_Carpenter

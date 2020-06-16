@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) TOF_003
+SubModule (CFML_Profiles) PRF_Tof_Jorgensen_Vondreele
    Contains
    !!----
    !!---- TOF_JORGENSEN_VONDREELE
@@ -138,4 +138,4 @@ SubModule (CFML_Profiles) TOF_003
       return
    End Subroutine Tof_Jorgensen_Vondreele
 
-End SubModule TOF_003
+End SubModule PRF_Tof_Jorgensen_Vondreele

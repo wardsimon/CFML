@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_002
+SubModule (CFML_Profiles) PRF_Init_Profval
    Contains
    !!----
    !!---- INIT_PROF_VAL
@@ -874,4 +874,4 @@ SubModule (CFML_Profiles) PRF_002
       return
    End Subroutine Init_Prof_Val
 
-End SubModule PRF_002
+End SubModule PRF_Init_Profval

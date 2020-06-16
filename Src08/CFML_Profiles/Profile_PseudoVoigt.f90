@@ -3,7 +3,7 @@
 !!----
 !!---- 21/04/19
 !!
-SubModule (CFML_Profiles) PRF_006
+SubModule (CFML_Profiles) PRF_Pseudovoigt
    Contains
     !!----
     !!---- FUNCTION PSEUDOVOIGT
@@ -299,4 +299,4 @@ SubModule (CFML_Profiles) PRF_006
     End Subroutine Split_Pseudovoigt_Der
 
 
- End SubModule PRF_006
+ End SubModule PRF_Pseudovoigt

@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_011
+SubModule (CFML_Profiles) PRF_BacktoBack
    Contains
    !!----
    !!---- BACK_TO_BACK_EXP
@@ -70,4 +70,4 @@ SubModule (CFML_Profiles) PRF_011
       return
    End Subroutine Back_To_Back_Exp_Der
 
-End SubModule PRF_011
+End SubModule PRF_BacktoBack
