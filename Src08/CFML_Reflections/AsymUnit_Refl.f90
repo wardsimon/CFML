@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_008
+SubModule (CFML_Reflections) RFL_Asymm_Unit
    Contains
    !!----
    !!---- Get_Asymm_Unit_H
@@ -619,4 +619,4 @@ SubModule (CFML_Reflections) RFL_008
       end select
    End Function Asu_H_Triclinic
 
-End SubModule RFL_008
+End SubModule RFL_Asymm_Unit

@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_012
+SubModule (CFML_Reflections) RFL_Equivalent_List
    Contains
    !!----
    !!>   Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List,ipos)
@@ -77,4 +77,4 @@ SubModule (CFML_Reflections) RFL_012
 
    End Subroutine H_Equiv_List
 
-End SubModule RFL_012
+End SubModule RFL_Equivalent_List

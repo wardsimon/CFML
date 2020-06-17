@@ -2,7 +2,7 @@
 !!----
 !!----
 !!
-SubModule (CFML_Reflections) RFL_001
+SubModule (CFML_Reflections) RFL_Equal
    Contains
    !!----
    !!---- H_EQUAL
@@ -29,4 +29,4 @@ SubModule (CFML_Reflections) RFL_001
       end do
    End Function H_Equal
 
-End SubModule RFL_001
+End SubModule RFL_Equal

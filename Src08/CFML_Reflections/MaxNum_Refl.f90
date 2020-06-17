@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) Maximum_Number_of_Reflections
+SubModule (CFML_Reflections) RFL_Maximum_Number_of_Reflections
    Contains
 
    !!----
@@ -37,4 +37,4 @@ SubModule (CFML_Reflections) Maximum_Number_of_Reflections
       !> is not enough for allocating the real number of reflections
       if (present(Mult)) numref=2 * numref/max(1,Mult)
    End Function Get_MaxNumRef
-End SubModule Maximum_Number_of_Reflections
+End SubModule RFL_Maximum_Number_of_Reflections

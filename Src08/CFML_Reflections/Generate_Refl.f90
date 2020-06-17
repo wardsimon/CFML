@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) Generation_of_general_Reflections
+SubModule (CFML_Reflections) RFL_Generation_of_Reflections
    Contains
    !!----
    !!---- Gener_Reflections
@@ -259,4 +259,4 @@ SubModule (CFML_Reflections) Generation_of_general_Reflections
       end do
    End Subroutine Gener_Reflections
 
-End SubModule Generation_of_general_Reflections
+End SubModule RFL_Generation_of_Reflections

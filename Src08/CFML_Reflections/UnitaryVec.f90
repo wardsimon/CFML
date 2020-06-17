@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_007
+SubModule (CFML_Reflections) RFL_Unitary_Vector_H
    Contains
    !!----
    !!---- UNITARY_VECTOR_H
@@ -24,4 +24,4 @@ SubModule (CFML_Reflections) RFL_007
       u=u/sqrt(u(1)*u(1)+u(2)*u(2)+u(3)*u(3))
    End Function Unitary_Vector_H
 
-End SubModule RFL_007
+End SubModule RFL_Unitary_Vector_H
