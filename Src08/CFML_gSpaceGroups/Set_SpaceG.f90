@@ -51,7 +51,7 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
       Type(rational), dimension(SpaceG%D-1)            :: v
       Type(rational), dimension(:,:),allocatable       :: newLat
       Type(rational) :: det
-      integer :: i,j,k,l,n,m,Npos,d,Dd,im
+      integer :: i,j,k,l,n,m,Npos,d,Dd
       character(len=6) :: Strcode
       character(len=80), dimension(:),allocatable :: gen_lat
       type(spg_type)   :: SpG, P1_t !Auxiliary space groups

@@ -731,7 +731,7 @@
        Interface
         Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
            use CFML_GlobalDeps, only: cp
-           import,              only: LSQ_State_Vector_type
+           import :: LSQ_State_Vector_type
            integer,                     intent(in)     :: iv
            real(kind=cp),               intent(in)     :: xv
            real(kind=cp),               intent(out)    :: ycalc

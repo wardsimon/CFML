@@ -20,7 +20,7 @@ SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
       !---- Local Variables ----!
       integer :: i,j,k,m,n,nmod,iclass
       integer :: i_db, ier,L !,i_lab
-      character(len=512) :: ssg_file,database
+      character(len=512) :: database
       character(len=40)  :: Env
       character(len=4)   :: line
 

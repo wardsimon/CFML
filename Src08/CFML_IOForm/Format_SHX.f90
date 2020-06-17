@@ -22,7 +22,7 @@ SubModule (CFML_IOForm) IO_SHX
       !---- Local Variables ----!
       logical                         :: flag_atm
       character(len=30),dimension(15) :: label
-      character(len=80)               :: line,line2
+      character(len=80)               :: line
       character(len=2)                :: el
       integer                         :: i, j, n, nc, iv
 
@@ -875,9 +875,9 @@ SubModule (CFML_IOForm) IO_SHX
       !---- Local Variables ----!
       character(len=60), dimension(192) :: symm_car
       character(len=2),  dimension(15)  :: elem_atm
-      integer                           :: i,n_ini, n_end, nl, noper
+      integer                           :: i, nl, noper
       integer                           :: n_elem_atm, n_fvar
-      real(kind=cp), dimension(6)       :: vet,vet2
+      real(kind=cp), dimension(6)       :: vet
       real(kind=cp), dimension(10)      :: fvar
 
       !> Init

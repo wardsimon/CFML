@@ -250,7 +250,7 @@ SubModule (CFML_gSpaceGroups) SPG_SubGroups
       character (len=40), dimension(:),allocatable :: gen
       character (len=40), dimension(Spg%Num_Lat)   :: gen_lat
       character (len=256),dimension(:),allocatable :: list_gen
-      character (len=40)                           :: gen_cent, gen_aux
+      character (len=40)                           :: gen_cent
       type(Symm_Oper_Type)                         :: Op_cent, Op_aux
       type(Symm_Oper_Type), dimension(Spg%Num_Lat) :: Op_lat
 

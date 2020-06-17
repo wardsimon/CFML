@@ -152,7 +152,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                                      :: SSG
       character(len=60), dimension(:), allocatable :: symop
       integer                                      :: nsym,ncen
-      integer                                      :: i, iph, nt_phases, it, n_ini,n_end
+      integer                                      :: i, iph, nt_phases, n_ini,n_end
       integer, dimension(MAX_PHASES)               :: ip
 
 
@@ -277,7 +277,7 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !---- Local Variables ----!
       logical                        :: info
-      integer                        :: i,j,ipr,L
+      integer                        :: ipr
 
       !> Init
       ipr=0
@@ -417,8 +417,7 @@ SubModule (CFML_IOForm) IO_MCIF
       class (Spg_type), intent(in) :: Spg
 
       !---- Local Variables ----!
-      integer                        :: i,j,L
-      type(rational), dimension(3,3) :: unidad
+      !type(rational), dimension(3,3) :: unidad
 
 
       write(unit=ipr,fmt="(a)") " "
@@ -505,7 +504,7 @@ SubModule (CFML_IOForm) IO_MCIF
       class (Spg_type), intent(in) :: Spg
 
       !---- Local Variables ----!
-      integer                        :: i,j,L
+      integer                        :: i,j
       type(rational), dimension(3,3) :: unidad
 
       !> Init
@@ -542,7 +541,7 @@ SubModule (CFML_IOForm) IO_MCIF
       class (Spg_type), intent(in) :: Spg
 
       !---- Local Variables ----!
-      integer                        :: i,j,L
+      integer                        :: i
       type(rational), dimension(3,3) :: unidad
 
       !> Init
@@ -666,7 +665,6 @@ SubModule (CFML_IOForm) IO_MCIF
       class (Spg_type), intent(in) :: Spg
 
       !---- Local Variables ----!
-      integer :: np1,np2
 
 
 
@@ -992,7 +990,7 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, dimension(3)                        :: ivet
       integer                                      :: i, j, k,nl, np, nq, ic, iv, npos
       integer                                      :: j_ini, j_end
-      integer                                      :: i1,i2,i3
+      integer                                      :: i1,i2
       real(kind=cp), dimension(3)                  :: vet1,vet2
       real(kind=cp), dimension(2)                  :: xv,xv_std
 
@@ -2204,10 +2202,6 @@ SubModule (CFML_IOForm) IO_MCIF
       integer,         intent(in) :: Ipr
       class(SpG_Type), intent(in) :: Spg
 
-      !---- Local Variables ----!
-      integer               :: i
-      Type(Kvect_Info_Type) :: K
-
       !> d
       write(unit=Ipr,fmt="(a,5x,i3)") "_cell_modulation_dimension", SpG%D-4
       write(unit=ipr,fmt="(a)") " "
@@ -2229,8 +2223,6 @@ SubModule (CFML_IOForm) IO_MCIF
       character(len=1)            :: car
       integer                     :: i,iv,np,npos
       integer                     :: j_ini, j_end
-      integer,       dimension(1) :: ivet
-      real(kind=cp), dimension(1) :: vet
 
       !> Init
       call clear_error()
@@ -2564,8 +2556,6 @@ SubModule (CFML_IOForm) IO_MCIF
       integer                     :: i,j,iv,np, npos,nl
       integer                     :: j_ini, j_end
       integer,       dimension(5) :: lugar
-      integer,       dimension(1) :: ivet
-      real(kind=cp), dimension(1) :: vet
 
       !> Init
       call clear_error()
@@ -2673,7 +2663,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
       integer                                      :: j_ini, j_end
-      integer                                      :: i,j,iv,np,nl,nl1,ic, npos
+      integer                                      :: i,j,iv,np,nl,ic, npos
       integer,       dimension(3)                  :: lugar
 
       !> Init
@@ -2803,7 +2793,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
       integer                                      :: j_ini, j_end
-      integer                                      :: i,j,iv,np,nl,nl1,ic,npos
+      integer                                      :: i,j,iv,np,nl,ic,npos
       integer,       dimension(2)                  :: lugar
 
       !> Init
@@ -2929,7 +2919,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
       integer                                      :: j_ini, j_end, npos
-      integer                                      :: i,j,iv,np,nl,nl1,ic
+      integer                                      :: i,j,iv,np,nl,ic
       integer,       dimension(3)                  :: lugar
 
       !> Init
@@ -3057,7 +3047,7 @@ SubModule (CFML_IOForm) IO_MCIF
       logical                                      :: found
       character(len=80), dimension(3)              :: dire
       integer                                      :: j_ini, j_end
-      integer                                      :: i,j,iv,np,nl,nl1,ic,npos
+      integer                                      :: i,j,iv,np,nl,ic,npos
       integer,       dimension(3)                  :: lugar
 
       !> Init
@@ -3177,11 +3167,10 @@ SubModule (CFML_IOForm) IO_MCIF
       integer, optional,     intent(in)    :: i_ini,i_end
 
       !---- Local Variables ----!
-      character(len=1)            :: car
-      integer                     :: i,iv,np,npos
+      !character(len=1)            :: car
+      !integer                     :: i,iv,np,npos
       integer                     :: j_ini, j_end
-      integer,       dimension(1) :: ivet
-      real(kind=cp), dimension(1) :: vet
+      !integer,       dimension(1) :: ivet
 
       !> Init
       call clear_error()
@@ -3411,8 +3400,8 @@ SubModule (CFML_IOForm) IO_MCIF
       class(SpG_Type),  intent(in) :: Spg
 
       !---- Local Variables ----!
-      integer                         :: i, j
-      character(len=40), dimension(3) :: text
+      !integer                         :: i, j
+      !character(len=40), dimension(3) :: text
 
       !> Moment
       write(unit=Ipr,fmt="(a)") "loop_"

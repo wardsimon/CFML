@@ -56,7 +56,6 @@
 
        !---- Local variables ----!
        logical                          :: change_par
-       logical                          :: singular
        integer                          :: ntrials
        integer                          :: nfr,j,i,k,ntr
        real(kind=cp)                    :: chisq1
@@ -192,7 +191,7 @@
     !!--++     Interface
     !!--++      Subroutine Model_Functn(iv,xv,ycalc,Vsa,der)
     !!--++         use CFML_GlobalDeps, only: cp
-    !!--++         import,              only: LSQ_State_Vector_type
+    !!--++         import :: LSQ_State_Vector_type
     !!--++         integer,                             intent(in) :: iv
     !!--++         real(kind=cp),                       intent(in) :: xv
     !!--++         real(kind=cp),                       intent(out):: ycalc
@@ -215,7 +214,7 @@
        Interface
         Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
            use CFML_GlobalDeps, only: cp
-           import,              only: LSQ_State_Vector_type
+           import :: LSQ_State_Vector_type
            integer,                    intent(in)     :: iv
            real(kind=cp),              intent(in)     :: xv
            real(kind=cp),              intent(out)    :: ycalc
@@ -226,7 +225,6 @@
 
        !---- Local variables ----!
        logical                          :: change_par
-       logical                          :: singular
        integer                          :: ntrials,ncount
        integer                          :: nfr,j,i,k,ntr
        real(kind=cp)                    :: chisq1
@@ -766,7 +764,7 @@
        Interface
         Subroutine Model_Functn(iv,xv,ycalc,Vsa,calder)
            use CFML_GlobalDeps, only: cp
-           import,              only: LSQ_State_Vector_type
+           import :: LSQ_State_Vector_type
            integer,                     intent(in)     :: iv
            real(kind=cp),               intent(in)     :: xv
            real(kind=cp),               intent(out)    :: ycalc

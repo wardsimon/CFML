@@ -20,7 +20,7 @@ SubModule (CFML_gSpaceGroups) SPG_016
       !--- Local variables ---!
       character(len=:), allocatable :: symbol, ListGen
       integer, dimension(20) :: Pos
-      integer                :: i,j,k,np,lg
+      integer                :: i,j,k,np
       logical                :: timerev_provided
 
       !> Init

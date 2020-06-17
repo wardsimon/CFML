@@ -22,7 +22,7 @@ SubModule (CFML_gSpaceGroups) SPG_ConstructorString
       type(rational),       dimension(:),  allocatable :: centre_coord,anticentre_coord
       type(rational),       dimension(:,:),allocatable :: Lat_tr, aLat_tr
       type(rational),       dimension(:,:),allocatable :: Mat
-      integer :: d,i,ngen1,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
+      integer :: d,i,ngen,invt,multip,centred,anticentred,Numops,num_lat,num_alat,mag_type
 
       !> Init
       call Clear_Error()
