@@ -1,6 +1,6 @@
 => TITLE: Prueba de TOF-fit
 !    TOF_init       TOF_fin      Nbac Npeak  Ncyc  Inst  Jobt  Cont Weight Corr Constr Percent
-     16906.2578     18845.0762     2     2   200     9     0     0     0    50     0    20
+     16906.2578     18845.0762     2     2   200    10     0     0     0    50     0    20
    4570.600098  <=  d to T.O.F. coefficient
 !  Global Profile Parameters:
         0.0000     0      <= Global-Alpha &  Flag

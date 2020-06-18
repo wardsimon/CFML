@@ -282,6 +282,18 @@ else()
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
+# CFML_Maps
+file(GLOB SUBMOD_MAPS_SRC CFML_Maps/*.f90)
+set(MAPS_SRC CFML_Maps.f90
+                 ${SUBMOD_MAPS_SRC})
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${MAPS_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
+else()
+    set_source_files_properties(${MAPS_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
+endif()
+
 # CFML_Optimization
 file(GLOB SUBMOD_OPT_SRC CFML_Optimization/*.f90)
 set(OPT_SRC CFML_Optimization.f90
@@ -306,15 +318,15 @@ else()
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
-# CFML_Maps
-file(GLOB SUBMOD_MAPS_SRC CFML_Maps/*.f90)
-set(MAPS_SRC CFML_Maps.f90
-                 ${SUBMOD_MAPS_SRC})
+# CFML_Optimization_SAnn
+file(GLOB SUBMOD_OPT_SAN_SRC CFML_Optimization_SAnn/*.f90)
+set(OPT_SAN_SRC CFML_Optimization_SAnn.f90
+                 ${SUBMOD_OPT_SAN_SRC})
 if(${COMPILER_NAME} STREQUAL ifort)
-    set_source_files_properties(${MAPS_SRC}
+    set_source_files_properties(${OPT_SAN_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
 else()
-    set_source_files_properties(${MAPS_SRC}
+    set_source_files_properties(${OPT_SAN_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
@@ -340,9 +352,10 @@ set(CRYSFML_COMMON_SRC
     ${PROPAGK_SRC}
     ${IOFORM_SRC}
     ${GEOM_SRC}
+    ${MAPS_SRC}
     ${OPT_SRC}
     ${OPT_LSQ_SRC}
-    ${MAPS_SRC})
+    ${OPT_SAN_SRC})
 
 # Build the library
 set(LIBRARY_NAME crysfml)
