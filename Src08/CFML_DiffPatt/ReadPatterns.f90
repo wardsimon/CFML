@@ -243,7 +243,9 @@ SubModule (CFML_DiffPatt) RPatt
             else
                extdat="---"
             end if
+
             select case (trim(extdat))
+
                case (".GR")
                   if (present(header)) then
                      call  Read_Pattern_xysigma(filename, Pat, GR, Header)
@@ -257,7 +259,17 @@ SubModule (CFML_DiffPatt) RPatt
                   else
                      call  Read_Pattern_xysigma(filename, Pat)
                   end if
+
+               case default
+
+                  if (present(header)) then
+                     call  Read_Pattern_xysigma(filename, Pat, Header=Header)
+                  else
+                     call  Read_Pattern_xysigma(filename, Pat)
+                  end if
+
             end select
+
             if (err_CFML%IErr /= 0) return
 
             pat%kindrad = "Unknown"

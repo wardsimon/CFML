@@ -4,11 +4,11 @@
 !!
 Module  TOF_Diffraction
    !--- Use Modules ----!
-   USE CFML_LSQ_TypeDef
+   Use CFML_GlobalDeps, only: Err_CFML
    USE CFML_Optimization_LSQ
-   Use CFML_PowderProfiles_TOF
-   use CFML_Diffraction_Patterns
-   use CFML_string_utilities
+   Use CFML_Profiles
+   use CFML_DiffPatt
+   use CFML_strings
 
    !---- Global Variables ----!
    implicit none
@@ -147,8 +147,8 @@ Module  TOF_Diffraction
        npos=index(line,'ireso')
        if (npos > 0) then
           line=line(npos:)
-          call cutst(line)
-          call getnum(line,vet,ivet,iv)
+          call cut_string(line)
+          call get_num(line,vet,ivet,iv)
           if (iv ==1) irf_info%ireso=ivet(1)
        end if
 
@@ -167,13 +167,13 @@ Module  TOF_Diffraction
           keyw=line(1:5)
           npos=index(keyw,' ')
           if (npos > 0) keyw=keyw(1:npos-1)
-          call uCase(keyw)
+          keyw= U_Case(keyw)
 
           select case (keyw)
              case ('JOBT ')
                 !call INextString(line(5:),job)
                 read(line(5:),*,iostat=ierror) job
-                call uCase(job)
+                job= U_Case(job)
                 if (job(1:3) == 'XR ' ) irf_info%jobt = 1
                 if (job(1:3) == 'XRC' ) irf_info%jobt = 2
                 if (job(1:4) == 'NEUT') irf_info%jobt = 3
@@ -198,7 +198,7 @@ Module  TOF_Diffraction
                 read(line(5:),*,iostat=ierror) job
                 job=adjustl(job)
                 if (ierror == 0) then
-                   call uCase(job)
+                   job = U_Case(job)
                    if (job(1:4) == 'BRAG') irf_info%geom = 1
                    if (job(1:4) == 'DEBY') irf_info%geom = 2
                    if (job(1:4) == 'SYNC') irf_info%geom = 3
@@ -266,7 +266,7 @@ Module  TOF_Diffraction
                 if (ierror == 0) irf_info%ich_alfbt=1
 
              case default
-                call getnum(line,vet,ivet,iv)
+                call get_num(line,vet,ivet,iv)
                 select case (iv)
                    case (1) ! IRESO=4
                       irf_info%npoints=ivet(1)
@@ -297,10 +297,10 @@ Module  TOF_Diffraction
    !!
    Subroutine Tof_Profile_Fitting(Filecode, fit_xmin,fit_xmax,Pat, Ifail)
       !---- Arguments ----!
-      character(len=*),               intent(in)     :: Filecode
-      real,                           intent(in)     :: fit_xmin,fit_xmax
-      Type(Diffraction_Pattern_Type), intent(in out) :: Pat
-      integer,                        intent(out)    :: ifail
+      character(len=*),      intent(in)     :: Filecode
+      real,                  intent(in)     :: fit_xmin,fit_xmax
+      Type(DiffPat_E_Type),  intent(in out) :: Pat
+      integer,               intent(out)    :: ifail
 
       !---- Local Variables ----!
       integer                            :: i,j, no, ierror,ncount
@@ -388,11 +388,11 @@ Module  TOF_Diffraction
          if (Pat%x(i) > fit_xmin .and. Pat%x(i) < fit_xmax) no = no + 1
       end do
 
-       if (ALLOCATED(d%x ))   deallocate (d%x)
-       if (ALLOCATED(d%sw))   deallocate (d%sw)
-       if (ALLOCATED(d%y ))   deallocate (d%y)
-       if (ALLOCATED(d%yc))   deallocate (d%yc)
-       if (ALLOCATED(wf))     deallocate (wf)   !Needed
+       if (allocated(d%x ))   deallocate (d%x)
+       if (allocated(d%sw))   deallocate (d%sw)
+       if (allocated(d%y ))   deallocate (d%y)
+       if (allocated(d%yc))   deallocate (d%yc)
+       if (allocated(wf))     deallocate (wf)   !Needed
 
        allocate ( d%x(no),d%sw(no),d%y(no),d%yc(no),wf(no), stat=ierror )
        if (ierror /= 0) then

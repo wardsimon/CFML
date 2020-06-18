@@ -67,7 +67,6 @@
        Real (Kind=cp), dimension(m,c%npvar) :: fjac
        Real (Kind=cp)                       :: epsfcn,ftol, gtol, xtol,iChi2,deni,denj
        Real (Kind=cp), Parameter            :: factor = 100.0_CP, zero = 0.0_CP
-       Logical                              :: singular
        character(len=20)                    :: formt
 
        info = 0
@@ -179,17 +178,10 @@
          write(unit=idebug,fmt="(a,g14.4)") "  Minvalue of Correl before inversion: ",minval(correl)
        end if
 
-       Call Invert_Matrix(correl(1:n,1:n),correl(1:n,1:n),singular)
+       correl(1:n,1:n) = Inverse_Matrix(correl(1:n,1:n))
 
-       if(present(idebug)) then
-         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the Inverse Correlation matrix for ",n," free parameters"
-         write(unit=idebug,fmt=formt) (correl(j,j),j=1,n)
-         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Variances for ",n," free parameters"
-         write(unit=idebug,fmt=formt) (correl(j,j)/curv_mat(j,j),j=1,n)
 
-       end if
-
-       If (.not. singular) then
+       If (Err_CFML%Ierr == 0) then
           Do i=1,n
              deni = curv_mat(i,i)
              if( deni <= zero) deni=1.0
@@ -207,6 +199,13 @@
           Err_CFML%Ierr = 1
           Err_CFML%Msg=" => Singular Matrix at the end of LM_Der for calculating std deviations ... provided sigmas are dubious!"
        End if
+
+       if(present(idebug)) then
+         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Diagonal of the Inverse Correlation matrix for ",n," free parameters"
+         write(unit=idebug,fmt=formt) (correl(j,j),j=1,n)
+         write(unit=idebug,fmt="(/,a,i5,a,/)") "  Variances for ",n," free parameters"
+         write(unit=idebug,fmt=formt) (correl(j,j)/curv_mat(j,j),j=1,n)
+       end if
 
        !Update the State vector Vs
        n=0
@@ -337,7 +336,6 @@
        Real (Kind=cp)                             :: epsfcn, gtol,iChi2,deni,denj, &
                                                      Tikhonov
        Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
-       Logical                                    :: singular
 
        info = 0
        n=c%npvar
@@ -400,11 +398,11 @@
            p(1:n,j) = id(1:n,ipvt(j))
         end do
         curv_mat(1:n,1:n) = matmul(  p, matmul( curv_mat(1:n,1:n),transpose(p) )  )
-        Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
+        correl(1:n,1:n)=Inverse_Matrix(curv_mat(1:n,1:n))
         !If the final curvature matrix is singular perform a Tikhonov
         !regularization (This increases the error bars!)
         Tikhonov=0.0
-        if(singular) then
+        if(Err_CFML%Ierr /=  0) then
           Err_CFML%Ierr = 1
           Err_CFML%Msg="Regularization (SVD,Tikhonov) of the final Curvature Matrix unsuccessfull (no standard deviations) ..."
           j=0
@@ -419,8 +417,8 @@
                Sigm(i,i)=Sig(i)
             end do
             curv_mat(1:n,1:n)=matmul(U,matmul(Sigm,transpose(VS)))
-            Call Invert_Matrix(curv_mat(1:n,1:n),correl(1:n,1:n),singular)
-            if(.not. singular) exit
+            correl(1:n,1:n)= Inverse_Matrix(curv_mat(1:n,1:n))
+            if(Err_CFML%Ierr ==  0) exit
             j=j+1
             if(j > 3) exit
           end do
@@ -436,7 +434,7 @@
        !Call Model_Functn(m, n, v, fvec, fjac, iflag)
        !curv_mat(1:n,1:n) = matmul (transpose(fjac),fjac) !Least squares matrix
 
-       If (.not. singular) then
+       If (Err_CFML%Ierr ==  0) then
           !Here correl is the inverse of the curvature matrix (Variance-co-variance matrix)
           deni=max(chi2,1.0)
           Do i=1,n

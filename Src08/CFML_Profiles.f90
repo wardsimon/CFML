@@ -37,7 +37,7 @@
 !!
 Module CFML_Profiles
     !---- Use Modules ----!
-    Use CFML_GlobalDeps, only: CP, DP, PI
+    Use CFML_GlobalDeps, only: CP, DP, PI, to_rad, to_deg
     Use CFML_Maths, only: erfc_deriv
 
     !---- Variables ----!
@@ -67,6 +67,7 @@ Module CFML_Profiles
     real(kind=dp), parameter :: INV_8LN2=0.18033688011112042591999058512524_dp ! use for scaling the divisions
     real(kind=dp), parameter :: TWO_OVER_PI=0.63661977236758134307553505349006_dp
     real(kind=cp), parameter :: PI_OVER_TWO=0.5_cp*pi
+    real(kind=cp), parameter :: eps=1.0e-6_cp
     integer,       parameter :: CTRL_NSTEPS= 1000
 
     integer, dimension(14)   :: nterms =[6,10,20,40,60,80,100,150,200,300,400,600,800,1000]

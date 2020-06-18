@@ -317,6 +317,8 @@ else()
     set_source_files_properties(${MAPS_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
+
+#  List of all the source files 
 set(CRYSFML_COMMON_SRC
     ${GLOBAL_DEPS_SRC}
     ${MESSAGES_SRC}
@@ -328,8 +330,8 @@ set(CRYSFML_COMMON_SRC
     ${TABLES_2_SRC}
     ${TABLES_3_SRC}
     ${GROUPS_SRC}
-    ${PROFILE_1_SRC}
-    ${PROFILE_2_SRC}
+    ${PROFILES_1_SRC}
+    ${PROFILES_2_SRC}
     ${DIFFPATT_SRC}
     ${EXTINCORR_SRC}
     ${EOS_SRC}

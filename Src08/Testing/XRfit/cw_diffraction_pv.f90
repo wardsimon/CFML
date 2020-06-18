@@ -1,6 +1,6 @@
  Module Cw_Diffraction_Pv
 
-   use CFML_Optimization_LSQ, only: LSQ_State_Vector_type, LSQ_Conditions_type, LSQ_Data_Type
+   use CFML_Optimization_LSQ, only: Max_Free_par, LSQ_State_Vector_type, LSQ_Conditions_type, LSQ_Data_Type
    Use CFML_Profiles, only: init_prof_val, prof_val
    implicit none
    private

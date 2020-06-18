@@ -1,8 +1,7 @@
      Module Input_output_data_mod
       use TOF_diffraction
-      use CFML_LSQ_TypeDef
       use CFML_Optimization_LSQ
-      use CFML_Diffraction_Patterns
+      use CFML_DiffPatt
 
       implicit none
       private
@@ -127,10 +126,11 @@
       End subroutine output_plot
 
       Subroutine Input_Data(filename,iform,dif)
-        character(len=*),              intent(in) :: filename
-        Type(Diffraction_Pattern_Type),intent(out):: dif
-        integer,                       intent(in) :: iform
+        character(len=*),    intent(in) :: filename
+        Type(DiffPat_E_Type),intent(out):: dif
+        integer,             intent(in) :: iform
         character (len=10) :: modem
+        integer :: i
         Select Case(iform)
           case(0)
             modem="DEFAULT"
@@ -152,10 +152,17 @@
             modem="DMC"
           case(9,10)
             modem="XYSIGMA"
+          case(12)
+            modem="GSASTOF"
         End Select
         Call Read_Pattern(filename,dif,modem)
-        if(Err_diffpatt) then
-         write(unit=*,fmt="(a)") trim(ERR_DiffPatt_Mess)
+        if(Err_CFML%Ierr /= 0) then
+          write(unit=*,fmt="(a)") trim(Err_CFML%Msg)
+          if(Err_CFML%nl /= 0) then
+            do i=1, Err_CFML%nl
+              write(unit=*,fmt="(a)") trim(Err_CFML%txt(i))
+            end do
+          end if
          stop
         end if
       End Subroutine Input_Data
@@ -170,12 +177,11 @@
 !------------------------------------------------------------------
 !------------------------------------------------------------------
    Program TOF_fit
-      use CFML_GlobalDeps, only: cp
-      use CFML_LSQ_TypeDef
+      use CFML_GlobalDeps, only: cp, Err_CFML
       use CFML_Optimization_LSQ
       use TOF_diffraction
       use Input_output_data_mod
-      use CFML_Diffraction_Patterns,  only : Diffraction_Pattern_Type
+      use CFML_DiffPatt,  only : DiffPat_E_Type
 
       Implicit None
 
@@ -189,7 +195,7 @@
       Real                           :: timi,timf
       real,dimension(:), allocatable :: ww
       Integer                        :: narg,lr,ln
-      Type(Diffraction_Pattern_Type) :: df  !Diffraction pattern
+      Type(DiffPat_E_Type)           :: df  !Diffraction pattern
 
       !---- Arguments on the command line ----!
       lr=0

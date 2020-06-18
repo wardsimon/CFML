@@ -66,7 +66,6 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
       do
          read(unit=i_dat,fmt="(a)", iostat=ier) txt1
          if (ier /= 0)   exit
-
          npp=npp+1
          if (index(txt1,"#L r(A)") /= 0) then
             line_da=npp
@@ -92,8 +91,11 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
                pat%title=adjustl(txt1(j+6:))
             end if
          end do
-         !pat%xax_text="Distance R(Angstroms)"
-         !pat%yax_text="G(R)x1000"
+         Select Type(Pat)
+            Type is(DiffPat_G_Type)
+              pat%Legend_X="Distance R(Angstroms)"
+              pat%Legend_Y="G(R)x1000"
+         End Select
          pat%scatvar="Distance"
 
       else
@@ -123,23 +125,27 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
                end if
 
                i=index(txt1,"Legend_X")
-               if (i /= 0) then
-                  !pat%xax_text = adjustl(txt1(i+9:))
-                  cycle
+               if (i /= 0)  then
+                 Select Type(p => Pat)
+                   Type is(DiffPat_G_Type)
+                    p%Legend_X = adjustl(txt1(i+9:))
+                 End Select
+                 cycle
                end if
 
                i=index(txt1,"Legend_Y")
                if (i /= 0) then
-                  !pat%yax_text=adjustl(txt1(i+9:))
-                  cycle
+                 Select Type(p => Pat)
+                   Type is(DiffPat_G_Type)
+                    p%Legend_Y = adjustl(txt1(i+9:))
+                 End Select
+                 cycle
                end if
 
                if (txt1(1:1) == "!" .or. txt1(1:1) == "#") cycle
                read(unit=txt1, fmt=*, iostat=ier) yp1, ypn !This is to detect the beginning of numerical values
                if ( ier /= 0) cycle
                backspace (unit=i_dat)
-
-               call init_findfmt(line_da)
                exit
             end do
             if (present(header)) then
@@ -162,7 +168,6 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
                end if
                if (txt1(1:1) == "#") i=i-1
                if (present(header)) header=trim(header)//trim(txt1)//char(0)
-
                line_da=line_da+1
                j= index(txt1,"TITLE")
                if ( j /= 0 ) then !Title given
@@ -175,75 +180,112 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
                end if
 
                j=index(txt1,"Legend_X")
-               if (j /= 0) then
-                  !pat%xax_text=adjustl(txt1(j+9:))
+               if (j /= 0 ) then
+                 Select Type(p => Pat)
+                   Type is(DiffPat_G_Type)
+                    p%Legend_X = adjustl(txt1(i+9:))
+                 End Select
                end if
 
                j=index(txt1,"Legend_Y")
                if (j /= 0) then
-                  !pat%yax_text=adjustl(txt1(j+9:))
+                 Select Type(p =>Pat)
+                   Type is(DiffPat_G_Type)
+                    p%Legend_Y = adjustl(txt1(i+9:))
+                 End Select
                end if
 
                if (txt1(1:5) == "INTER") then !Interpolation possible!
-                  backspace (unit=i_dat)
-                  line_da=line_da-2
-                  call init_findfmt(line_da)
-                  fmtfields = "5ffif"
-                  call findfmt(i_dat,aline,fmtfields,fmtformat)
-                  if (Err_CFML%IErr /= 0) then
-                     close(unit=i_dat)
-                     return
+                  read(unit=txt1(6:),fmt=*,iostat=ier) fac_x,fac_y,interpol,stepin
+                  if(ier /= 0) then
+                    fac_x=1.0_cp; fac_y=1.0_cp; interpol=0; stepin=0.0_cp
                   end if
-
-                  read(unit=aline,fmt=fmtformat) date1,fac_x,fac_y,interpol,stepin
                   if (fac_x <= 0.0) fac_x=1.0_cp
                   if (fac_y <= 0.0) fac_y=1.0_cp
                end if
 
                if (txt1(1:4) == "TEMP") then
-                  !read(unit=txt1(5:80),fmt=*, iostat=ier) pat%tsamp
-                  !if(ier == 0) then
-                  !  pat%tset=pat%tsamp
-                  !else
-                  !  pat%tsamp=0.0
-                  !  pat%tset=0.0
-                  !end if
+                 Select Type(p => Pat)
+
+                   Type is(DiffPat_E_Type)
+
+                     read(unit=txt1(5:80),fmt=*, iostat=ier) p%Tsample
+                     if(ier == 0) then
+                       p%tset=p%Tsample
+                     else
+                       p%Tsample=0.0
+                       p%tset=0.0
+                     end if
+
+                   Type is(DiffPat_G_Type)
+                     p%Legend_X = adjustl(txt1(i+9:))
+                     read(unit=txt1(5:80),fmt=*, iostat=ier) p%Tsample
+                     if(ier == 0) then
+                       p%tset=p%Tsample
+                     else
+                       p%Tsample=0.0
+                       p%tset=0.0
+                     end if
+
+                 End Select
                end if
             end do
          end if
 
-         if (interpol == 0) then
-            !pat%ct_step = .false.
-         else if(interpol == 1) then
-            !pat%ct_step = .true.
-         else if(interpol == 2) then
-            !pat%ct_step = .true.
-         end if
+         Select Type(p => Pat)
+           class is(DiffPat_E_Type)
+              if (interpol == 0) then
+                 p%CT_Step = .false.
+              else if(interpol == 1) then
+                 p%CT_Step = .true.
+              else if(interpol == 2) then
+                 p%CT_Step = .true.
+              end if
+         End Select
       end if
 
       !> Allocating
       call Allocate_Pattern(pat)
 
-      fmtfields = "ffff"  !Now four columns are read in order to incorporate the calcualted pattern
+      fmtfields = "ffff"  !Now four columns are read in order to incorporate the calculated pattern
+      if(trim(pat%scatvar) == "r.l.u.") fmtfields = "fff"
       sumavar=0.0
       cnorm=0.0
       i=0
       do j=1,pat%npts
-         call findfmt(i_dat,aline,fmtfields,fmtformat)
-         if (Err_CFML%Ierr < 0) exit
-         if (ierr_fmt == -1) exit
-         if (Err_CFML%Ierr > 0) then
-            close(unit=i_dat)
-            return
-         end if
+         read(unit=i_dat,fmt="(a)", iostat=ier) aline
+         if(ier /= 0) exit
+         aline=adjustl(aline)
          if(aline(1:1) == "!" .or. aline(1:1) == "#") cycle
 
          i=i+1
-         if (present(PDF)) then
-            read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),dum,pat%sigma(i)
-         else
-            !read(unit=aline,fmt = fmtformat, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i),pat%ycalc(i)
-         end if
+
+         Select Type(p => Pat)
+           Type is(DiffPat_Type)
+             if (present(PDF)) then
+                read(unit=aline,fmt = *, iostat=ier ) pat%x(i),pat%y(i),dum,pat%sigma(i)
+             else
+                read(unit=aline,fmt = *, iostat=ier ) pat%x(i),pat%y(i),pat%sigma(i)
+             end if
+
+           class is(DiffPat_E_Type)
+             if (present(PDF)) then
+                read(unit=aline,fmt = *, iostat=ier ) p%x(i),p%y(i),dum,p%sigma(i)
+             else if(trim(pat%scatvar) == "r.l.u.")  then
+                read(unit=aline,fmt = *, iostat=ier ) p%x(i),p%y(i),p%sigma(i)
+             else
+                read(unit=aline,fmt = *, iostat=ier ) p%x(i),p%y(i),p%sigma(i),p%ycalc(i)
+                if(ier /= 0) then
+                   p%ycalc(i)=0.0
+                   read(unit=aline,fmt = *, iostat=ier ) p%x(i),p%y(i),p%sigma(i)
+                   if(ier /= 0) then
+                      read(unit=aline,fmt = *, iostat=ier ) p%x(i),p%y(i)
+                      p%sigma(i)=0.0
+                   end if
+                end if
+             end if
+         End Select
+
          if (ier /=0) then
             Err_CFML%IErr=1
             Err_CFML%Msg="Read_Pattern_XYSigma@DIFFPATT:  Error in Intensity file, check your instr parameter!"
@@ -255,16 +297,19 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
          pat%x(i)=pat%x(i)*fac_x
          pat%y(i)=pat%y(i)*fac_y
 
-         !pat%ycalc(i)=pat%ycalc(i)*fac_y
+         Select Type(p => Pat)
+          class is(DiffPat_E_Type)
+           p%ycalc(i)=p%ycalc(i)*fac_y
+         End Select
 
          pat%sigma(i)=pat%sigma(i)*fac_y
          pat%sigma(i)=pat%sigma(i)*pat%sigma(i)
          sumavar=sumavar+pat%sigma(i)
          if (pat%sigma(i) < EPS1) pat%sigma(i) =1.0_cp
          cnorm=cnorm+pat%sigma(i)/MAX(abs(pat%y(i)),0.001_cp)
-         !if (i > 1) then
-         !   step=step+pat%x(i)-pat%x(i-1)
-         !end if
+         if(i > 1) then
+           pat%step=pat%step+pat%x(i)-pat%x(i-1)
+         end if
       end do
 
       ntt=i-1
@@ -279,14 +324,14 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
       end if
 
       if (interpol == 0 .or. interpol == 2) then      !if interpol
-         step=pat%x(2)-pat%x(1)
+         pat%step=pat%step/real(ntt-1)
          pat%npts=ntt
 
       else                        !else interpol
-         step=stepin
-         j=(pat%x(ntt)-pat%x(1))/step+1.05
+         pat%step=stepin
+         j=(pat%x(ntt)-pat%x(1))/pat%step+1.05
          if( j > pat%npts) then
-            step=(pat%x(ntt)-pat%x(1))/(ntt-1)
+            pat%step=(pat%x(ntt)-pat%x(1))/(ntt-1)
             pat%npts=ntt
          else
             pat%npts=j
@@ -303,7 +348,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
          do i=1,pat%npts
             xt=pat%x(1)+(i-1)*step
             ycor=spline_interpol(xt,pat%x(:),pat%y(:),bk(:),ntt)
-            yc(i)=ycor !max(1.0_cp,ycor)
+            yc(i)=ycor !max(1.0_cp,ycor) now negative values are allowed
          end do
          do i=1,pat%npts
             pat%y(i)=yc(i)
@@ -316,7 +361,7 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
          do i=1,pat%npts
             xt=pat%x(1)+(i-1)*step
             ycor=spline_interpol(xt,pat%x(:),pat%sigma(:),bk(:),ntt)
-            yc(i)=ycor !max(1.0_cp,ycor)
+            yc(i)=ycor !max(1.0_cp,ycor) now negative values are allowed
          end do
          do i=1,pat%npts
             pat%sigma(i)=abs(yc(i))

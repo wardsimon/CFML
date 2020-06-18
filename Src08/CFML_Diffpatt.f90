@@ -41,7 +41,7 @@
     !---- Use Modules ----!
     Use CFML_GlobalDeps, only : cp, ops_sep, err_cfml, clear_error
     Use CFML_Maths,      only : spline_d2y, spline_interpol, locate, second_derivative
-    use CFML_Strings,    only : FindFmt,  Init_FindFmt , u_case, get_words, get_num, Get_NumStd
+    use CFML_Strings,    only : u_case, get_words, get_num, Get_NumStd
 
     implicit none
 
@@ -69,6 +69,7 @@
        real(kind=cp)                             :: xmax   =0.0_cp
        real(kind=cp)                             :: ymin   =0.0_cp
        real(kind=cp)                             :: ymax   =0.0_cp
+       real(kind=cp)                             :: step   =0.0_cp
        integer                                   :: NPts   =0          ! Number of Points
        logical                                   :: SigVar =.true.     ! .True. for sigma values / .False. for variance
        real(kind=cp), dimension(5)               :: Wave   =0.0_cp     ! Wave1, Wave2, Dtt1, Dtt2,....

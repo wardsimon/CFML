@@ -2,55 +2,67 @@
 rem ****
 rem ****---- Compilation for XRFIT Program ----****
 rem ****
-rem **** Author: JRC
-rem **** Revision: Jan-2011
-rem ****
+rem > INIT 
+   (set _DEBUG=N)
+   (set _COMP=ifort)
+   if [%TARGET_ARCH%]==[] (set TARGET_ARCH=ia32)
 rem
-   if not x%1 == x goto CONT
-   cls
-   echo    MAKE_XRFit: Make XRFIT Compilation
-   echo    Syntax: make_xrfit [f95/lf95/g95/gfortran/ifort]
-   goto END
+rem > Arguments ----
+:LOOP
+    if [%1]==[debug]  (set _DEBUG=Y)
+    if [%1]==[ifort]  (set _COMP=ifort)
+    if [%1]==[gfortran32] (
+       (set _COMP=gfortran)
+       (set _VER=m32)
+    )
+    if [%1]==[gfortran64] (
+       (set _COMP=gfortran)
+       (set _VER=m64)
+    )   
+    shift
+    if not [%1]==[] goto LOOP
 rem
-:CONT
-   if x%1 == xf95       goto F95
-   if x%1 == xlf95      goto LF95
-   if x%1 == xg95       goto G95
-   if x%1 == xgfortran  goto GFOR
-   if x%1 == xifort     goto IFORT
-   goto END
+rem > Compilers
 rem
-rem ****---- Absoft Compiler ----****
-:F95
-   goto END
+   if [%_COMP%]==[ifort] (
+      if [%_DEBUG%]==[Y] (
+         if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort_debug) else (set DIRECTORY=ifort64_debug)
+         (set OPT0=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
+         (set OPT1=/debug:full /check /check:noarg_temp_created /traceback /nologo /CB)
+      ) else (
+         if [%TARGET_ARCH%]==[ia32] (set DIRECTORY=ifort) else (set DIRECTORY=ifort64)
+         (set OPT0=/Od)
+         (set OPT1=/O2)
+      )
+      (set OPT2=/fpp /Qopt-report:0)
+   )
+rem   
+   if [%_COMP%]==[gfortran] (
+      if [%_DEBUG%]==[Y] (
+         if [%_VER%]==[m32] (set DIRECTORY=gfortran_debug) else (set DIRECTORY=gfortran64_debug)
+         (set OPT0=-g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+         (set OPT1=-g -O0 -std=f2008 -Wall -fdec-math -fbacktrace  -ffree-line-length-0 -fall-intrinsics)
+      ) else (
+         if [%_VER%]==[m32] (set DIRECTORY=gfortran) else (set DIRECTORY=gfortran64)
+         (set OPT0=-O0 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
+         (set OPT1=-O3 -std=f2008 -ffree-line-length-0 -fdec-math -fall-intrinsics)
+      )
+      (set OPT2=)
+   )
 rem
-rem ****---- Lahey Compiler ----****
-:LF95
-   lf95 -c Cw_Diffraction_Pv.f90    -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95 -c XRFit.f90      -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95  *.obj -out XRFit -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC" -lib c:\CrysFML\lahey\LibC\CrysFML
-   goto END
-rem
-rem ****---- Intel Compiler ----****
-:IFORT
-   ifort /c Cw_Diffraction_Pv.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c XRFit.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
-   link /subsystem:console /stack:102400000 /out:XRFit.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
-   goto END
-rem
-rem **---- G95 Compiler ----**
-:G95
-   g95 -c Cw_Diffraction_Pv.f90  -I../../G95/LibC
-   g95 -c XRFit.f90    -I../../G95/LibC
-   g95 *.o -o XRFit    -L../../G95/LibC   -lcrysfml
-   goto END
-rem
-rem **---- GFORTRAN Compiler ----**
-:GFOR
-   gfortran -c Cw_Diffraction_Pv.f90  -I../../GFortran/LibC
-   gfortran -c XRFit.f90    -I../../GFortran/LibC
-   gfortran *.o -o XRFit    -L../../GFortran/LibC   -lcrysfml
-   goto END
-rem
-:END
+rem > Compilation
+   if [%_COMP%]==[ifort] (
+      ifort /c Cw_Diffraction_Pv.f90      /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c XRFit.f90                  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /exe:XRFit *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
+   )
+rem   
+   if [%_COMP%]==[gfortran] (
+      gfortran -c Cw_Diffraction_Pv.f90        %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c XRFit.f90                    %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -o XRFit.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
+   )
+rem 
+rem   if exist %FULLPROF% copy XRFit.exe %FULLPROF%  
    del *.obj *.mod *.o *.map *.bak > nul
+

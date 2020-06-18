@@ -26,16 +26,16 @@ rem ****---- Absoft Compiler ----****
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
-   lf95 -c Cw_Diffraction_Pv.f90    -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95 -c XRFit.f90      -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95  *.obj -out XRFit -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC" -lib c:\CrysFML\lahey\LibC\CrysFML
+   lf95 -c Cw_Diffraction_Pv.f90    -tp -nomap -stchk -nchk -o1 -mod ".;%CRYSFML%\lahey\LibC"
+   lf95 -c XRFit.f90      -tp -nomap -stchk -nchk -o1 -mod ".;%CRYSFML%\lahey\LibC"
+   lf95  *.obj -out XRFit -tp -nomap -stchk -nchk -o1 -mod ".;%CRYSFML%\lahey\LibC" -lib c:\CrysFML\lahey\LibC\CrysFML
    goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Cw_Diffraction_Pv.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c XRFit.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
-   link /subsystem:console /stack:102400000 /out:XRFit.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   ifort /c Cw_Diffraction_Pv.f90 /O2 /nologo /I%CRYSFML%\ifort64\LibC
+   ifort /c XRFit.f90   /O2 /nologo /I%CRYSFML%\ifort64\LibC
+   link /subsystem:console /stack:102400000 /out:XRFit.exe *.obj %CRYSFML%\ifort64\LibC\CrysFML.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

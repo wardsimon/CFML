@@ -316,7 +316,7 @@
     !---- List of public overloaded procedures: functions ----!
 
     !---- List of public subroutines ----!
-    public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM
+    public  :: Marquardt_Fit, Levenberg_Marquardt_Fit, Info_LSQ_Output, Info_LSQ_LM, Modify_Codes_State_Vector
 
     !---- List of public overloaded procedures: subroutines ----!
 
@@ -336,7 +336,7 @@
     !!----
     !!---- Update: 01/07/2015
     !!
-    integer, parameter :: Max_Free_Par=3000   !Maximum number of free parameters
+    integer, parameter, public :: Max_Free_Par=3000   !Maximum number of free parameters
 
     !!----
     !!---- TYPE :: LSQ_CONDITIONS_TYPE
@@ -361,7 +361,7 @@
     !!----
     !!---- Update: 01/07/2015
     !!
-    Type :: LSQ_Conditions_Type
+    Type, public :: LSQ_Conditions_Type
        logical          :: constr=.false.  ! if true box constraint of percent% are applied to parameters
        logical          :: reached=.false. ! if true convergence was reached in the algorithm
        integer          :: corrmax=50      ! value of correlation in % to output
@@ -398,7 +398,7 @@
     !!----
     !!---- Update: August - 2009
     !!
-    Type :: LSQ_Data_Type
+    Type, public :: LSQ_Data_Type
        integer                                    :: nobs  !total number of observations
        integer                                    :: iw    !Indicator for type of values contained in component sw
        real(kind=cp),    dimension(:),allocatable :: x     !Vector containing a relevant quantity for each observation (x-coordinate ...)
@@ -433,7 +433,7 @@
     !!----
     !!---- Update: January- 2014
     !!
-    Type :: LSQ_State_Vector_Type
+    Type, public :: LSQ_State_Vector_Type
        integer                                    :: np         !total number of model parameters <= Max_Free_Par
        logical                                    :: code_comp  !If .true. the codes are interpreted as number in the LSQ list
        integer(kind=2)                            :: code_max   !Maximum code number (used in case of code_comp=.true.)
@@ -1398,5 +1398,103 @@
        End Do
 
     End Subroutine qrsolv
+
+    !!----
+    !!---- Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
+    !!----   integer,       dimension(:),intent (in out) :: Lcodes
+    !!----   real(kind=cp), dimension(:),intent (in out) :: Multip
+    !!----   integer,                    intent (in out) :: Lcode_max
+    !!----
+    !!----  This subroutine should be called with the arguments corresponding to
+    !!----  the components  Lcodes=LSQ_State_Vector%code, Multip=LSQ_State_Vector%mul
+    !!----  and Lcode_max=maxval(LSQ_State_Vector%code) before using the LSQ methods
+    !!----  in which and object of LSQ_State_Vector_type exist and LSQ_State_Vector%code_comp=.true.
+    !!----  This allows the use of constraints once the codes have been attributed.
+    !!----
+    Subroutine Modify_Codes_State_Vector(Lcodes,Multip,Lcode_max)
+       !---- Arguments ----!
+       integer,       dimension(:),intent (in out) :: Lcodes
+       real(kind=cp), dimension(:),intent (in out) :: Multip
+       integer,                    intent (in out) :: Lcode_max
+
+       !--- Local variables ---!
+       integer                       ::  k, L , j, n_given, Lcm, n_att,ndisp, nn, ni, ndispm,maxs
+       integer, dimension(Lcode_max) :: dispo
+       real(kind=cp), parameter      :: e=0.001
+
+       !> Check correlated parameters and already used codes
+       ndisp=0
+       n_given=0
+       dispo(:)=0
+       Lcm=size(Lcodes)
+       !> First Pass
+       Do L=1, Lcode_max
+          ni=0
+          do k=1, Lcm
+             if (L == Lcodes(k)) ni=ni+1
+          end do
+          if (ni == 0) then
+             ndisp=ndisp+1   !number of disponible codes
+             dispo(ndisp)=L  !disponible code number
+          else
+             n_given=n_given+1  !number of given codes
+          end if
+       end do !=1,Lcode_max
+
+       if (ndisp == 0) return  !all codes have been attributed
+
+       !> Attributing numbers to parameters (not already attributed) with multipliers
+       !> different from zero. First the attribution is taken from the vector dispo() and
+       !> continued, after finishing the disponible codes, from Lcode_max+1, ...
+       !> If after attributing the codes ndisp /=0, then a displacement of all parameters
+       !> is done and the maximum number of parameters to be refined is diminished by
+       !> ndisp
+       ndispm=ndisp !number of disponible codes before attributing code numbers
+       ni=0
+       nn=Lcode_max
+       n_att=0
+       do j=1,Lcm
+          if (abs(Multip(j)) > e .and. Lcodes(j) == 0 ) then
+             if (abs(Multip(j)) > 1.001) then
+                Multip(j)=sign(1.0_cp,Multip(j))*(abs(Multip(j))-1.0)
+             end if
+             if (ndisp==0) then
+                nn=nn+1
+                Lcodes(j)=nn
+                n_att=n_att+1
+             else
+                ni=ni+1
+                Lcodes(j)=dispo(ni)
+                n_att=n_att+1
+                ndisp=ndisp-1
+             end if
+          end if
+       end do
+
+       if (ndisp == 0) then
+          if (nn > Lcode_max) Lcode_max=nn
+          return  !all parameters have been attributed
+       end if
+
+       maxs=n_given+n_att    !Number of refined parameters (given + attributed)
+
+       !> Third Pass ndisp /=0 => Displacement of codes needed to avoid holes in the matrix.
+       n_att=ndispm-ndisp+1
+       do L=Lcode_max, maxs+1,-1
+          nn=0
+          do j =1,Lcm
+             if (L == Lcodes(j)) then
+                Lcodes(j)=dispo(n_att)
+                nn=nn+1
+             end if
+          end do
+          if (nn == 0) cycle
+          n_att=n_att+1
+          if(n_att > ndispm) exit
+       end do !i=Lcode_max,maxs+1,-1
+       Lcode_max=maxs
+
+       return
+    End Subroutine Modify_Codes_State_Vector
 
  End Module CFML_Optimization_LSQ

@@ -4,7 +4,7 @@
                                  fwhm1,fwhm2, filecode, use_asymm,use_hps
     use CFML_GlobalDeps, only: Err_CFML
     use CFML_Optimization_LSQ
-    use CFML_Diffraction_Patterns
+    use CFML_DiffPatt
 
     implicit none
     private
@@ -152,9 +152,9 @@
     End Subroutine Output_Plot
 
     Subroutine Input_Data(filename,iform,dif)
-        character(len=*),              intent(in) :: filename
-        Type(DiffPat_Type),intent(out):: dif
-        integer,                       intent(in) :: iform
+        character(len=*),   intent(in) :: filename
+        class(DiffPat_Type),intent(out):: dif
+        integer,            intent(in) :: iform
         character (len=10) :: modem
         Select Case(iform)
           case(0)
@@ -180,7 +180,7 @@
         End Select
         Call Read_Pattern(filename,dif,modem)
         if(Err_CFML%Ierr /= 0) then
-         write(unit=*,fmt="(a)") trim(Err_CFML%Msq)
+         write(unit=*,fmt="(a)") trim(Err_CFML%Msg)
          stop
         end if
       End Subroutine Input_Data
@@ -195,12 +195,12 @@
   !------------------------------------------------------------------
   !------------------------------------------------------------------
   Program Xrfit
-    use CFML_GlobalDeps, only: cp
+    use CFML_GlobalDeps, only: cp, Err_CFML
     use CFML_Optimization_LSQ
     use CW_diffraction_PV
     use Input_output_data_mod
     use CFML_Profiles, only : Init_Prof_Val
-    use CFML_DiffPatt, only : DiffPat_Type
+    use CFML_DiffPatt, only : DiffPat_E_Type
 
     Implicit None
 
@@ -209,11 +209,11 @@
     Logical               :: esta, numeric
     Integer               :: i,j,k,npeak,npts,L,ico
 
-     character(len=120), ALLOCATABLE, DIMENSION(:)   :: scroll_lines
+    character(len=120), allocatable, dimension(:)   :: scroll_lines
     Real                           :: chi2, timi,timf
     real,dimension(:), allocatable :: ww
     Integer                        :: narg,lr,ln
-    Type(DiffPat_Type) :: df  !Diffraction pattern
+    Type(DiffPat_E_Type) :: df  !Diffraction pattern
 
     !---- Arguments on the command line ----!
     lr=0
@@ -435,6 +435,7 @@
           !write(unit=*,fmt=*) " => Function and Jacobian evaluations: ",c%nfev,c%njev
           write(unit=*,fmt="(a,f10.3,a)") " => CPU-time:", timf-timi," seconds"
       end if
+      if(Err_CFML%Ierr /= 0) stop
       !call Info_LSQ_Output(Chi2,0.0,d%nobs,d%x,d%y,d%yc,d%sw,7,c,vs)
       call Info_LSQ_Output(Chi2,0.0,d%nobs,d%x,d%y,d%yc,ww,7,c,vs)
       if(inter == 1) then

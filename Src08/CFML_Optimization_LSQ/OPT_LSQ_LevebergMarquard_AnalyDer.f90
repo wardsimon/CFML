@@ -329,6 +329,7 @@
                                                      Tikhonov
        Real (Kind=cp), Parameter                  :: factor = 100.0_CP, zero = 0.0_CP
 
+       call clear_Error()
        info = 0
        n=c%npvar
        c%reached=.false.
@@ -341,6 +342,7 @@
 
        !     check the input parameters for errors.
        If ( n <= 0 .OR. m < n .OR. c%tol < zero ) then
+         Err_CFML%Ierr=1
          write(unit=infout,fmt="(2a,i5,a,i5,a,f10.7)") "Improper input parameters in LM-optimization (n,m,tol):", &
                         " nb of free (refined) parameters: ", n, &
                         ", number of observations: ", m, &
@@ -852,7 +854,7 @@
                   wa2(j) = x(j) + wa1(j)
                   wa3(j) = diag(j)*wa1(j)
                End Do
-               pnorm = enorm(n, wa3)
+               pnorm = norm2(wa3(1:n))
 
                !           On the first iteration, adjust the initial step bound.
                If (iter == 1) delta = Min(delta,pnorm)
