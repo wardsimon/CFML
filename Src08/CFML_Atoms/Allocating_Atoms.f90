@@ -39,7 +39,11 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
 
       !> Info
       Atm%AtmInfo  = " "
-      Atm%wyck      = " "
+      Atm%wyck     = " "
+
+      !> Free variables
+      Atm%VarF     = 0.0
+      Atm%active   = .true.
 
       select type (Atm)
          type is (atm_std_type)
@@ -223,5 +227,79 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
 
       A%natoms=n
    End Subroutine Allocate_Atom_list
+
+   !!----
+   !!---- Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
+   !!----    integer, intent(in)                      :: nasu    !  In -> Number of atoms in asymmetric unit
+   !!----    integer, intent(in)                      :: mul     !  In -> General multiplicity of the Space Group
+   !!----    real(kind=cp),    intent(in)             :: dmax    !  In -> Maximun distance to be calculated
+   !!----    type (atoms_cell_type), intent(in out)   :: Ac      !  In -> Object of type atoms_cell_type
+   !!----                                                          Out -> Allocated and initialized object Ac
+   !!----
+   !!----    Allocation of objet "Ac" of type Atm_Cell. "Ac" contains
+   !!----    components with ALLOCATABLE attribute with dimension depending
+   !!----    on the input arguments "Nasu", "Mul" and "Dmax". The variables used for calculating the
+   !!----    de dimensions are:
+   !!--<<
+   !!----          natcel=nasu*mul       and      id=idp=nint(0.74048*(dmax/r_atom)**3)
+   !!-->>
+   !!----    This subroutine should be called before using the subroutines of this module with
+   !!----    dummy arguments of type Atm_Cell.
+   !!----
+   !!---- Update: February - 2005
+   !!
+   Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
+      !---- Arguments ----!
+      integer,              intent(in)     :: nasu
+      integer,              intent(in)     :: mul
+      real(kind=cp),        intent(in)     :: dmax
+      type (Atm_cell_type), intent(in out) :: Ac
+
+      !---- local variables ----!
+      integer :: natcel,id
+
+      if(nasu <= 0) then !Deallocate the component of the object Ac
+         if (allocated(Ac%Lab         ))   deallocate (Ac%Lab       )
+         if (allocated(Ac%xyz         ))   deallocate (Ac%xyz        )
+         if (allocated(Ac%charge      ))   deallocate (Ac%charge     )
+         if (allocated(Ac%moment      ))   deallocate (Ac%moment     )
+         if (allocated(Ac%var_free    ))   deallocate (Ac%var_free   )
+         if (allocated(Ac%neighb      ))   deallocate (Ac%neighb     )
+         if (allocated(Ac%neighb_atom ))   deallocate (Ac%neighb_atom)
+         if (allocated(Ac%distance    ))   deallocate (Ac%distance   )
+         if (allocated(Ac%trans       ))   deallocate (Ac%trans      )
+         if (allocated(Ac%ddist       ))   deallocate (Ac%ddist      )
+         if (allocated(Ac%ddlab       ))   deallocate (Ac%ddlab      )
+      end if
+
+      natcel=nasu*mul
+      id=nint(0.74048*(dmax/r_atom)**3)
+      id=max(id,natcel)
+
+      if (.not. allocated(Ac%Lab         ))   allocate (Ac%Lab          (natcel))
+      if (.not. allocated(Ac%xyz         ))   allocate (Ac%xyz         (3,natcel))
+      if (.not. allocated(Ac%charge      ))   allocate (Ac%charge        (natcel))
+      if (.not. allocated(Ac%moment      ))   allocate (Ac%moment        (natcel))
+      if (.not. allocated(Ac%var_free    ))   allocate (Ac%var_free   (10,natcel))
+      if (.not. allocated(Ac%neighb      ))   allocate (Ac%neighb        (natcel))
+      if (.not. allocated(Ac%neighb_atom ))   allocate (Ac%neighb_atom(id,natcel))
+      if (.not. allocated(Ac%distance    ))   allocate (Ac%distance   (id,natcel))
+      if (.not. allocated(Ac%trans       ))   allocate (Ac%trans    (3,id,natcel))
+      if (.not. allocated(Ac%ddist       ))   allocate (Ac%ddist      (natcel*id))
+      if (.not. allocated(Ac%ddlab       ))   allocate (Ac%ddlab      (natcel*id))
+
+      Ac%nat         = natcel
+      Ac%Lab         = " "
+      Ac%xyz         = 0.0
+      Ac%charge      = 0.0
+      Ac%moment      = 0.0
+      Ac%var_free    = 0.0
+      Ac%neighb      = 0
+      Ac%neighb_atom = 0
+      Ac%distance    = 0.0
+      Ac%trans       = 0
+      Ac%ddist       = 0.0
+      Ac%ddlab       = " "
+   End Subroutine Allocate_Atoms_Cell
 
 End SubModule Init_Allocating_Atoms

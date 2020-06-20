@@ -55,7 +55,7 @@
 
     !---- List of public procedures ----!
     public :: Allocate_Atom_List, Extend_Atom_List, Init_Atom_Type, Read_Bin_Atom_List, &
-              Write_Bin_atom_List, Write_Atom_List
+              Write_Bin_atom_List, Write_Atom_List, Allocate_Atoms_Cell
     public :: Equiv_Atm, Wrt_Lab, Check_Symmetry_Constraints
 
 
@@ -92,9 +92,11 @@
        logical                       :: Magnetic=.false. ! Flag indication if the atom is magnetic or not.
        real(kind=cp)                 :: Mom     = 0.0_cp ! Maximum Module of Magnetic moment
        real(kind=cp), dimension(3)   :: Moment  = 0.0_cp ! Magnetic moment
-       integer, dimension(3)         :: Ind_ff  = 0      ! Index of form factor (Xray, b, Magff)
+       integer, dimension(3)         :: Ind_ff  = 0      ! Pointer of form factors (1:Xray or species, 2:b, 3:Magff) to the number of the species in calculations
        character(len=40)             :: AtmInfo = " "    ! Information string for different purposes
        character(len=5)              :: wyck    = " "    ! Wyckoff position label if known
+       real(kind=cp),dimension(5)    :: VarF    = 0.0_cp ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
+       logical                       :: active  =.true.  ! Control for different purposes
     End Type Atm_Type
 
     !!----
@@ -290,6 +292,14 @@
           class(Atm_Type), intent(in out)   :: Atm
           integer,         intent(in)       :: d     ! Number of k-vectors
        End Subroutine Init_Atom_Type
+
+       Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
+          !---- Arguments ----!
+          integer,              intent(in)     :: nasu
+          integer,              intent(in)     :: mul
+          real(kind=cp),        intent(in)     :: dmax
+          type (Atm_cell_type), intent(in out) :: Ac
+       End Subroutine Allocate_Atoms_Cell
 
        Module Subroutine Allocate_Atom_List(N, A,Type_Atm, d)
           !---- Arguments ----!

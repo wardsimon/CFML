@@ -260,7 +260,7 @@
 
       Module Subroutine Angle_and_Sigma(Cellp,DerM,x1,x0,x2,s1,s0,s2,ang,s)
          !---- Arguments ----!
-         Type(Cell_G_Type),         intent(in)  :: Cellp         ! Cell object
+         Type(Cell_G_Type),               intent(in)  :: Cellp         ! Cell object
          real(kind=cp), dimension(3,3,6), intent(in)  :: DerM          ! Matrix of derivatives of Cellp%Cr_Orth_cel
          real(kind=cp), dimension(3),     intent(in)  :: x0,x1,x2      ! Three points in fractional coordinates and sigmas, X0 is central
          real(kind=cp), dimension(3),     intent(in)  :: s0,s1,s2      ! Sigmas of the three points
