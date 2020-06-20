@@ -182,7 +182,7 @@
 
 
     !!----
-    !!---- Subroutine Set_Charges(SpGr,Cell,A,filcod)
+    !!---- Module Subroutine Set_Charges(SpGr,Cell,A,filcod)
     !!----     Type (SPG_Type),     Intent(in)    :: SpGr
     !!----     Type (Cell_G_Type),    Intent(in)    :: Cell
     !!----     Type (AtList_Type),       Intent(inout) :: A
@@ -195,7 +195,7 @@
     !!----
     !!---- Update: July - 2016
     !!
-    Subroutine Set_Formal_Charges(SpGr,Cell,A,eps_val,iwrt)
+    Module Subroutine Set_Formal_Charges(SpGr,Cell,A,eps_val,iwrt)
       !---- Arguments ----!
       Type (SPG_Type),  Intent(in)    :: SpGr
       Type (Cell_G_Type),    Intent(in)    :: Cell
