@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Locate
+Submodule (CFML_Maths) Maths_Locate
  Contains
 
     !!----
@@ -121,8 +121,6 @@ Submodule (CFML_Maths) Locate
           end if
        end do
        j=jl
-
-       return
     End Function Locate_R
 
-End Submodule Locate
+End Submodule Maths_Locate

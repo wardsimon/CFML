@@ -136,8 +136,8 @@ SubModule (CFML_HDF5) HDF5_D19
             end select
         end do
         if (i_om == -1) then
-            err_ILLData = .true.
-            err_ILLData_mess = "Error reading numor. Omega not found in scanned variables"
+            err_CFML%Ierr = 1
+            err_CFML%Msg = "Error reading numor. Omega not found in scanned variables"
             return
         end if
 
@@ -185,7 +185,7 @@ SubModule (CFML_HDF5) HDF5_D19
         numor%angles(2) = chi
         numor%angles(3) = omega
         numor%angles(4) = gamma
-        numor%scans(:)  = (/ start,step,width /)
+        numor%scans(:)  = [ start,step,width ]
         numor%ub        = transpose(RESHAPE(ub,[3,3]))
         allocate(numor%tmc_ang(numor%nbang+3,numor%nframes))
         if (i_ti == -1) then

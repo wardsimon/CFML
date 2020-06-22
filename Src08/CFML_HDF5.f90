@@ -42,23 +42,23 @@ Module CFML_HDF5
     use HDF5
     use CFML_ILL_Instrm_Data, ONLY: SXtal_Numor_type,Initialize_Numor,&
                                     err_ILLData,err_ILLData_mess
-    use CFML_String_Utilities, ONLY: l_case
-    
+    use CFML_Strings,         ONLY: l_case
+
     implicit none
-    
+
     private
-    
+
     public: Read_Nexus_D19
-    
+
     contains
-    
+
     Interface
-        Module Subroutine Read_Nexus_D19(filename,numor,counts)    
+        Module Subroutine Read_Nexus_D19(filename,numor,counts)
             !---- Arguments ----!
             character(len=*),                       intent(in)  :: filename
             type(SXTAL_NUMOR_type),                 intent(out) :: numor
             integer, dimension(:,:,:), allocatable, intent(out) :: counts
         End Subroutine Read_Nexus_D19
-    End Interface    
-    
+    End Interface
+
 End Module CFML_HDF5

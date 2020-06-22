@@ -928,9 +928,9 @@ Submodule (CFML_Metrics) GenMetrics
     End Function Get_Transfm_Matrix
 
     !!----
-    !!---- GET_BASIS_FROM_UVW
+    !!---- Module Function Get_Basis_From_UVW(dmin,u,cell,mode) Result(ZoneB)
     !!----
-    !!----  Subroutine to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
+    !!----  Function to construct ZA of type Zone_Axis. This subroutine picks up two reciprocal
     !!----  lattice vectors satisfying the equation
     !!----                            hu+kv+lw=0
     !!----  The two reciprocal lattice vectors have no coprime factors and
@@ -942,7 +942,7 @@ Submodule (CFML_Metrics) GenMetrics
     !!----
     !!----  If mode="R", dmin corresponds n(uvw)max
     !!----
-    !!---- 11/04/2019
+    !!---- 11/04/2019, Updated June 2020
     !!
     Module Function Get_Basis_From_UVW(dmin,u,cell,mode) Result(ZoneB)
        !--- Arguments ---!

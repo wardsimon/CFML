@@ -41,11 +41,11 @@ endif()
 # CFML_Messages
 file(GLOB SUBMOD_MESSAGES_SRC CFML_Messages/*.f90)
 set(MESSAGES_SRC CFML_Messages.f90
-                 CFML_Messages/Err_Message.f90
-                 CFML_Messages/Info_Message.f90
-                 CFML_Messages/Print_Message.f90
-                 CFML_Messages/Wait_Message.f90
-                 CFML_Messages/Write_ScrollMsg.f90)
+                 CFML_Messages/Con_Err_Message.f90
+                 CFML_Messages/Con_Info_Message.f90
+                 CFML_Messages/Con_Print_Message.f90
+                 CFML_Messages/Con_Wait_Message.f90
+                 CFML_Messages/Con_Write_ScrollMsg.f90)
 if(${COMPILER_NAME} STREQUAL ifort)
     set_source_files_properties(${MESSAGES_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
@@ -110,22 +110,22 @@ else()
 endif()
 
 # CFML_Tables
-set(SUBMOD_TABLES_1_SRC CFML_Tables/Del_ScatterT.f90
-                        CFML_Tables/Get_ScatterT.f90
-                        CFML_Tables/Del_BondsT.f90
-                        CFML_Tables/Get_BondsT.f90
-                        CFML_Tables/Del_SpgT.f90
-                        CFML_Tables/Get_SpgT.f90
-                        CFML_Tables/Del_BVST.f90
-                        CFML_Tables/Allocating_MagneticDBase.f90
-                        CFML_Tables/Read_MagneticDBase.f90
-                        CFML_Tables/Allocating_SuperSpaceDBase.f90
-                        CFML_Tables/Read_SSG_DBase.f90)
-set(SUBMOD_TABLES_2_SRC CFML_Tables/Set_ScatterT.f90
-                        CFML_Tables/Set_BondsT.f90
-                        CFML_Tables/Get_SpgSymbols.f90
-                        CFML_Tables/Set_SpgT.f90
-                        CFML_Tables/Set_BVST.f90)
+set(SUBMOD_TABLES_1_SRC CFML_Tables/Tab_Del_ScatterT.f90
+                        CFML_Tables/Tab_Get_ScatterT.f90
+                        CFML_Tables/Tab_Del_BondsT.f90
+                        CFML_Tables/Tab_Get_BondsT.f90
+                        CFML_Tables/Tab_Del_SpgT.f90
+                        CFML_Tables/Tab_Get_SpgT.f90
+                        CFML_Tables/Tab_Del_BVST.f90
+                        CFML_Tables/Tab_Allocating_MagneticDBase.f90
+                        CFML_Tables/Tab_Read_MagneticDBase.f90
+                        CFML_Tables/Tab_Allocating_SuperSpaceDBase.f90
+                        CFML_Tables/Tab_Read_SSG_DBase.f90)
+set(SUBMOD_TABLES_2_SRC CFML_Tables/Tab_Set_ScatterT.f90
+                        CFML_Tables/Tab_Set_BondsT.f90
+                        CFML_Tables/Tab_Get_SpgSymbols.f90
+                        CFML_Tables/Tab_Set_SpgT.f90
+                        CFML_Tables/Tab_Set_BVST.f90)
 set(TABLES_1_SRC CFML_Scattering_Tables.f90
                  CFML_Bonds_Tables.f90
                  ${SUBMOD_TABLES_1_SRC})
@@ -169,11 +169,10 @@ else()
 endif()
 
 # CFML_Profiles
-file(GLOB SUBMOD_PROFILES_SRC CFML_Profiles/P*.f90
-                             CFML_Profiles/T*.f90)
+file(GLOB SUBMOD_PROFILES_SRC CFML_Profiles/Prof*.f90)
 set(PROFILES_1_SRC CFML_Profiles.f90
                    ${SUBMOD_PROFILES_SRC})
-set(PROFILES_2_SRC CFML_Profiles/Init_ProfVal.f90)
+set(PROFILES_2_SRC CFML_Profiles/Profile_Init_ProfVal.f90)
 if(${COMPILER_NAME} STREQUAL ifort)
     set_source_files_properties(${PROFILES_1_SRC}
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
@@ -351,6 +350,29 @@ else()
         PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
 endif()
 
+# Instrm_ILL
+set(InstrmILL_SRC CFML_ILL_Instrm_Data.f90)
+ 
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${InstrmILL_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
+else()
+    set_source_files_properties(${InstrmILL_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
+endif()
+
+# CFML_SXTAL_Geom
+file(GLOB SUBMOD_SXTALgeom_SRC CFML_SXTAL_Geom/*.f90)
+set(SXTALgeom_SRC CFML_SXTAL_Geom.f90
+                 ${SUBMOD_SXTALgeom_SRC})
+if(${COMPILER_NAME} STREQUAL ifort)
+    set_source_files_properties(${SXTALgeom_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGS} ${OPT_FLAGS1} ${OPT_FLAGS2}")
+else()
+    set_source_files_properties(${SXTALgeom_SRC}
+        PROPERTIES COMPILE_FLAGS "${OPT_FLAGSC} ${OPT_FLAGS1}")
+endif()
+
 #  List of all the source files 
 set(CRYSFML_COMMON_SRC
     ${GLOBAL_DEPS_SRC}
@@ -378,7 +400,9 @@ set(CRYSFML_COMMON_SRC
     ${OPT_LSQ_SRC}
     ${OPT_SAN_SRC} 
     ${Export_VTK_SRC} 
-    ${EnBVS_SRC})
+    ${EnBVS_SRC}
+    ${InstrmILL_SRC}
+    ${SXTALgeom_SRC})
 
 # Build the library
 set(LIBRARY_NAME crysfml)

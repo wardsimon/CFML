@@ -1189,7 +1189,7 @@
           integer ,                    intent(in)  :: n               !  In -> Dimension of X, Y
           real(kind=cp),               intent(in)  :: yp1             !  In -> Derivate of Point 1
           real(kind=cp),               intent(in)  :: ypn             !  In -> Derivate of Point N
-          real(kind=cp), dimension(n)            :: ys              ! Out -> array containing second derivatives
+          real(kind=cp), dimension(n)              :: ys              ! Out -> array containing second derivatives
        End Function Spline_D2Y
 
        Pure Module Function Spline_Interpol(xi,x,y,d2y,n) Result(yi)
@@ -1198,7 +1198,7 @@
           real(kind=cp), dimension(:), intent(in)  :: x    ! Vector Xi points
           real(kind=cp), dimension(:), intent(in)  :: y    ! Vector Yi points
           real(kind=cp), dimension(:), intent(in)  :: d2y  ! Vector Second derivate of Yi points
-          integer ,                    intent(in)  :: n    ! Dimension of vectors
+          integer,                     intent(in)  :: n    ! Dimension of vectors
           real(kind=cp)                            :: yi
        End Function Spline_Interpol
 
