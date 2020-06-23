@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Operator_Divisor
-
+Submodule (CFML_Rational) RAT_Operator_Divisor
+ implicit none
  Contains
     !!----
     !!---- RATIONAL_DIVIDE
@@ -72,4 +72,4 @@ Submodule (CFML_Rational) Operator_Divisor
        return
     End Function Integer_Rational_Divide
 
-End Submodule Operator_Divisor
+End Submodule RAT_Operator_Divisor

@@ -1,5 +1,5 @@
-Submodule (CFML_Metrics) GenMetrics
-
+Submodule (CFML_Metrics) Metrics_Gen
+ Implicit none
  Contains
     !!----
     !!---- SIGMAV_FROM_CELL
@@ -158,7 +158,7 @@ Submodule (CFML_Metrics) GenMetrics
 
        !---- Local Variables ----!
        character(len=2) :: car
-       real(kind=cp)    :: cosgas, singas
+       real(kind=cp)    :: cosgas, singas, cosbes, sinbes
 
 
        !> Init and checks
@@ -892,7 +892,7 @@ Submodule (CFML_Metrics) GenMetrics
        ok=.false.
 
        dox: do i1=-NLIM,NLIM                     !         |i1  i4  i7|
-          do i2=-NLIN,NLIM                       !    Nu = |i2  i5  i8|
+          do i2=-NLIM,NLIM                       !    Nu = |i2  i5  i8|
              do i3=-NLIM,NLIM                    !         |i3  i6  i9|
                 do i4=-NLIM,NLIM
                    do i5=-NLIM,NLIM
@@ -1967,4 +1967,4 @@ Submodule (CFML_Metrics) GenMetrics
 
     End Function Strain_from_Cell
 
-End Submodule GenMetrics
+End Submodule Metrics_Gen

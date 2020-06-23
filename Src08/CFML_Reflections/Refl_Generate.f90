@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Generation_of_Reflections
+   implicit none
    Contains
    !!----
    !!---- Gener_Reflections

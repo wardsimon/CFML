@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Norm
+Submodule (CFML_Maths) Maths_Norm
+ implicit none
  Contains
 
     !!----
@@ -48,4 +49,4 @@ Submodule (CFML_Maths) Norm
        return
     End Function Norm_R
 
-End Submodule Norm
+End Submodule Maths_Norm

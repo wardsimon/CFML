@@ -1,4 +1,5 @@
 Submodule (CFML_Optimization) OPT_Local_Optim
+  implicit none
    contains
     !!----
     !!---- Module Subroutine Local_Min_DFP(Model_Functn, N, X, F, C, mini, maxi, Ipr)

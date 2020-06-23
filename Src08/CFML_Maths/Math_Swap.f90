@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Swap
+Submodule (CFML_Maths) Maths_Swap
+ implicit none
  Contains
 
     !!----
@@ -141,4 +142,4 @@ Submodule (CFML_Maths) Swap
        return
     End Subroutine Swap_Masked_R
 
-End Submodule Swap
+End Submodule Maths_Swap

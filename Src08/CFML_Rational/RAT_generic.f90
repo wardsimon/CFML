@@ -3,8 +3,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Rational) Rational_General
-
+SubModule (CFML_Rational) RAT_Rational_General
+ implicit none
  Contains
    !!----
    !!---- RATIONAL_CO_LINEAR
@@ -284,4 +284,4 @@ SubModule (CFML_Rational) Rational_General
       return
    End Function Rational_Inverse_Matrix
 
-End SubModule Rational_General
+End SubModule RAT_Rational_General

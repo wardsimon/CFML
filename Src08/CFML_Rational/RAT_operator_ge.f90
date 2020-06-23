@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Operator_GE
-
+Submodule (CFML_Rational) RAT_Operator_GE
+ implicit none
  Contains
     !!----
     !!---- RATIONAL_GE
@@ -68,4 +68,4 @@ Submodule (CFML_Rational) Operator_GE
        return
     End Function Integer_Rational_GE
 
-End Submodule Operator_GE
+End Submodule RAT_Operator_GE

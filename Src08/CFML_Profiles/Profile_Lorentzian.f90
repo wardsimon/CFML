@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Lorentzian
+  implicit none
    Contains
    !!----
    !!---- LORENTZIAN

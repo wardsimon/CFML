@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Equivalent_List
+   implicit none
    Contains
    !!----
    !!>   Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List,ipos)

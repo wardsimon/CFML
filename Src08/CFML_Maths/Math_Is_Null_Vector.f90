@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Is_Null_Vector
+Submodule (CFML_Maths) Maths_Is_Null_Vector
+ implicit none
  Contains
     !!----
     !!---- IS_NULL_VECTOR_I
@@ -55,4 +56,4 @@ Submodule (CFML_Maths) Is_Null_Vector
        return
     End Function Is_Null_Vector_R
 
-End Submodule Is_Null_Vector
+End Submodule Maths_Is_Null_Vector

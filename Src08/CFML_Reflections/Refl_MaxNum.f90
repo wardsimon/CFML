@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Maximum_Number_of_Reflections
+   implicit none
    Contains
 
    !!----

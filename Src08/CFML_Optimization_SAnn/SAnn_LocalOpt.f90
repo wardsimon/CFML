@@ -1,5 +1,5 @@
  Submodule (CFML_Simulated_Annealing) SAnn_LocalOpt
-
+  implicit none
    contains
     !!----
     !!---- Module Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)

@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Reflections) RFL_Equal
+   implicit none
    Contains
    !!----
    !!---- H_EQUAL

@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Operator_EQ
-
+Submodule (CFML_Rational) RAT_Operator_EQ
+ implicit none
  Contains
     !!----
     !!---- RATIONAL_EQ
@@ -53,4 +53,4 @@ Submodule (CFML_Rational) Operator_EQ
        return
     End Function Integer_Rational_EQ
 
-End Submodule Operator_EQ
+End Submodule RAT_Operator_EQ

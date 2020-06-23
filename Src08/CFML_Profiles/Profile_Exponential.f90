@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Exponential
+  implicit none
    Contains
    !!----
    !!---- EXPONENTIAL

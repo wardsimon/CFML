@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Resolv_System
+Submodule (CFML_Maths) Maths_Resolv_System
+ implicit none
  Contains
 
     !!----
@@ -29,7 +30,7 @@ Submodule (CFML_Maths) Resolv_System
 
        !> Both are zeros
        if ( all(w == 0)) then
-          if (abs(t) < eps) then
+          if (abs(t) < epss) then
              ix(1)=1
              ix(2)=2
           else
@@ -94,7 +95,7 @@ Submodule (CFML_Maths) Resolv_System
        end do
        select case (zeros)
           case (3)
-             if (abs(t) < eps) then
+             if (abs(t) < epss) then
                 do i=1,3
                    ix(i)=i
                 end do
@@ -213,7 +214,7 @@ Submodule (CFML_Maths) Resolv_System
           end do
           select case (sum(zeros))
              case (2)
-                if (abs(t(1)) <= eps .and. abs(t(2)) <= eps) then
+                if (abs(t(1)) <= epss .and. abs(t(2)) <= epss) then
                    ix(1)=1
                    ix(2)=2
                 else
@@ -301,7 +302,7 @@ Submodule (CFML_Maths) Resolv_System
        end do
        select case (sum(colum))
           case (3)
-             if (abs(t(1)) <= eps .and. abs(t(2)) <= eps) then
+             if (abs(t(1)) <= epss .and. abs(t(2)) <= epss) then
                 do i=1,3
                    ix(i)=i
                 end do
@@ -814,7 +815,7 @@ Submodule (CFML_Maths) Resolv_System
           select case (sum(fila))
              !---- All values are zeros ----!
              case (3)
-                if (all(abs(t) < eps)) then
+                if (all(abs(t) < epss)) then
                    do i=1,3
                       ix(i)=i
                    end do
@@ -992,4 +993,4 @@ Submodule (CFML_Maths) Resolv_System
        return
     End Subroutine Resolv_Sist_3x3
 
-End Submodule Resolv_System
+End Submodule Maths_Resolv_System

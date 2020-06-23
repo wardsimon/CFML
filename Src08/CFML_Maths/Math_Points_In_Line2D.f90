@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Math_Points_In_Line2D
+Submodule (CFML_Maths) Maths_Points_In_Line2D
+ implicit none
  Contains
     !!----
     !!---- POINTS_IN_LINE2D
@@ -116,4 +117,4 @@ Submodule (CFML_Maths) Math_Points_In_Line2D
        return
     End Subroutine Points_In_Line2D
 
-End Submodule Math_Points_In_Line2D
+End Submodule Maths_Points_In_Line2D

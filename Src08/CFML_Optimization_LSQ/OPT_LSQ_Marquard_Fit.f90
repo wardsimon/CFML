@@ -1,5 +1,5 @@
  Submodule (CFML_Optimization_LSQ) OPT_LSQ_Marquard_Fit
-
+  implicit none
    contains
 
     !!--++

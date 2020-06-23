@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) RowEchelonForm
+Submodule (CFML_Maths) Maths_RowEchelonForm
+ implicit none
  Contains
 
     !!----
@@ -203,4 +204,4 @@ Submodule (CFML_Maths) RowEchelonForm
        return
     End Subroutine SmithNormalForm
 
-End Submodule RowEchelonForm
+End Submodule Maths_RowEchelonForm

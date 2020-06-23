@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Operator_Minus
-
+Submodule (CFML_Rational) RAT_Operator_Minus
+ implicit none
  Contains
     !!----
     !!---- RATIONAL_MINUS
@@ -73,4 +73,4 @@ Submodule (CFML_Rational) Operator_Minus
        return
     End Function Rational_Integer_Subtract
 
-End Submodule Operator_Minus
+End Submodule RAT_Operator_Minus

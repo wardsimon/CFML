@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Init_Profval
+  implicit none
    Contains
    !!----
    !!---- INIT_PROF_VAL

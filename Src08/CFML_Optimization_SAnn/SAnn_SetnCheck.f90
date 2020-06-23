@@ -1,5 +1,5 @@
  Submodule (CFML_Simulated_Annealing) SAnn_SetnCheck
-
+  implicit none
    contains
 
     !!--++

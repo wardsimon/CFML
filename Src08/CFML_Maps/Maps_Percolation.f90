@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Maps) Percolation
+SubModule (CFML_Maps) Maps_Percolation
+   implicit none
    Contains
    !!----
    !!---- READ_BVEL
@@ -497,4 +498,4 @@ SubModule (CFML_Maps) Percolation
 
    End Subroutine Percol_Analysis
 
-End SubModule Percolation
+End SubModule Maps_Percolation

@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_IOForm) IO_CIF
+   implicit none
 
    !---- Local Variables ----!
    character(len=132)            :: line
@@ -179,7 +180,7 @@ SubModule (CFML_IOForm) IO_CIF
       logical                                 :: aniso
       integer                                 :: i,j
       character(len=30)                       :: comm, adptyp
-      real(kind=cp)                           :: u,su,rval,occ,occ_std,ocf
+      real(kind=cp)                           :: u,su,rval,ocf
       real(kind=cp), dimension(6)             :: Ua,sua,aux
       real(kind=cp), dimension(:),allocatable :: occup,soccup
 
@@ -452,7 +453,7 @@ SubModule (CFML_IOForm) IO_CIF
       !---- Local Variables ----!
       logical                             :: ssg
       character(len=20),dimension(15)     :: label
-      integer                             :: i, j, n, nc, nct, nline, iv, First, nline_big,num_ini,mm
+      integer                             :: i, j, n, nc, iv, First, nl,npos
       integer, dimension( 8)              :: lugar   !   1 -> label
                                                      !   2 -> Symbol
                                                      ! 3-5 -> coordinates
@@ -460,16 +461,16 @@ SubModule (CFML_IOForm) IO_CIF
                                                      !   7 -> Uequi
                                                      !   8 -> Biso
       real(kind=cp), dimension(1)     :: vet1,vet2
-      integer,       dimension(1)     :: ivet
+      !integer,       dimension(1)     :: ivet
 
       type(atlist_type)               :: Atm
 
       type (atm_type)                 :: atm1
       type (atm_std_type)             :: atm2
-      type (matm_std_type)            :: atm3
-      type (atm_ref_type)             :: atm4
+      !type (matm_std_type)            :: atm3
+      !type (atm_ref_type)             :: atm4
 
-      class(atm_type), allocatable    :: atm5
+      !class(atm_type), allocatable    :: atm5
 
       !> Init
       call clear_error()
@@ -1132,7 +1133,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini,i_end
 
       !---- Local Variables ----!
-      integer                    :: i,nl,iv
+      integer                    :: i,nl,iv,npos
       integer,dimension(1)       :: ivet
       real(kind=cp), dimension(1):: vet
 
@@ -1252,7 +1253,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer :: i,nl,np1, np2
+      integer :: i,nl,np1, np2,iv,npos
 
       !> Init
       ChemName=" "
@@ -1349,7 +1350,7 @@ SubModule (CFML_IOForm) IO_CIF
       !---- Local  variables ----!
       character(len=10), dimension(15) :: label
 
-      integer                     :: i,nl,iv
+      integer                     :: i,nl,iv,npos
       integer                     :: np1,np2,nlabel,nlong
       integer,       dimension(1) :: ivet
       real(kind=cp), dimension(1) :: vet
@@ -1457,7 +1458,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                       :: i,iv
+      integer                       :: i,iv,npos,nl
       real(kind=cp),dimension(1)    :: vet1,vet2
 
       !> Init
@@ -1578,7 +1579,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                       :: i,iv
+      integer                       :: i,iv,nl,npos
       integer, dimension(1)         :: ivet
       real(kind=cp),dimension(1)    :: vet
 
@@ -1637,7 +1638,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end   ! Index to start
 
       !---- Local Variables ----!
-      integer                       :: i,iv
+      integer                       :: i,iv,npos,nl
       real(kind=cp),dimension(1)    :: vet1,vet2
 
       !> Init
@@ -1695,7 +1696,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer           :: i,nl, np1, np2
+      integer           :: i,nl, np1, np2,iv,npos
 
       !> Init
       Hall=" "
@@ -1789,7 +1790,7 @@ SubModule (CFML_IOForm) IO_CIF
 
       !---- Local variables ----!
       character(len=1) :: csym, csym2
-      integer          :: i,nl,np1, np2
+      integer          :: i,nl,np1, np2,iv,npos
 
       !> Init
       spgr_hm=" "
@@ -1956,7 +1957,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,              intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer            :: i,j,nl,np1,np2
+      integer            :: i,j,nl,np1,np2,iv,npos,nl
 
       !> Init
       n_oper=0
@@ -2058,7 +2059,7 @@ SubModule (CFML_IOForm) IO_CIF
       character(len=8)    :: date,time
       character(len=30)   :: comm
       integer             :: iunit
-      integer             :: i,j,n
+      integer             :: i,n !,j
       real(kind=cp)       :: an, R_patt,R_wpatt,R_exp, Chi2
 
       !> Inicialization of variables
@@ -2324,7 +2325,7 @@ SubModule (CFML_IOForm) IO_CIF
 
       !---- Local Variables ----!
       logical                                 :: info
-      integer                                 :: iunit,i, j
+      integer                                 :: iunit !,i, j
 
       !> Init
       info=.false.
@@ -2789,7 +2790,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer                        :: i, iph, nt_phases, it, n_ini,n_end
       integer, dimension(MAX_PHASES) :: ip
 
-      real(kind=cp),dimension(6):: vet,vet2
+      real(kind=cp),dimension(6):: vet !,vet2
       real(kind=cp)             :: val
 
       !> Init
@@ -2952,7 +2953,7 @@ SubModule (CFML_IOForm) IO_CIF
       class (Spg_type), intent(in) :: Spg
 
       !---- Local Variables ----!
-
+      integer :: i
 
       write(unit=ipr,fmt="(a)") " "
 

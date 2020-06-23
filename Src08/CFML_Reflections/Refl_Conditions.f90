@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Refl_Conditions
+   implicit none
    Contains
 
    !!--++

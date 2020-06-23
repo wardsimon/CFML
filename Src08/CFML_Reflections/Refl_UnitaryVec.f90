@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Unitary_Vector_H
+   implicit none
    Contains
    !!----
    !!---- UNITARY_VECTOR_H

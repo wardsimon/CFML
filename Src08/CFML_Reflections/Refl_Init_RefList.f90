@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Init_Reflist
+   implicit none
    Contains
 
    !!----

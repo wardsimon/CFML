@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Scalar
+Submodule (CFML_Maths) Maths_Scalar
+ implicit none
  Contains
 
     !!----
@@ -49,4 +50,4 @@ Submodule (CFML_Maths) Scalar
     End Function Scalar_R
 
 
-End Submodule Scalar
+End Submodule Maths_Scalar

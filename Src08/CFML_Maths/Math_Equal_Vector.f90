@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Equal_Vector
+Submodule (CFML_Maths) Maths_Equal_Vector
+ implicit none
  Contains
 
     !!----
@@ -131,4 +132,4 @@ Submodule (CFML_Maths) Equal_Vector
        return
     End Function Equal_Vector_R
 
-End Submodule Equal_Vector
+End Submodule Maths_Equal_Vector

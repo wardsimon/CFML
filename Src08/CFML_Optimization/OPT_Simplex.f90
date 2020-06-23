@@ -1,4 +1,5 @@
  Submodule (CFML_Optimization) OPT_Simplex
+  implicit none
   contains
     !!----
     !!---- Module Subroutine Nelder_Mead_Simplex(Model_Functn, Npar, P, Step, Var, Func, C, Ipr)

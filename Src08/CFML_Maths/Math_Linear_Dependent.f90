@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Linear_Dependent
+Submodule (CFML_Maths) Maths_Linear_Dependent
+ implicit none
  Contains
 
     !!----
@@ -219,4 +220,4 @@ Submodule (CFML_Maths) Linear_Dependent
     End Function Linear_Dependent_R
 
 
-End Submodule Linear_Dependent
+End Submodule Maths_Linear_Dependent

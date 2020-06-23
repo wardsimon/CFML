@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_BacktoBack
+  implicit none
    Contains
    !!----
    !!---- BACK_TO_BACK_EXP

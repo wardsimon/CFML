@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) SpherHarmon
-
+Submodule (CFML_Maths) Maths_SpherHarmon
+ implicit none
  Contains
 
     !!----
@@ -355,8 +355,8 @@ Submodule (CFML_Maths) SpherHarmon
        end if
        v=u
        ss=dot_product(v,v)
-       if (abs(ss-1.0_cp) > 2.0_cp*eps) then  !Test the provided unit vector
-          if(ss > eps) then
+       if (abs(ss-1.0_cp) > 2.0_cp*epss) then  !Test the provided unit vector
+          if(ss > epss) then
             v=v/sqrt(ss)             !Normalize the input vector
           else
             ylmp=0.0_cp
@@ -364,7 +364,7 @@ Submodule (CFML_Maths) SpherHarmon
           end if
        end if
        x=v(3)                    !costheta
-       if (abs(x-1.0_cp) < eps .or. abs(x+1.0_cp) < eps) then
+       if (abs(x-1.0_cp) < epss .or. abs(x+1.0_cp) < epss) then
           pphi=0.0
        else
           pphi=atan2(v(2),v(1))  !This is the good function to obtain the true spherical angles
@@ -659,7 +659,7 @@ Submodule (CFML_Maths) SpherHarmon
        return
     End Subroutine Pikout_Lj_Cubic
 
- End Submodule SpherHarmon
+ End Submodule Maths_SpherHarmon
 
 
 

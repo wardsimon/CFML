@@ -1,5 +1,5 @@
  Submodule (CFML_Simulated_Annealing) SAnn_inout
-
+  implicit none
    contains
     !!----
     !!---- Module Subroutine Write_SimAnn_Cond(ipr,c)

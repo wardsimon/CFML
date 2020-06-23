@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Magnetic_Database) MagDB_001
+SubModule (CFML_Magnetic_Database) TAB_MagDB_allocate
+   Implicit none
    Contains
    !!----
    !!---- ALLOCATE MAG_DBASE
@@ -119,4 +120,4 @@ SubModule (CFML_Magnetic_Database) MagDB_001
       Magnetic_DBase_allocated=.false.
    End Subroutine Deallocate_Magnetic_DBase
 
-End Submodule MagDB_001
+End Submodule TAB_MagDB_allocate

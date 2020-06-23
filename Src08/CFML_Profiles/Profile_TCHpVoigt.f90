@@ -1,4 +1,5 @@
 SubModule (CFML_Profiles) PRF_TCH_pVoigt
+  implicit none
    Contains
 
     !!----

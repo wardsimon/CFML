@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Diagonalize_SH
+Submodule (CFML_Maths) Maths_Diagonalize_SH
+ implicit none
  Contains
 
     !!--++ SUBROUTINE DIAGONALIZE_HERM
@@ -168,7 +169,7 @@ Submodule (CFML_Maths) Diagonalize_SH
                    b=c*e(i)
                    r=sqrt(f*f+g*g)
                    e(i+1)=r
-                   if (abs(r)  <= ep_ss) then
+                   if (abs(r)  <= epss) then
                       d(i+1)=d(i+1)-p
                       e(m)=0.0
                       cycle do_g
@@ -328,7 +329,7 @@ Submodule (CFML_Maths) Diagonalize_SH
              do k=1,l
                 scala=scala+abs(a(i,k))
              end do
-             if (abs(scala) <= ep_ss) then
+             if (abs(scala) <= epss) then
                 e(i)=a(i,l)
              else
                 do k=1,l
@@ -407,7 +408,7 @@ Submodule (CFML_Maths) Diagonalize_SH
              do k=1,l
                 scala=scala+abs(a(i,k))
              end do
-             if (abs(scala) <= ep_ss) then
+             if (abs(scala) <= epss) then
                 e(i)=a(i,l)
              else
                 do k=1,l
@@ -565,4 +566,4 @@ Submodule (CFML_Maths) Diagonalize_SH
        return
     End Subroutine Orient_Eigenvectors
 
-End Submodule Diagonalize_SH
+End Submodule Maths_Diagonalize_SH

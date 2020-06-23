@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SuperSpace_Database) SSG_DB_001
+SubModule (CFML_SuperSpace_Database) TAB_SSG_DB_allocate
+   Implicit none
    Contains
    !!----
    !!---- ALLOCATE SSG_DBASE
@@ -65,4 +66,4 @@ SubModule (CFML_SuperSpace_Database) SSG_DB_001
         ssg_DBase_allocated=.false.
       End Subroutine Deallocate_SSG_DBase
 
-End Submodule SSG_DB_001
+End Submodule TAB_SSG_DB_allocate

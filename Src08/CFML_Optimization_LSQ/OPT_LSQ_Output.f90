@@ -1,5 +1,5 @@
  Submodule (CFML_Optimization_LSQ) OPT_LSQ_Output
-
+  implicit none
   contains
     !!--..
     !!--..  Module Subroutine Info_LSQ_LM_V(Chi2,Lun,c,v,vstd,vnam)

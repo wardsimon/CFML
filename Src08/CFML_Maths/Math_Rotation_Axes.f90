@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Rotation_Axes
+Submodule (CFML_Maths) Maths_Rotation_Axes
+ implicit none
  Contains
 
     !!----
@@ -102,4 +103,4 @@ Submodule (CFML_Maths) Rotation_Axes
        return
     End Function Rotation_OZ
 
-End Submodule Rotation_Axes
+End Submodule Maths_Rotation_Axes

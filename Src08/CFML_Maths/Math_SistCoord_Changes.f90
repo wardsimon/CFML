@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_011
+Submodule (CFML_Maths) Maths_ConvCoordinates
+ implicit none
  Contains
     !!----
     !!---- GET_CART_FROM_SPHER
@@ -78,7 +79,7 @@ Submodule (CFML_Maths) CFML_Math_011
        integer :: j
 
        CilCoord(3)=CarCoord(3)
-       if( abs(CarCoord(2)) > eps .or. abs(CarCoord(1)) > eps) then
+       if( abs(CarCoord(2)) > epss .or. abs(CarCoord(1)) > epss) then
           CilCoord(2)=atan2(CarCoord(2),CarCoord(1))
        else
           CilCoord(2)= 0.0_cp
@@ -124,7 +125,7 @@ Submodule (CFML_Maths) CFML_Math_011
              SphCoord(2)=sign(1.0_cp,SphCoord(2))
           end if
           SphCoord(2)=acos(SphCoord(2))
-          if (abs(SphCoord(2)) < eps .or. abs(SphCoord(2)-pi) < eps) then
+          if (abs(SphCoord(2)) < epss .or. abs(SphCoord(2)-pi) < epss) then
              SphCoord(3)=0.0_cp
           else
              SphCoord(3)=atan2(CarCoord(2),CarCoord(1))
@@ -195,4 +196,4 @@ Submodule (CFML_Maths) CFML_Math_011
        return
     End Function Get_Cylin_from_Spher
 
-End Submodule CFML_Math_011
+End Submodule Maths_ConvCoordinates

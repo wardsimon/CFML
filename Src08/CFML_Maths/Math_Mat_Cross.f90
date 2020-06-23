@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Mat_Cross
+Submodule (CFML_Maths) Maths_Cross
+ implicit none
  Contains
 
     !!----
@@ -69,4 +70,4 @@ Submodule (CFML_Maths) Mat_Cross
        return
     End Function Mat_Cross_I
 
-End Submodule Mat_Cross
+End Submodule Maths_Cross

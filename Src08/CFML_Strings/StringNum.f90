@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
- Submodule (CFML_Strings) StrNum
+ Submodule (CFML_Strings) STR_StrNum
    !---- Parameters ----!
    implicit none
 
@@ -1207,4 +1207,4 @@
        return
     End Function String_NumStd
 
- End Submodule StrNum
+ End Submodule STR_StrNum

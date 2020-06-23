@@ -1,8 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_BVS_Tables) Del_Routines
-
+SubModule (CFML_BVS_Tables) TAB_DelBVS_Routines
+   Implicit none
   Contains
 
    !!----
@@ -61,4 +61,4 @@ SubModule (CFML_BVS_Tables) Del_Routines
       return
    End Subroutine Remove_sBVS_Table
 
-End SubModule Del_Routines
+End SubModule TAB_DelBVS_Routines

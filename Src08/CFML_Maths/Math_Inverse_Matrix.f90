@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Inverse_Matrix
+Submodule (CFML_Maths) Maths_Inverse_Matrix
+ implicit none
  Contains
     !!----
     !!---- INVERSE_MATRIX_C
@@ -784,4 +785,4 @@ Submodule (CFML_Maths) Inverse_Matrix
        return
     End Function MatInv4_R
 
-End Submodule Inverse_Matrix
+End Submodule Maths_Inverse_Matrix

@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_Messages) Wait
+SubModule (CFML_Messages) Mess_Wait
+  Implicit none
    Contains
 
    !!----
@@ -22,4 +23,4 @@ SubModule (CFML_Messages) Wait
 
    End Subroutine Wait_Message
 
-End SubModule Wait
+End SubModule Mess_Wait

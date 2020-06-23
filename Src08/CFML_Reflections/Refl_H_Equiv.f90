@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Equivalence
+   implicit none
    Contains
    !!----
    !!---- H_EQUIV

@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen09
+SubModule (CFML_Random) Random_Von_Mises_sub
+  implicit none
   Contains
    !!----
    !!---- RANDOM_VON_MISES
@@ -123,4 +124,4 @@ SubModule (CFML_Random) RandomGen09
       return
    End Function Integral
 
-End SubModule RandomGen09
+End SubModule Random_Von_Mises_sub

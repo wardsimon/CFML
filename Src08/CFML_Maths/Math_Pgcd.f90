@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_003
+Submodule (CFML_Maths) Math_pgcd
+ implicit none
  Contains
     !!----
     !!---- Function GCD(i,j) Result(mcd)
@@ -64,5 +65,5 @@ Submodule (CFML_Maths) CFML_Math_003
        return
     End Function Lcm
 
-End Submodule CFML_Math_003
+End Submodule Math_pgcd
 

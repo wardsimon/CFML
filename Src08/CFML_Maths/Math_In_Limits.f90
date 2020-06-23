@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) In_Limits
+Submodule (CFML_Maths) Maths_In_Limits
+ implicit none
  Contains
 
     !!----
@@ -88,4 +89,4 @@ Submodule (CFML_Maths) In_Limits
        return
     End Function in_limits_R
 
-End Submodule In_Limits
+End Submodule Maths_In_Limits

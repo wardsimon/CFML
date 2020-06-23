@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Finger
+  implicit none
    Contains
    !!----
    !!---- FUNCTION DFUNC_INT

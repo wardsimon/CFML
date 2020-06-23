@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Ikeda_Carpenter
+  implicit none
    Contains
    !!----
    !!---- IKEDA_CARPENTER

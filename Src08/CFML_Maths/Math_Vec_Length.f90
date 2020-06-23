@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_010
+Submodule (CFML_Maths) Math_veclength
+ implicit none
  Contains
     !!----
     !!---- VEC_LENGTH
@@ -34,4 +35,4 @@ Submodule (CFML_Maths) CFML_Math_010
        return
     End Function Vec_Length
 
-End Submodule CFML_Math_010
+End Submodule Math_veclength

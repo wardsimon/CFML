@@ -1,7 +1,8 @@
 !----
 !!----
 !!----
-SubModule (CFML_Bonds_Tables) Get_Routines
+SubModule (CFML_Bonds_Tables) TAB_GetBond_Routines
+   Implicit none
   Contains
 
    !!--++
@@ -51,4 +52,4 @@ SubModule (CFML_Bonds_Tables) Get_Routines
       return
    End Function Get_Bonds_Table_Z
 
-End SubModule Get_Routines
+End SubModule TAB_GetBond_Routines

@@ -3,8 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Factorial
-
+Submodule (CFML_Maths) Maths_Factorial
+ implicit none
  Contains
     !!----
     !!---- FACTORIAL_I
@@ -68,4 +68,4 @@ Submodule (CFML_Maths) Factorial
        return
     End Function Factorial_R
 
-End Submodule Factorial
+End Submodule Maths_Factorial

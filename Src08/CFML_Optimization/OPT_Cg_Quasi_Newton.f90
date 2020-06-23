@@ -1,5 +1,5 @@
  Submodule (CFML_Optimization) OPT_Cg_Quasi_Newton
-
+  implicit none
    contains
 
     !!----

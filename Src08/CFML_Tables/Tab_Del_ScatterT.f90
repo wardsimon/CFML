@@ -1,8 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Scattering_Tables) Del_Routines
-
+SubModule (CFML_Scattering_Tables) TAB_DelSC_Routines
+   Implicit none
   Contains
 
    !!----
@@ -60,4 +60,4 @@ SubModule (CFML_Scattering_Tables) Del_Routines
       return
    End Subroutine Remove_Xray_form
 
-End SubModule Del_Routines
+End SubModule TAB_DelSC_Routines

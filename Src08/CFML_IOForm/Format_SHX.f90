@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_IOForm) IO_SHX
+    implicit none
    Contains
 
    !!----
@@ -437,7 +438,7 @@ SubModule (CFML_IOForm) IO_SHX
       real(kind=cp),   intent(out)    :: Wave    ! Wavelength
 
       !---- Local Variables ----!
-      integer                      :: iv
+      integer                      :: i,iv
       integer,       dimension(10) :: ivet
       real(kind=cp), dimension(10) :: vet
       character(len=80)            :: line
@@ -485,7 +486,7 @@ SubModule (CFML_IOForm) IO_SHX
       real(kind=cp),      intent(out)    :: Z       ! Z number
 
       !---- Local Variables ----!
-      integer                      :: iv
+      integer                      :: i,iv
       integer,       dimension(10) :: ivet
       real(kind=cp), dimension(10) :: vet
       character(len=80)            :: line

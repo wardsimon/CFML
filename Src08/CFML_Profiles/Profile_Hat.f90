@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Hat
+  implicit none
    Contains
    !!----
    !!---- FUNCTION HAT

@@ -1,4 +1,5 @@
 SubModule (CFML_HDF5) HDF5_D19
+    implicit none
     Contains
 
     !!----

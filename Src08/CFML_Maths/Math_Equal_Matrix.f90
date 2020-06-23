@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Equal_Matrix
+Submodule (CFML_Maths) Maths_Equal_Matrix
+ implicit none
  Contains
     !!----
     !!---- EQUAL_MATRIX_C
@@ -188,4 +189,4 @@ Submodule (CFML_Maths) Equal_Matrix
        return
     End Function Equal_Matrix_R
 
-End Submodule Equal_Matrix
+End Submodule Maths_Equal_Matrix

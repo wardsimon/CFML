@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Maps) Marching_Cubes
+SubModule (CFML_Maps) Maps_Marching_Cubes
+   implicit none
    Contains
    !!----
    !!---- INDEX_CUBE
@@ -879,4 +880,4 @@ SubModule (CFML_Maps) Marching_Cubes
 
    End Subroutine Calculate_Mesh
 
-End SubModule Marching_Cubes
+End SubModule Maps_Marching_Cubes

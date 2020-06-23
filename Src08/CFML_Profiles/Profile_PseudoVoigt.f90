@@ -4,6 +4,7 @@
 !!---- 21/04/19
 !!
 SubModule (CFML_Profiles) PRF_Pseudovoigt
+  implicit none
    Contains
     !!----
     !!---- FUNCTION PSEUDOVOIGT

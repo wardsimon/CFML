@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Sort
+Submodule (CFML_Maths) Maths_Sort
+ implicit none
  Contains
 
 
@@ -229,4 +230,4 @@ Submodule (CFML_Maths) Sort
        return
     End Function Sort_R
 
-End Submodule Sort
+End Submodule Maths_Sort

@@ -1,8 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Symmetry_Tables) Del_Routines
-
+SubModule (CFML_Symmetry_Tables) TAB_DelSymm_Routines
+   Implicit none
    Contains
    !!----
    !!---- Remove_Shubnikov_Info()
@@ -60,4 +60,4 @@ SubModule (CFML_Symmetry_Tables) Del_Routines
 
    End Subroutine Remove_Wyckoff_Info
 
-End SubModule Del_Routines
+End SubModule TAB_DelSymm_Routines

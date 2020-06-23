@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen05
-  Contains
+SubModule (CFML_Random) Random_Gauss
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_INV_GAUSS
    !!----
@@ -80,4 +81,4 @@ SubModule (CFML_Random) RandomGen05
       return
    End Function Random_Inv_Gauss
 
-End SubModule RandomGen05
+End SubModule Random_Gauss

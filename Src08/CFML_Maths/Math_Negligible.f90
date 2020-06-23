@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Negligible
+Submodule (CFML_Maths) Maths_Negligible
+ implicit none
  Contains
     !!----
     !!---- NEGLIGIBLE_C
@@ -45,4 +46,4 @@ Submodule (CFML_Maths) Negligible
        return
     End Function Negligible_R
 
-End Submodule Negligible
+End Submodule Maths_Negligible

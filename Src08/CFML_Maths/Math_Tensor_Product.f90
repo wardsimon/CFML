@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Tensor_Product
+Submodule (CFML_Maths) Maths_Tensor_Product
+ implicit none
  Contains
 
     !!----
@@ -72,4 +73,4 @@ Submodule (CFML_Maths) Tensor_Product
        return
     End Function Tensor_Product_R
 
-End Submodule Tensor_Product
+End Submodule Maths_Tensor_Product

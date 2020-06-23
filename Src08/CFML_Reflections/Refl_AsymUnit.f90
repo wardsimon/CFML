@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Asymm_Unit
+   implicit none
    Contains
    !!----
    !!---- Get_Asymm_Unit_H

@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_005
+Submodule (CFML_Maths) Maths_Outerprod
+ implicit none
  Contains
 
     !!----
@@ -27,4 +28,4 @@ Submodule (CFML_Maths) CFML_Math_005
        return
     End Function Outerprod
 
-End Submodule CFML_Math_005
+End Submodule Maths_Outerprod

@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Is_Diagonal_Matrix
+Submodule (CFML_Maths) Maths_Is_Diagonal_Matrix
+ implicit none
  Contains
     !!----
     !!---- IS_DIAGONAL_MATRIX_I
@@ -63,4 +64,4 @@ Submodule (CFML_Maths) Is_Diagonal_Matrix
        return
     End Function Is_Diagonal_Matrix_R
 
-End Submodule Is_Diagonal_Matrix
+End Submodule Maths_Is_Diagonal_Matrix

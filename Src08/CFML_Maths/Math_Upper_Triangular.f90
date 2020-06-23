@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Upper_Triangular
+Submodule (CFML_Maths) Maths_Upper_Triangular
+ implicit none
  Contains
 
     !!----
@@ -63,4 +64,4 @@ Submodule (CFML_Maths) Upper_Triangular
     End Function  Upper_Triangular_R
 
 
-End Submodule Upper_Triangular
+End Submodule Maths_Upper_Triangular

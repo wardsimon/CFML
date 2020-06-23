@@ -2,8 +2,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Overloads
-
+Submodule (CFML_Rational) RAT_Overloads
+ implicit none
  Contains
     !!----
     !!---- RATIONAL_ABS
@@ -447,4 +447,4 @@ Submodule (CFML_Rational) Overloads
        return
     End Function Rational_Sum_Vector
 
-End Submodule Overloads
+End Submodule RAT_Overloads

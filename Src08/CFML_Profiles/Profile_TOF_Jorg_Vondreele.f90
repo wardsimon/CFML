@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Tof_Jorgensen_Vondreele
+  implicit none
    Contains
    !!----
    !!---- TOF_JORGENSEN_VONDREELE

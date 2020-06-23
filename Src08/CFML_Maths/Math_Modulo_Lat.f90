@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_001
+Submodule (CFML_Maths) Maths_Modulo_Lat
+ implicit none
  Contains
 
     !!----
@@ -23,4 +24,4 @@ Submodule (CFML_Maths) CFML_Math_001
        return
     End Function Modulo_Lat
 
-End Submodule CFML_Math_001
+End Submodule Maths_Modulo_Lat

@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Lower_Triangular
+Submodule (CFML_Maths) Maths_Lower_Triangular
+ implicit none
  Contains
     !!----
     !!---- LOWER_TRIANGULAR_I
@@ -63,4 +64,4 @@ Submodule (CFML_Maths) Lower_Triangular
     End Function Lower_Triangular_R
 
 
-End Submodule Lower_Triangular
+End Submodule Maths_Lower_Triangular

@@ -3,8 +3,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Rational) RatRowEchelonForm
-
+SubModule (CFML_Rational) RAT_RowEchelonForm
+ implicit none
  Contains
    !!----
    !!---- RATIONAL_ROWECHELONFORM_M
@@ -199,4 +199,4 @@ SubModule (CFML_Rational) RatRowEchelonForm
       return
    End Subroutine Rational_SmithNormalForm
 
-End SubModule RatRowEchelonForm
+End SubModule RAT_RowEchelonForm

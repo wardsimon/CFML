@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen08
-  Contains
+SubModule (CFML_Random) Random_Tsub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_T
    !!----
@@ -67,4 +68,4 @@ SubModule (CFML_Random) RandomGen08
       return
    End Function Random_T
 
-End SubModule RandomGen08
+End SubModule Random_Tsub

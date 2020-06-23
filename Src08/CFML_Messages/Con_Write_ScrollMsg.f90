@@ -1,5 +1,6 @@
 !!----
 SubModule (CFML_Messages) ScrollMsg
+  Implicit none
    Contains
 
    !!----

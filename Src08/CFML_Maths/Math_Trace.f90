@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Trace
+Submodule (CFML_Maths) Math_Trace
+ implicit none
  Contains
 
     !!----
@@ -76,4 +77,4 @@ Submodule (CFML_Maths) Trace
     End Function Trace_R
 
 
-End Submodule Trace
+End Submodule Math_Trace

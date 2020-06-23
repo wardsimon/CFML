@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Maths_012
+Submodule (CFML_Maths) Maths_DerErfc
+ implicit none
  Contains
 
     !!----
@@ -22,4 +23,4 @@ Submodule (CFML_Maths) CFML_Maths_012
        return
     End Function Erfc_Deriv
 
-End Submodule CFML_Maths_012
+End Submodule Maths_DerErfc

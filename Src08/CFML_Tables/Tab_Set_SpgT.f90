@@ -2,7 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Symmetry_Tables) Set_Routines
-
+   Implicit none
    Contains
    !!----
    !!----

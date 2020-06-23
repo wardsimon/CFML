@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) Zbelong
+Submodule (CFML_Maths) Math_Zbelong
+ implicit none
  Contains
 
     !!----
@@ -71,4 +72,4 @@ Submodule (CFML_Maths) Zbelong
        return
     End Function Zbelong_V
 
-End Submodule Zbelong
+End Submodule Math_Zbelong

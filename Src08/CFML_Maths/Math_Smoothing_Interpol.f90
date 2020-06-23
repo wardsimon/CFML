@@ -3,7 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Maths) CFML_Math_Smoothing_Interpol
+Submodule (CFML_Maths) Maths_Smoothing_Interpol
+ implicit none
  Contains
 
     !!----
@@ -255,4 +256,4 @@ Submodule (CFML_Maths) CFML_Math_Smoothing_Interpol
        return
     End Function Spline_D2Y
 
-End Submodule CFML_Math_Smoothing_Interpol
+End Submodule Maths_Smoothing_Interpol

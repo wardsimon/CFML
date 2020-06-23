@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen03
-  Contains
+SubModule (CFML_Random) Random_Cauchy_sub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_CAUCHY
    !!----
@@ -29,4 +30,4 @@ SubModule (CFML_Random) RandomGen03
       return
    End Function Random_Cauchy
 
-End SubModule RandomGen03
+End SubModule Random_Cauchy_sub

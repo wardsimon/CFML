@@ -4,6 +4,7 @@
 !!----
 !!
 Submodule (CFML_Maths) Maths_Locate
+ implicit none
  Contains
 
     !!----

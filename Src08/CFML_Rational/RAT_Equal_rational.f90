@@ -3,8 +3,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Rational) Equal_Rational
-
+SubModule (CFML_Rational) RAT_Equal_Rational
+ implicit none
  Contains
 
    !!----
@@ -62,4 +62,4 @@ SubModule (CFML_Rational) Equal_Rational
       return
    End Function Rational_Equal_Matrix
 
-End SubModule Equal_Rational
+End SubModule RAT_Equal_Rational

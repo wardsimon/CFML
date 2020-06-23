@@ -1,5 +1,5 @@
  Submodule (CFML_Simulated_Annealing) SAnn_MultiConf
-
+  implicit none
    contains
     !!----
     !!---- Module Subroutine SAnn_Opt_MultiConf(Model_Funct,c,vs,Ipr,fileSav,fst)

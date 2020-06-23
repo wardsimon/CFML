@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Profiles) PRF_Gaussian
+  implicit none
    Contains
    !!----
    !!---- FUNCTION GAUSSIAN

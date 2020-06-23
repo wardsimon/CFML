@@ -1,6 +1,6 @@
 
- Submodule (CFML_Maths) Diagonalize_gen
-
+ Submodule (CFML_Maths) Maths_Diagonalize_gen
+ implicit none
    contains
 
     !!----
@@ -1520,5 +1520,5 @@
 
     End Subroutine cdiv
 
-End SubModule Diagonalize_gen
+End SubModule Maths_Diagonalize_gen
 

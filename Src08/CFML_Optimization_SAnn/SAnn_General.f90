@@ -1,5 +1,5 @@
  Submodule (CFML_Simulated_Annealing) SAnn_General
-
+  implicit none
    contains
 
     !!----

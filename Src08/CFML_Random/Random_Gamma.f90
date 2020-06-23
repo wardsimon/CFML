@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen04
-  Contains
+SubModule (CFML_Random) Random_chi2_gamma
+  implicit none
+   Contains
    !!----
    !!---- SUBROUTINE RANDOM_CHISQ
    !!----
@@ -246,4 +247,4 @@ SubModule (CFML_Random) RandomGen04
       return
    End Function Random_Weibull
 
-End SubModule RandomGen04
+End SubModule Random_chi2_gamma

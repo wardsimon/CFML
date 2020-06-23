@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule(CFML_Symmetry_Tables) Spg_names
+SubModule(CFML_Symmetry_Tables) TAB_Spg_names
+   Implicit none
    Contains
    !!----
    !!---- GET_COMPACT_HM_SYMBOL
@@ -305,4 +306,4 @@ SubModule(CFML_Symmetry_Tables) Spg_names
       if (present(c_hm)) c_hm=l_chm
    End Subroutine Get_SpaceGroup_Symbols
 
-End SubModule Spg_Names
+End SubModule TAB_Spg_names

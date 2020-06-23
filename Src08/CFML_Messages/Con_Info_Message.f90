@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_Messages) Infos
+SubModule (CFML_Messages) Mess_Infos
+  Implicit none
    Contains
 
    !!----
@@ -23,4 +24,4 @@ SubModule (CFML_Messages) Infos
 
    End Subroutine Info_Message
 
-End SubModule Infos
+End SubModule Mess_Infos

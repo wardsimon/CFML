@@ -3,8 +3,8 @@
 !!----
 !!----
 !!
-Submodule (CFML_Rational) Constructor
-
+Submodule (CFML_Rational) RAT_Constructor
+ implicit none
  Contains
     !!----
     !!---- FUNCTION MAKE_RATIONAL
@@ -38,4 +38,4 @@ Submodule (CFML_Rational) Constructor
        return
     End Function Make_Rational_Int
 
-End Submodule Constructor
+End Submodule RAT_Constructor

@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Reflections) RFL_Multiplicity
+   implicit none
    Contains
 
    !!----

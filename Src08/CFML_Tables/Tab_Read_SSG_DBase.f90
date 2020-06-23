@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
+SubModule (CFML_SuperSpace_Database) TAB_SuperSpace_Database_Read
+   Implicit none
    Contains
    !!----
    !!---- READ SUPERSPACE DATA BASE
@@ -158,7 +159,7 @@ SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
       character(len=*), optional, intent(in)  :: DB_Path
       character(len=*), optional, intent(in)  :: EnvDB
       !
-      integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass
+      integer :: i,j,k,n,m,i_pos,n_skip,nmod,i_db,ier,iclass,i_lab
       character(len=512) :: ssg_file,pos_file,database,lab_file
       character(len=256) :: line
       character(len=40)  :: Env
@@ -279,4 +280,4 @@ SubModule (CFML_SuperSpace_Database) Reading_SuperSpace_Database
 
    End Subroutine Read_single_SSG
 
-End SubModule Reading_SuperSpace_Database
+End SubModule TAB_SuperSpace_Database_Read
