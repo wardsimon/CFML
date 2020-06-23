@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_015
+SubModule (CFML_gSpaceGroups) SPG_Multip_OP_Table
+   implicit none
    Contains
 
    !!----
@@ -42,5 +43,5 @@ SubModule (CFML_gSpaceGroups) SPG_015
       end do
    End Subroutine Get_Multip_OP_Table
 
-End SubModule SPG_015
+End SubModule SPG_Multip_OP_Table
 

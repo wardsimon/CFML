@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_012
+SubModule (CFML_gSpaceGroups) SPG_Mat_From_Symb
+   implicit none
    Contains
 
    !!----
@@ -282,5 +283,5 @@ SubModule (CFML_gSpaceGroups) SPG_012
       end if
    End Subroutine Get_Mat_From_Symb
 
-End SubModule SPG_012
+End SubModule SPG_Mat_From_Symb
 

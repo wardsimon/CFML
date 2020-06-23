@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) SPG_042
+SubModule (CFML_gSpaceGroups) SPG_Match_Shubnikov_Group
+   implicit none
    Contains
     !!----
     !!---- MATCH_SHUBNIKOV_GROUP
@@ -195,7 +196,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
         !> Get generators for every setting
         do n = 1 , nA
            if (doTest(n)) then
-              call Get_Generators_L(G_aux(n)%laue,G_aux(n)%op,G_aux(n)%Multip,Gx(:,n),ngen)
+              call Get_Generators_L(G_aux(n)%laue,G_aux(n)%Multip,G_aux(n)%op,Gx(:,n),ngen)
 
               !> Map generators to G_aux(n)%Op
               do i = 1 , ngen
@@ -247,7 +248,7 @@ SubModule (CFML_gSpaceGroups) SPG_042
                         if (ngen_ == ngen) then
                             if (pout) write(*,'(12x,3a,i1)',advance = 'no') "Trying to match magnetic space group ",&
                                 trim(spacegroup_label_bns(i)),", setting ", n
-                            call Get_Origin_Shift(Gx(1:nGen,n),Gt(1:nGen),nGen,Paux(1:3,1:3,n),origShift,shift)
+                            call Get_Origin_Shift(nGen,Gx(1:nGen,n),Gt(1:nGen),Paux(1:3,1:3,n),origShift,shift)
                             if (shift) then
                                 if (pout) write(*,'(8x,a)') "Done!"
                                 origShift(1:3) = matmul(C(1:3,1:3,n),origShift)
@@ -278,4 +279,4 @@ SubModule (CFML_gSpaceGroups) SPG_042
 
     End Subroutine Match_Shubnikov_Group
 
-End SubModule SPG_042
+End SubModule SPG_Match_Shubnikov_Group

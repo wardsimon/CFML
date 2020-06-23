@@ -1,5 +1,9 @@
 Submodule (CFML_DiffPatt) Bckg_Patt
 
+ implicit none
+
+ real(kind=cp), parameter :: eps=0.0001_cp
+
  Contains
 
     !!----

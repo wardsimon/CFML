@@ -1,5 +1,5 @@
  Submodule (CFML_EnBVS) EnBVS_SetTab
-
+   implicit none
    contains
 
     !!----

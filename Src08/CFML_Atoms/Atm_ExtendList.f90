@@ -3,6 +3,7 @@
 !!----
 !!
 SubModule (CFML_Atoms) Generating_Atoms_inCell
+  implicit none
    Contains
 
    !!----

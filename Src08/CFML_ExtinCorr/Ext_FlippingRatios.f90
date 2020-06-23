@@ -3,6 +3,7 @@
 !!----
 !!----
 SubModule (CFML_ExtinCorr) FlippingRat
+  implicit none
    Contains
 
    !!----

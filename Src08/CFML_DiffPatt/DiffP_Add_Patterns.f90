@@ -1,5 +1,7 @@
 Submodule (CFML_DiffPatt) AddPatt
 
+ implicit none
+
  Contains
 
     !!----

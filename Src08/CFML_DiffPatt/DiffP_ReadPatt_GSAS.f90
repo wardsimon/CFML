@@ -1,5 +1,7 @@
 SubModule (CFML_DiffPatt) RPatt_GSAS
 
+ implicit none
+
    Contains
 
    !!--++

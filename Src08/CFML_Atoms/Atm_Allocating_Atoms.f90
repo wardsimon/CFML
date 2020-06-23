@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Atoms) Init_Allocating_Atoms
+   implicit none
    Contains
 
    !!----

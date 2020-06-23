@@ -3,7 +3,7 @@
 !!----
 !!
  SubModule (CFML_geom) Angle_calculations
-
+    implicit none
    Contains
     !!----
     !!---- Pure Module Function Angle_Dihedral(U,V,W) Or (Ri,Rj,Rk,Rn)   Result(Angle)

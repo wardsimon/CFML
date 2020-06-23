@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) Write_SPG_Info
+SubModule (CFML_gSpaceGroups) SPG_Write_Info
+   implicit none
    Contains
 
    !!----
@@ -16,7 +17,7 @@ SubModule (CFML_gSpaceGroups) Write_SPG_Info
       integer, optional,  intent(in)   :: lun
 
       !---- Local Variables ----!
-      integer :: iout,i,j
+      integer :: iout,i,j,npos
       Character(len=*), dimension(4),parameter :: gtype=["Colorless    ","Paramagnetic ","Black-White:1","Black-White:2"]
       character(len=10) :: forma="(a,  i3,a)"
       character(len=40) :: Symb
@@ -153,5 +154,5 @@ SubModule (CFML_gSpaceGroups) Write_SPG_Info
       end if
    End Subroutine Write_SpaceGroup_Info
 
-End SubModule Write_SPG_Info
+End SubModule SPG_Write_Info
 

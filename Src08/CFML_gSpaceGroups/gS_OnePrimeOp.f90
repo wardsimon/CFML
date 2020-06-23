@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) OnePrime
+SubModule (CFML_gSpaceGroups) SPG_OnePrime
+   implicit none
    Contains
    !!----
    !!---- IS_ONEPRIME
@@ -108,4 +109,4 @@ SubModule (CFML_gSpaceGroups) OnePrime
    End Function Search_OnePrime_Operator
 
 
-End SubModule OnePrime
+End SubModule SPG_OnePrime

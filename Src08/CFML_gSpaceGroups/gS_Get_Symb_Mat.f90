@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_010
+SubModule (CFML_gSpaceGroups) SPG_Symb_from_Rational_Mat
+   implicit none
    Contains
 
    !!----
@@ -183,5 +184,5 @@ SubModule (CFML_gSpaceGroups) SPG_010
    End Function Get_Symb_from_Mat_Tr
 
 
-End SubModule SPG_010
+End SubModule SPG_Symb_from_Rational_Mat
 

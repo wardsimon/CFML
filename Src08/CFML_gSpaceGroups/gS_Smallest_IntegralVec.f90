@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_040
+SubModule (CFML_gSpaceGroups) SPG_Smallest_Integral_Vector
+   implicit none
    Contains
 
     !!----
@@ -35,4 +36,4 @@ SubModule (CFML_gSpaceGroups) SPG_040
        end do
     End Subroutine Smallest_Integral_Vector
 
-End Submodule SPG_040
+End Submodule SPG_Smallest_Integral_Vector

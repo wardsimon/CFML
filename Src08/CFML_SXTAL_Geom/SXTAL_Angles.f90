@@ -3,6 +3,8 @@
 !!----
  SubModule (CFML_Geometry_SXTAL) SXTAL_Angles
 
+  implicit none
+
   Contains
 
     !!---- Elemental Module Function chkin180(angle) result(angle_in)
@@ -135,12 +137,12 @@
        end if
        if(Current_Instrm%Ang_Limits(1,1) > ttmin) ttmin=Current_Instrm%Ang_Limits(1,1)  !    1       2      3     4   ...
        if(Current_Instrm%Ang_Limits(1,2) < ttmax) ttmax=Current_Instrm%Ang_Limits(1,2)  ! 2theta   Omega   Chi   Phi  ...
-       ierr=0
+       call clear_error()
 
        z1=Matmul(ub,h)
        sint=0.5*wave*Sqrt(Dot_Product(z1,z1))
        If (abs(sint) > 1.0) Then
-          ierr=1
+          Err_CFML%ierr=1
           Return
        End If
        theta =asind(sint)
@@ -249,7 +251,6 @@
     !!----    real(kind=cp), Intent(In),Dimension(3)  :: vhkl
     !!----    real(kind=cp), Intent(In),Dimension(6)  :: cell
     !!----    real(kind=cp), Intent(Out)              :: ds,th
-    !!----    Integer, Intent(Out)                    :: ierr
     !!----
     !!----    Calculate d-spacing and theta from cell parameters
     !!----    and wavelength assume triclinic symmetry. The reflection
@@ -363,7 +364,7 @@
           If (Abs(cosd(nu)) <= 0.0001) Then
              !---- One unique vector can diffract at ABS(NU)=90. (for which THETA=45)
              If (.Not. (theta > 44.99 .and. theta < 45.01) )  Then
-                ierr=-1
+                Err_CFML%ierr=-1
              Else
                 ga=90.0
                 om=90.0
@@ -400,7 +401,7 @@
     End Subroutine fixdnu
 
     !!----
-    !!---- Module Subroutine Get_Angs_NB(wave,z1,ga,om,nu,ierr)
+    !!---- Module Subroutine Get_Angs_NB(wave,z1,ga,om,nu)
     !!----    real(kind=cp), Intent(In)                      :: wave
     !!----    real(kind=cp), Intent(In),Dimension(3)         :: z1
     !!----    real(kind=cp), Intent(Out)                     :: ga,om,nu
@@ -430,12 +431,12 @@
           a=Sqrt(z1(1)*z1(1)+z1(2)*z1(2))
           If (a <= 1.0e-10_cp) Then
              !---- Anything on the omega axis is blind
-             ierr=-1
+             Err_CFML%ierr=-1
           Else
              sint=sind(theta)
              b=2.0_cp*sint*sint/(wave*a)
              If (b > 1.0_cp) Then
-                ierr=-2
+                Err_CFML%ierr=-2
              Else
                 a=-atan2d(z1(2),-z1(1))
                 b=-asind(b)
@@ -477,7 +478,7 @@
        !---- Local Variables ---!
        real(kind=cp) :: dstar, sint
 
-       ierr=0
+       call clear_error()
        dstar=Sqrt(Dot_Product(z1,z1))
        If (dstar > 0.00001_cp) Then
           ds=1.0/dstar

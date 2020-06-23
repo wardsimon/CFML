@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_Atoms) ReadnWrite_Atoms_Binary
+  implicit none
    Contains
    !!----
    !!---- READ_BIN_ATOM_LIST
@@ -131,7 +132,7 @@ SubModule (CFML_Atoms) ReadnWrite_Atoms_Binary
       type(atlist_type), intent(in) :: A
 
       !---- Local Variables ----!
-      integer                        :: i,n,lun
+      integer                        :: i,n,lun,ierr
       type (atm_type)      :: atm
       type (atm_std_type)  :: atms
       !type (matm_std_type) :: matm

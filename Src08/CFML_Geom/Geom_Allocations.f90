@@ -3,7 +3,7 @@
 !!----
 !!
  SubModule (CFML_geom) Allocations
-
+    implicit none
    Contains
     !!----
     !!---- Module Subroutine Allocate_Coordination_Type(nasu,numops,dmax,Max_Coor)

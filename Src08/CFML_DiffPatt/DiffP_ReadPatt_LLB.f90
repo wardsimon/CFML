@@ -1,5 +1,7 @@
 SubModule (CFML_DiffPatt) RPatt_LLB
 
+ implicit none
+
  Contains
     !!--++
     !!--++ READ_PATTERN_G41

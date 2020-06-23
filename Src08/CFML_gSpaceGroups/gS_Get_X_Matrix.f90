@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_037
+SubModule (CFML_gSpaceGroups) SPG_Get_A_Matrix_Crys
+   implicit none
    Contains
 
    !!----
@@ -595,7 +596,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
 
              if (pout) write(*,'(12x,3a)') "Searching for the ",trim(axisName(order(1)))," axis..."
              allocate(idd(G%Multip,2))
-             call Get_Rotations(G%op(:),G%Multip,order(1),n,idd)
+             call Get_Rotations(G%Multip,G%op(:),order(1),n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              !> Put the symmetry operation in the primitive setting
@@ -621,7 +622,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
           case ("4/mmm")
              if (pout) write(*,'(12x,a)') "Searching for the fourfold axis..."
              allocate(idd(G%Multip,2))
-             call Get_Rotations(G%op(:),G%Multip,4,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),4,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              !> Put the symmetry operation in the primitive setting
@@ -635,7 +636,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                  write(*,'(12x,a)') "Searching for the twofold axis..."
              end if
 
-             call Get_Rotations(G%op(:),G%Multip,2,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),2,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              colinear = .true.
@@ -667,7 +668,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
           case ("-3m","-3m R","-3m1","-31m","6/mmm")
              if (pout) write(*,'(12x,a)') "Searching for the threefold axis..."
              allocate(idd(G%Multip,2))
-             call Get_Rotations(G%op(:),G%Multip,3,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),3,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              !> Put the symmetry operation in the primitive setting
@@ -681,7 +682,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
                 write(*,'(16x,a,i2,",",i2,",",i2,"]")') "Axis direction in the primitive setting: [", bz(:)%Numerator
                 write(*,'(12x,a)') "Searching for the twofold axis..."
              end if
-             call Get_Rotations(G%op(:),G%Multip,2,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),2,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              colinear = .true.
@@ -714,7 +715,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
           case ("mmm")
              if (pout) write(*,'(12x,a)') "Searching for the three twofold axis..."
              allocate(idd(G%Multip,2))
-             call Get_Rotations(G%op(:),G%Multip,2,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),2,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              n_ = 0
@@ -741,7 +742,7 @@ SubModule (CFML_gSpaceGroups) SPG_037
           case ("m3","m-3","m3m","m-3m")
              if (pout) write(*,'(12x,a)') "Searching for the four threefold axes..."
              allocate(idd(G%Multip,2))
-             call Get_Rotations(G%op(:),G%Multip,3,n,idd)
+             call Get_Rotations(G%Multip,G%op(:),3,n,idd)
              if (Err_CFML%Ierr /= 0) return
 
              nCubicAxes = 0
@@ -1000,4 +1001,4 @@ SubModule (CFML_gSpaceGroups) SPG_037
        end do
    End Function Get_VecPerp_To_RotAxis
 
-End SubModule SPG_037
+End SubModule SPG_Get_A_Matrix_Crys

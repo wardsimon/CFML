@@ -1,5 +1,8 @@
 !!----
 SubModule (CFML_DiffPatt) RPatt_XYSIG
+
+  implicit none
+
    Contains
 
    !!--++
@@ -23,8 +26,8 @@ SubModule (CFML_DiffPatt) RPatt_XYSIG
       !---- Local Variables ----!
       real(kind=cp), parameter                     :: EPS1=epsilon(1.0_cp)
 
-      character(len=180)                           :: txt1, aline, fmtfields, fmtformat
-      character (len=5)                            :: date1
+      character(len=180)                           :: txt1, aline, fmtfields !, fmtformat
+      !character (len=5)                            :: date1
       integer                                      :: line_da, ntt, interpol, i, j,ier,npp,lenhead,&
                                                       i_dat
       real(kind=cp)                                :: fac_x, fac_y,  yp1, sumavar, cnorm, step

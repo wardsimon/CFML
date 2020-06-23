@@ -1,5 +1,7 @@
  SubModule (CFML_Geometry_SXTAL) SXTAL_UB
 
+  implicit none
+  
   Contains
 
     !!----
@@ -190,7 +192,6 @@
       real(kind=cp),                 intent(in)    :: omega
       real(kind=cp), dimension(3,3)                :: UB
       ! Local variables
-      integer                       :: ierr
       real(kind=cp)                 :: theta1,theta2,alpha,del_omega,d1s,d2s
       real(kind=cp), dimension(3)   :: ho1,ho2,s1,s2
       real(kind=cp), dimension(3,3) :: Rot
@@ -251,7 +252,6 @@
       real(kind=cp),                 intent(in)    :: omega
       real(kind=cp), dimension(3,3)                :: UB
       ! Local variables
-      integer                        :: ierr
       real(kind=cp)                  :: theta1,theta2,alpha,del_omega,d1s,d2s
       real(kind=cp), dimension(3)    :: h2,ho1,ho2,s1,s2
       real(kind=cp), dimension(3,3)  :: Rot
@@ -319,7 +319,7 @@
        If (d <= 0.0_cp) Then
           Err_CFML%Ierr=-1
        Else
-          ierr=0
+          Err_CFML%Ierr=0
           d=Sqrt(d)
           v=v/d
        End If
@@ -360,7 +360,7 @@
          Err_CFML%Msg = " Error: Null input vector @ refvec"
          return
        else
-         ierr=0
+         Err_CFML%Ierr=0
        end if
        h0=Cross_Product(hn,h1)
        If (Sum(Abs(h0)) > 0.0001_cp) Then

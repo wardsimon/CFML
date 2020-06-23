@@ -1,5 +1,6 @@
 
 Submodule (CFML_Atoms) Atm_Symmetry_Constraints
+  implicit none
   contains
      Module Subroutine Check_Symmetry_Constraints(SpG,Atm)
        class(SpG_Type),   intent(in)     :: SpG

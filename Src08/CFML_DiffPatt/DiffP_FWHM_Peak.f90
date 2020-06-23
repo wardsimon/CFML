@@ -1,5 +1,8 @@
 !!----
 SubModule (CFML_DiffPatt) FWHMPeak
+
+ implicit none
+
    Contains
    !!----
    !!---- FWHM_PEAK

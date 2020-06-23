@@ -1,5 +1,8 @@
 !!----
 SubModule (CFML_DiffPatt) RPatt_FREE
+
+ implicit none
+
    Contains
 
    !!--++

@@ -1,7 +1,7 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
+SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
    implicit none
    Contains
 
@@ -1072,4 +1072,4 @@ SubModule (CFML_gSpaceGroups) Set_SpaceGroup_Procedures
 
    End Subroutine Set_SpaceGroup_gen
 
-End SubModule Set_SpaceGroup_Procedures
+End SubModule SPG_SpaceGroup_Procedures

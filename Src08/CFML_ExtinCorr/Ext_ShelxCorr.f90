@@ -3,6 +3,7 @@
 !!----
 !!----
 SubModule (CFML_ExtinCorr) SHX
+  implicit none
    Contains
    !!----
    !!---- SHELX_EXTINCTION

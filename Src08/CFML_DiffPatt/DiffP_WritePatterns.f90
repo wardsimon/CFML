@@ -1,5 +1,7 @@
 Submodule (CFML_DiffPatt) WPatt
 
+  implicit none
+
  Contains
     !!----
     !!---- WRITE_PATTERN_XYSIG

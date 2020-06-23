@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_041
+SubModule (CFML_gSpaceGroups) SPG_Lattice_Type
+   implicit none
    Contains
 
    !!----
@@ -447,4 +448,4 @@ SubModule (CFML_gSpaceGroups) SPG_041
 
    End Function Get_Lattice_Type_from_Gener
 
-End SubModule SPG_041
+End SubModule SPG_Lattice_Type

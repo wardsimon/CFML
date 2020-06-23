@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_gSpaceGroups) Spg_101
+SubModule (CFML_gSpaceGroups) SPG_Apply_OP
+   implicit none
    Contains
    !!----
    !!---- APPLY_OP
@@ -23,4 +24,4 @@ SubModule (CFML_gSpaceGroups) Spg_101
       S=tr(1:3)
    End Function Apply_OP
 
-End SubModule Spg_101
+End SubModule SPG_Apply_OP

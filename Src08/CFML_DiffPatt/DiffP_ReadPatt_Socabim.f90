@@ -1,5 +1,7 @@
 SubModule (CFML_DiffPatt) RPatt_Socabim
 
+ implicit none
+
   Contains
     !!--++
     !!--++ READ_PATTERN_SOCABIM

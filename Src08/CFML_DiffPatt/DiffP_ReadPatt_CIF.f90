@@ -4,6 +4,9 @@
 !!---- 30/04/19
 !!
 SubModule (CFML_DiffPatt) RPatt_CIF
+
+ implicit none
+
    Contains
 
    !!--++

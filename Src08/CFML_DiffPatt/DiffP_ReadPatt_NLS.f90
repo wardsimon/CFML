@@ -1,5 +1,7 @@
 SubModule (CFML_DiffPatt) RPatt_NLS
 
+ implicit none
+
   Contains
    !!--++
    !!--++ READ_PATTERN_NLS

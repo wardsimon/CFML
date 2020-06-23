@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_045
+SubModule (CFML_gSpaceGroups) SPG_Identify_Group
+   implicit none
    Contains
 
    !!----
@@ -104,4 +105,4 @@ SubModule (CFML_gSpaceGroups) SPG_045
       return
    End Subroutine Identify_Shubnikov_Group
 
-End Submodule SPG_045
+End Submodule SPG_Identify_Group

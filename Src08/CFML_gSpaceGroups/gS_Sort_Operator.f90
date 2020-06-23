@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_005
+SubModule (CFML_gSpaceGroups) SPG_Sort_Oper
+   implicit none
    Contains
 
    !!----
@@ -44,5 +45,5 @@ SubModule (CFML_gSpaceGroups) SPG_005
       end do
    End Subroutine Sort_Oper
 
-End SubModule SPG_005
+End SubModule SPG_Sort_Oper
 

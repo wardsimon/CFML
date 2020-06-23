@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_035
+SubModule (CFML_gSpaceGroups) SPG_Get_Rotations_Attributes
+   implicit none
    Contains
 
    !!----
@@ -184,10 +185,10 @@ SubModule (CFML_gSpaceGroups) SPG_035
    !!----
    !!---- 22/04/2019
    !!
-   Module Subroutine Get_Rotations(symOP, nSymOP, n, nso, idd)
+   Module Subroutine Get_Rotations(nSymOP, symOP, n, nso, idd)
       !---- Arguments ----!
-      type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
       integer,                                 intent(in)  :: nSymOP
+      type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
       integer,                                 intent(in)  :: n
       integer,                                 intent(out) :: nso
       integer, dimension(nSymOP,2),            intent(out) :: idd
@@ -288,4 +289,4 @@ SubModule (CFML_gSpaceGroups) SPG_035
       end select
    End Function Get_Rotation_Order
 
-End Submodule SPG_035
+End Submodule SPG_Get_Rotations_Attributes

@@ -351,11 +351,11 @@ Module CFML_gSpaceGroups
           integer,                                     intent(out) :: ngen
        End Subroutine Get_Generators_from_Str
 
-       Module Subroutine Get_Generators_L(laueClass,symOp,nSymOp,Gen,nGen)
+       Module Subroutine Get_Generators_L(laueClass,nSymOp,symOp,Gen,nGen)
           !---- Arguments ----!
           character(len=*),                        intent(in)  :: laueClass ! Laue class
-          type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
           integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
+          type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
           type(Symm_Oper_Type), dimension(3),      intent(out) :: Gen       ! generators
           integer,                                 intent(out) :: nGen      ! number of generators
        End Subroutine Get_Generators_L
@@ -493,11 +493,11 @@ Module CFML_gSpaceGroups
           logical,                                   optional, intent(in)  :: convl
        End Subroutine Get_Orbit
 
-       Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
+       Module Subroutine Get_Origin_Shift(ng, G, G_,  P_, origShift, shift)
           !---- Arguments ----!
+          integer,                             intent(in)  :: ng
           type(symm_oper_type), dimension(ng), intent(in)  :: G
           type(symm_oper_type), dimension(ng), intent(in)  :: G_
-          integer,                             intent(in)  :: ng
           type(rational), dimension(3,3),      intent(in)  :: P_
           type(rational), dimension(3),        intent(out) :: origShift
           logical,                             intent(out) :: shift
@@ -543,10 +543,10 @@ Module CFML_gSpaceGroups
           integer                                     :: N
        End Function Get_Rotation_Order
 
-       Module Subroutine Get_Rotations(symOP, nSymOP, n, nso, idd)
+       Module Subroutine Get_Rotations(nSymOP, symOP, n, nso, idd)
           !---- Arguments ----!
-          type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
           integer,                                 intent(in)  :: nSymOP
+          type(Symm_Oper_Type), dimension(nSymOP), intent(in)  :: symOP
           integer,                                 intent(in)  :: n
           integer,                                 intent(out) :: nso
           integer, dimension(nSymOP,2),            intent(out) :: idd
@@ -696,13 +696,13 @@ Module CFML_gSpaceGroups
           class(spg_type),    intent(in out) :: G
        End Subroutine Identify_Shubnikov_Group
 
-       Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
+       Module Subroutine Match_SpaceGroup_3D(G,P,M,n,A)
           !---- Arguments ----!
           type(spg_type),                   intent(inout) :: G
           type(rational), dimension(3,3),   intent(in)    :: P
           type(rational), dimension(3,3),   intent(in)    :: M
+          integer,                          intent(in)    :: n
           type(rational), dimension(3,3,n), intent(in)    :: A
-          integer,                          intent(in)    :: N
        End Subroutine Match_SpaceGroup_3D
 
        Module Subroutine Match_Shubnikov_Group(G,P,M)

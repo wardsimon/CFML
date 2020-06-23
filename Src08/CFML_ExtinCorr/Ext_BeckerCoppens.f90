@@ -3,6 +3,7 @@
 !!----
 !!----
 SubModule (CFML_ExtinCorr) Beck_Copp
+  implicit none
    Contains
 
    !!----

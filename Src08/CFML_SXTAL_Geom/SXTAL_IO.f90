@@ -1,5 +1,7 @@
  SubModule (CFML_Geometry_SXTAL) SXTAL_IO
 
+  implicit none
+
   Contains
 
     !!----

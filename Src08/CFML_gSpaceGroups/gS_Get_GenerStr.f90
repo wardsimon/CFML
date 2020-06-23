@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_016
+SubModule (CFML_gSpaceGroups) SPG_Generators_from_Str
+   implicit none
    Contains
 
    !!----
@@ -89,5 +90,5 @@ SubModule (CFML_gSpaceGroups) SPG_016
       end if
    End Subroutine Get_Generators_from_Str
 
-End SubModule SPG_016
+End SubModule SPG_Generators_from_Str
 

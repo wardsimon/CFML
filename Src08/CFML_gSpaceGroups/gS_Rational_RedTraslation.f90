@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) SPG_004
+SubModule (CFML_gSpaceGroups) SPG_Reduced_Translation
+   implicit none
    Contains
 
    !!----
@@ -34,4 +35,4 @@ SubModule (CFML_gSpaceGroups) SPG_004
       end do
    End Subroutine Reduced_Translation
 
-End SubModule SPG_004
+End SubModule SPG_Reduced_Translation

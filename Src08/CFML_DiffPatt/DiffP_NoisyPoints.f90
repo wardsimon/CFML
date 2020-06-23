@@ -1,5 +1,8 @@
 !!----
 SubModule (CFML_DiffPatt) NoisyPatt
+
+ implicit none
+
    Contains
 
    !!----

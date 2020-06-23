@@ -1,5 +1,7 @@
 SubModule (CFML_DiffPatt) RPatt_Pan
 
+ implicit none
+
  Contains
 
     !!--++
@@ -133,7 +135,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
        !---- Local Variables ----!
        character (len=132)                          :: line
-       integer                                      :: i, j, long , k, ier
+       integer                                      :: i, j, long , k, ier, i_dat
        real(kind=cp)                                :: alpha1, alpha2, ratio_I, step
        logical :: info
 
@@ -284,7 +286,7 @@ SubModule (CFML_DiffPatt) RPatt_Pan
 
        !---- Local Variables ----!
        character (len=132)                            :: line, newline
-       integer                                        :: i, j, long, ier, n, nb_lignes, np
+       integer                                        :: i, j, long, ier, n, nb_lignes, np, i_dat
        real(kind=cp)                                  :: alpha1, alpha2, ratio, step
        logical                                        :: info,title_given
 

@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_009
+SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
+   implicit none
    Contains
 
    !!----
@@ -273,5 +274,5 @@ SubModule (CFML_gSpaceGroups) SPG_009
       end do
    End Subroutine Reorder_Operators
 
-End SubModule SPG_009
+End SubModule SPG_Reorder_Operators
 

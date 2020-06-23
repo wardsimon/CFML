@@ -1,5 +1,7 @@
  SubModule (CFML_Geometry_SXTAL) SXTAL_PSD
 
+  implicit none
+
   Contains
 
     !!----
@@ -210,7 +212,7 @@
        real(kind=cp), dimension(3)         :: z1
 
        !---- Local Variables ----!
-       integer        :: ier, mpsd
+       integer        :: mpsd
        real(kind=cp)  :: gamm,gamp,nup,xobs,zobs,cath,anod, wave,chim,phim,omem
 
        mpsd  = 1        !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
@@ -256,7 +258,7 @@
        real(kind=cp), dimension(3)  :: z1
 
        !---- Local Variables ----!
-       integer        :: ier, mpsd
+       integer        :: mpsd
        real(kind=cp)  :: gamp,nup,xobs,zobs,cath,anod
 
        mpsd  = 1        !Find Gamma_Pixel and Nu_Pixel given GamM, Cath and Anod in PSD_Convert
@@ -392,7 +394,7 @@
           !---- NuP, GamP are the angular coordinates of P from the sample
           delga=gamp - gamm
           If (Abs(delga) >= 90.0) then
-             ierr=-1
+             Err_CFML%ierr=-1
              return
           End if
           b=sxd%distsd+sxd%yoff

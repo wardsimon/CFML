@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Spg_055
+SubModule (CFML_gSpaceGroups) SPG_Laue_PG
+   implicit none
    Contains
 
    !!----
@@ -302,7 +303,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
             N=36
 
          case (41) ! m3m -> m-3m
-            Ni=39
+            N=39
 
          case (42) ! -3m1 -> -3m
             N=23
@@ -321,9 +322,8 @@ SubModule (CFML_gSpaceGroups) Spg_055
       !---- Arguments ----!
       integer,          intent( in) :: N
       character(len=:), allocatable :: Str_PG
-
       Str_PG="  "
-      if (Ni < 1 .or. N > 42) return
+      if (N < 1 .or. N > 42) return
 
       Str_PG=POINT_GROUP(N)
    End Function Get_PointGroup_Str
@@ -427,7 +427,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
           else if (nRepSymOp == 24) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,4,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,4,n,idd)
                 if (n == 6 .and. idd(1,2) == 1) then
                    G%PG = "432"
                 else if (n == 6 .and. idd(1,2) == -1) then
@@ -441,7 +441,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
        else if (nRot(6) == 2) then ! Hexagonal
           if (nRepSymOp == 6) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,6,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,6,n,idd)
                 if (idd(1,2) == 1) then
                    G%PG = "6"
                 else
@@ -453,9 +453,9 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
           else if (nRepSymOp == 12) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,6,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,6,n,idd)
                 if (idd(1,2) == 1) then
-                   call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
+                   call Get_Rotations(nRepSymOp,repSymOp,2,n,idd)
                    if (n == 7 .and. (idd(1,2) == -1 .or. idd(2,2) == -1)) then
                       G%PG = "6mm"
                    else
@@ -481,7 +481,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
           else if (nRepSymOp == 6) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,2,n,idd)
                 if (n == 3 .and. idd(1,2) == 1) then
                    G%PG = "32"
                 else if (n == 3 .and. idd(1,2) == -1) then
@@ -495,7 +495,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
        else if (nRot(4) == 2) then ! Tetragonal
           if (nRepSymOp == 4) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,4,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,4,n,idd)
                 if (n == 2 .and. idd(1,2) == 1) then
                    G%PG = "4"
                 else if (n == 2 .and. idd(1,2) == -1) then
@@ -507,9 +507,9 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
           else if (nRepSymOp == 8) then
              if (G%Centred == 1 .and. G%anticentred == 1) then
-                call Get_Rotations(repSymOp,nRepSymOp,4,n,idd)
+                call Get_Rotations(nRepSymOp,repSymOp,4,n,idd)
                 if (n == 2 .and. idd(1,2) == 1) then
-                   call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
+                   call Get_Rotations(nRepSymOp,repSymOp,2,n,idd)
                    if (n == 5 .and. (idd(1,2) == -1 .or. idd(2,2) == -1)) then
                       G%PG = "4mm"
                    else
@@ -527,7 +527,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
        else if (nRot(2) == 3) then ! Orthorhombic
           if (G%Centred == 1 .and. G%anticentred == 1) then
-             call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
+             call Get_Rotations(nRepSymOp,repSymOp,2,n,idd)
              if (n == 3 .and. idd(1,2) == -1 .or. idd(2,2) == -1) then
                 G%PG = "mm2"
              else
@@ -540,7 +540,7 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
        else if (nRot(2) == 1) then ! Monoclinic
           if (G%Centred == 1 .and. G%anticentred == 1) then
-             call Get_Rotations(repSymOp,nRepSymOp,2,n,idd)
+             call Get_Rotations(nRepSymOp,repSymOp,2,n,idd)
              if (idd(1,2) == 1) then
                 G%PG = "2"
              else
@@ -724,4 +724,4 @@ SubModule (CFML_gSpaceGroups) Spg_055
 
    End Subroutine Identify_Crystal_System
 
-End SubModule Spg_055
+End SubModule SPG_Laue_PG

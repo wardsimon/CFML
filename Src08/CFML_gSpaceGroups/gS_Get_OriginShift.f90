@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_032
+SubModule (CFML_gSpaceGroups) SPG_Get_Origin_Shift
+   implicit none
    Contains
    !!----
    !!----  GET_ORIGIN_SHIFT
@@ -9,11 +10,11 @@ SubModule (CFML_gSpaceGroups) SPG_032
    !!----
    !!---- 22/04/2019
    !!
-   Module Subroutine Get_Origin_Shift(G, G_, ng, P_, origShift, shift)
+   Module Subroutine Get_Origin_Shift(ng, G, G_, P_, origShift, shift)
       !---- Arguments ----!
+      integer,                             intent(in)  :: ng
       type(symm_oper_type), dimension(ng), intent(in)  :: G
       type(symm_oper_type), dimension(ng), intent(in)  :: G_
-      integer,                             intent(in)  :: ng
       type(rational), dimension(3,3),      intent(in)  :: P_
       type(rational), dimension(3),        intent(out) :: origShift
       logical,                             intent(out) :: shift
@@ -96,4 +97,4 @@ SubModule (CFML_gSpaceGroups) SPG_032
       return
    End Subroutine Get_Origin_Shift
 
-End Submodule SPG_032
+End Submodule SPG_Get_Origin_Shift

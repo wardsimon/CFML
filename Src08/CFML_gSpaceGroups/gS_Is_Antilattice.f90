@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_100
+SubModule (CFML_gSpaceGroups) SPG_OP_Anti_Lattice
+   implicit none
    Contains
 
    !!----
@@ -33,4 +34,4 @@ SubModule (CFML_gSpaceGroups) SPG_100
       end if
 
    End Function Is_OP_Anti_Lattice
-End SubModule SPG_100
+End SubModule SPG_OP_Anti_Lattice

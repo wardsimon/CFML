@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) SPG_038
+SubModule (CFML_gSpaceGroups) SPG_Get_GeneratorsL
+   implicit none
    Contains
     !!----
     !!---- Get_Generators
@@ -7,11 +8,11 @@ SubModule (CFML_gSpaceGroups) SPG_038
     !!----
     !!---- 24/04/2019
     !!
-    Module Subroutine Get_Generators_L(laueClass,symOp,nSymOp,Gen,nGen)
+    Module Subroutine Get_Generators_L(laueClass,nSymOp,symOp,Gen,nGen)
         !---- Arguments ----!
         character(len=*),                        intent(in)  :: laueClass ! Laue class
-        type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
         integer,                                 intent(in)  :: nSymOp    ! number of symmetry operations
+        type(Symm_Oper_Type), dimension(nSymOp), intent(in)  :: symOp     ! symmetry operations
         type(Symm_Oper_Type), dimension(3),      intent(out) :: Gen       ! generators
         integer,                                 intent(out) :: nGen      ! number of generators
 
@@ -45,20 +46,20 @@ SubModule (CFML_gSpaceGroups) SPG_038
               if (inversion == 0) then
                   nGen = 1
                   ! Search for the onefold axis
-                  call Get_Rotations(symOp(:),nSymOp,1,n,idd)
+                  call Get_Rotations(nSymOp,symOp(:),1,n,idd)
                   Gen(1) = symOp(idd(1,1))
               end if
 
            case ("2/m") ! Monoclinic
               nGen = 1
               ! Search for a twofold axis
-              call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+              call Get_Rotations(nSymOp,symOp(:),2,n,idd)
               Gen(1) = symOp(idd(1,1))
 
            case ("mmm")! Orthorhombic
               nGen = 2
               !> Search for the two fold axes along [001] and [010]
-              call Get_Rotations(symOP(:),nSymOp,2,n,idd)
+              call Get_Rotations(nSymOp,symOP(:),2,n,idd)
               ngaux = 0
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
@@ -72,7 +73,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
            case ("4/m","4/mmm") ! Tetragonal
               ! Search for the fourfold axis along [001]
-              call Get_Rotations(symOp(:),nSymOp,4,n,idd)
+              call Get_Rotations(nSymOp,symOp(:),4,n,idd)
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
@@ -85,7 +86,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
               end do
 
               !> Look for a possible twofold axis along [100]
-              call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+              call Get_Rotations(nSymOp,symOp(:),2,n,idd)
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (1//1) .and. axis(2) == (0//1) .and. axis(3) == (0//1)) then
@@ -97,7 +98,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
            case ("-3","-3 R","-3m","-3m R","-3m1","-31m") ! Trigonal
               !> Search for the threefold axis along [001]
-              call Get_Rotations(symOP(:),nSymOp,3,n,idd)
+              call Get_Rotations(nSymOp,symOP(:),3,n,idd)
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
@@ -110,7 +111,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
               end do
 
               !> Search for a possible twofold axis along [110] or [-110]
-              call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+              call Get_Rotations(nSymOp,symOp(:),2,n,idd)
               do i = 1 , n
                  axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                  if ((axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) .or. &
@@ -123,7 +124,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
             case ("6/m","6/mmm") ! Hexagonal
                !> Search for the sixfold axis along [001] in SGtarget
-               call Get_Rotations(symOp(:),nSymOp,6,n,idd)
+               call Get_Rotations(nSymOp,symOp(:),6,n,idd)
                do i = 1 , n
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
@@ -136,7 +137,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                end do
 
                !> Look for a possible twofold axis along [-110] in SGtarget
-               call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+               call Get_Rotations(nSymOp,symOp(:),2,n,idd)
                do i = 1 , n
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (-1//1) .and. axis(2) == (1//1) .and. axis(3) == (0//1)) then
@@ -148,7 +149,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
             case ("m3","m-3","m3m","m-3m") ! Cubic
                !> Search for the fourfold axis along [001] in SGtarget
-               call Get_Rotations(symOp(:),nSymOp,4,n,idd)
+               call Get_Rotations(nSymOp,symOp(:),4,n,idd)
                do i = 1 , n
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
@@ -162,7 +163,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
 
                if (nGen == 0) then
                   !> Search for the twofold axis along [001] in SGtarget
-                  call Get_Rotations(symOp(:),nSymOp,2,n,idd)
+                  call Get_Rotations(nSymOp,symOp(:),2,n,idd)
                   do i = 1 , n
                      axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                      if (axis(1) == (0//1) .and. axis(2) == (0//1) .and. axis(3) == (1//1)) then
@@ -174,7 +175,7 @@ SubModule (CFML_gSpaceGroups) SPG_038
                end if
 
                !> Search for a threefold axis along {111} in SGtarget
-               call Get_Rotations(symOp(:),nSymOp,3,n,idd)
+               call Get_Rotations(nSymOp,symOp(:),3,n,idd)
                do i = 1 , n
                   axis=Get_Rotation_Axis(symOp(idd(i,1))%Mat(1:3,1:3))
                   if (axis(1) == (1//1) .and. axis(2) == (1//1) .and. axis(3) == (1//1)) then
@@ -199,4 +200,4 @@ SubModule (CFML_gSpaceGroups) SPG_038
         end if
     End Subroutine Get_Generators_L
 
-End SubModule SPG_038
+End SubModule SPG_Get_GeneratorsL

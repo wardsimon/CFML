@@ -1,5 +1,5 @@
  Submodule (CFML_Geom) Distances
-
+    implicit none
   contains
     !!----
     !!---- Pure Module Function Distance(X0,X1,Cell or Code) Result(D)

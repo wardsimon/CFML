@@ -1,5 +1,5 @@
  Submodule (CFML_EnBVS) EnBVS_Energy
-
+  implicit none
    contains
     !!----
     !!---- Module Subroutine Ewald(Lattvec,Vol,Ac,e)

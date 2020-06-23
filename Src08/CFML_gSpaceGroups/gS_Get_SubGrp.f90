@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_gSpaceGroups) SPG_SubGroups
+   implicit none
    Contains
    !!----
    !!---- GET_SUBGROUPS

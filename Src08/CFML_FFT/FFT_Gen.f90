@@ -2,7 +2,7 @@
 !!----
 !!----
 Submodule (CFML_FFT) FFTGen
-
+  implicit none
  Contains
     !!--++
     !!--++ FFT1D

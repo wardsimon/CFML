@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Spg_056
+SubModule (CFML_gSpaceGroups) SPG_Get_Crystal_System
+   implicit none
    Contains
    !!----
    !!---- GET_CRYSTAL_SYSTEM_STR
@@ -28,7 +29,7 @@ SubModule (CFML_gSpaceGroups) Spg_056
       Str=" "
       if (Nops ==0) then
          err_CFML%Ierr=1
-         err_CFML%Msg="Get_Crystal_System_Num@GSPACEGROUPS: The symmetry operators is zero!"
+         err_CFML%Msg="Get_Crystal_System_Num@GSPACEGROUPS: The number of symmetry operators is zero!"
          return
       end if
 
@@ -76,44 +77,49 @@ SubModule (CFML_gSpaceGroups) Spg_056
       !> Cubic
       if ( (nrot_3 + nrot_3b == 8) ) then
          n=7
+         str=SYS_CRY(n)
          return
       end if
 
       !> Hexagonal
       if ( (nrot_6 + nrot_6b == 2) ) then
          n=6
+         str=SYS_CRY(n)
          return
       end if
 
       !> Trigonal
       if ( (nrot_3 + nrot_3b == 2) ) then
          n=5
+         str=SYS_CRY(n)
          return
       end if
 
       !> Tetragonal
       if ( (nrot_4 + nrot_4b == 2) ) then
          n=4
+         str=SYS_CRY(n)
          return
       end if
 
       !> Orthorhombic
       if ( (nrot_2 + nrot_2b == 3) ) then
          n=3
+         str=SYS_CRY(n)
          return
       end if
 
       !> Monoclinic
       if ( (nrot_2 + nrot_2b == 1)  ) then
          n=2
+         str=SYS_CRY(n)
          return
       end if
 
       !> Triclinic
-      if (n_m == 1) then
-         n=1
-      end if
-      str=SYS_CRY(n)
+       n=1
+       str=SYS_CRY(n)
+
    End Function Get_Crystal_System_Str
 
    !!----
@@ -150,4 +156,4 @@ SubModule (CFML_gSpaceGroups) Spg_056
       str=SYS_CRY(n)
    End Function Get_Crystal_System_from_Laue
 
-End SubModule Spg_056
+End SubModule SPG_Get_Crystal_System

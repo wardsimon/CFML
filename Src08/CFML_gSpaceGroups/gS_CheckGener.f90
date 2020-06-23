@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_017
+SubModule (CFML_gSpaceGroups) SPG_Check_Gener
+   implicit none
    Contains
 
    !!----
@@ -88,5 +89,5 @@ SubModule (CFML_gSpaceGroups) SPG_017
       return
    End Subroutine Check_Gener
 
-End SubModule SPG_017
+End SubModule SPG_Check_Gener
 

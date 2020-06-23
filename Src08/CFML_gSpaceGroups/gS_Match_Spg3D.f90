@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Spg_058
+SubModule (CFML_gSpaceGroups) Spg_Match_SpaceGroup_3D
+   implicit none
    Contains
    !!----
    !!---- MATCH_SPACEGROUP_3D
@@ -13,16 +14,16 @@ SubModule (CFML_gSpaceGroups) Spg_058
    !!----
    !!---- 14/05/2019
    !!
-   Module Subroutine Match_SpaceGroup_3D(G,P,M,A,n)
+   Module Subroutine Match_SpaceGroup_3D(G,P,M,n,A)
        !---- Arguments ----!
        type(spg_type),                  intent(in out) :: G        ! space group in the original setting
        type(rational), dimension(3,3),   intent(in)    :: P        ! P matrix   -see Get_P_Matrix-
        type(rational), dimension(3,3),   intent(in)    :: M        ! M matrix   -see Get_M_Matrix-
+       integer,                          intent(in)    :: n        ! number of A matrices (six as maximum)
        type(rational), dimension(3,3,n), intent(in)    :: A        ! A matrices -see Get_A_Matrices_Crys-
-       integer,                          intent(in)    :: N        ! number of A matrices (six as maximum)
 
        !---- Local variables ----!
-       integer                                         :: s,i,j,ng,ng_,n_gen,d
+       integer                                         :: s,i,j,ng,ng_,n_gen,d,ier
        character(len=4)                                :: str
        character(len=12)                               :: str_HM
        character(len=256)                              :: symb, glist
@@ -133,7 +134,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
               G_std%Centred /= 1 .and. G_(s)%Centred /= 1)) then
 
              !> Get generators from the standard space group
-             call Get_Generators_L(G_std%laue,G_std%op,G_std%Multip,gen_std,ng)
+             call Get_Generators_L(G_std%laue,G_std%Multip,G_std%op,gen_std,ng)
              if (Err_CFML%Ierr /= 0) return
 
              !> Try to get these generators from SGaux(s)
@@ -169,7 +170,7 @@ SubModule (CFML_gSpaceGroups) Spg_058
              if (Err_CFML%Ierr /= 0) return
 
              !> Try to match the standard by an origin shift
-             call Get_Origin_Shift(gen_x(1:ng),gen_std(1:ng),ng,P_target,origShift,shift)
+             call Get_Origin_Shift(ng,gen_x(1:ng),gen_std(1:ng),P_target,origShift,shift)
              if (shift) then
                 C(1:3,1:3) = C_(1:3,1:3,s)
                 C(4,:)     = C_(4,:,s)
@@ -189,4 +190,4 @@ SubModule (CFML_gSpaceGroups) Spg_058
 
    End subroutine Match_SpaceGroup_3D
 
-End SubModule Spg_058
+End SubModule Spg_Match_SpaceGroup_3D

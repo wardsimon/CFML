@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Lattice_Centring
+SubModule (CFML_gSpaceGroups) SPG_Lattice_Centring
+   implicit none
    Contains
 
    !!----
@@ -124,4 +125,4 @@ SubModule (CFML_gSpaceGroups) Lattice_Centring
       end if
    End Function Is_Vec_Lattice_Centring
 
-End SubModule Lattice_Centring
+End SubModule SPG_Lattice_Centring

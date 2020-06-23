@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) Init_Proc
+SubModule (CFML_gSpaceGroups) SPG_Init_Proc
+   implicit none
    Contains
 
    !!----
@@ -103,4 +104,4 @@ SubModule (CFML_gSpaceGroups) Init_Proc
 
    End Subroutine Set_Conditions_NumOp_EPS
 
-End SubModule Init_Proc
+End SubModule SPG_Init_Proc

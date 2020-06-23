@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_gSpaceGroups) Spg_052
+SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
+   implicit none
    Contains
    !!----
    !!---- GET_GENERATORS_FROM_HALL
@@ -1707,4 +1708,4 @@ SubModule (CFML_gSpaceGroups) Spg_052
 
    End Function Get_Hall_from_Generators
 
-End SubModule Spg_052
+End SubModule SPG_Generators_from_Hall

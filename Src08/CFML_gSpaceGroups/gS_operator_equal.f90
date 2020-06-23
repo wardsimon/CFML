@@ -1,4 +1,5 @@
-SubModule (CFML_gSpaceGroups) Oper_Equal
+SubModule (CFML_gSpaceGroups) SPG_Oper_Equal
+   implicit none
    Contains
 
    !!----
@@ -51,4 +52,4 @@ SubModule (CFML_gSpaceGroups) Oper_Equal
       info=.true.
    End Function Equal_Group
 
-End SubModule Oper_Equal
+End SubModule SPG_Oper_Equal

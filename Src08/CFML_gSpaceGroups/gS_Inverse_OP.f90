@@ -2,7 +2,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_GSPACEGROUPS) Spg_053
+SubModule (CFML_GSPACEGROUPS) SPG_Inverse_OP
+   implicit none
    Contains
    !!----
    !!---- INVERSE_OP_SYMM
@@ -36,4 +37,4 @@ SubModule (CFML_GSPACEGROUPS) Spg_053
 
    End Function Inverse_OP
 
-End SubModule Spg_053
+End SubModule SPG_Inverse_OP

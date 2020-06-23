@@ -2,6 +2,7 @@
 !!----
 !!----
 SubModule (CFML_gSpaceGroups) SPG_ConstructorGen
+   implicit none
    Contains
 
    !!----

@@ -3,6 +3,8 @@
 !!----
 SubModule (CFML_Geometry_SXTAL) SXTAL_FlatCone
 
+  implicit none
+
   Contains
 
     !!----
@@ -118,7 +120,7 @@ SubModule (CFML_Geometry_SXTAL) SXTAL_FlatCone
           If (Err_CFML%ierr == 0) Then
              sinmu=wave*pstar
              If (sinmu > 1.0_cp) Then
-                ierr=-1
+                Err_CFML%ierr=-1
              Else
                 ga=asind(sinmu)
                 !---- TH > 45.0_cp is equivalent to PSTAR > (SQRT(2.0_cp))/WAVE
@@ -129,7 +131,7 @@ SubModule (CFML_Geometry_SXTAL) SXTAL_FlatCone
                 Else
                    cosnu=cosd(2.0_cp*theta)/cosd(ga)
                    If (Abs(cosnu) > 1.0_cp) Then
-                      ierr=-2
+                      Err_CFML%ierr=-2
                    Else
                       nu=acosd(cosnu)
                    End If

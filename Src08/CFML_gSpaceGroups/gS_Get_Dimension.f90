@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_gSpaceGroups) SPG_014
+SubModule (CFML_gSpaceGroups) SPG_Dimension_SymmOp
+   implicit none
    Contains
    !!----
    !!---- Get_Dimension_SymmOp
@@ -35,5 +36,5 @@ SubModule (CFML_gSpaceGroups) SPG_014
       end if
    End Function Get_Dimension_SymmOp
 
-End SubModule SPG_014
+End SubModule SPG_Dimension_SymmOp
 
