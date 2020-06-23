@@ -50,13 +50,13 @@ Module CFML_GlobalDeps
    !--------------------!
 
    !---- Operating System ----!
-   character(len=*), parameter :: OPS_NAME = "MAC"               ! O.S. Name
-   character(len=*), parameter :: OPS_SEP = "/"                  ! O.S. directory separator character
+   character(len=3), parameter :: OPS_NAME = "MAC"               ! O.S. Name
+   character(len=1), parameter :: OPS_SEP = "/"                  ! O.S. directory separator character
    integer,          parameter :: OPS = 3                        ! O.S. Flag -> 1:Win 2:Lin 3:Mac
 
    !---- Compiler ----!
-   character(len=*), parameter :: COMPILER = "IFOR"              ! Intel Compiler
-   !character(len=*), parameter :: COMPILER = "GFOR"             ! GFortran Compiler
+   character(len=4), parameter :: COMPILER = "IFOR"              ! Intel Compiler
+   !character(len=4), parameter :: COMPILER = "GFOR"             ! GFortran Compiler
 
    !---- Precision ----!
    integer, parameter :: DP = selected_real_kind(14,150)         ! Double precision
@@ -79,7 +79,7 @@ Module CFML_GlobalDeps
    real(kind=CP), parameter :: V_TINY=tiny(1.0_CP)                ! Tiny value for current precision
 
    !---- Special Characters ----!
-   character(len=2), parameter   :: NEWLINE = char(10)           ! Newline character
+   character(len=*), parameter   :: NEWLINE = char(10)           ! Newline character
    character(len=1), parameter   :: TAB     = char(9)            ! TAB character
 
    Type :: Err_Type
