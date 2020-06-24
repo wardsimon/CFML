@@ -166,6 +166,13 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
         SpG%Symb_Op(i)=Get_Symb_from_Mat(SpG%Op(i)%Mat, Strcode,SpG%Op(i)%time_inv)
       end do
 
+      do i=1,Npos !Looking for anticentring
+        if(rational_equal(SpG%Op(i)%Mat(1:d,1:d),-identd) .and. SpaceG%Op(i)%time_inv == -1) then
+          SpG%AntiCentre_coord=rational(1_LI,2_LI) * SpG%Op(i)%Mat(1:d,Dd)
+          exit
+        end if
+      end do
+
       if(centring) then
         n=Npos
         do L=1,SpG%Num_Lat
@@ -652,6 +659,7 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
                 SpaceG%Centre=trim(SpaceG%Centre)//": -1' not @the origin"
              else
                 SpaceG%Centre=trim(SpaceG%Centre)//": -1' @the origin"
+                SpaceG%AntiCentre_coord=0_LI//1_LI
              end if
           end if
           !If the magnetic group is paramagnetic duplicate the number of operators
@@ -801,11 +809,11 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
                 if(sum(abs(SpaceG%Op(i)%Mat(1:D,Dd))) == 0_LI) then
                   SpaceG%AntiCentred=2
                   SpaceG%AntiCentre_coord=0//1
-                  SpaceG%Centre="Anti-centric with -1' at origin"
+                  SpaceG%Centre="Anti-centric with -1' @ origin"
                 else
                   SpaceG%AntiCentred=0
                   SpaceG%AntiCentre_coord=SpaceG%Op(i)%Mat(1:D,Dd)/2_LI
-                  write(unit=SpaceG%Centre,fmt="(a)") "Anti-centric with -1' at : "//Rational_String(SpaceG%AntiCentre_coord)
+                  write(unit=SpaceG%Centre,fmt="(a)") "Anti-centric with -1' @ : "//Rational_String(SpaceG%AntiCentre_coord)
                 end if
                 exit
               end if

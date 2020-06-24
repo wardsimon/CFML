@@ -20,8 +20,7 @@
     real(kind=cp)                       :: start, fin
 
     type(Cell_G_Type)                   :: Cell
-    !type(Spg_Type)                      :: SpG
-    type(SuperSpaceGroup_Type)          :: SpG
+    class(Spg_Type), allocatable        :: SpG
     type(AtList_Type)                   :: Atm
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

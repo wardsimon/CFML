@@ -467,8 +467,8 @@ SubModule (CFML_IOForm) IO_CIF
 
       type (atm_type)                 :: atm1
       type (atm_std_type)             :: atm2
-      !type (matm_std_type)            :: atm3
-      !type (atm_ref_type)             :: atm4
+      type (matm_std_type)            :: atm3
+      type (atm_ref_type)             :: atm4
 
       !class(atm_type), allocatable    :: atm5
 
@@ -663,7 +663,11 @@ SubModule (CFML_IOForm) IO_CIF
             type is (atm_type)
                at(n)%occ=vet1(1)
 
-            class is (atm_std_type)
+            type is (atm_std_type)
+               at(n)%occ=vet1(1)
+               at(n)%occ_std=vet2(1)
+
+            class is (matm_std_type)
                at(n)%occ=vet1(1)
                at(n)%occ_std=vet2(1)
          end select
@@ -881,7 +885,7 @@ SubModule (CFML_IOForm) IO_CIF
          end if
       end do
 
-      !> Swapping the orinal atom at the first position with the first having full occupation
+      !> Swapping the original atom at the first position with the first having full occupation
       if (First /= 1) Then
          select type (at => atm%atom)
             type is (atm_type)
@@ -894,8 +898,16 @@ SubModule (CFML_IOForm) IO_CIF
                at(1)=at(first)
                at(first)=atm2
 
-            type is (matm_std_type)
             type is (atm_ref_type)
+               atm4=at(1)
+               at(1)=at(first)
+               at(first)=atm4
+
+            !type is (matm_std_type)
+            !   atm3=at(1)
+            !   at(1)=at(first)
+            !   at(first)=atm3
+
          end select
       end if
 

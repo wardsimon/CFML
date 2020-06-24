@@ -143,7 +143,7 @@ SubModule (CFML_IOForm) IO_MCIF
       !---- Arguments ----!
       type(File_Type),                 intent(in)  :: cif
       class(Cell_Type),                intent(out) :: Cell
-      class(SpG_Type),                 intent(out) :: SpG
+      class(SpG_Type),allocatable,     intent(out) :: SpG
       Type(AtList_Type),               intent(out) :: Atmlist
       Type(Kvect_Info_Type), optional, intent(out) :: Kvec
       Integer,               optional, intent(in)  :: Nphase   ! Select the Phase to read
@@ -196,9 +196,11 @@ SubModule (CFML_IOForm) IO_MCIF
 
       !> Space group determination
       if (.not. ssg) Then
+         allocate(SpG_Type :: SpG)
          ncen=get_Nelem_Loop(cif,'_space_group_symop_magn_centering.')
          nsym=get_Nelem_Loop(cif,'_space_group_symop_magn_operation.')
       else
+         allocate(SuperSpaceGroup_Type :: SpG)
          ncen=get_Nelem_Loop(cif,'_space_group_symop_magn_ssg_centering.')
          nsym=get_Nelem_Loop(cif,'_space_group_symop_magn_ssg_operation.')
       end if
@@ -248,7 +250,7 @@ SubModule (CFML_IOForm) IO_MCIF
       !> Atomos
       call Read_CIF_Atoms(cif, AtmList, n_ini, n_end)
       do i=1,Atmlist%natoms
-         if (Atmlist%atom(i)%mult ==0) Atmlist%atom(i)%mult=Get_Multip_Pos(Atmlist%atom(i)%x,SpG)
+         if (Atmlist%atom(i)%mult  == 0) Atmlist%atom(i)%mult=Get_Multip_Pos(Atmlist%atom(i)%x,SpG)
       end do
 
       !> Moment
