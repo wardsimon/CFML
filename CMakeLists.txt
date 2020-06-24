@@ -10,7 +10,7 @@ option(USE_HDF "Build crysfml and wcrysfml library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
-
+option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)" OFF)
 option(PROG_EX "Build the Program Examples" ON)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
