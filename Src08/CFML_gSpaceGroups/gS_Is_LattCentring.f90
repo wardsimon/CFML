@@ -18,10 +18,11 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Centring
 
       !---- Local variables ----!
       type(rational), dimension(size(v)) :: vec
-      integer                            :: i, NLat
+      integer                            :: i, NLat,d
 
       !> Init
       Lattice=.false.
+      d=size(v)
       nlat=size(Ltr,dim=2)
       !> if V is an integral vector then V is a lattice vector
       if (Rational_Is_Integer(v)) then
@@ -30,7 +31,7 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Centring
       end if
 
       do i=1, nlat
-         vec=Ltr(:,i)-v
+         vec=Ltr(1:d,i)-v
          if (Rational_Is_Integer(vec)) then
             Lattice=.true.
             return
@@ -44,16 +45,17 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Centring
       type(rational),dimension(:,:), intent(in) :: Ltr
       logical                                   :: Lattice
       !---- Local Variables ----!
-      integer :: i,nlat
+      integer :: i,nlat,d
       real(kind=cp), dimension(size(v)) :: vec,vl
       !> Init
       Lattice=.false.
+      d=size(v)
       nlat=size(Ltr,dim=2)
        if (Zbelong(v)) then       ! if v is an integral vector =>  v is a lattice vector
           Lattice=.true.
        else                       ! if not look for lattice type
           do i=1,nlat
-            vl=Ltr(:,i)
+            vl=Ltr(1:d,i)
             vec=vl-v
             if (Zbelong(vec)) then
               Lattice=.true.

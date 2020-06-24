@@ -451,7 +451,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,  intent(in)  :: i_ini, i_end
 
       !---- Local Variables ----!
-      logical                             :: ssg
+      logical                             :: ssg, aniso_found
       character(len=20),dimension(15)     :: label
       integer                             :: i, j, n, nc, iv, First, nl,npos
       integer, dimension( 8)              :: lugar   !   1 -> label
@@ -479,7 +479,7 @@ SubModule (CFML_IOForm) IO_CIF
          err_CFML%Msg="Read_CIF_Atom: 0 lines "
          return
       end if
-
+      aniso_found=.false.
       j_ini=1; j_end=cif%nlines
       if (present(i_ini)) j_ini=i_ini
       if (present(i_end)) j_end=i_end
@@ -568,7 +568,7 @@ SubModule (CFML_IOForm) IO_CIF
          return
       end if
 
-      !> Calculating atoms
+      !> Calculating the number of atoms
       n=0
       j_ini=i
       do i=j_ini, j_end
@@ -586,10 +586,10 @@ SubModule (CFML_IOForm) IO_CIF
          return
       end if
 
-      if (.not. ssg) then
-         call allocate_atom_list(n,Atm,'Atm_std',0)
-      else
+      if (ssg) then
          call allocate_atom_list(n,Atm,'MAtm_std',0)
+      else
+         call allocate_atom_list(n,Atm,'Atm_std',0)
       end if
 
       !> reading atoms
@@ -725,7 +725,7 @@ SubModule (CFML_IOForm) IO_CIF
          end do
 
          npos=index(line,str)
-         if (npos ==0) cycle
+         if (npos == 0) cycle
 
          !> search the loop
          do j=i-1,j_ini,-1
@@ -734,137 +734,139 @@ SubModule (CFML_IOForm) IO_CIF
             if (line(1:1) == '#') cycle
 
             npos=index(line,'loop_')
-            if (npos ==0) cycle
+            if (npos == 0) cycle
             j_ini=j+1
+            aniso_found=.true.
             exit
          end do
          exit
       end do
 
-      lugar=0
-      j=0
-      do i=j_ini,j_end
-         line=adjustl(cif%line(i)%str)
+      if(aniso_found) then
+        lugar=0
+        j=0
+        do i=j_ini,j_end
+           line=adjustl(cif%line(i)%str)
 
-         if (len_trim(line) <=0) cycle
-         if (line(1:1) == '#') cycle
-         if (line(1:5) /='_atom') exit
+           if (len_trim(line) <=0) cycle
+           if (line(1:1) == '#') cycle
+           if (line(1:5) /='_atom') exit
 
-         select case (trim(line))
-            case ('_atom_site_aniso_label')
-               j=j+1
-               lugar(1)=j
-            case ('_atom_site_aniso_U_11','_atom_site_aniso_B_11')
-               j=j+1
-               lugar(2)=j
-            case ('_atom_site_aniso_U_22','_atom_site_aniso_B_22')
-               j=j+1
-               lugar(3)=j
-            case ('_atom_site_aniso_U_33','_atom_site_aniso_B_33')
-               j=j+1
-               lugar(4)=j
-            case ('_atom_site_aniso_U_23','_atom_site_aniso_B_23')
-               j=j+1
-               lugar(5)=j
-            case ('_atom_site_aniso_U_13','_atom_site_aniso_B_13')
-               j=j+1
-               lugar(6)=j
-            case ('_atom_site_aniso_U_12','_atom_site_aniso_B_12')
-               j=j+1
-               lugar(7)=j
-         end select
-      end do
+           select case (trim(line))
+              case ('_atom_site_aniso_label')
+                 j=j+1
+                 lugar(1)=j
+              case ('_atom_site_aniso_U_11','_atom_site_aniso_B_11')
+                 j=j+1
+                 lugar(2)=j
+              case ('_atom_site_aniso_U_22','_atom_site_aniso_B_22')
+                 j=j+1
+                 lugar(3)=j
+              case ('_atom_site_aniso_U_33','_atom_site_aniso_B_33')
+                 j=j+1
+                 lugar(4)=j
+              case ('_atom_site_aniso_U_23','_atom_site_aniso_B_23')
+                 j=j+1
+                 lugar(5)=j
+              case ('_atom_site_aniso_U_13','_atom_site_aniso_B_13')
+                 j=j+1
+                 lugar(6)=j
+              case ('_atom_site_aniso_U_12','_atom_site_aniso_B_12')
+                 j=j+1
+                 lugar(7)=j
+           end select
+        end do
 
-      !> reading anisotropic thermal parameters
-      j_ini=i
-      do i=j_ini, j_end
-         line=adjustl(cif%line(i)%str)
+        !> reading anisotropic thermal parameters
+        j_ini=i
+        do i=j_ini, j_end
+           line=adjustl(cif%line(i)%str)
 
-         if (line(1:1) == '#') cycle
-         if (len_trim(line) <=0) exit
-         if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
+           if (line(1:1) == '#') cycle
+           if (len_trim(line) <=0) exit
+           if (line(1:1) == "_" .or. line(1:5) == "loop_") exit
 
-         call get_words(line, label, nc)
+           call get_words(line, label, nc)
 
-         if (nc <=0) then
-            err_CFML%Ierr=1
-            err_CFML%Msg="Read_CIF_Atom: Something is wrong in "//trim(line)
-            return
-         end if
+           if (nc <=0) then
+              err_CFML%Ierr=1
+              err_CFML%Msg="Read_CIF_Atom: Something is wrong in "//trim(line)
+              return
+           end if
 
-         do j=1,n
-            !> Found the anisotropic atom
-            if (trim(label(lugar(1))) /= trim(atm%atom(j)%lab)) cycle
+           do j=1,n
+              !> Found anisotropic atoms
+              if (trim(label(lugar(1))) /= trim(atm%atom(j)%lab)) cycle
 
-            if (atm%atom(j)%thtype /='ani') then
-               err_CFML%Ierr=1
-               err_CFML%Msg="Read_CIF_Atom: Something is wrong in Anisotropic thermal parameters!"
-               return
-            end if
+              if (atm%atom(j)%thtype /='ani') then
+                 err_CFML%Ierr=1
+                 err_CFML%Msg="Read_CIF_Atom: Something is wrong in Anisotropic thermal parameters!"
+                 return
+              end if
 
-            !> _atom_site_aniso_U_11
-            call get_numstd(label(lugar(2)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(1)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(1)    =vet1(1)
-                  at(j)%u_std(1)=vet2(1)
-            end select
+              !> _atom_site_aniso_U_11
+              call get_numstd(label(lugar(2)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(1)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(1)    =vet1(1)
+                    at(j)%u_std(1)=vet2(1)
+              end select
 
-            !> _atom_site_aniso_U_22
-            call get_numstd(label(lugar(3)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(2)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(2)    =vet1(1)
-                  at(j)%u_std(2)=vet2(1)
-            end select
+              !> _atom_site_aniso_U_22
+              call get_numstd(label(lugar(3)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(2)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(2)    =vet1(1)
+                    at(j)%u_std(2)=vet2(1)
+              end select
 
-            !> _atom_site_aniso_U_33
-            call get_numstd(label(lugar(4)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(3)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(3)    =vet1(1)
-                  at(j)%u_std(3)=vet2(1)
-            end select
+              !> _atom_site_aniso_U_33
+              call get_numstd(label(lugar(4)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(3)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(3)    =vet1(1)
+                    at(j)%u_std(3)=vet2(1)
+              end select
 
-            !> _atom_site_aniso_U_12
-            call get_numstd(label(lugar(7)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(4)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(4)    =vet1(1)
-                  at(j)%u_std(4)=vet2(1)
-            end select
+              !> _atom_site_aniso_U_12
+              call get_numstd(label(lugar(7)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(4)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(4)    =vet1(1)
+                    at(j)%u_std(4)=vet2(1)
+              end select
 
-            !> _atom_site_aniso_U_13
-            call get_numstd(label(lugar(6)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(5)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(5)    =vet1(1)
-                  at(j)%u_std(5)=vet2(1)
-            end select
+              !> _atom_site_aniso_U_13
+              call get_numstd(label(lugar(6)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(5)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(5)    =vet1(1)
+                    at(j)%u_std(5)=vet2(1)
+              end select
 
-            !> _atom_site_aniso_U_23
-            call get_numstd(label(lugar(5)),vet1,vet2,iv)
-            select type (at => atm%atom)
-               type is (atm_type)
-                  at(j)%u(6)    =vet1(1)
-               class is (atm_std_type)
-                  at(j)%u(6)    =vet1(1)
-                  at(j)%u_std(6)=vet2(1)
-            end select
-         end do
+              !> _atom_site_aniso_U_23
+              call get_numstd(label(lugar(5)),vet1,vet2,iv)
+              select type (at => atm%atom)
+                 type is (atm_type)
+                    at(j)%u(6)    =vet1(1)
+                 class is (atm_std_type)
+                    at(j)%u(6)    =vet1(1)
+                    at(j)%u_std(6)=vet2(1)
+              end select
+           end do
 
-      end do
-
+        end do
+      end if
       !> Look for the first atoms fully occupying the site and put it in first position
       !> This is needed for properly calculating the occupation factors
       !> after normalization in subroutine Readn_Set_XTal_CIF

@@ -11,31 +11,52 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
       class(SPG_Type),             intent(in) :: SpG
       integer                                 :: mult
       !----Local Variables ---!
-      real(kind=cp), dimension(size(x)+1)         :: xd,xx
-      real(kind=cp), dimension(size(x))           :: v
-      real(kind=cp), dimension(size(x),SpG%Multip):: u
-      integer :: i,D,nt
+      real(kind=cp), dimension(size(x)+1)          :: xd,xx
+      real(kind=cp), dimension(size(x))            :: v
+      real(kind=cp), dimension(4,4)                :: Omat
+      real(kind=cp), dimension(size(x),SpG%Multip) :: u
+      integer :: i, D, nt, dm
 
 
       D=size(x)
+      dm=Spg%d
       xd=[x,1.0_cp]
       mult=1
       u(:,1)=x
-
-      do_ext: do i=2,Spg%multip
-         xx=matmul(real(Spg%Op(i)%Mat),xd)
-         xx=modulo_lat(xx)
-         do nt=1,mult
-            v(1:d)=u(:,nt)-xx(1:D)
-            if(Spg%Num_lat > 0) then
-              if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext
-            else
-              if (Zbelong(v)) cycle do_ext
-            end if
-         end do
-         mult=mult+1
-         u(:,mult)=xx(1:D)
-      end do do_ext
+      if(D == 3) Then  !This is for the average structure
+        Omat(4,1:4) = [0.0_cp,0.0_cp,0.0_cp,1.0_cp]
+        do_ext1: do i=2,Spg%multip
+           Omat(1:3,1:3) = real(Spg%Op(i)%Mat(1:3,1:3))
+           Omat(1:3,4)   = real(Spg%Op(i)%Mat(1:3,dm))
+           xx=matmul(Omat,xd)
+           xx=modulo_lat(xx)
+           do nt=1,mult
+              v(1:d)=u(:,nt)-xx(1:D)
+              if(Spg%Num_lat > 0) then
+                if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext1
+              else
+                if (Zbelong(v)) cycle do_ext1
+              end if
+           end do
+           mult=mult+1
+           u(:,mult)=xx(1:D)
+        end do do_ext1
+      else
+        do_ext: do i=2,Spg%multip  !This is for superspace
+           xx=matmul(real(Spg%Op(i)%Mat),xd)
+           xx=modulo_lat(xx)
+           do nt=1,mult
+              v(1:d)=u(:,nt)-xx(1:D)
+              if(Spg%Num_lat > 0) then
+                if (is_Lattice_vec(v,Spg%Lat_tr)) cycle do_ext
+              else
+                if (Zbelong(v)) cycle do_ext
+              end if
+           end do
+           mult=mult+1
+           u(:,mult)=xx(1:D)
+        end do do_ext
+      end if
 
    End Function Get_Multip_Pos
 
