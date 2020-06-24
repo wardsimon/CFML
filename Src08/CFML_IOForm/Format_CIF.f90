@@ -1957,7 +1957,7 @@ SubModule (CFML_IOForm) IO_CIF
       integer, optional,              intent(in)  :: i_ini, i_end
 
       !---- Local variables ----!
-      integer            :: i,j,nl,np1,np2,iv,npos,nl
+      integer            :: i,j,nl,np1,np2,iv,npos
 
       !> Init
       n_oper=0
