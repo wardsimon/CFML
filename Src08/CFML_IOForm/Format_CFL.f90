@@ -815,15 +815,9 @@ SubModule (CFML_IOForm) IO_CFL
       !---- Local variables ----!
       logical                          :: set_moment, set_matm_std
       character(len=132)               :: line
-      character(len= 40),dimension(192):: gen
-
       integer, dimension(MAX_PHASES)   :: ip
       integer                          :: i, j,nt_phases, iph, n_ini, n_end
-      integer                          :: ngen, nsym, k
-      integer                          :: nt_atm
-
-      real(kind=cp),dimension(6)       :: vet1,vet2
-      real(kind=cp),dimension(3)       :: vet
+      integer                          :: k
 
       real(kind=cp),dimension(:),allocatable:: xvet
 
