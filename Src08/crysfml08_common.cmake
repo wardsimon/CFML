@@ -61,7 +61,7 @@ file(GLOB SUBMOD_RANDOM_SRC CFML_Random/*.f90)
 set(MATHS_SRC CFML_Maths.f90
               CFML_FFT.f90
               CFML_Random.f90
-              CFML_Trigonometry.f90
+              # CFML_Trigonometry.f90
               ${SUBMOD_MATHS_SRC}
               ${SUBMOD_FFT_SRC}
               ${SUBMOD_RANDOM_SRC})

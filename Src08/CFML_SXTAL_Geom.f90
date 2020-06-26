@@ -225,7 +225,6 @@
  Module CFML_Geometry_SXTAL
     !---- Use Modules ----!
     Use CFML_GlobalDeps,        Only: Cp,Dp,To_Deg,To_Rad, clear_error, Err_CFML
-    Use CFML_Trigonometry,      Only: cosd,sind,atan2d,acosd,asind,tand
     Use CFML_Maths,             Only: Cross_Product, invert => Inverse_Matrix,co_linear,in_limits
     Use CFML_Metrics,           Only: Cell_G_Type, Zone_Axis_type, Get_basis_from_uvw, &
                                       Rot_Gibbs_Matrix

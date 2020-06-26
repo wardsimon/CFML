@@ -76,7 +76,6 @@
                                       Extend_Atom_List, Atm_Cell_Type, Allocate_Atoms_Cell
     use CFML_Geom,              only: Coord_Info, Distance, calc_dist_angle_sigma, calc_dist_angle
     use CFML_Export_VTK,        only: write_grid_VESTA
-    use CFML_Trigonometry,      only: cosd
     use CFML_BVS_Tables
 
     !---- Variables ----!
