@@ -133,12 +133,7 @@ SubModule (CFML_Atoms) Generating_Atoms_inCell
    End Subroutine Extend_List
 
    !!----
-   !!----    Module Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
-   !!----      type(SpG_Type),             intent(in) :: SpG
-   !!----      type(Cell_G_Type),          intent(in) :: Cell
-   !!----      type(Atlist_Type),          intent(in) :: A
-   !!----      type(Atom_Equiv_List_Type), intent(out):: Ate
-   !!----      integer, optional,          intent(in) :: lun
+   !!---- SET_ATOM_EQUIV_LIST
    !!----
    !!---- Subroutine constructing the list of all atoms in the unit cell.
    !!---- The atoms are in a structure of type "Atom_Equiv_List_Type" containing
@@ -150,72 +145,73 @@ SubModule (CFML_Atoms) Generating_Atoms_inCell
    !!---- Updated: May 2020
    !!
    Module Subroutine Set_Atom_Equiv_List(SpG,cell,A,Ate,lun)
-     type(SpG_Type),             intent(in) :: SpG
-     type(Cell_G_Type),          intent(in) :: Cell
-     type(Atlist_Type),          intent(in) :: A
-     type(Atom_Equiv_List_Type), intent(out):: Ate
-     integer, optional,          intent(in) :: lun
+      !---- Arguments ----!
+      type(SpG_Type),             intent(in) :: SpG
+      type(Cell_G_Type),          intent(in) :: Cell
+      type(Atlist_Type),          intent(in) :: A
+      type(Atom_Equiv_List_Type), intent(out):: Ate
+      integer, optional,          intent(in) :: lun
 
-     ! local variables
-     real(kind=cp),  dimension(3)            :: xx,xo,v,xc
-     real(kind=cp),  dimension(3,SpG%Multip) :: u
-     character(len=20),dimension(SpG%Multip) :: label
-     integer                                 :: k,j,L,nt
-     character (len=6)                       :: fmm
-     character (len=20)                      :: nam
-     real(kind=cp), parameter                :: epsi = 0.002
+      !---- local variables ----!
+      real(kind=cp),  dimension(3)            :: xx,xo,v,xc
+      real(kind=cp),  dimension(3,SpG%Multip) :: u
+      character(len=20),dimension(SpG%Multip) :: label
+      integer                                 :: k,j,L,nt
+      character (len=6)                       :: fmm
+      character (len=20)                      :: nam
+      real(kind=cp), parameter                :: epsi = 0.002
 
-     if (.not. allocated (Ate%atm)) allocate(Ate%atm(A%natoms))
-     ate%nauas=A%natoms
-     if (present(lun))  then
-        write(unit=lun,fmt="(/,a)") "     LIST OF ATOMS INSIDE THE CONVENTIONAL UNIT CELL "
-        write(unit=lun,fmt="(a,/)") "     =============================================== "
-     end if
-     do k=1,A%natoms
-        ate%atm(k)%ChemSymb = A%atom(k)%ChemSymb
-        xo(:) =Modulo_Lat(A%atom(k)%x(:))
-        L=1
-        u(:,L)=xo(:)
-        xc =matmul(cell%Cr_Orth_cel,xo)
-        if (present(lun))then
-         write(unit=lun,fmt="(/,a,a)") " => Equivalent positions of atom: ",A%atom(k)%lab
-         write(unit=lun,fmt="(a)")  &
-         "                                    x         y         z          Xc        Yc        Zc"
-        end if
-        fmm="(a,i1)"
-        write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
-        nam=label(L)
-        if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xo,"  ", xc
+      if (.not. allocated (Ate%atm)) allocate(Ate%atm(A%natoms))
+      ate%nauas=A%natoms
+      if (present(lun))  then
+         write(unit=lun,fmt="(/,a)") "     LIST OF ATOMS INSIDE THE CONVENTIONAL UNIT CELL "
+         write(unit=lun,fmt="(a,/)") "     =============================================== "
+      end if
+      do k=1,A%natoms
+         ate%atm(k)%ChemSymb = A%atom(k)%ChemSymb
+         xo(:) =Modulo_Lat(A%atom(k)%x(:))
+         L=1
+         u(:,L)=xo(:)
+         xc =matmul(cell%Cr_Orth_cel,xo)
+         if (present(lun))then
+            write(unit=lun,fmt="(/,a,a)") " => Equivalent positions of atom: ",A%atom(k)%lab
+            write(unit=lun,fmt="(a)")  &
+            "                                    x         y         z          Xc        Yc        Zc"
+         end if
+         fmm="(a,i1)"
+         write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+         nam=label(L)
+         if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xo,"  ", xc
 
-        do_eq:DO j=2,SpG%multip
-           xx=Apply_OP(SpG%Op(j),xo)
-           xx=modulo_lat(xx)
-           do nt=1,L
-              v=u(:,nt)-xx(:)
-              if (sum(abs((v))) < epsi ) cycle do_eq
-           end do
-           L=L+1
-           u(:,L)=xx(:)
-           if ( L > 9 .and. L < 100)  fmm="(a,i2)"
-           if ( L >= 100 )  fmm="(a,i3)"
-           write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
-           nam=Label(L)
-           xc=matmul(cell%Cr_Orth_cel,xx)
-           if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xx,"  ", xc
-        end do do_eq
+         do_eq:DO j=2,SpG%multip
+            xx=Apply_OP(SpG%Op(j),xo)
+            xx=modulo_lat(xx)
+            do nt=1,L
+               v=u(:,nt)-xx(:)
+               if (sum(abs((v))) < epsi ) cycle do_eq
+            end do
+            L=L+1
+            u(:,L)=xx(:)
+            if ( L > 9 .and. L < 100)  fmm="(a,i2)"
+            if ( L >= 100 )  fmm="(a,i3)"
+            write(unit=label(L),fmt=fmm) trim(A%Atom(k)%lab)//"_",L
+            nam=Label(L)
+            xc=matmul(cell%Cr_Orth_cel,xx)
+            if (present(lun)) write(unit=lun,fmt="(3a,3f10.5,a,3f10.5)") "       ",nam,"  ", xx,"  ", xc
+         end do do_eq
 
-        if(allocated(Ate%Atm(k)%Lab)) deallocate(Ate%Atm(k)%Lab)
-        allocate(Ate%Atm(k)%lab(L))
-        if(allocated(Ate%Atm(k)%x)) deallocate(Ate%Atm(k)%x)
-        allocate(Ate%Atm(k)%x(3,L))
+         if (allocated(Ate%Atm(k)%Lab)) deallocate(Ate%Atm(k)%Lab)
+         allocate(Ate%Atm(k)%lab(L))
+         if (allocated(Ate%Atm(k)%x)) deallocate(Ate%Atm(k)%x)
+         allocate(Ate%Atm(k)%x(3,L))
 
-        Ate%Atm(k)%mult=L
-        do j=1,Ate%Atm(k)%mult
-          Ate%Atm(k)%lab(j)=Label(j)
-          Ate%Atm(k)%x(:,j)=u(:,j)
-        end do
-     end do
-     if (present(lun))  write(unit=lun,fmt="(/)")
+         Ate%Atm(k)%mult=L
+         do j=1,Ate%Atm(k)%mult
+            Ate%Atm(k)%lab(j)=Label(j)
+            Ate%Atm(k)%x(:,j)=u(:,j)
+         end do
+      end do
+      if (present(lun))  write(unit=lun,fmt="(/)")
    End Subroutine Set_Atom_Equiv_List
 
 End SubModule Generating_Atoms_inCell
