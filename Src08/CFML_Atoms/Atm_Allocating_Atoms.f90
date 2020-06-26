@@ -11,10 +11,10 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
    !!----
    !!---- 12/06/2019
    !!
-   Module Subroutine Init_Atom_Type(Atm,d)
+   Module Subroutine Init_Atom_Type(Atm, d)
       !---- Arguments ----!
       class(Atm_Type), intent(in out)   :: Atm
-      integer,         intent(in)       :: d !Number of k-vectors
+      integer,         intent(in)       :: d    ! Number of k-vectors
 
       Atm%Lab      =" "
       Atm%ChemSymb =" "
@@ -160,6 +160,7 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
       end select
 
    End Subroutine Init_Atom_Type
+   
    !!----
    !!---- ALLOCATE_ATOM_LIST
    !!----    Allocation of objet A of type atom_list.
@@ -169,13 +170,13 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
    !!
    Module Subroutine Allocate_Atom_List(N, A,Type_Atm,d)
       !---- Arguments ----!
-      integer,             intent(in)       :: n    ! Atoms in the List
-      type(Atlist_type),   intent(in out)   :: A    ! Objet to be allocated
+      integer,             intent(in)       :: n        ! Atoms in the List
+      type(Atlist_type),   intent(in out)   :: A        ! Objet to be allocated
       character(len=*),    intent(in)       :: Type_Atm
-      integer,             intent(in)       :: d    !Number of k-vectors
+      integer,             intent(in)       :: d        ! Number of k-vectors
 
       !---- Local Variables ----!
-      integer :: i,ier
+      integer                            :: i,ier
       ! Types :: Atm_Type, Atm_Std_Type, MAtm_Std_Type, Atm_Ref_Type, MAtm_Ref_Type
       type(Atm_Type)     , dimension(n)  :: Atm
       type(Atm_Std_Type) , dimension(n)  :: Atm_Std
@@ -230,12 +231,7 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
    End Subroutine Allocate_Atom_list
 
    !!----
-   !!---- Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
-   !!----    integer, intent(in)                      :: nasu    !  In -> Number of atoms in asymmetric unit
-   !!----    integer, intent(in)                      :: mul     !  In -> General multiplicity of the Space Group
-   !!----    real(kind=cp),    intent(in)             :: dmax    !  In -> Maximun distance to be calculated
-   !!----    type (atoms_cell_type), intent(in out)   :: Ac      !  In -> Object of type atoms_cell_type
-   !!----                                                          Out -> Allocated and initialized object Ac
+   !!---- ALLOCATE_ATOMS_CELL
    !!----
    !!----    Allocation of objet "Ac" of type Atm_Cell. "Ac" contains
    !!----    components with ALLOCATABLE attribute with dimension depending
@@ -251,10 +247,10 @@ SubModule (CFML_Atoms) Init_Allocating_Atoms
    !!
    Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
       !---- Arguments ----!
-      integer,              intent(in)     :: nasu
-      integer,              intent(in)     :: mul
-      real(kind=cp),        intent(in)     :: dmax
-      type (Atm_cell_type), intent(in out) :: Ac
+      integer,              intent(in)     :: nasu   ! Number of atoms in asymmetric unit
+      integer,              intent(in)     :: mul    ! General multiplicity of the Space Group
+      real(kind=cp),        intent(in)     :: dmax   ! Maximun distance to be calculated
+      type (Atm_cell_type), intent(in out) :: Ac     ! Object of type atoms_cell_type
 
       !---- local variables ----!
       integer :: natcel,id

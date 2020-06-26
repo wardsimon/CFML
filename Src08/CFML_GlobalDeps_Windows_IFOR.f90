@@ -1,43 +1,47 @@
-!!-------------------------------------------------------
-!!---- Crystallographic Fortran Modules Library (CrysFML)
-!!-------------------------------------------------------
-!!---- The CrysFML project is distributed under LGPL. In agreement with the
+!!--------------------------------------------------------------------------
+!!----           Crystallographic Fortran Modules Library (CrysFML)
+!!--------------------------------------------------------------------------
+!!---- The CrysFML project is  distributed under LGPL. In agreement with the
 !!---- Intergovernmental Convention of the ILL, this software cannot be used
 !!---- in military applications.
 !!----
-!!---- Copyright (C) 1999-2018  Institut Laue-Langevin (ILL), Grenoble, FRANCE
-!!----                          Universidad de La Laguna (ULL), Tenerife, SPAIN
-!!----                          Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
+!!---- Copyright (C) 1999-2020
+!!----  
+!!---- Institutions:
+!!----    Institut Laue-Langevin (ILL), Grenoble, FRANCE
+!!----    Universidad de La Laguna (ULL), Tenerife, SPAIN
+!!----    Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Authors: Juan Rodriguez-Carvajal (ILL)
-!!----          Javier Gonzalez-Platas  (ULL)
+!!---- Authors: 
+!!----    Juan Rodriguez-Carvajal (ILL)
+!!----    Javier Gonzalez-Platas  (ULL)
 !!----
-!!---- Contributors: Laurent Chapon     (ILL)
-!!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
-!!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
-!!----               Tierry Roisnel     (CDIFX,Rennes France)
-!!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia)
+!!---- Contributors: 
+!!----    Laurent Chapon     (ILL)
+!!----    Marc Janoschek     (Los Alamos National Laboratory, USA)
+!!----    Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
+!!----    Thierry Roisnel    (CDIFX,Rennes France)
+!!----    Eric Pellegrini    (ILL)
+!!----    Ross J. Angel      (University of Pavia)
 !!----
-!!---- This library is free software; you can redistribute it and/or
-!!---- modify it under the terms of the GNU Lesser General Public
-!!---- License as published by the Free Software Foundation; either
-!!---- version 3.0 of the License, or (at your option) any later version.
+!!---- This library is free software; you can redistribute it and/or  modify      
+!!---- it  under  the  terms  of  the  GNU  Lesser General Public License as 
+!!---- published by the Free Software Foundation; either version  3.0 of the 
+!!---- License, or (at your option) any later version.
 !!----
-!!---- This library is distributed in the hope that it will be useful,
-!!---- but WITHOUT ANY WARRANTY; without even the implied warranty of
-!!---- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+!!---- This library is distributed in the hope  that it will  be useful, but
+!!---- WITHOUT   ANY   WARRANTY;   without   even  the implied  warranty  of 
+!!---- MERCHANTABILITY  or  FITNESS  FOR  A PARTICULAR PURPOSE.  See the GNU
 !!---- Lesser General Public License for more details.
 !!----
-!!---- You should have received a copy of the GNU Lesser General Public
-!!---- License along with this library; if not, see <http://www.gnu.org/licenses/>.
-!!----
+!!---- You  should  have  received  a  copy of the GNU Lesser General Public
+!!---- License along with this library; if not, see 
+!!---- <http://www.gnu.org/licenses/>.
 !!----
 !!---- MODULE: CFML_GlobalDeps (Windows version)
-!!----   INFO: Precision for CrysFML library and Operating System information
-!!----         All the global variables defined in this module are implicitly public.
-!!----
-!!----
+!!----   INFO:Precision for CrysFML library and Operating System information
+!!----        All the global variables defined in this module are implicitly 
+!!----       public.
 !!
 Module CFML_GlobalDeps
    !---- Variables ----!

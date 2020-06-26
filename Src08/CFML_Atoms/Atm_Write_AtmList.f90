@@ -6,11 +6,7 @@ SubModule (CFML_Atoms)  Write_Atoms
   Contains
 
    !!----
-   !!---- Pure Module Function Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
-   !!----    character (len=*), intent (in) :: nam1       !  In -> Atom Nam1
-   !!----    character (len=*), intent (in) :: nam2       !  In -> Atom Nam2
-   !!----    character (len=*), intent (in) :: NameAt     !  In -> String containing atom names
-   !!----    logical                        :: equiv_atom !  Result .true. or .false.
+   !!---- EQUIV_ATM
    !!----
    !!----    Determine whether the atoms of names "nam1" and "nam2" are included in
    !!----    the longer string "name" (constructed by function "wrt_lab").
@@ -19,8 +15,8 @@ SubModule (CFML_Atoms)  Write_Atoms
    !!
    Pure Module Function Equiv_Atm(Nam1,Nam2,NameAt) Result(Equiv_Atom)
       !---- Arguments ----!
-      character (len=*), intent (in) :: nam1,nam2
-      character (len=*), intent (in) :: NameAt
+      character (len=*), intent (in) :: nam1,nam2   ! Atom names
+      character (len=*), intent (in) :: NameAt      ! String containing atom names
       logical                        :: equiv_atom
 
       !---- Local variables ----!
@@ -40,10 +36,7 @@ SubModule (CFML_Atoms)  Write_Atoms
    End Function Equiv_Atm
 
    !!----
-   !!---- Pure Module Function Wrt_Lab(Nam1,Nam2) Result(Bilabel)
-   !!----    character (len=*), intent (in) :: nam1     !  In -> Atom name 1
-   !!----    character (len=*), intent (in) :: nam2     !  In -> Atom name 2
-   !!----    character (len=8)              :: bilabel  ! Result -> Composed string with underscores
+   !!---- WRT_LAB
    !!----
    !!----    Character function merging the main part of the labels
    !!----    (before underscore "_") of the atoms "nam1" and "nam2" into
@@ -53,8 +46,8 @@ SubModule (CFML_Atoms)  Write_Atoms
    !!
    Pure Module Function Wrt_Lab(Nam1,Nam2) Result(Bilabel)
       !---- Arguments ----!
-      character (len=*), intent (in) :: nam1,nam2
-      character (len=8)              :: bilabel
+      character (len=*), intent (in) :: nam1,nam2   ! Atoms name
+      character (len=8)              :: bilabel     ! Composed string with underscores
 
       !---- Local variables ----!
       integer :: i1,i2
@@ -85,9 +78,9 @@ SubModule (CFML_Atoms)  Write_Atoms
    !!
    Module Subroutine Write_Atom_List(A, Iunit, SpG)
       !---- Arguments ----!
-      type(atlist_type),                   intent(in) :: A        ! Atom list object
-      integer, optional,                   intent(in) :: IUnit    ! Logical unit
-      type(SuperSpaceGroup_type),optional, intent(in) :: SpG
+      type(atlist_type),                    intent(in) :: A        ! Atom list object
+      integer, optional,                    intent(in) :: IUnit    ! Logical unit
+      type(SuperSpaceGroup_type), optional, intent(in) :: SpG
 
       !---- Local Variables ----!
       character(len=1)             :: car
