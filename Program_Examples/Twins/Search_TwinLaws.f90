@@ -1,6 +1,7 @@
-!!----
+!!-------------------------------------------------------------------------------------
 !!----   PROGRAM:  Search_TwinLaws
 !!----   Author: J. Rodriguez-Carvajal (ILL) January 2011, Updated: December 2011
+!!----   Updates: A.Filhol May 2020
 !!----
 !!----   This program uses the method of A. Santoro (Acta Cryst A30, 224 (1974)) for
 !!----   getting possible twin laws from special metrics.
@@ -81,9 +82,11 @@
 !!----         (c)   (         0         ,         0           , c         )  (k)
 !!---- The rotation, corresponding to the given angle, of the reference lattice with respect
 !!---- to the given axis produces a quasi-coincidence with the original one.
-!!----
+!!-------------------------------------------------------------------------------------
 !!----
   Program Search_TwinLaws
+    USE IFPOSIX
+    USE IFPORT
     use CFML_GlobalDeps,       only:cp
     use CFML_Crystal_Metrics,  only: Crystal_Cell_Type, Err_Crys, Err_Crys_Mess, Init_err_crys,  &
                                      Change_Setting_Cell,Set_Crystal_Cell, Write_Crystal_Cell,   &
@@ -96,90 +99,145 @@
     use CFML_Geometry_Calc, only: Get_Anglen_Axis_From_RotMat
     use CFML_Math_General,  only: acosd, Equal_Matrix, Trace, Co_prime_Vector
     implicit none
+    integer ,parameter          :: lun_In=1,lunOut=2,lunCfl=3
     integer, parameter          :: Max_Sol=2000
-    real(kind=cp),    dimension(3)       :: cel1,ang1,axc
+    real(kind=cp), dimension(3,3,Max_Sol):: Bsol !Independent solutions
+    real(kind=cp), dimension(3,3)        :: base,Rot,Wi,W,GD,DELTA,Bm,Bmi,Dt,Lm,Lmi
+    real(kind=cp), dimension(3) :: cel1,ang1,axc
+    real(kind=cp)               :: tol,tolf,sm,start,fin,remain,angle
     integer, dimension(3,3)     :: Nu,nB
     integer, dimension(3)       :: axis,ax
     integer, dimension(3,3,48)  :: sym !Symmetry operators of the point group
                                        !in a primitive basis
-    real(kind=cp), dimension(3,3,Max_Sol):: Bsol !Independent solutions
-    real(kind=cp), dimension(3,3)        :: base,Rot,Wi,W,GD,DELTA,Bm,Bmi,Dt,Lm,Lmi
-    character(len=1)            :: lat_type, key
     type (Crystal_Cell_Type)    :: cell, pcell
     type (space_group_type)     :: SpG
-    logical                     :: arggiven,centred, cell_given=.false., spg_given=.false.
+    character(len=1)            :: lat_type, key
     character(len=20)           :: SpG_symb
-    character(len=256)          :: fileinp, fileout, new_cfl, line,line_ini
-    integer                     :: i,j,lun=1,lout=2,i_cfl=3,i1,i2,i3,i4,i5,i6,i7,i8,i9,n1,n2,n3
+    character(len=256)          :: fileinp=" ", fileout, new_cfl, line,line_ini
+    character(len=8)            :: aDate
+    character(len=10)           :: aTime
+    integer                     :: i,j,i1,i2,i3,i4,i5,i6,i7,i8,i9,n1,n2,n3
     integer                     :: ia1,ia2,ib1,ib2,ic1,ic2, in1,in2,narg,nop,n,ier
     integer(kind=8)             :: iratio,im,nn
-    real(kind=cp)               :: tol,tolf,sm,start,fin,remain,angle
+    logical                     :: centred
+    logical                     :: cell_given=.false., spg_given=.false.
 
-
-    narg=command_argument_count()
-    if(narg /= 0) then
-      call get_command_argument(1,fileinp)
-      arggiven=.true.
-      if(index(fileinp,".cfl") == 0) fileinp=trim(fileinp)//".cfl"
-      open(unit=lun,file=trim(fileinp),status="old",action="read",position="rewind",iostat=ier)
-    end if
-
-    write(unit=*,fmt="(/,/,6(a,/))")                                                          &
+  !---- Display header
+    write(unit=*,fmt="(/,/,7(a,/))")                                                      &
          "                  ------ PROGRAM: Search_TwinLAWS ------                   "  , &
          " **************************************************************************"  , &
          " * This program uses the method of A. Santoro (Acta Cryst A30, 224 (1974))*"  , &
          " * for getting possible twin laws from special metrics of the crystal.    *"  , &
          " **************************************************************************"  , &
-         "                         (JRC- ILL, December-2011)                         "
+         "                         (JRC- ILL, December-2011)                         "  , &
+         "                         (AF-  ILL, May-2020)                              "
     write(unit=*,fmt=*) " "
+    CALL date_and_time(DATE=aDate,TIME=aTime)
+    write(unit=*,fmt='(a,2x,a/)') aDate(1:4)//":"//aDate(5:6)//":"//aDate(7:8), &
+                                  aTime(1:2)//":"//aTime(3:4)//":"//aTime(5:6)
 
+    ier = GETCWD(line)
+    write(unit=*,fmt="(a,a)")            " => Working Directory: ",trim(line)
+
+  !---- Get input file name from first argument
+    narg=COMMAND_ARGUMENT_COUNT()
+    if(narg > 0) then
+      CALL GET_COMMAND_ARGUMENT(1,fileinp)
+      if(index(l_Case(fileinp),".cfl") == 0) fileinp=trim(fileinp)//".cfl"
+      OPEN(unit=lun_In,file=trim(fileinp),status="old",action="read",position="rewind",iostat=ier)
+      write(unit=*,fmt='(a,i6,a)') " ==> File OPEN error=",ier," <"//trim(fileinp)//">"
+    end if
+    !write(unit=*,fmt='(a,i)') "narg: ",narg
+    !write(unit=*,fmt='(a,a)') "File: ",trim(fileinp)
+
+  !---- Get input file name from the terminal
     if(ier /=0 .or. narg == 0) then
-    ! reading data
       do
-        write(unit=*,fmt="(a)",advance="no") " => Enter the code of the input CFL file: "
+        write(unit=*,fmt="(a)",advance="no") " => Enter the name of the input CFL file: "
         read(unit=*,fmt="(a)") fileinp
-        fileinp=trim(fileinp)//".cfl"
-        open(unit=lun,file=trim(fileinp),status="old",action="read",position="rewind",iostat=ier)
-        if(ier /= 0) cycle
+        if (len_trim(fileinp) == 0) goto 10
+        if(index(l_Case(fileinp),".cfl") == 0) then
+          fileinp=trim(fileinp)//".cfl"
+        end if
+        OPEN(unit=lun_In,file=trim(fileinp),status="old",action="read",position="rewind",iostat=ier)
+        if(ier /= 0) then
+          write(unit=*,fmt='(a,i6,a)') " ==> File OPEN error=",ier," <"//trim(fileinp)//">"
+          cycle
+        end if
         exit
       end do
     end if
 
+  !---- Prepare output files
     fileout=fileinp(1:len_trim(fileinp)-4)//".twins"
     new_cfl=fileinp(1:len_trim(fileinp)-4)//"_twin.cfl"
-    open(unit=lout,file=trim(fileout),status="replace",action="write")
-    open(unit=i_cfl,file=trim(new_cfl),status="replace",action="write")
+    OPEN(unit=lunOut,file=trim(fileout),status="replace",action="write",iostat=ier)
+    if(ier /= 0) then
+      write(unit=*,fmt='(a)') " ==> File OPEN error: <"//trim(fileout)//">"
+      goto 10
+    end if
+    OPEN(unit=lunCfl,file=trim(new_cfl),status="replace",action="write",iostat=ier)
+    if(ier /= 0) then
+      write(unit=*,fmt='(a)') " ==> File OPEN error: <"//trim(new_cfl)//">"
+      goto 10
+    end if
 
-    write(unit=i_cfl,fmt="(a)") "Title   CFL-file generated by Search_TWIN_LAWS from "//trim(fileinp)
-    ! Initialisation of indices
+  !---- File status
+    write(unit=lunCfl,fmt="(a)") "Title: CFL-file generated by Search_TWIN_LAWS from <"//trim(fileinp)//">"
+    write(unit=*,fmt='(a)') " ==> Output to: <"//trim(fileout)//">"
+    write(unit=*,fmt='(a)') " ==> Output to: <"//trim(new_cfl)//">"
+
+  !---- Initialisation of indices
      ia1=-5; ia2=5; ib1=0; ib2=5; ic1=-5; ic2=5; in1=1; in2=5
      tol=0.05 !Percentage of the total sum of absolute values of GD
 
-    !Reading the CFL file
+  !---- Reading the CFL file
+    n=0
     do
-      read(unit=lun,fmt="(a)",iostat=ier) line_ini
-      if(ier /= 0) exit
-      write(unit=i_cfl,fmt="(a)") trim(line_ini)  !Rewrites in the new CFL file
+      n=n+1
+    !-- get a line
+      read(unit=lun_In,fmt="(a)",iostat=ier) line_ini
+      if(ier /= 0) then
+        write(unit=*,fmt='(a,i5)') " Lines read: ",n
+        exit
+      end if
+      write(unit=lunCfl,fmt="(a)") trim(line_ini)  !Rewrites in the new CFL file
       line=l_case(line_ini)
+    !-- Get cell parameters
       i=index(line,"cell")
       if( i /= 0) then
-         read(unit=line(5:),fmt=*) cel1,ang1
-         cell_given=.true.
+         read(unit=line(5:),fmt=*,iostat=ier) cel1,ang1
+         if (ier /= 0) then
+           write(unit=*,fmt='(a,i5,1x,a)') "Cell parameters : read error at line: ",n,trim(line)
+         else
+           cell_given=.true.
+         end if
       end if
+    !-- Get space group
       i=index(line,"spgr")
       if( i /= 0) then
          SpG_Symb=adjustl(line_ini(5:))
          lat_type=SpG_Symb(1:1)
          spg_given=.true.
       end if
-      i=index(line,"tol")
+    !-- Get tolerance
+      i=index(line(1:3),"tol")  ! [AF] when "tol" appear on other lines it is not at the beginning
       if( i /= 0) then
-        read(unit=line(4:),fmt=*) tol
+        read(unit=line(4:),fmt=*,iostat=ier) tol
+        if (ier /= 0) then
+          write(unit=*,fmt='(a,i5,1x,a)') "Tolerance : read error at line: ",n,trim(line)
+          write(unit=*,fmt='(a,f6.2)')    "Default used: ",tol
+        end if
         if(tol > 1.0_cp) tol=tol*0.01_cp
       end if
+    !-- Get indices
       i=index(line,"indices")
       if( i /= 0) then
-        read(unit=line(8:),fmt=*) ia1,ia2,ib1,ib2,ic1,ic2
+        read(unit=line(8:),fmt=*,iostat=ier) ia1,ia2,ib1,ib2,ic1,ic2
+        if (ier /= 0) then
+          write(unit=*,fmt='(a,i5,1x,a)') "Indices : read error at line: ",n,trim(line)
+          write(unit=*,fmt='(a,6i4)') "Default used: ",ia1,ia2,ib1,ib2,ic1,ic2
+        end if
         if(ia1 < -5) ia1 = -5;  if(ia2 > 5) ia2 = 5
         if(ib1 < -5) ib1 = -5;  if(ib2 > 5) ib2 = 5
         if(ic1 < -5) ic1 = -5;  if(ic2 > 5) ic2 = 5
@@ -189,34 +247,34 @@
 
     if(.not. cell_given) then
       write(unit=*,fmt="(a)") " => Error no cell given in file: "//trim(fileinp)
-      stop
+      goto 10  ! stopped on error
     end if
     if(.not. spg_given) then
       write(unit=*,fmt="(a)") " => Error no space group given in file: "//trim(fileinp)
-      stop
+      goto 10  ! stopped on error
     end if
 
-    write(unit=i_cfl,fmt="(/,a)") "TWIN_nam  from "//trim(fileinp)
-    write(unit=i_cfl,fmt="(a)")   "TWIN_typ  4 "
+    write(unit=lunCfl,fmt="(/,a)") "TWIN_nam  from "//trim(fileinp)
+    write(unit=lunCfl,fmt="(a)")   "TWIN_typ  4 "
     centred=.true.
     if(lat_type == "P" .or. lat_type == "p") centred=.false.
 
-    call Set_Crystal_Cell(cel1,ang1,Cell)
-    call Set_SpaceGroup(SpG_Symb,SpG)
+    CALL Set_Crystal_Cell(cel1,ang1,Cell)
+    CALL Set_SpaceGroup(SpG_Symb,SpG)
 
-    write(unit=lout,fmt="(a)") "                  -------------------------------"
-    write(unit=lout,fmt="(a)") "                     PROGRAM: Search_TwinLAWS    "
-    write(unit=lout,fmt="(a)") "                  -------------------------------"
-    write(unit=lout,fmt="(/,4(a,/))")                                                     &
+    write(unit=lunOut,fmt="(a)") "                  -------------------------------"
+    write(unit=lunOut,fmt="(a)") "                     PROGRAM: Search_TwinLAWS    "
+    write(unit=lunOut,fmt="(a)") "                  -------------------------------"
+    write(unit=lunOut,fmt="(/,4(a,/))")                                                   &
          " **************************************************************************"  , &
          " * This program uses the method of A. Santoro (Acta Cryst A30, 224 (1974))*"  , &
          " * for getting possible twin laws from special metrics of the crystal.    *"  , &
          " **************************************************************************"
-    write(unit=lout,fmt="(a)") "                  Author: J. Rodriguez-Carvajal (ILL)"
-    write(unit=lout,fmt="(a)") "            Version 0.1, January 2011 (updated December 2001)"
-    write(unit=lout,fmt="(a)") "         ----------------------------------------------------"
-    write(unit=lout,fmt="(/,a)") "  => INPUT CELL DATA"
-    call Write_Crystal_Cell(Cell,Lout)
+    write(unit=lunOut,fmt="(a)") "                  Author: J. Rodriguez-Carvajal (ILL)"
+    write(unit=lunOut,fmt="(a)") "            Version 0.1, January 2011 (updated December 2001)"
+    write(unit=lunOut,fmt="(a)") "         ----------------------------------------------------"
+    write(unit=lunOut,fmt="(/,a)") "  => INPUT CELL DATA"
+    CALL Write_Crystal_Cell(Cell,lunOut)
 
     Lm=Transpose(Cell%Orth_Cr_cel)   !L matrices as defined by Santoro
     Lmi=Transpose(Cell%Cr_Orth_cel)
@@ -224,29 +282,29 @@
     !TBL=Matmul(transpose(Lm),Matmul(Cell%BL_M,Cell%GD)) !Matrix to pass a column vector referred to
     !Not needed TBL=I in our convention !!!!             !the conventional Cartesian basis to the
                                                          !Busing-Levy reference system
-    call Get_Primitive_Cell(lat_type,cell,pcell,Wi)
+    CALL Get_Primitive_Cell(lat_type,cell,pcell,Wi)
     Wi=reshape( (/1.0,0.0,0.0,  0.0,1.0,0.0,  0.0,0.0,1.0/), (/3,3/) )
     if(centred) then
       W=invert_a(Wi)
-      write(unit=lout,fmt="(/,a)") "  => Input subcell data in primitive setting"
-      write(unit=lout,fmt="(/,a)") "  => Transformation matrix to primitive cell and inverse:"
+      write(unit=lunOut,fmt="(/,a)") "  => Input subcell data in primitive setting"
+      write(unit=lunOut,fmt="(/,a)") "  => Transformation matrix to primitive cell and inverse:"
       do i=1,3
-         write(unit=lout,fmt="(2(a,3f10.4))")"                 ",Wi(i,:),"                 ",W(i,:)
+         write(unit=lunOut,fmt="(2(a,3f10.4))")"                 ",Wi(i,:),"                 ",W(i,:)
       end do
-      call Write_Crystal_Cell(pCell,Lout)
+      CALL Write_Crystal_Cell(pCell,lunOut)
     else
       W=Wi
     end if
 
-    call Write_SpaceGroup(SpG,Lout)
+    CALL Write_SpaceGroup(SpG,lunOut)
     ! A'  = M  A  => C = (R,T), C'= (R',T') => R'  = inv(Mt) R Mt  ; T' = inv(Mt) T
     ! In our case A' is primitive so M=Wi
     nop=SpG%numops !number of symmetry operators excluding lattice centrings
     if (SpG%centred /= 1) nop=nop*2
-    write(unit=Lout,fmt="(/,a)") " => Point Symmetry operators referred to the primitive basis"
+    write(unit=lunOut,fmt="(/,a)") " => Point Symmetry operators referred to the primitive basis"
     do i=1,nop
        sym(:,:,i) = Nint(Matmul(Matmul(transpose(W),SpG%Symop(i)%rot),transpose(Wi)))
-       write(unit=Lout,fmt="(a,i3,a,3(3i3,a))") " =>  SymOp # :",i, "    (",sym(1,:,i)," /",sym(2,:,i)," /",sym(3,:,i)," )"
+       write(unit=lunOut,fmt="(a,i3,a,3(3i3,a))") " =>  SymOp # :",i, "    (",sym(1,:,i)," /",sym(2,:,i)," /",sym(3,:,i)," )"
     end do
 
     base=transpose(pCell%Cr_Orth_cel)   !Provides a matrix with rows equal to the basis vectors in cartesian components
@@ -255,10 +313,10 @@
 
     iratio= (ia2-ia1+1)*(ia2-ia1+1)*(ia2-ia1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ib2-ib1+1)*(ic2-ic1+1)*(ic2-ic1+1)*(ic2-ic1+1)
     iratio=iratio*(in2-in1+1)*(in2-in1+1)*(in2-in1+1)
-    write(unit=*,fmt="(a,i10)") " => The maximum number of test calculations is ",iratio
+    write(unit=*,fmt="(a,i)") " => The maximum number of test calculations is: ",iratio
     im=iratio/400
     n=0
-    call cpu_time(start)
+    CALL cpu_time(start)
  dox: do i1=ia1,ia2                      !         |i1  i4  i7|
      do i2=ib1,ib2                       !    Nu = |i2  i5  i8|
       do i3=ic1,ic2                      !         |i3  i6  i9|
@@ -285,7 +343,7 @@
 
                 if(mod(nn,im) == 0)  then
                   write(unit=*,fmt="(a,i12,a,f12.3)") "  Status: ",iratio-nn," tests remaining  ->  SM: ",sm
-                  call cpu_time(fin)
+                  CALL cpu_time(fin)
                   remain=real(iratio-nn,kind=cp)*(fin-start)/real(nn,kind=cp)
                   write(*,"(a,i6,a)")"  Approximate remaining CPU-Time: ",nint(remain)," seconds"
                 end if
@@ -303,31 +361,31 @@
                 n=n+1
                 if(n > Max_Sol) exit dox
                 Bsol(:,:,n)=Bm
-                write(unit=lout,fmt="(/,a,i3)") " => TWIN law number : ",n
-                write(unit=lout,fmt="(a)") &
+                write(unit=lunOut,fmt="(/,a,i3)") " => TWIN law number : ",n
+                write(unit=lunOut,fmt="(a)") &
                 " =>      Nij       ni       Nint(B)                    B                                Delta:"
-                write(unit=lout,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
+                write(unit=lunOut,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
                 "     ",Nu(1,:),"      ",n1,"     ",nB(1,:),Bm(1,:),delta(1,:)
-                write(unit=lout,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
+                write(unit=lunOut,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
                 "     ",Nu(2,:),"      ",n2,"     ",nB(2,:),Bm(2,:),delta(2,:)
-                write(unit=lout,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
+                write(unit=lunOut,fmt="(a,3i3,a,i1,a,3i3,2(5x,3f10.5))")  &
                 "     ",Nu(3,:),"      ",n3,"     ",nB(3,:),Bm(3,:),delta(3,:)
 
                 !Determination of the twin axis and angle
                 Bmi=invert_A(Bm)
                 Dt=Matmul(W,matmul(Bmi,Wi))
                 Rot=transpose( Matmul( Lm,matmul(Dt,Lmi) )  )
-                Call Get_Anglen_Axis_From_RotMat(Rot,axc,angle)
+                CALL Get_Anglen_Axis_From_RotMat(Rot,axc,angle)
 
-                write(unit=i_cfl,fmt="(a,3f8.4,f14.4)") "TWIN_rot ",axc,angle
-                write(unit=lout,fmt="(a,3f10.4,a)")  &
+                write(unit=lunCfl,fmt="(a,3f8.4,f14.4)") "TWIN_rot ",axc,angle
+                write(unit=lunOut,fmt="(a,3f10.4,a)")  &
                 " => Cartesian axis of the twin Law:   [ ",axc," ]"
                 ax=Nint(100.0_cp*Matmul(Transpose(Lm),axc))
-                Call Co_Prime_vector(ax,axis)
-                write(unit=lout,fmt="(a,3i4,a,f10.4)")  &
+                CALL Co_Prime_vector(ax,axis)
+                write(unit=lunOut,fmt="(a,3i4,a,f10.4)")  &
                 " => Axis and angle of the twin Law:   [ ",axis," ]    Alpha = ",angle
 
-                write(unit=lout,fmt="(a)") "    ----------------------------------------------------------------------------------"
+                write(unit=lunOut,fmt="(a)") "    ----------------------------------------------------------------------------------"
                 write(unit=*,fmt="(a,i5,a,f7.3,a,3i4,a,f10.4)") " => New solution: ",n," SM -> ",sm,&
                 "   ->  Axis and angle of the twin Law:   [ ",axis," ]    Alpha = ",angle
 
@@ -343,10 +401,13 @@
       end do          !i3
      end do           !i2
     end do  dox       !i1
-    call cpu_time(fin)
+    CALL cpu_time(fin)
     write(unit=*,fmt="(/,a,f10.2,a)")  "  CPU-Time: ", fin-start," seconds"
-    write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
+    write(unit=*,fmt='(a)') " ==> Output to: <"//trim(fileout)//">"
+    write(unit=*,fmt='(a)') " ==> Output to: <"//trim(new_cfl)//">"
+
+ 10 write(unit=*,fmt="(/,a)") " => Press <enter> to finish "
     read(unit=*,fmt="(a)") key
 
-    stop
+    stop "End of Program Search_TwinLaws"
   End Program Search_TwinLaws

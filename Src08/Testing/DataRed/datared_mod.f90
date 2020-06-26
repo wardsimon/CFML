@@ -76,12 +76,12 @@
     contains
 
     Subroutine Read_DataRed_File(cfl,cond,kinfo,twins,SpG,Cell)
-      type(File_Type),       intent(in)  :: cfl
-      type(Conditions_Type), intent(out) :: cond
-      type(kvect_info_Type), intent(out) :: kinfo
-      type(Twin_Type),       intent(out) :: twins
-      class(SPG_Type),       intent(out) :: SpG
-      class(Cell_G_Type),    intent(out) :: Cell
+      type(File_Type),             intent(in)  :: cfl
+      type(Conditions_Type),       intent(out) :: cond
+      type(kvect_info_Type),       intent(out) :: kinfo
+      type(Twin_Type),             intent(out) :: twins
+      class(SPG_Type),allocatable, intent(out) :: SpG
+      class(Cell_G_Type),          intent(out) :: Cell
       !--- Local variables ---!
       integer :: i,j,k,n,ier,D
       character(len=:), allocatable :: keyw

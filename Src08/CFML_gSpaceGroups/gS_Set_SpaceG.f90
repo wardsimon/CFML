@@ -72,9 +72,9 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
       Type(rational), dimension(SpaceG%D-1)            :: v
       Type(rational), dimension(:,:),allocatable       :: newLat
       Type(rational) :: det
-      integer :: i,j,k,l,n,m,Npos,d,Dd
+      integer :: i,j,k,l,n,m,Npos,d,Dd,ng
       character(len=6) :: Strcode
-      character(len=80), dimension(:),allocatable :: gen_lat
+      character(len=80), dimension(:),allocatable :: gen_lat, gen_new
       type(spg_type)   :: SpG, P1_t !Auxiliary space groups
       logical          :: centring
 
@@ -146,6 +146,8 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
       SpG%Num_Lat=L
       if(SpG%Num_Lat > 0) centring=.true.
 
+      allocate(gen_new(SpaceG%Numops+1+SpG%Num_Lat))
+
       Npos=SpaceG%Numops*cent(SpaceG%centred)
       SpG%Multip=Npos*(1+SpG%Num_Lat)
       Spg%NumOps=SpaceG%NumOps
@@ -158,13 +160,23 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
         SpG%Lat_tr(:,:)=newlat(:,1:L)
       end if
 
+      k=0
       do i=1,Npos          !Transform the first Npos operators
         SpG%Op(i)%Mat=matmul(matmul(invPmat,SpaceG%Op(i)%Mat),Pmat)
         SpG%Op(i)%Mat(1:d,Dd)=Rational_Modulo_Lat(SpG%Op(i)%Mat(1:d,Dd))
         SpG%Op(i)%time_inv=SpaceG%Op(i)%time_inv
         SpG%Op(i)%dt=SpaceG%Op(i)%dt
         SpG%Symb_Op(i)=Get_Symb_from_Mat(SpG%Op(i)%Mat, Strcode,SpG%Op(i)%time_inv)
+        if(i > 1 .and. i < SpaceG%Numops) then
+          k=k+1
+          gen_new(k)=SpG%Symb_Op(i)
+        end if
       end do
+      if(SpaceG%centred /= 1) then
+        k=k+1
+        gen_new(k)=SpG%Symb_Op(SpaceG%Numops+1)
+      end if
+      ng=k
 
       do i=1,Npos !Looking for anticentring
         if(rational_equal(SpG%Op(i)%Mat(1:d,1:d),-identd) .and. SpaceG%Op(i)%time_inv == -1) then
@@ -182,6 +194,10 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
              SpG%Op(k+n)%Mat(1:d,Dd)=Rational_Modulo_Lat(SpG%Op(k)%Mat(1:d,Dd)+SpG%Lat_tr(:,L)) !Different translation
              SpG%Op(k+n)%dt=SpG%Op(k)%dt
              SpG%Symb_Op(k+n)=Get_Symb_from_Mat(SpG%Op(k+n)%Mat, Strcode,SpG%Op(k+n)%time_inv)
+             if(k == 1) then
+                ng=ng+1
+                gen_new(ng) = SpG%Symb_Op(k+n)
+             end if
            end do
            n=n+Npos
         end do
@@ -215,8 +231,16 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
          end if
          SpaceG%Num_aLat=m
       end if
-      !Transform the symmetry operators of the list of generators !TO DO
-
+      !Transform the symmetry operators of the list of generators
+      !The generators have been constructed above
+      SpaceG%generators_list= " "
+      do i=1,ng
+        SpaceG%generators_list=trim(SpaceG%generators_list)//trim(gen_new(i))//";"
+      end do
+      i=index(SpaceG%generators_list,";",back=.true.)
+      if( i /= 0) then
+        SpaceG%generators_list=SpaceG%generators_list(1:i-1)
+      end if
    End Subroutine Change_Setting_SpaceG
 
    Subroutine transf_E_groups(str)
@@ -548,7 +572,7 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
           end if
           centring=.false.
 
-          SpaceG%NumOps=wyckoff_pos_count(1,num)  !this is provisory
+          SpaceG%NumOps=wyckoff_pos_count(1,num)  !this is provisory, to be divided by two if centrosymmetric
           SpaceG%Multip=wyckoff_mult(1,num)
           SpaceG%Num_Lat=lattice_bns_vectors_count(num)-3  ! Number of lattice points in a cell minus the three conventional basis vectors
 
@@ -650,10 +674,12 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
           if(SpaceG%Centred == 0) then
             SpaceG%Centre="Centrosymmetric, -1 not @the origin "       ! Alphanumeric information about the center of symmetry
             SpaceG%Centre_coord=rational(1_LI,2_LI) * SpaceG%Op(m)%Mat(1:d,Dd)
+            SpaceG%NumOps=SpaceG%NumOps/2
           else if(SpaceG%Centred == 2) then
             SpaceG%Centre="Centrosymmetric, -1 @the origin "           ! Alphanumeric information about the center of symmetry
             SpaceG%NumOps=SpaceG%NumOps/2
           end if
+
           if(SpaceG%Centred == 1 .and. SpaceG%anticentred /= 1) then
              if(SpaceG%anticentred == 0) then
                 SpaceG%Centre=trim(SpaceG%Centre)//": -1' not @the origin"

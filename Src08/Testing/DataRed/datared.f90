@@ -23,8 +23,7 @@
     type(Reflection_List)       :: Ref
     type(File_Type)             :: cfl_file
     type(Twin_Type)             :: Tw
-    Type(SPG_Type)              :: SpG, twSpG
-    !Type(SuperSpaceGroup_Type)  :: SSpG
+    class(SPG_Type),allocatable :: SpG, twSpG
     Type(Cell_G_Type)           :: cell
     Type(Conditions_Type)       :: cond
     Type(kvect_info_Type)       :: kinf
@@ -68,6 +67,9 @@
 
           if(Err_CFML%Ierr /= 0) then
             write(unit=*,fmt="(a)")  Err_CFML%Msg
+            call CloseProgram()
+          else if (.not. allocated(SpG)) then
+            write(unit=*,fmt="(a)")  " => No space group is allocated! Check your input file!"
             call CloseProgram()
           else
             if(cond%eps_given) then

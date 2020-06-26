@@ -69,5 +69,5 @@ rem
       gfortran -o DataRed.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
 rem 
-rem   if exist %FULLPROF% copy DataRed.exe %FULLPROF%  
+   if exist %FULLPROF% copy DataRed.exe %FULLPROF%\DataRed_New.exe  
    del *.obj *.mod *.o *.map *.bak > nul

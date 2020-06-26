@@ -522,7 +522,7 @@ SubModule (CFML_IOForm) IO_CFL
          if (strcode == "xyz")  then
             call Change_Setting_SpaceG(setting, SpG)
          else
-            call Change_Setting_SpaceG(setting, SpG,strcode)
+            call Change_Setting_SpaceG(setting, SpG, strcode)
          end if
       end if
       if (Err_CFML%Ierr == 1) return

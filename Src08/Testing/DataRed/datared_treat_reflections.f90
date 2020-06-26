@@ -35,6 +35,7 @@
       integer,optional,     intent(in)     :: lun
       logical,optional,     intent(in)     :: debug
 
+      !Local variables
       real(kind=cp) :: total, sig, suma, sumai,suman, sumaw, sumanw, Rint, Rwint, aver_sig, &
                        sigg, int_rej, q2, aver_int, Sintlmax,delt,Rint_sat,Rwint_sat,Rint_fun,&
                        Rwint_fun
@@ -50,8 +51,10 @@
       integer, dimension(R%nref)                      :: itreat,ini,fin,nt
       integer, dimension(size(R%Ref(1)%h))            :: hh,kk
       integer, dimension(size(R%Ref(1)%h),R%nref)     :: h_rep
-      integer, dimension(R%nref)                      :: inf_mag
       integer, dimension(size(R%Ref(1)%h),2*SpG%Multip) :: h_list
+      !integer, dimension(:,:), allocatable            :: h_rep
+      !integer, dimension(:,:), allocatable            :: h_list
+      integer, dimension(R%nref)                      :: inf_mag
       real(kind=cp),    dimension(3)                  :: hr
       real(kind=cp),    dimension(R%nref)             :: intav, sigmav, sigstat, warn
       real(kind=cp),    dimension(R%nref)             :: intav_mag
@@ -288,7 +291,7 @@
                      end if
                      h_og(j)=nint(hr(j))
                    end do
-                   write(unit=ihkl,fmt=fm3) h_og,intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,warn_mess(warn(indp))//"    "//inf(inf_mag(indp))
+                   write(unit=ihkl,fmt=fm4) h_og,intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,warn_mess(warn(indp))//"    "//inf(inf_mag(indp))
                  else
                    write(unit=ihkl,fmt=fm3) h_rep(:,indp),intav(indp),sigmav(indp),abs(R%Ref(i)%idomain), R%Ref(i)%twtheta, 0.0, 0.0, 0.0,warn_mess(warn(indp))//"    "//inf(inf_mag(indp))
                  end if

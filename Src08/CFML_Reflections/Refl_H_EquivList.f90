@@ -39,7 +39,7 @@ SubModule (CFML_Reflections) RFL_Equivalent_List
       D=size(h)
       h_list = 0
       mult=1
-      h_list(:,1)=h(:)
+      h_list(1:D,1)=h(:)
       if(present(ipos)) then
         mp=count(h(1:3) > 0)
         ipos=1
@@ -51,14 +51,14 @@ SubModule (CFML_Reflections) RFL_Equivalent_List
 
          esta=.false.
          do j=1,mult
-            if (h_equal(k,h_list(:,j)) .or. (h_equal(-k,h_list(:,j)) .and. Friedel)) then
+            if (h_equal(k,h_list(1:D,j)) .or. (h_equal(-k,h_list(1:D,j)) .and. Friedel)) then
                esta=.true.
                exit
             end if
          end do
          if (esta) cycle
          mult=mult+1
-         h_list(:,mult) = k
+         h_list(1:D,mult) = k
          if(present(ipos)) then
            j=count(h_list(1:3,i) > 0)
            if( j > mp) then
