@@ -103,7 +103,7 @@ set(LIBRARY_NAME crysfml_common)
 add_library(${LIBRARY_NAME} STATIC ${CRYSFML_COMMON_SOURCES})
 
 # The directory where the CrySFML modules files will be stored.
-set(CRYSFML_COMMON_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_common_modules)
+set(CRYSFML_COMMON_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_common_modules CACHE INTERNAL "")
 
 # Sets the path where to place the mod files for the crysfml_common library.
 set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_COMMON_MODULE_DIRECTORY})

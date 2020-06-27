@@ -6,4 +6,5 @@ ENV http_proxy http://proxy.ill.fr:8888
 RUN apt-get update && apt-get install -y \
   cmake \
   gfortran \
+  python3 \
   libhdf5-dev

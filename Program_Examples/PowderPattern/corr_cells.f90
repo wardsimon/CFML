@@ -6,27 +6,36 @@
   !!---- and generates a random number with a Poisson distribution to replace
   !!---- the bad intensity of the cell.
 
-  Program correction_cells
+Program correction_cells
+  
     Use CFML_Diffraction_Patterns
     Use CFML_Math_General,     only: locate
     Use CFML_String_Utilities, only: getword
     Use CFML_Random_Generators,only: Random_Poisson
+
+    implicit none 
+    
     type (diffraction_pattern_type) :: diffpat
     character(len=256)              :: dfile,filebuf,line
     character(len=20)               :: fmode
-    character(len=*),parameter,dimension(22) :: inst_mode=(/"FREE","D1B","D20","NLS", &
-      "G41","INSTRM5","D1A","D2B","3T2","G42","D1AOLD","D2BOLD","OLDD1A", "OLDD2B","DMC","HRPT", &
-      "SOCABIM","XYSIGMA","GSAS","GSASTOF","PANALYTICAL","TIMEVARIABLE"/)
+    !character(len=*),parameter,dimension(22) :: inst_mode=(/ "FREE","D1B","D20","NLS", &
+    !  "G41","INSTRM5","D1A","D2B","3T2","G42","D1AOLD","D2BOLD","OLDD1A", "OLDD2B","DMC","HRPT", &
+    !  "SOCABIM","XYSIGMA","GSAS","GSASTOF","PANALYTICAL","TIMEVARIABLE"/)
+    character(len=20),dimension(22)   :: inst_mode
     integer, parameter, dimension(22) :: inst=(/0,3,3,4,5,5,6,6,6,6,1,1,1,1,8,8,9,10,12,14,13,11/)
 
     integer, parameter                :: maxp=200,i_buff=1,i_dat=2,i_out=3
-    integer                           :: i, narg, nzone, instr, im,ip, genpoi, ier, &
+    integer                           :: i, j, narg, nzone, instr, im,ip, genpoi, ier, &
                                          linum, nfiles
     integer,          dimension(maxp) :: ncl
-    real                              :: ang, rint1,rint2,det,rinn
+    real                              :: ang, rin,rint1,rint2,det,rinn
     character(len=60),dimension(maxp) :: argv
     logical :: buffer_given=.false., angles=.false.
 
+    inst_mode = [character(len=20) :: "FREE","D1B","D20","NLS", &
+      "G41","INSTRM5","D1A","D2B","3T2","G42","D1AOLD","D2BOLD","OLDD1A", "OLDD2B","DMC","HRPT", &
+      "SOCABIM","XYSIGMA","GSAS","GSASTOF","PANALYTICAL","TIMEVARIABLE"]
+    
     linum=0; nfiles=0
     narg=command_argument_count()
     Select Case(narg)

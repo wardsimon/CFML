@@ -38,7 +38,7 @@
  !!---- The program uses CrysFML and a module called Gen_Powder_Pattern where the subroutine for
  !!---- calculating the powder diffraction pattern is stored
  !!----
- Module Gen_Powder_Pattern
+ Module Gen_Mag_Powder_Pattern
     !---- Use Modules ----!
     use CFML_GlobalDeps,           only: to_Deg,cp
     use CFML_Math_General,         only: asind,locate
@@ -219,7 +219,7 @@
       close(unit=i_prf)
     End Subroutine Write_PRF
 
-  End Module Gen_Powder_Pattern
+  End Module Gen_Mag_Powder_Pattern
 
   !!----
   !!----  Program Calculation_of_Powder_Patterns
@@ -244,7 +244,7 @@
                                                file_list_type, Get_moment_ctr
      use CFML_Structure_Factors,         only: Strf_List_Type
 
-     use Gen_Powder_Pattern
+     use Gen_Mag_Powder_Pattern
 
      !---- Variables ----!
      implicit none
