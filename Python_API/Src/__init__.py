@@ -12,8 +12,9 @@
 #
 # **************************************************************************
 
-from CFML_api.PowderPatternSimulation import PowderPatternSimulator
-from CFML_api.PowderPatternSimulation import PowderPatternSimulationConditions
-from CFML_api.PowderPatternSimulation import PowderPatternSimulationSource
+#from CFML_api.PowderPatternSimulation import PowderPatternSimulator
+#from CFML_api.PowderPatternSimulation import PowderPatternSimulationConditions
+#from CFML_api.PowderPatternSimulation import PowderPatternSimulationSource
+from CFML_api.SymmetryGroups import SymmetryGroups
 
 API_version = 0.2
