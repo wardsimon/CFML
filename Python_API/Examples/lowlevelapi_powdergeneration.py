@@ -11,6 +11,6 @@ PowPat_conditions = CFML_api.Read_PowPatConditions(filename)
 
 hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  PowPat_conditions.get_stlmax())
 
-hkl.StructureFacors(SpG, A)
+hkl.StructureFactors(SpG, A)
 
 Pat = CFML_api.Calc_powder_pattern(PowPat_conditions, hkl)
