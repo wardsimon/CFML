@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 project(Python_API Fortran)
 set(LIBRARY_NAME powder_generation)
 add_library(${LIBRARY_NAME} SHARED Extensions/CFML_API_PowderSimulation.f90 Extensions/powder_generation.f90 Extensions/forpy_mod.f90)
-add_library(symmetry SHARED Extensions/symmetry.f90 Extensions/forpy_mod.f90)
+add_library(form_cif SHARED Extensions/form_CIF.f90 Extensions/forpy_mod.f90)
 
 # Forpy must be preprocessed
 set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
@@ -22,7 +22,7 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 #################################
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
-add_dependencies(symmetry crysfml_common)
+add_dependencies(form_cif crysfml_common)
 
 #find_package(Python3 REQUIRED)
 #include_directories(${Python3_INCLUDE_DIRS})
@@ -45,8 +45,8 @@ endif()
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 target_link_libraries(${LIBRARY_NAME} crysfml_common)
 target_link_libraries(${LIBRARY_NAME} Python3_LIB)
-target_link_libraries(symmetry crysfml_common)
-target_link_libraries(symmetry Python3_LIB)
+target_link_libraries(form_cif crysfml_common)
+target_link_libraries(form_cif Python3_LIB)
 
 #################################
 # Install section
@@ -58,11 +58,11 @@ elseif(WIN32)
     set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
 endif()
 
-set_target_properties(symmetry PROPERTIES PREFIX "" OUTPUT_NAME "crysfml_symmetry")
+set_target_properties(form_cif PROPERTIES PREFIX "" OUTPUT_NAME "crysfml_symmetry")
 if(APPLE)
-    set_target_properties(symmetry PROPERTIES SUFFIX ".so")
+    set_target_properties(form_cif PROPERTIES SUFFIX ".so")
 elseif(WIN32)
-    set_target_properties(symmetry PROPERTIES SUFFIX ".pyd")
+    set_target_properties(form_cif PROPERTIES SUFFIX ".pyd")
 endif()
 
 # The rules for installing the library.
@@ -71,7 +71,7 @@ if(WIN32)
 install(TARGETS ${LIBRARY_NAME} RUNTIME DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 else()
 install(TARGETS ${LIBRARY_NAME} LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
-install(TARGETS symmetry LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
+install(TARGETS form_cif LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 endif()
 # Installing example files
 install(DIRECTORY "../Examples" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")

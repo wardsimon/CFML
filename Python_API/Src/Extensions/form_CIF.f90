@@ -21,8 +21,13 @@ module API_IO_Formats !Proposed naming, to be defined
   use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
   use CFML_IO_Formats,                only: Readn_set_Xtal_structure
   use CFML_Atom_TypeDef,              only: Atom_List_Type
+  use CFML_Crystallographic_Symmetry, only: Space_Group_Type
 
   implicit none
+
+  type Space_Group_Type_p
+     type(Space_Group_Type), pointer :: p
+  end type Space_Group_Type_p
 
   !type definitions This should be in the API_Crystal_metrics
   type Crystal_Cell_type_p
@@ -89,13 +94,13 @@ contains
     integer            :: ii
 
     type(object)       :: filename_obj
-    character(len=*)   :: filename
+    character(len=:), allocatable   :: filename
 
     type(Crystal_Cell_type_p) :: cell_p
     type(Space_Group_type_p)  :: spg_p
     type(Atom_list_type_p)    :: a_p
 
-    integer, dimension(12)    :: cell_p12(:), spg_p12(:), a_p(:)
+    integer   :: cell_p12(12), spg_p12(12), a_p12(12)
     type(list)                :: cell_obj, spg_obj, a_obj
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
@@ -111,7 +116,7 @@ contains
     endif
 
     ierror = args%getitem(filename_obj, 0)
-    ierror = cast_to_chars(filename, filename_obj)
+    ierror = cast(filename, filename_obj)
 
     allocate(cell_p%p, spg_p%p, a_p%p)
     call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode="CIF")
@@ -122,7 +127,7 @@ contains
        ierror = cell_obj%append(cell_p12(ii))
     end do
     
-    spg_12   = transfer(spg_p, spg_p12)
+    spg_p12   = transfer(spg_p, spg_p12)
     ierror = list_create(spg_obj)
     do ii=1,12
        ierror = spg_obj%append(spg_p12(ii))
