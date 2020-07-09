@@ -10,9 +10,11 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
 # The project is declared. It is a Fortran project.
 project(Python_API Fortran)
-set(LIBRARY_NAME powder_generation)
-add_library(${LIBRARY_NAME} SHARED Extensions/CFML_API_PowderSimulation.f90 Extensions/powder_generation.f90 Extensions/forpy_mod.f90)
-add_library(form_cif SHARED Extensions/form_CIF.f90 Extensions/forpy_mod.f90)
+set(LIBRARY_NAME crysfml_api)
+add_library(${LIBRARY_NAME} SHARED Extensions/API_init.f90
+                                   Extensions/API_Crystallographic_Symmetry.f90
+                                   Extensions/API_IO_Formats.f90
+                                   Extensions/forpy_mod.f90)
 
 # Forpy must be preprocessed
 set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
@@ -22,7 +24,6 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 #################################
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
-add_dependencies(form_cif crysfml_common)
 
 #find_package(Python3 REQUIRED)
 #include_directories(${Python3_INCLUDE_DIRS})
@@ -45,24 +46,15 @@ endif()
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 target_link_libraries(${LIBRARY_NAME} crysfml_common)
 target_link_libraries(${LIBRARY_NAME} Python3_LIB)
-target_link_libraries(form_cif crysfml_common)
-target_link_libraries(form_cif Python3_LIB)
 
 #################################
 # Install section
 #################################
-set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME "powder_generation")
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
 if(APPLE)
     set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".so")
 elseif(WIN32)
     set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
-endif()
-
-set_target_properties(form_cif PROPERTIES PREFIX "" OUTPUT_NAME "crysfml_symmetry")
-if(APPLE)
-    set_target_properties(form_cif PROPERTIES SUFFIX ".so")
-elseif(WIN32)
-    set_target_properties(form_cif PROPERTIES SUFFIX ".pyd")
 endif()
 
 # The rules for installing the library.
@@ -71,6 +63,7 @@ if(WIN32)
 install(TARGETS ${LIBRARY_NAME} RUNTIME DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 else()
 install(TARGETS ${LIBRARY_NAME} LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
+install(TARGETS symmetry LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 install(TARGETS form_cif LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 endif()
 # Installing example files
