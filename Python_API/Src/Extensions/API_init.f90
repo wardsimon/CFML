@@ -2,8 +2,8 @@
 !
 ! CrysFML API
 !
-! @file      Src/Extensions/API_Crystallographic_Symmetry.f90
-! @brief     Symmetry groups Fortran binding
+! @file      Src/Extensions/API_init.f90
+! @brief     Initialisation functions for Fortran binding
 !
 ! @homepage  https://code.ill.fr/scientific-software/crysfml
 ! @license   GNU LGPL (see LICENSE)
