@@ -21,13 +21,9 @@ module API_IO_Formats !Proposed naming, to be defined
   use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
   use CFML_IO_Formats,                only: Readn_set_Xtal_structure
   use CFML_Atom_TypeDef,              only: Atom_List_Type
-  use CFML_Crystallographic_Symmetry, only: Space_Group_Type
+  use API_Crystallographic_Symmetry,  only: Space_Group_Type_p
 
   implicit none
-
-  type Space_Group_Type_p
-     type(Space_Group_Type), pointer :: p
-  end type Space_Group_Type_p
 
   !type definitions This should be in the API_Crystal_metrics
   type Crystal_Cell_type_p
@@ -39,45 +35,8 @@ module API_IO_Formats !Proposed naming, to be defined
      type(Atom_list_type), pointer :: p
   end type Atom_list_type_p
 
-  !I also need type Space_Group_Type_p with is defined in symmetry.f90
-  !use mymath ?? need proper module name
-
-  private
-  type(PythonModule), save      :: mod_def
-  type(PythonMethodTable), save :: method_table
-
 contains
   
-  ! @brief Initialisation function for Python 3
-  function PyInit_crysfml_IO() bind(c, name="PyInit_crysfml_IO") result(m)
-    type(c_ptr) :: m
-    m = init()
-  end function PyInit_crysfml_IO
-
-  ! @brief Initialisation function for Python 2
-  subroutine init_crysfml_IO() bind(c, name="init_crysfml_IO")
-    type(c_ptr) :: m
-    m = init()
-  end subroutine init_crysfml_IO
-
-  ! @brief Initialisation function
-  function init() result(m)
-    
-    type(c_ptr) :: m
-    integer :: ierror
-
-    ierror = forpy_initialize()
-
-    call method_table%init(1)
-
-    call method_table%add_method("Readn_set_Xtal_Structure", &                  ! method name
-         "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
-         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crysfml_IO_readn_set_xtal_structure))  ! address of Fortran function to add
-    
-    m = mod_def%init("crysfml_IO", "A Python extension for crysFML IO formats", method_table)
-  end function init
-
   !-------------------------------------------------------------------------
   ! Implementation of our Python methods
   !-------------------------------------------------------------------------
@@ -127,14 +86,14 @@ contains
     do ii=1,12
        ierror = cell_obj%append(cell_p12(ii))
     end do
-    
+
     spg_p12   = transfer(spg_p, spg_p12)
     deallocate(spg_p%p)
     ierror = list_create(spg_obj)
     do ii=1,12
        ierror = spg_obj%append(spg_p12(ii))
     end do
-    
+
     a_p12    = transfer(a_p, a_p12)
     deallocate(a_p%p)
     ierror = list_create(a_obj)

@@ -23,47 +23,12 @@ module API_Crystallographic_Symmetry
      type(Space_Group_Type), pointer :: p
   end type Space_Group_Type_p
 
-  PRIVATE
-  type(PythonModule), save      :: mod_def
-  type(PythonMethodTable), save :: method_table
+contains 
 
-CONTAINS
-  ! Initialisation function for Python 3
-  function PyInit_crysfml_symmetry() bind(c, name="PyInit_crysfml_symmetry") result(m)
-    type(c_ptr) :: m
-    m = init()
-  end function PyInit_crysfml_symmetry
-
-  ! Initialisation function for Python 2
-  subroutine init_crysfml_symmetry() bind(c, name="init_crysfml_symmetry")
-    type(c_ptr) :: m
-    m = init()
-  end subroutine init_crysfml_symmetry
-
-  ! Initialisation function
-  function init() result(m)
-    type(c_ptr) :: m
-    integer :: ierror
-    ierror = forpy_initialize()
-    call method_table%init(3)
-    call method_table%add_method("create_space_group", &                  ! method name
-         "Creates the space group", &  !doc-string
-         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crysfml_symmetry_create_space_group))  ! address of Fortran function to add
-    call method_table%add_method("get_description", &                  ! method name
-         "Return description", &  !doc-string
-         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crysfml_symmetry_get_description))  ! address of Fortran function to add
-    call method_table%add_method("get_latt_trans", &                  ! method name
-         "Get lattice transformation", &  !doc-string
-         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crysfml_symmetry_get_latt_trans))  ! address of Fortran function to add
-    m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)
-  end function init
-
-
-
+  !-------------------------------------------------------------------------
   ! Implementation of our Python methods
+  !-------------------------------------------------------------------------
+  ! @brief 
   function crysfml_symmetry_create_space_group(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
@@ -87,9 +52,10 @@ CONTAINS
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
     call unsafe_cast_from_c_ptr(args, args_ptr)
     ! Check if the arguments are OK
-    ierror = args%len(num_args)    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
     if (num_args /= 1) then
-       call raise_exception(TypeError, "square expects exactly 1 argument")
+       call raise_exception(TypeError, "create_space_group expects exactly 1 argument")
        call args%destroy
        return
     endif
@@ -148,9 +114,10 @@ CONTAINS
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
     call unsafe_cast_from_c_ptr(args, args_ptr)
     ! Check if the arguments are OK
-    ierror = args%len(num_args)    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
     if (num_args /= 1) then
-       call raise_exception(TypeError, "square expects exactly 1 argument")
+       call raise_exception(TypeError, "get_description expects exactly 1 argument")
        call args%destroy
        return
     endif
@@ -184,9 +151,10 @@ CONTAINS
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
     call unsafe_cast_from_c_ptr(args, args_ptr)
     ! Check if the arguments are OK
-    ierror = args%len(num_args)    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
     if (num_args /= 1) then
-       call raise_exception(TypeError, "square expects exactly 1 argument")
+       call raise_exception(TypeError, "get_latt_trans expects exactly 1 argument")
        call args%destroy
        return
     endif
