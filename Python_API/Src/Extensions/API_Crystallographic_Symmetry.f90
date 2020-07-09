@@ -2,7 +2,7 @@
 !
 ! CrysFML API
 !
-! @file      Src/Extensions/symmetry.f90
+! @file      Src/Extensions/API_Crystallographic_Symmetry.f90
 ! @brief     Symmetry groups Fortran binding
 !
 ! @homepage  https://code.ill.fr/scientific-software/crysfml
@@ -12,7 +12,7 @@
 !
 ! **************************************************************************
 
-module mymath
+module API_Crystallographic_Symmetry
   use forpy_mod
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env 
@@ -207,4 +207,4 @@ CONTAINS
   end function crysfml_symmetry_get_latt_trans
 
 
-end module mymath
+end module API_Crystallographic_Symmetry

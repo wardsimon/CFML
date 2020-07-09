@@ -83,7 +83,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_EoS_Mod.f90
     CFML_SXTAL_Geom.f90
     CFML_Rational_Arithmetic.f90
-    CFML_Symmetry.f90
+    CFML_Crystallographic_Symmetry.f90
     CFML_Sym_Table.f90)
 
 # Set the optimization flags.
