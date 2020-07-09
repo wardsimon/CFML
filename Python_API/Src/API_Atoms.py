@@ -1,9 +1,9 @@
 # **************************************************************************
 #
-# CrysFML API
+# CrysFML API Atoms
 #
-# @file      Src/__init__.py
-# @brief     __init__ for API module
+# @file      Src/API_Atoms.py
+# @brief     Atoms properties based on CrysFML
 #
 # @homepage  https://code.ill.fr/scientific-software/crysfml
 # @license   GNU LGPL (see LICENSE)
@@ -12,8 +12,10 @@
 #
 # **************************************************************************
 
-from CFML_api.API_Atoms import AtomList
-from CFML_api.API_Crystal import Cell
-from CFML_api.API_Crystallographic_Symmetry import SpaceGroup
+import CFML_api.crysfml_api as crysfml_api
 
-API_version = 0.2
+class AtomList():
+    def __init__(self, address=None):
+        self.__address = None
+        if address is not None:
+            self.__address = address

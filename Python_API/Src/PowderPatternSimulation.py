@@ -12,7 +12,7 @@
 #
 # **************************************************************************
 
-import CFML_api.powder_generation as powder_generation
+import CFML_api.crysfml_binding as crysfml_binding
 
 import os
 import numpy as np
@@ -76,7 +76,7 @@ class PowderPatternSimulator():
                 simulation_conditions = PowderPatternSimulationConditions()
                 
             # Compute powder pattern
-            ret = powder_generation.crysfml_powder_compute_powder_pattern(file,
+            ret = crysfml_binding.crysfml_powder_compute_powder_pattern(file,
                                                                           mode,
                                                                           simulation_conditions.title,
                                                                           simulation_conditions.lamb,

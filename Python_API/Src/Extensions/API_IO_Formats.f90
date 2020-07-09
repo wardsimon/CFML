@@ -12,7 +12,7 @@
 !
 ! **************************************************************************
 
-module API_IO_Formats !Proposed naming, to be defined
+module API_IO_Formats
   
   use forpy_mod
   use, intrinsic :: iso_c_binding
@@ -41,7 +41,7 @@ contains
   ! Implementation of our Python methods
   !-------------------------------------------------------------------------
   ! @brief 
-  function crysfml_IO_readn_set_xtal_structure(self_ptr, args_ptr) result(r) bind(c)
+  function IO_formats_readn_set_xtal_structure(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -108,5 +108,5 @@ contains
 
     r = retval%get_c_ptr()
 
-  end function crysfml_IO_readn_set_xtal_structure
+  end function IO_formats_readn_set_xtal_structure
 end module API_IO_Formats

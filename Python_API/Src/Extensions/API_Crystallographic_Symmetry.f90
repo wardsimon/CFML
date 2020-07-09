@@ -25,11 +25,32 @@ module API_Crystallographic_Symmetry
 
 contains 
 
+  subroutine get_object_from_arg(args, spgr_p)
+    type(tuple) :: args
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: spgr_p12(12)
+    type(Space_Group_type_p), intent(out) :: spgr_p
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    ierror = args%getitem(arg_obj, 0)
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(spgr_p12(ii), t)
+    enddo
+    spgr_p = transfer(spgr_p12, spgr_p)
+
+  end subroutine get_object_from_arg
+
   !-------------------------------------------------------------------------
   ! Implementation of our Python methods
   !-------------------------------------------------------------------------
   ! @brief 
-  function crysfml_symmetry_create_space_group(self_ptr, args_ptr) result(r) bind(c)
+  function crystallographic_symmetry_set_spacegroup(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -73,33 +94,12 @@ contains
 
     !
     ierror = dict_create(retval)
-    ierror = retval%setitem("Index", index_obj)
+    ierror = retval%setitem("address", index_obj)
     r = retval%get_c_ptr()
 
-  end function crysfml_symmetry_create_space_group
+  end function crystallographic_symmetry_set_spacegroup
 
-  subroutine get_object_from_arg(args, spgr_p)
-    type(tuple) :: args
-    type(object) :: arg_obj
-    type(list) :: arg_list
-    integer :: spgr_p12(12)
-    type(Space_Group_type_p), intent(out) :: spgr_p
-
-    integer :: ierror
-    integer :: ii
-    type(object) :: t
-
-    ierror = args%getitem(arg_obj, 0)
-    ierror = cast(arg_list, arg_obj)
-    do ii=1,12
-       ierror = arg_list%getitem(t, ii-1)
-       ierror = cast(spgr_p12(ii), t)
-    enddo
-    spgr_p = transfer(spgr_p12, spgr_p)
-
-  end subroutine get_object_from_arg
-
-  function crysfml_symmetry_get_description(self_ptr, args_ptr) result(r) bind(c)
+  function crystallographic_symmetry_write_spacegroup(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -132,9 +132,9 @@ contains
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
 
-  end function crysfml_symmetry_get_description
+  end function crystallographic_symmetry_write_spacegroup
 
-  function crysfml_symmetry_get_latt_trans(self_ptr, args_ptr) result(r) bind(c)
+  function crystallographic_symmetry_get_latt_trans(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -172,7 +172,7 @@ contains
     r = retval%get_c_ptr()
 
 
-  end function crysfml_symmetry_get_latt_trans
+  end function crystallographic_symmetry_get_latt_trans
 
 
 end module API_Crystallographic_Symmetry

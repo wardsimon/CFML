@@ -4,8 +4,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardi
 
 import CFML_api
 
-a=CFML_api.SymmetryGroups(5)
-b=CFML_api.SymmetryGroups(10)
+a=CFML_api.SpaceGroup(5)
+b=CFML_api.SpaceGroup(10)
 print("======")
 a.printDescription()
 print("======")
@@ -14,7 +14,8 @@ print("======")
 print(b.lattice_translation)
 print("======")
 print(a.lattice_translation)
-
-
-#print("======")
-#a.lattice_translation = [1,2,3]
+print("======")
+try:
+    a.lattice_translation = [1,2,3]
+except AttributeError as e:
+    print(e)
