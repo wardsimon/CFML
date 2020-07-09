@@ -55,7 +55,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Export_Vtk.f90
     CFML_Extinction_Correction.f90
     CFML_FFTs.f90
-    CFML_Form_CIF.f90
+    CFML_IO_Formats.f90
     CFML_Geom_Calc.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
