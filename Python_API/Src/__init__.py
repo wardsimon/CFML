@@ -13,7 +13,7 @@
 # **************************************************************************
 
 from CFML_api.API_Atoms import AtomList
-from CFML_api.API_Crystal import Cell
+from CFML_api.API_Crystal_Metrics import Cell
 from CFML_api.API_Crystallographic_Symmetry import SpaceGroup
 
 API_version = 0.2

@@ -72,7 +72,7 @@ contains
 
     type(object)                         :: cellv_obj, angl_obj
     type(ndarray)                        :: cellv_nd, angl_nd
-    real(kind=cp), dimension(:), pointer :: cellv, angl
+    real(kind=cp), dimension(:), pointer :: cellv_p, angl_p
     type(Crystal_Cell_type_p)            :: cell_p
     integer                              :: cell_p12(12)
        
@@ -95,21 +95,22 @@ contains
     endif
      
     ierror = args%getitem(cellv_obj, 0)        !cellv  In -> a,b,c
-    ierror = cast(cellv_nd, cellv_obj) 
+    ierror = cast(cellv_nd, cellv_obj)
+    ierror = cellv_nd%get_data(cellv_p)
+        
     ierror = args%getitem(angl_obj, 1)         !angl   In -> angles of cell parameters
     ierror = cast(angl_nd, angl_obj)
-
-    ierror = cellv_nd%get_data(cellv)
-    ierror = angl_nd%get_data(angl)
-
-    call Set_Crystal_Cell(cellv, angl, cell_p%p)
-
+    ierror = angl_nd%get_data(angl_p)
+       
+    allocate(cell_p%p)
+    call Set_Crystal_Cell(cellv_p, angl_p, cell_p%p)
+    
     cell_p12 = transfer(cell_p,cell_p12)
     ierror = list_create(index_obj)
     do ii=1,12
        ierror = index_obj%append(cell_p12(ii))
     end do
-    deallocate(cell_p%p)
+    !deallocate(cell_p%p)
 
     ierror = dict_create(retval)
     ierror = retval%setitem("address", index_obj)
@@ -136,11 +137,13 @@ contains
     ierror = args%len(num_args)
     
     if (num_args /= 1) then
-       call raise_exception(TypeError, "xrite_crystal_Cell expects exactly 1 argument")
+       call raise_exception(TypeError, "write_crystal_Cell expects exactly 1 argument")
        call args%destroy
        return
     endif
 
+    write(*,*) 'aaaa'
+    
     call get_cell_from_arg(args, cell_p)
 
     call Write_Crystal_Cell(Cell_p%p)
