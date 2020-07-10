@@ -18,10 +18,12 @@ class Cell():
     def __init__(self, lattpar=None, lattangle=None, address=None):
         if address is not None:
             self.__address = address
-        elif lattpar is not None:
+        elif (lattpar is not None) and (lattangle is not None)  :
             self.__address = crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"]
 
-
+    def printDescription(self):
+        crysfml_api.crystal_metrics_write_crystal_cell(self.__address)
+            
 ###
     # Type, public :: Crystal_Cell_Type
     #    real(kind=cp),dimension(3)   :: cell, ang
@@ -38,5 +40,13 @@ class Cell():
     #    real(kind=cp)                :: RCellVol
     #    character (len=2)            :: CartType
     # End Type Crystal_Cell_Type      
-      
+
+
+    # def printDescription(self):
+    #     crysfml_api.crystallographic_symmetry_write_spacegroup(self.__address)
+        
+    # def getLatticeTranslation(self):
+    #     return crysfml_api.crystallographic_symmetry_get_latt_trans(self.__address)["Array"]
+
+    # lattice_translation = property(getLatticeTranslation)
 ###

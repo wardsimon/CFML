@@ -54,7 +54,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(4)
+    call method_table%init(6)
     
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
@@ -77,6 +77,10 @@ CONTAINS
          "Creates the crystal cell", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_set_crystal_cell))  ! address of Fortran function to add
+    call method_table%add_method("crystal_metrics_write_crystal_cell", &                  ! method name
+         "Return the crystal cell description", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_write_crystal_cell))  ! address of Fortran function to add
     
     m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)
   end function init

@@ -19,7 +19,9 @@ module API_Crystal_Metrics
   use, intrinsic :: iso_fortran_env
 
   use CFML_GlobalDeps,       only : Cp
-  use CFML_Crystal_Metrics,  only: Crystal_Cell_Type
+  use CFML_Crystal_Metrics,  only: &
+       Crystal_Cell_Type, &
+       Write_Crystal_Cell
   
   implicit none
 
@@ -30,6 +32,29 @@ module API_Crystal_Metrics
   
 contains 
 
+  subroutine get_cell_from_arg(args, cell_p)
+    type(tuple), intent(in)                :: args
+    type(Crystal_Cell_type_p), intent(out) :: cell_p
+    
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: cell_p12(12)
+  
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    ierror = args%getitem(arg_obj, 0)
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(cell_p12(ii), t)
+    enddo
+    cell_p = transfer(cell_p12, cell_p)
+
+  end subroutine get_object_from_arg
+
+  
   ! @brief Create a crystal cell from a set of lattice parameters
   function crystal_metrics_set_crystal_cell(self_ptr, args_ptr) result(r) bind(c)
 
@@ -86,5 +111,38 @@ contains
     r = retval%get_c_ptr()
 
   end function crystal_metrics_set_crystal_cell
+
+  function crystal_metrics_write_crystal_cell(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+
+    type(Crystal_Cell_type_p)   :: cell_p
+
+    r = C_NULL_PTR      
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    
+    ierror = args%len(num_args)
+    
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "xrite_crystal_Cell expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    call get_cell_from_arg(args, cell_p)
+
+    call Write_Crystal_Cell(Cell_p%p)
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+  end function crystal_metrics_write_crystal_cell
   
 end module API_Crystal_Metrics
