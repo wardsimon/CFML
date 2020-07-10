@@ -160,14 +160,11 @@ contains
        call args%destroy
        return
     endif
-
     !
     call get_object_from_arg(args, spgr_p)
-
     !
     write(*,*) spgr_p%p%Latt_trans
     ierror = ndarray_create(latt_object, spgr_p%p%Latt_trans)
-
     !
     ierror = dict_create(retval)
     ierror = retval%setitem("Array", latt_object)

@@ -21,7 +21,8 @@ module API_Crystal_Metrics
   use CFML_GlobalDeps,       only : Cp
   use CFML_Crystal_Metrics,  only: &
        Crystal_Cell_Type, &
-       Write_Crystal_Cell
+       Write_Crystal_Cell, &
+       Set_Crystal_Cell 
   
   implicit none
 
@@ -66,13 +67,14 @@ contains
     type(dict)  :: retval
     integer     :: num_args
     integer     :: ierror
-    integer     :: ii
+    integer     :: i,ii
     type(list)  :: index_obj
 
-    type(object)                :: cellv_obj, angl_obj
-    real(kind=cp), dimension(3) :: cellv, angl
-    type(Crystal_Cell_type_p)   :: cell_p
-    integer                     :: cell_p12(12)
+    type(object)                         :: cellv_obj, angl_obj
+    type(ndarray)                        :: cellv_nd, angl_nd
+    real(kind=cp), dimension(:), pointer :: cellv, angl
+    type(Crystal_Cell_type_p)            :: cell_p
+    integer                              :: cell_p12(12)
        
     r = C_NULL_PTR      
     call unsafe_cast_from_c_ptr(args, args_ptr)
@@ -93,9 +95,12 @@ contains
     endif
      
     ierror = args%getitem(cellv_obj, 0)        !cellv  In -> a,b,c
-    ierror = cast_nonstrict(cellv, cellv_obj) 
+    ierror = cast(cellv_nd, cellv_obj) 
     ierror = args%getitem(angl_obj, 1)         !angl   In -> angles of cell parameters
-    ierror = cast_nonstrict(angl, angl_obj)
+    ierror = cast(angl_nd, angl_obj)
+
+    ierror = cellv_nd%get_data(cellv)
+    ierror = angl_nd%get_data(angl)
 
     call Set_Crystal_Cell(cellv, angl, cell_p%p)
 

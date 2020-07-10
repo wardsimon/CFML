@@ -26,7 +26,8 @@ module API_init
        IO_formats_readn_set_xtal_structure
 
   use API_Crystal_Metrics, only: &
-       crystal_metrics_set_crystal_cell
+       crystal_metrics_set_crystal_cell, &
+       crystal_metrics_write_crystal_cell
   
   implicit none
 
