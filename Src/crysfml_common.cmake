@@ -50,7 +50,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_BVSpar.f90
     CFML_Chem_Scatt.f90
     CFML_Conf_Calc.f90
-    CFML_Cryst_Types.f90
+    CFML_Crystal_Metrics.f90
     CFML_Diffpatt.f90
     CFML_Export_Vtk.f90
     CFML_Extinction_Correction.f90

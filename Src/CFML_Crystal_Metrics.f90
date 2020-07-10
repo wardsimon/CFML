@@ -3146,7 +3146,7 @@
     !!
     Subroutine Set_Crystal_Cell(Cellv,Angl,Celda,Cartype,Scell,Sangl)
        !---- Arguments ----!
-       real(kind=cp), dimension (3),        intent(in ) :: cellv, angl
+       real(kind=cp), dimension(3),         intent(in ) :: cellv, angl
        Type (Crystal_Cell_Type),            intent(out) :: Celda
        character (len=*),          optional,intent(in ) :: CarType
        real(kind=cp), dimension(3),optional,intent(in ) :: scell,sangl

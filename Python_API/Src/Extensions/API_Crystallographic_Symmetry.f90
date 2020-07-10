@@ -15,8 +15,10 @@
 module API_Crystallographic_Symmetry
   use forpy_mod
   use, intrinsic :: iso_c_binding
-  use, intrinsic :: iso_fortran_env 
+  use, intrinsic :: iso_fortran_env
+  
   use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, Write_SpaceGroup
+  
   implicit none
 
   type Space_Group_Type_p
@@ -91,7 +93,7 @@ contains
     do ii=1,12
        ierror = index_obj%append(spgr_p12(ii))
     end do
-
+    deallocate(spgr_p%p)
     !
     ierror = dict_create(retval)
     ierror = retval%setitem("address", index_obj)
