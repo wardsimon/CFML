@@ -18,7 +18,8 @@ module API_Crystal_Metrics
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
 
-  use CFML_Crystal_Metrics,           only: Crystal_Cell_Type
+  use CFML_GlobalDeps,       only : Cp
+  use CFML_Crystal_Metrics,  only: Crystal_Cell_Type
   
   implicit none
 

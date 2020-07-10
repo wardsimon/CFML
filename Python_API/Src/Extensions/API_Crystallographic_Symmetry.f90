@@ -16,7 +16,7 @@ module API_Crystallographic_Symmetry
   use forpy_mod
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
-  
+
   use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, Write_SpaceGroup
   
   implicit none
