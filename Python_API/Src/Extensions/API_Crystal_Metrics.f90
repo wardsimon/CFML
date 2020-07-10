@@ -33,7 +33,7 @@ module API_Crystal_Metrics
 contains 
 
   subroutine get_cell_from_arg(args, cell_p)
-    type(tuple), intent(in)                :: args
+    type(tuple)                            :: args
     type(Crystal_Cell_type_p), intent(out) :: cell_p
     
     type(object) :: arg_obj
@@ -52,7 +52,7 @@ contains
     enddo
     cell_p = transfer(cell_p12, cell_p)
 
-  end subroutine get_object_from_arg
+  end subroutine get_cell_from_arg
 
   
   ! @brief Create a crystal cell from a set of lattice parameters
