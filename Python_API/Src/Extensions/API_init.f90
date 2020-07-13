@@ -20,7 +20,10 @@ module API_init
   use API_Crystallographic_Symmetry,only: &
        crystallographic_symmetry_set_spacegroup, &
        crystallographic_symmetry_write_spacegroup, &
-       crystallographic_symmetry_get_latt_trans
+       crystallographic_symmetry_get_latt_trans, &
+       crystallographic_symmetry_get_hexa, &
+       crystallographic_symmetry_get_numspg, &
+       crystallographic_symmetry_get_spg_symb
   
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure
@@ -55,7 +58,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(6)
+    call method_table%init(9)
     
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
@@ -65,15 +68,10 @@ CONTAINS
          "Return space group description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_write_spacegroup))  ! address of Fortran function to add
-    call method_table%add_method("crystallographic_symmetry_get_latt_trans", &                  ! method name
-         "Get lattice transformation from space group", &  !doc-string
-         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crystallographic_symmetry_get_latt_trans))  ! address of Fortran function to add
     call method_table%add_method("IO_formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
-
     call method_table%add_method("crystal_metrics_set_crystal_cell", &                  ! method name
          "Creates the crystal cell", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
@@ -82,6 +80,26 @@ CONTAINS
          "Return the crystal cell description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_write_crystal_cell))  ! address of Fortran function to add
+    call method_table%add_method("crystallographic_symmetry_get_latt_trans", &                  ! method name
+         "latt_trans getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_latt_trans))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_hexa", &                  ! method name
+         "hexa getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_hexa))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_numspg", &                  ! method name
+         "numspg getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_numspg))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_spg_symb", &                  ! method name
+         "spg_symb getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_spg_symb))  ! address of Fortran function to add
+
     
     m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)
   end function init
