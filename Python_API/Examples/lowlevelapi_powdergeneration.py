@@ -5,7 +5,10 @@ import CFML_api
 
 filename = sys.argv[1]
 
-(Cell, SpG, A) = CFML_api.Readn_set_Xtal_Structure(filename)
+cif_file = CFML_api.Readn_set_Xtal_Structure(filename)
+Cell = cif_file.cell
+SpG = cif_file.space_group
+A = cif_file.atom_list
 
 PowPat_conditions = CFML_api.Read_PowPatConditions(filename)
 

@@ -17,6 +17,9 @@ import CFML_api.API_Atoms
 import CFML_api.API_Crystal
 import CFML_API.API_Crystallographic_Symmetry
 
-def parse_cif_file(filename):
-    dict = crysfml_api.IO_formats_readn_set_xtal_structure(filename)
-    return Cell(address=dict["Cell"]), SpaceGroup(address=dict["SpG"]), AtomList(address=dict["A"])
+class CIFFile():
+    def __init__(self, filename):
+        dict = crysfml_api.IO_formats_readn_set_xtal_structure(filename)
+        self.cell = Cell(address=dict["Cell"])
+        self.space_group = SpaceGroup(address=dict["SpG"])
+        self.atom_list = AtomList(address=dict["A"])
