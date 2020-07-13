@@ -141,8 +141,6 @@ contains
        call args%destroy
        return
     endif
-
-    write(*,*) 'aaaa'
     
     call get_cell_from_arg(args, cell_p)
 
