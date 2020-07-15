@@ -5,12 +5,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardi
 import CFML_api
 import numpy as np 
 
-cellv = np.asarray([1,2,3], dtype='float32')
-angl = np.asarray([1,2,3], dtype='float32')
-
-print("======")
+cellv = np.asarray([5,5,8], dtype='float32')
+angl = np.asarray([90,90,80], dtype='float32')
 
 a=CFML_api.Cell(cellv, angl)
 
 print("======")
 a.printDescription()
+print("======")
+print(a.lattpar)
+

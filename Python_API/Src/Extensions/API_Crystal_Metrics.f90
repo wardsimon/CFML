@@ -188,7 +188,7 @@ contains
   end function crystal_metrics_get_cell
 
 
-  ! @brief Get the parameter 'cell' from a Crystal_Cell_Type object
+  ! @brief Get the parameter 'ang' from a Crystal_Cell_Type object
   function crystal_metrics_get_ang(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
@@ -209,7 +209,7 @@ contains
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
     if (num_args /= 1) then
-       call raise_exception(TypeError, "get_angl expects exactly 1 argument")
+       call raise_exception(TypeError, "get_ang expects exactly 1 argument")
        call args%destroy
        return
     endif
@@ -222,5 +222,582 @@ contains
     r = retval%get_c_ptr()
     
   end function crystal_metrics_get_ang
+
+  function crystal_metrics_get_lcell(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: lcell
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_lcell expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(lcell, cell_p%p%lcell)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("lcell", lcell)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_lcell
+  
+  function crystal_metrics_get_lang(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: lang
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_lang expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(lang, cell_p%p%lang)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("lang", lang)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_lang
+  
+  function crystal_metrics_get_cell_std(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: cell_std
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_cell_std expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(cell_std, cell_p%p%cell_std)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("cell_std", cell_std)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_cell_std
+  
+  function crystal_metrics_get_ang_std(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: ang_std
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_ang_std expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(ang_std, cell_p%p%ang_std)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("ang_std", ang_std)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_ang_std
+  
+  function crystal_metrics_get_rcell(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: rcell
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_rcell expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(rcell, cell_p%p%rcell)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("rcell", rcell)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_rcell
+  
+  function crystal_metrics_get_rang(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: rang
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_rang expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(rang, cell_p%p%rang)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("rang", rang)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_rang
+  
+  function crystal_metrics_get_GD(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: GD
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_GD expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(GD, cell_p%p%GD)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("GD", GD)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_GD
+  
+  function crystal_metrics_get_GR(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: GR
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_GR expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(GR, cell_p%p%GR)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("GR", GR)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_GR
+  
+  function crystal_metrics_get_Cr_Orth_Cel(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: Cr_Orth_Cel
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_Cr_Orth_Cel expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(Cr_Orth_Cel, cell_p%p%Cr_Orth_Cel)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("Cr_Orth_Cel", Cr_Orth_Cel)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_Cr_Orth_Cel
+  
+  function crystal_metrics_get_Orth_Cr_Cel(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: Orth_Cr_Cel
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_Orth_Cr_Cel expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(Orth_Cr_Cel, cell_p%p%Orth_Cr_Cel)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("Orth_Cr_Cel", Orth_Cr_Cel)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_Orth_Cr_Cel
+  
+  function crystal_metrics_get_BL_M(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: BL_M
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_BL_M expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(BL_M, cell_p%p%BL_M)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("BL_M", BL_M)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_BL_M
+  
+  function crystal_metrics_get_BL_Minv(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    type(ndarray) :: BL_Minv
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_BL_Minv expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = ndarray_create(BL_Minv, cell_p%p%BL_Minv)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("BL_Minv", BL_Minv)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_BL_Minv
+  
+  function crystal_metrics_get_cellvol(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_cellvol expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("cellvol", cell_p%p%cellvol)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_cellvol
+  
+  function crystal_metrics_get_rcellvol(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_rcellvol expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("rcellvol", cell_p%p%rcellvol)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_rcellvol
+  
+  function crystal_metrics_get_stdvol(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_stdvol expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("stdvol", cell_p%p%stdvol)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_stdvol
+  
+  function crystal_metrics_get_CartType(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p) :: cell_p
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_CartType expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    
+    ierror = dict_create(retval)
+    
+    ierror = retval%setitem("CartType", trim(cell_p%p%CartType))
+    
+    r = retval%get_c_ptr()
+    
+  end function crystal_metrics_get_CartType
+  
   
 end module API_Crystal_Metrics

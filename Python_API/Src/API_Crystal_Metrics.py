@@ -30,32 +30,73 @@ class Cell():
     def get_lattpar(self):
         return crysfml_api.crystal_metrics_get_cell(self.__address)["cell"]
     
-    def get_lattangle(self):crystal_metrics
+    def get_lattangle(self):
         return crysfml_api.crystal_metrics_get_ang(self.__address)["ang"]
+
+    def get_lattpar_refcode(self):
+        return crysfml_api.crystal_metrics_get_lcell(self.__address)["lcell"]
     
-###
-    # Type, public :: Crystal_Cell_Type
-    #    real(kind=cp),dimension(3)   :: cell, ang
-    #    integer,      dimension(3)   :: lcell, lang
-    #    real(kind=cp),dimension(3)   :: cell_std, ang_std
-    #    real(kind=cp),dimension(3)   :: rcell, rang
-    #    real(kind=cp),dimension(3,3) :: GD,GR
-    #    real(kind=cp),dimension(3,3) :: Cr_Orth_cel
-    #    real(kind=cp),dimension(3,3) :: Orth_Cr_cel
-    #    real(kind=cp),dimension(3,3) :: BL_M
-    #    real(kind=cp),dimension(3,3) :: BL_Minv
-    #    real(kind=cp)                :: CellVol
-    #    real(kind=cp)                :: StdVol
-    #    real(kind=cp)                :: RCellVol
-    #    character (len=2)            :: CartType
-    # End Type Crystal_Cell_Type      
+    def get_lattangle_refcode(self):
+        return crysfml_api.crystal_metrics_get_lang(self.__address)["lang"]
+    
+    def get_lattpar_std_dev(self):
+        return crysfml_api.crystal_metrics_get_cell_std(self.__address)["cell_std"]
+    
+    def get_lattangle_std_dev(self):
+        return crysfml_api.crystal_metrics_get_ang_std(self.__address)["ang_std"]
+    
+    def get_reciprocal_lattpar(self):
+        return crysfml_api.crystal_metrics_get_rcell(self.__address)["rcell"]
+    
+    def get_reciprocal_lattangle(self):
+        return crysfml_api.crystal_metrics_get_rang(self.__address)["rang"]
+    
+    def get_direct_metric_tensor(self):
+        return crysfml_api.crystal_metrics_get_GD(self.__address)["GD"]
+    
+    def get_reciprocal_metric_tensor(self):
+        return crysfml_api.crystal_metrics_get_GR(self.__address)["GR"]
+    
+    def get_crystal_to_orth_matrix(self):
+        return crysfml_api.crystal_metrics_get_Cr_Orth_Cel(self.__address)["Cr_Orth_Cel"]
+    
+    def get_orth_to_crystal_matrix(self):
+        return crysfml_api.crystal_metrics_get_Orth_Cr_Cel(self.__address)["Orth_Cr_Cel"]
+    
+    def get_BL_matrix(self):
+        return crysfml_api.crystal_metrics_get_BL_M(self.__address)["BL_M"]
+    
+    def get_inv_BL_matrix(self):
+        return crysfml_api.crystal_metrics_get_BL_Minv(self.__address)["BL_Minv"]
+    
+    def get_direct_cell_vol(self):
+        return crysfml_api.crystal_metrics_get_cellvol(self.__address)["cellvol"]
+    
+    def get_reciprocal_cell_vol(self):
+        return crysfml_api.crystal_metrics_get_rcellvol(self.__address)["rcellvol"]
+    
+    def get_direct_cell_vol_std_dev(self):
+        return crysfml_api.crystal_metrics_get_stdvol(self.__address)["stdvol"]
+    
+    def get_cartesian_frame(self):
+        return crysfml_api.crystal_metrics_get_CartType(self.__address)["CartType"]
 
-
-    # def printDescription(self):
-    #     crysfml_api.crystallographic_symmetry_write_spacegroup(self.__address)
-        
-    # def getLatticeTranslation(self):
-    #     return crysfml_api.crystallographic_symmetry_get_latt_trans(self.__address)["Array"]
-
-    # lattice_translation = property(getLatticeTranslation)
-###
+    lattpar = property(get_lattpar)                             # Direct cell parameters
+    lattangle = property(get_lattangle)
+    lattpar_refcode = property(lattpar_refcode)                 # Code number for refinement in optimization procedures
+    lattangle_refcode = property(lattangle_refcode)
+    lattpar_std_dev = property(lattpar_std_dev)                 # Standard deviations of the cell parameters
+    lattangle_std_dev = property(lattangle_std_dev)
+    reciprocal_lattpar = property(reciprocal_lattpar)           # Reciprocal cell parameters
+    reciprocal_lattangle = property(reciprocal_lattangle)
+    direct_metric_tensor = property(direct_metric_tensor)       # Direct and reciprocal Metric Tensors
+    reciprocal_metric_tensor = property(reciprocal_metric_tensor)
+    crystal_to_orth_matrix = property(crystal_to_orth_matrix)   # P-Matrix transforming direct Crytal cell to Orthonormal basis
+    orth_to_crystal_matrix = property(orth_to_crystal_matrix)  
+    BL_matrix = property(BL_matrix)                             # Busing-Levy B-matrix (transforms hkl to a
+    inv_BL_matrix = property(inv_BL_matrix)                     #    Cartesian system with x//a*, y in (a*,b*) and z//c
+    direct_cell_vol = property(direct_cell_vol)                 # Direct and Reciprocal Cell volumes
+    reciprocal_cell_vol = property(reciprocal_cell_vol)
+    direct_cell_vol_std_dev = property(direct_cell_vol_std_dev) # Standard deviation of the cell volume
+    cartesian_frame = property(cartesian_frame)                 # Cartesian Frame type: if CartType='A' the Cartesian Frame has x // a.
+    

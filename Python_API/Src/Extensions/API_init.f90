@@ -32,8 +32,23 @@ module API_init
        crystal_metrics_set_crystal_cell, &
        crystal_metrics_write_crystal_cell, &
        crystal_metrics_get_cell, &
-       crystal_metrics_get_ang
-       
+       crystal_metrics_get_ang, &
+       crystal_metrics_get_lcell, &
+       crystal_metrics_get_lang, &
+       crystal_metrics_get_cell_std, &
+       crystal_metrics_get_ang_std, &
+       crystal_metrics_get_rcell, &
+       crystal_metrics_get_rang, &
+       crystal_metrics_get_GD, &
+       crystal_metrics_get_GR, &
+       crystal_metrics_get_Cr_Orth_cel, &
+       crystal_metrics_get_Orth_Cr_Cel, &
+       crystal_metrics_get_BL_M, &
+       crystal_metrics_get_BL_Minv, &
+       crystal_metrics_get_cellvol, &
+       crystal_metrics_get_rcellvol, &
+       crystal_metrics_get_stdvol, &
+       crystal_metrics_get_CartType
   
   implicit none
 
@@ -61,7 +76,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(11)
+    call method_table%init(27)
     !--------------------------
     ! Crystallographic Symmetry (6)
     !--------------------------
@@ -104,7 +119,7 @@ CONTAINS
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
     
     !--------------------------
-    ! Crystal Metrics (4)
+    ! Crystal Metrics (20)
     !--------------------------
     call method_table%add_method("crystal_metrics_set_crystal_cell", &                  ! method name
          "Creates the crystal cell", &  !doc-string
@@ -125,7 +140,86 @@ CONTAINS
          "angl getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_get_ang))  ! address of Fortran function to add
+
+        call method_table%add_method("crystal_metrics_get_lcell", &                  ! method name
+         "lcell getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_lcell))  ! address of Fortran function to add
     
+    call method_table%add_method("crystal_metrics_get_lang", &                  ! method name
+         "lang getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_lang))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_cell_std", &                  ! method name
+         "cell_std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_cell_std))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_ang_std", &                  ! method name
+         "ang_std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_ang_std))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_rcell", &                  ! method name
+         "rcell getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_rcell))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_rang", &                  ! method name
+         "rang getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_rang))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_GD", &                  ! method name
+         "GD getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_GD))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_GR", &                  ! method name
+         "GR getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_GR))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_Cr_Orth_Cel", &                  ! method name
+         "Cr_Orth_Cel getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_Cr_Orth_Cel))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_Orth_Cr_Cel", &                  ! method name
+         "Orth_Cr_Cel getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_Orth_Cr_Cel))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_BL_M", &                  ! method name
+         "BL_M getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_BL_M))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_BL_Minv", &                  ! method name
+         "BL_Minv getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_BL_Minv))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_cellvol", &                  ! method name
+         "cellvol getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_cellvol))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_rcellvol", &                  ! method name
+         "rcellvol getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_rcellvol))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_stdvol", &                  ! method name
+         "stdvol getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_stdvol))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystal_metrics_get_CartType", &                  ! method name
+         "CartType getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_CartType))  ! address of Fortran function to add
     
     m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)
   end function init
