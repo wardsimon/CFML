@@ -69,15 +69,27 @@ class SpaceGroup():
         crysfml_api.crystallographic_symmetry_write_spacegroup(self.__address)
     
     def get_lattice_translation(self):
+        """
+        @brief Lattice translation matrix
+        """
         return crysfml_api.crystallographic_symmetry_get_latt_trans(self.__address)["latt_trans"]
     
     def is_hexa(self):
+        """
+        @brief Is space group hexagonal
+        """
         return crysfml_api.crystallographic_symmetry_get_hexa(self.__address)["hexa"]
     
     def get_number_of_space_group(self):
+        """
+        @brief Number of the space group
+        """
         return crysfml_api.crystallographic_symmetry_get_numspg(self.__address)["numspg"]
     
     def get_space_group_symbol(self):
+        """
+        @brief Space group symbol as text
+        """
         return crysfml_api.crystallographic_symmetry_get_spg_symb(self.__address)["spg_symb"]
     
     def get_hall_symbol(self):

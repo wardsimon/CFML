@@ -27,7 +27,7 @@ module API_Crystallographic_Symmetry
 
 contains
 
-  subroutine get_object_from_arg(args, spgr_p)
+  subroutine get_space_group_type_from_arg(args, spgr_p)
     type(tuple) :: args
     type(object) :: arg_obj
     type(list) :: arg_list
@@ -46,7 +46,7 @@ contains
     enddo
     spgr_p = transfer(spgr_p12, spgr_p)
 
-  end subroutine get_object_from_arg
+  end subroutine get_space_group_type_from_arg
 
   !-------------------------------------------------------------------------
   ! Implementation of our Python methods
@@ -125,7 +125,7 @@ contains
     endif
 
     !
-    call get_object_from_arg(args, spgr_p)
+    call get_space_group_type_from_arg(args, spgr_p)
 
     !
     call Write_SpaceGroup(spgr_p%p, full=.true.)
@@ -145,7 +145,7 @@ contains
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
-    type(Space_Group_type_p) :: spgr_p
+    type(Space_Group_Type_p) :: space_group_type_pointer
 
     type(ndarray) :: latt_trans
 
@@ -161,21 +161,15 @@ contains
        return
     endif
 
-    !
-    call get_object_from_arg(args, spgr_p)
-
-    !
-    ierror = ndarray_create(latt_trans, spgr_p%p%latt_trans)
-
-    !
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
+    ierror = ndarray_create(latt_trans, space_group_type_pointer%p%latt_trans)
     ierror = dict_create(retval)
-
-    !
     ierror = retval%setitem("latt_trans", latt_trans)
-
     r = retval%get_c_ptr()
 
   end function crystallographic_symmetry_get_latt_trans
+
 
   function crystallographic_symmetry_get_hexa(self_ptr, args_ptr) result(r) bind(c)
 
@@ -186,7 +180,7 @@ contains
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
-    type(Space_Group_type_p) :: spgr_p
+    type(Space_Group_Type_p) :: space_group_type_pointer
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -200,18 +194,14 @@ contains
        return
     endif
 
-    !
-    call get_object_from_arg(args, spgr_p)
-
-    !
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
     ierror = dict_create(retval)
-
-    !
-    ierror = retval%setitem("hexa", spgr_p%p%hexa)
-
+    ierror = retval%setitem("hexa", space_group_type_pointer%p%hexa)
     r = retval%get_c_ptr()
 
   end function crystallographic_symmetry_get_hexa
+
 
   function crystallographic_symmetry_get_numspg(self_ptr, args_ptr) result(r) bind(c)
 
@@ -222,7 +212,7 @@ contains
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
-    type(Space_Group_type_p) :: spgr_p
+    type(Space_Group_Type_p) :: space_group_type_pointer
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -236,18 +226,14 @@ contains
        return
     endif
 
-    !
-    call get_object_from_arg(args, spgr_p)
-
-    !
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
     ierror = dict_create(retval)
-
-    !
-    ierror = retval%setitem("numspg", spgr_p%p%numspg)
-
+    ierror = retval%setitem("numspg", space_group_type_pointer%p%numspg)
     r = retval%get_c_ptr()
 
   end function crystallographic_symmetry_get_numspg
+
 
   function crystallographic_symmetry_get_spg_symb(self_ptr, args_ptr) result(r) bind(c)
 
@@ -258,7 +244,7 @@ contains
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
-    type(Space_Group_type_p) :: spgr_p
+    type(Space_Group_Type_p) :: space_group_type_pointer
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -272,18 +258,15 @@ contains
        return
     endif
 
-    !
-    call get_object_from_arg(args, spgr_p)
-
-    !
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
     ierror = dict_create(retval)
-
-    !
-    ierror = retval%setitem("spg_symb", trim(spgr_p%p%spg_symb))
+    ierror = retval%setitem("spg_symb", trim(space_group_type_pointer%p%spg_symb))
 
     r = retval%get_c_ptr()
 
   end function crystallographic_symmetry_get_spg_symb
+
 
 
 
