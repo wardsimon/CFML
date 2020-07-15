@@ -32,7 +32,7 @@ module API_init
        crystal_metrics_set_crystal_cell, &
        crystal_metrics_write_crystal_cell, &
        crystal_metrics_get_cell, &
-       crystal_metrics_get_angl
+       crystal_metrics_get_ang
        
   
   implicit none
@@ -121,10 +121,10 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_get_cell))  ! address of Fortran function to add
     
-    call method_table%add_method("crystal_metrics_get_angl", &                  ! method name
+    call method_table%add_method("crystal_metrics_get_ang", &                  ! method name
          "angl getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(crystal_metrics_get_angl))  ! address of Fortran function to add
+         c_funloc(crystal_metrics_get_ang))  ! address of Fortran function to add
     
     
     m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)

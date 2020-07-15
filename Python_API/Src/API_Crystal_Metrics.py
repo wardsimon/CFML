@@ -28,10 +28,10 @@ class Cell():
         crysfml_api.crystal_metrics_write_crystal_cell(self.__address)
 
     def get_lattpar(self):
-        return crysfml_api.crystallographic_symmetry_get_cell(self.__address)["cell"]
+        return crysfml_api.crystal_metrics_get_cell(self.__address)["cell"]
     
-    def get_lattangle(self):
-        return crysfml_api.crystallographic_symmetry_get_angl(self.__address)["angl"]
+    def get_lattangle(self):crystal_metrics
+        return crysfml_api.crystal_metrics_get_ang(self.__address)["ang"]
     
 ###
     # Type, public :: Crystal_Cell_Type

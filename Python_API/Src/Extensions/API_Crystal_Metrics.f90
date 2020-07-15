@@ -153,7 +153,7 @@ contains
 
   
   ! @brief Get the parameter 'cell' from a Crystal_Cell_Type object
-  function crystallographic_symmetry_get_cell(self_ptr, args_ptr) result(r) bind(c)
+  function crystal_metrics_get_cell(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -185,11 +185,11 @@ contains
     
     r = retval%get_c_ptr()
     
-  end function crystallographic_symmetry_get_cell
+  end function crystal_metrics_get_cell
 
 
   ! @brief Get the parameter 'cell' from a Crystal_Cell_Type object
-  function crystallographic_symmetry_get_angl(self_ptr, args_ptr) result(r) bind(c)
+  function crystal_metrics_get_ang(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -200,7 +200,7 @@ contains
     integer :: ierror
     type(Crystal_Cell_type_p)   :: cell_p
     
-    type(ndarray) :: angl
+    type(ndarray) :: ang
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -215,12 +215,12 @@ contains
     endif
     
     call get_cell_from_arg(args, cell_p)
-    ierror = ndarray_create(angl, cell_p%p%angl)
+    ierror = ndarray_create(ang, cell_p%p%ang)
     ierror = dict_create(retval)
-    ierror = retval%setitem("angl", angl)
+    ierror = retval%setitem("ang", ang)
     
     r = retval%get_c_ptr()
     
-  end function crystallographic_symmetry_get_angl
+  end function crystal_metrics_get_ang
   
 end module API_Crystal_Metrics
