@@ -12,7 +12,9 @@ Cell = cif_file.cell
 SpG = cif_file.space_group
 A = cif_file.atom_list
 
-#a.print_description()
+Cell.print_description()
+SpG.print_description()
+A.print_description()
 
 #PowPat_conditions = CFML_api.Read_PowPatConditions(filename)
 

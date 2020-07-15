@@ -26,7 +26,7 @@ class Cell():
     #def __del__(self):
         ## TODO
 
-    def printDescription(self):
+    def print_description(self):
         crysfml_api.crystal_metrics_write_crystal_cell(self.__address)
 
     def get_lattpar(self):
