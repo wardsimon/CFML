@@ -1,10 +1,8 @@
 from DerivedType import DerivedType
 
-d = DerivedType("SpaceGroup", "crystallographic_symmetry")
-d.addParam("lattice_translation", "latt_trans", "ndarray", "")
-d.addParam("hexa", "hexa", "bool", "")
-d.addParam("number_of_space_group", "numspg", "object", "")
-d.addParam("space_group_symbol", "spg_symb", "string", "")
+d = DerivedType("Cell", "crystal_metrics")
+d.addParam("lattpar", "cell", "ndarray", "")
+d.addParam("lattangle", "angl", "ndarray", "")
 d.generate_template("file")
     
     

@@ -150,5 +150,77 @@ contains
     r = retval%get_c_ptr()
 
   end function crystal_metrics_write_crystal_cell
+
+  
+  ! @brief Get the parameter 'cell' from a Crystal_Cell_Type object
+  function crystallographic_symmetry_get_cell(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p)   :: cell_p
+  
+    type(ndarray) :: cell
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_cell expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    ierror = ndarray_create(cell, cell_p%p%cell)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("cell", cell)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystallographic_symmetry_get_cell
+
+
+  ! @brief Get the parameter 'cell' from a Crystal_Cell_Type object
+  function crystallographic_symmetry_get_angl(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Crystal_Cell_type_p)   :: cell_p
+    
+    type(ndarray) :: angl
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_angl expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_cell_from_arg(args, cell_p)
+    ierror = ndarray_create(angl, cell_p%p%angl)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("angl", angl)
+    
+    r = retval%get_c_ptr()
+    
+  end function crystallographic_symmetry_get_angl
   
 end module API_Crystal_Metrics

@@ -21,9 +21,18 @@ class Cell():
         else :
             self.__address = crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"]
 
+    #def __del__(self):
+        ## TODO
+
     def printDescription(self):
         crysfml_api.crystal_metrics_write_crystal_cell(self.__address)
-            
+
+    def get_lattpar(self):
+        return crysfml_api.crystallographic_symmetry_get_cell(self.__address)["cell"]
+    
+    def get_lattangle(self):
+        return crysfml_api.crystallographic_symmetry_get_angl(self.__address)["angl"]
+    
 ###
     # Type, public :: Crystal_Cell_Type
     #    real(kind=cp),dimension(3)   :: cell, ang
