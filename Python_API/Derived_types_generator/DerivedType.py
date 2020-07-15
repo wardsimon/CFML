@@ -1,6 +1,7 @@
 class DerivedType():
-    def __init__(self, type_name, fortran_module_name):
-        self.type_name = type_name
+    def __init__(self, python_type_name, fortran_type_name, fortran_module_name):
+        self.python_type_name = python_type_name
+        self.fortran_type_name = fortran_type_name
         self.fortran_module_name = fortran_module_name
         self.__params = []
     
@@ -12,7 +13,31 @@ class DerivedType():
         self.__generate_python(file_name)
         self.__generate_init(file_name)
         self.__generate_fortran(file_name)
-        
+    
+    def __generate_python(self, file_name):
+        ret = ""
+        for (param_python_name, param_fortran_name, type, description) in self.__params:
+            if type == "bool":                
+                ret +=\
+    """
+    def is_%s(self):""" % (param_python_name)
+            else:
+                ret +=\
+    """
+    def get_%s(self):"""  % (param_python_name)
+    
+            ret +=\
+    """
+        \"\"\"
+        @brief %s
+        \"\"\"
+        return crysfml_api.%s_get_%s(self.__address)["%s"]
+    """ % (description, self.fortran_module_name, param_fortran_name, param_fortran_name)
+
+        with(open(file_name, "a")) as file:
+            file.write("========== Python part ==========")
+            file.write(ret + "\n\n")
+            
     def __generate_init(self, file_name):   
         ret = ""          
         for (_, param_fortran_name, type, _) in self.__params:
@@ -30,10 +55,25 @@ class DerivedType():
         
     def __generate_fortran(self, file_name):
         ret = ""
+        ret += self.__generate_fortran_init(ret)
+        ret += self.__generate_fortran_destructor(ret)
+        ret += self.__generate_fortran_getters(ret)
+        
+        with(open(file_name, "a")) as file:
+                    file.write("========== Fortran part ==========")
+                    file.write(ret)
+                    
+    def __generate_fortran_init(self, ret):
+        return ret
+    
+    def __generate_fortran_destructor(self, ret): 
+        return ret
+       
+    def __generate_fortran_getters(self, ret):
         for (_, param_fortran_name, type, _) in self.__params:       
             ret += \
   """
-  function crystallographic_symmetry_get_%s(self_ptr, args_ptr) result(r) bind(c)
+  function %s_get_%s(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -42,8 +82,8 @@ class DerivedType():
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
-    type(Space_Group_type_p) :: spgr_p
-  """ %(param_fortran_name)
+    type(%s_p) :: %s_pointer
+  """ %(self.fortran_module_name, param_fortran_name, self.fortran_type_name, self.fortran_type_name.lower())
         
             if type == "ndarray":
                 ret += \
@@ -65,68 +105,36 @@ class DerivedType():
        return
     endif
     
-    !
-    call get_object_from_arg(args, spgr_p)
-    """ % (param_fortran_name)
+    ! Doing boring stuff
+    call get_%s_from_arg(args, %s_pointer)""" % (param_fortran_name, self.fortran_type_name.lower(), self.fortran_type_name.lower())
             if type == "ndarray":
                 ret += \
     """
-    !
-    ierror = ndarray_create(%s, spgr_p%%p%%%s)
-    """ %  (param_fortran_name, param_fortran_name)
+    ierror = ndarray_create(%s, %s_pointer%%p%%%s)""" %  (param_fortran_name, self.fortran_type_name.lower(), param_fortran_name)
         
             ret += \
     """
-    !
-    ierror = dict_create(retval)
-    """
+    ierror = dict_create(retval)"""
             if type == "ndarray":
                 ret += \
     """
-    !
-    ierror = retval%%setitem("%s", %s)
-    """%  (param_fortran_name, param_fortran_name)
+    ierror = retval%%setitem("%s", %s)"""%  (param_fortran_name, param_fortran_name)
             elif type == "string":
                 ret += \
     """
-    !
-    ierror = retval%%setitem("%s", trim(spgr_p%%p%%%s))
-    """%  (param_fortran_name, param_fortran_name)        
+    ierror = retval%%setitem("%s", trim(%s_pointer%%p%%%s))
+    """%  (param_fortran_name, self.fortran_type_name.lower(), param_fortran_name)        
             else:
                 ret += \
     """
-    !
-    ierror = retval%%setitem("%s", spgr_p%%p%%%s)
-    """%  (param_fortran_name, param_fortran_name)
+    ierror = retval%%setitem("%s", %s_pointer%%p%%%s)"""%  (param_fortran_name, self.fortran_type_name.lower(), param_fortran_name)
             
             ret += \
     """
     r = retval%%get_c_ptr()
     
-  end function crystallographic_symmetry_get_%s
-  """ %  (param_fortran_name)
+  end function %s_get_%s
   
-        with(open(file_name, "a")) as file:
-            file.write("========== Fortran part ==========")
-            file.write(ret)
-            
-    def __generate_python(self, file_name):
-        ret = ""
-        for (param_python_name, param_fortran_name, type, description) in self.__params:
-            if type == "bool":                
-                ret +=\
-    """
-    def is_%s(self):"""  % (param_python_name)
-            else:
-                ret +=\
-    """
-    def get_%s(self):"""  % (param_python_name)
-    
-            ret +=\
-    """
-        return crysfml_api.crystallographic_symmetry_get_%s(self.__address)["%s"]
-    """ % (param_fortran_name, param_fortran_name)
-
-        with(open(file_name, "a")) as file:
-            file.write("========== Python part ==========")
-            file.write(ret + "\n\n")
+  """ %  (self.fortran_module_name, param_fortran_name)
+  
+        return ret

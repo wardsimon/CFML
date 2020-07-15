@@ -1,9 +1,16 @@
 from DerivedType import DerivedType
 
-d = DerivedType("Cell", "crystal_metrics")
+d = DerivedType("SpaceGroup", "Space_Group_Type", "crystallographic_symmetry")
+d.addParam("lattice_translation", "latt_trans", "ndarray", "Lattice translation matrix")
+d.addParam("hexa", "hexa", "bool", "Is space group hexagonal")
+d.addParam("number_of_space_group", "numspg", "object", "Number of the space group")
+d.addParam("space_group_symbol", "spg_symb", "string", "Space group symbol as text")
+d.generate_template("file1")
+
+d = DerivedType("Cell", "Cell_Type", "crystal_metrics")
 d.addParam("lattpar", "cell", "ndarray", "")
 d.addParam("lattangle", "angl", "ndarray", "")
-d.generate_template("file")
+d.generate_template("file2")
     
     
     #generate_template("hall_symbol
