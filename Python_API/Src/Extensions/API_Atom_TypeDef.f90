@@ -24,7 +24,7 @@ module API_Atom_TypeDef
 
 contains
 
-  subroutine get_alist_from_arg(args, cell_p)
+  subroutine get_alist_from_arg(args, alist_p)
     type(tuple)                            :: args
     type(Atom_list_type_p), intent(out)    :: alist_p
     
@@ -44,7 +44,7 @@ contains
     enddo
     alist_p = transfer(alist_p12, alist_p)
 
-  end subroutine get_cell_from_arg
+  end subroutine get_alist_from_arg
 
   ! @brief Allocate an atom list for N atoms
   ! @todo Do we need to bind that function ??

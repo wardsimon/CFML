@@ -83,20 +83,20 @@ class Cell():
 
     lattpar = property(get_lattpar)                             # Direct cell parameters
     lattangle = property(get_lattangle)
-    lattpar_refcode = property(lattpar_refcode)                 # Code number for refinement in optimization procedures
-    lattangle_refcode = property(lattangle_refcode)
-    lattpar_std_dev = property(lattpar_std_dev)                 # Standard deviations of the cell parameters
-    lattangle_std_dev = property(lattangle_std_dev)
-    reciprocal_lattpar = property(reciprocal_lattpar)           # Reciprocal cell parameters
-    reciprocal_lattangle = property(reciprocal_lattangle)
-    direct_metric_tensor = property(direct_metric_tensor)       # Direct and reciprocal Metric Tensors
-    reciprocal_metric_tensor = property(reciprocal_metric_tensor)
-    crystal_to_orth_matrix = property(crystal_to_orth_matrix)   # P-Matrix transforming direct Crytal cell to Orthonormal basis
-    orth_to_crystal_matrix = property(orth_to_crystal_matrix)  
-    BL_matrix = property(BL_matrix)                             # Busing-Levy B-matrix (transforms hkl to a
-    inv_BL_matrix = property(inv_BL_matrix)                     #    Cartesian system with x//a*, y in (a*,b*) and z//c
-    direct_cell_vol = property(direct_cell_vol)                 # Direct and Reciprocal Cell volumes
-    reciprocal_cell_vol = property(reciprocal_cell_vol)
-    direct_cell_vol_std_dev = property(direct_cell_vol_std_dev) # Standard deviation of the cell volume
-    cartesian_frame = property(cartesian_frame)                 # Cartesian Frame type: if CartType='A' the Cartesian Frame has x // a.
+    lattpar_refcode = property(get_lattpar_refcode)                 # Code number for refinement in optimization procedures
+    lattangle_refcode = property(get_lattangle_refcode)
+    lattpar_std_dev = property(get_lattpar_std_dev)                 # Standard deviations of the cell parameters
+    lattangle_std_dev = property(get_lattangle_std_dev)
+    reciprocal_lattpar = property(get_reciprocal_lattpar)           # Reciprocal cell parameters
+    reciprocal_lattangle = property(get_reciprocal_lattangle)
+    direct_metric_tensor = property(get_direct_metric_tensor)       # Direct and reciprocal Metric Tensors
+    reciprocal_metric_tensor = property(get_reciprocal_metric_tensor)
+    crystal_to_orth_matrix = property(get_crystal_to_orth_matrix)   # P-Matrix transforming direct Crytal cell to Orthonormal basis
+    orth_to_crystal_matrix = property(get_orth_to_crystal_matrix)  
+    BL_matrix = property(get_BL_matrix)                             # Busing-Levy B-matrix (transforms hkl to a
+    inv_BL_matrix = property(get_inv_BL_matrix)                     #    Cartesian system with x//a*, y in (a*,b*) and z//c
+    direct_cell_vol = property(get_direct_cell_vol)                 # Direct and Reciprocal Cell volumes
+    reciprocal_cell_vol = property(get_reciprocal_cell_vol)
+    direct_cell_vol_std_dev = property(get_direct_cell_vol_std_dev) # Standard deviation of the cell volume
+    cartesian_frame = property(get_cartesian_frame)                 # Cartesian Frame type: if CartType='A' the Cartesian Frame has x // a.
     
