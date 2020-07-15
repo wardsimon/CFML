@@ -13,9 +13,9 @@
 # **************************************************************************
 
 import CFML_api.crysfml_api as crysfml_api
-import CFML_api.API_Atoms
-import CFML_api.API_Crystal
-import CFML_API.API_Crystallographic_Symmetry
+import CFML_api.API_Atoms_TypeDef
+import CFML_api.API_Crystal_Metrics
+import CFML_api.API_Crystallographic_Symmetry
 
 class CIFFile():
     def __init__(self, filename):
