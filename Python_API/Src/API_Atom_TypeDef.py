@@ -19,3 +19,6 @@ class AtomList():
         self.__address = None
         if address is not None:
             self.__address = address
+
+    def print_description(self):
+        crysfml_api.atom_typedef_write_atom_list(self.__address)

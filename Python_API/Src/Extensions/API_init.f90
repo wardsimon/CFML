@@ -49,6 +49,9 @@ module API_init
        crystal_metrics_get_rcellvol, &
        crystal_metrics_get_stdvol, &
        crystal_metrics_get_CartType
+
+  use API_Atom_TypeDef, only: &
+       atom_typedef_write_atom_list
   
   implicit none
 
@@ -76,7 +79,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(27)
+    call method_table%init(28)
     !--------------------------
     ! Crystallographic Symmetry (6)
     !--------------------------
@@ -117,6 +120,14 @@ CONTAINS
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
+
+    !--------------------------
+    ! Atom Typedef (1)
+    !--------------------------
+    call method_table%add_method("atom_typedef_write_atom_list", &                  ! method name
+         "Return the atom list description", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
     
     !--------------------------
     ! Crystal Metrics (20)

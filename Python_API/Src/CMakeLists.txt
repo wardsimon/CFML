@@ -13,6 +13,7 @@ project(Python_API Fortran)
 set(LIBRARY_NAME crysfml_api)
 add_library(${LIBRARY_NAME} SHARED
   Extensions/API_init.f90
+  Extensions/API_Atom_TypeDef.f90
   Extensions/API_Crystallographic_Symmetry.f90
   Extensions/API_Crystal_Metrics.f90
   Extensions/API_IO_Formats.f90

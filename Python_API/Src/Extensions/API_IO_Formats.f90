@@ -19,18 +19,12 @@ module API_IO_Formats
   use, intrinsic :: iso_fortran_env 
   
   use CFML_IO_Formats,                only: Readn_set_Xtal_structure
-  use CFML_Atom_TypeDef,              only: Atom_List_Type
   
+  use API_Atom_TypeDef,               only: Atom_List_Type_p  
   use API_Crystallographic_Symmetry,  only: Space_Group_Type_p
   use API_Crystal_Metrics,            only: Crystal_Cell_Type_p
 
   implicit none
-
-
-  !type definitions This should be in the API_Atom_TypeDef
-  type Atom_list_type_p
-     type(Atom_list_type), pointer :: p
-  end type Atom_list_type_p
 
 contains
   

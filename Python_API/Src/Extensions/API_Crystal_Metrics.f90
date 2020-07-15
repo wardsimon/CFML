@@ -118,6 +118,7 @@ contains
 
   end function crystal_metrics_set_crystal_cell
 
+  ! @brief Print the description of the cell to standard output
   function crystal_metrics_write_crystal_cell(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
