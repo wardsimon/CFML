@@ -6,13 +6,13 @@ import CFML_api
 
 filename = sys.argv[1]
 
-cif_file = CFML_api.IO_formats_readn_set_xtal_structure(filename)
+cif_file = CFML_api.CIFFile(filename)
 
 Cell = cif_file.cell
 SpG = cif_file.space_group
 A = cif_file.atom_list
 
-a.print_description()
+#a.print_description()
 
 #PowPat_conditions = CFML_api.Read_PowPatConditions(filename)
 

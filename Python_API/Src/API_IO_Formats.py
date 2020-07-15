@@ -13,13 +13,13 @@
 # **************************************************************************
 
 import CFML_api.crysfml_api as crysfml_api
-import CFML_api.API_Atoms_TypeDef
+import CFML_api.API_Atom_TypeDef
 import CFML_api.API_Crystal_Metrics
 import CFML_api.API_Crystallographic_Symmetry
 
 class CIFFile():
     def __init__(self, filename):
         dict = crysfml_api.IO_formats_readn_set_xtal_structure(filename)
-        self.cell = Cell(address=dict["Cell"])
-        self.space_group = SpaceGroup(address=dict["SpG"])
-        self.atom_list = AtomList(address=dict["A"])
+        self.cell = CFML_api.API_Crystal_Metrics.Cell(address=dict["Cell"])
+        self.space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup(address=dict["SpG"])
+        self.atom_list = CFML_api.API_Atom_TypeDef.AtomList(address=dict["A"])

@@ -15,11 +15,13 @@
 import CFML_api.crysfml_api as crysfml_api
 
 class Cell():
-    def __init__(self, lattpar, lattangle, address=None):
+    def __init__(self, lattpar=None, lattangle=None, address=None):
         if address is not None:
             self.__address = address
-        else :
+        elif lattpar is not None and lattangle is not None:
             self.__address = crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"]
+        else:
+            raise AttributeError
 
     #def __del__(self):
         ## TODO
