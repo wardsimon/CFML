@@ -15,7 +15,5 @@
 import CFML_api.crysfml_api as crysfml_api
 
 class ReflectionList():
-    def __init(self, address=None):
-        self.__address = None
-        if address is not None:
-            self.__address = address
+    def __init__(self, cell, spg, lfriedel, value1, value2):
+        self.__address = crysfml_api.reflections_utilities_hkl_uni_reflist(cell, spg, lfriedel, value1, value2)["address"]

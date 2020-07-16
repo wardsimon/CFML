@@ -54,7 +54,8 @@ module API_init
   use API_Atom_TypeDef, only: &
        atom_typedef_write_atom_list
 
-  !use API_Reflections_Utilities
+  use API_Reflections_Utilities, only: &
+       reflections_utilities_hkl_uni_reflist
   
   implicit none
 
@@ -82,7 +83,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(29)
+    call method_table%init(30)
     !--------------------------
     ! Crystallographic Symmetry (7)
     !--------------------------
@@ -136,6 +137,15 @@ CONTAINS
          "Return the atom list description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
+
+    !--------------------------
+    ! Reflection Utilities (1)
+    !--------------------------
+    call method_table%add_method("reflections_utilities_hkl_uni_reflist", &                  ! method name
+         "Return the list of reflections", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflections_utilities_hkl_uni_reflist))  ! address of Fortran function to add
+
     
     !--------------------------
     ! Crystal Metrics (20)

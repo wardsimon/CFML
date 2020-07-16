@@ -27,18 +27,25 @@ module API_Crystallographic_Symmetry
 
 contains
 
-  subroutine get_space_group_type_from_arg(args, spgr_p)
-    type(tuple) :: args
+  subroutine get_space_group_type_from_arg(args, spgr_p, indx)
+    type(tuple)                            :: args
+    type(Space_Group_type_p), intent(out)  :: spgr_p
+    integer, optional                      :: indx
+    
     type(object) :: arg_obj
     type(list) :: arg_list
     integer :: spgr_p12(12)
-    type(Space_Group_type_p), intent(out) :: spgr_p
-
+    
     integer :: ierror
     integer :: ii
     type(object) :: t
 
-    ierror = args%getitem(arg_obj, 0)
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else          
+       ierror = args%getitem(arg_obj, 0)
+    endif
+  
     ierror = cast(arg_list, arg_obj)
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)

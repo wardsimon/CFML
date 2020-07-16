@@ -33,9 +33,10 @@ module API_Crystal_Metrics
   
 contains 
 
-  subroutine get_cell_from_arg(args, cell_p)
+  subroutine get_cell_from_arg(args, cell_p, indx)
     type(tuple)                            :: args
     type(Crystal_Cell_type_p), intent(out) :: cell_p
+    integer, optional                      :: indx
     
     type(object) :: arg_obj
     type(list) :: arg_list
@@ -45,7 +46,12 @@ contains
     integer :: ii
     type(object) :: t
 
-    ierror = args%getitem(arg_obj, 0)
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else          
+       ierror = args%getitem(arg_obj, 0)
+    endif
+    
     ierror = cast(arg_list, arg_obj)
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)

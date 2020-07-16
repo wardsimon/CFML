@@ -18,8 +18,11 @@ A.print_description()
 
 power_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
 
-#hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  power_pattern_simulation_conditions.getSinThetaOverLambdaMax())
+print("===")
+maxvalue = power_pattern_simulation_conditions.getSinThetaOverLambdaMax()
 
-#hkl.StructureFactors(SpG, A)
+ReflectionList = CFML_api.ReflectionList(Cell, SpG, True, 0, maxvalue)
+
+#ReflectionList.StructureFactors(SpG, A)
 
 #Pat = CFML_api.Calc_powder_pattern(PowPat_conditions, hkl)

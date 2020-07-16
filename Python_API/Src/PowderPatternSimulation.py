@@ -35,7 +35,7 @@ class PowderPatternSimulationConditions():
         
     def getSinThetaOverLambdaMax(self):
         angle_max = min((self.theta_max+10.0)*0.5,90.0) * 180 / np.pi
-        return sin(angle_max/self.lamb)
+        return np.sin(angle_max/self.lamb)
     
     def readFromCFLFile(self, file_name):
         with(open(file_name, "r")) as f:
