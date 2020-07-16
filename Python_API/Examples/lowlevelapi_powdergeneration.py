@@ -22,4 +22,4 @@ ReflectionList = CFML_api.ReflectionList(
     Cell, SpG, True, 0, powder_pattern_simulation_conditions.getSinThetaOverLambdaMax())
 ReflectionList.compute_structure_factors(SpG, A)
 
-Pat = CFML_api.DiffractionPattern(PowPat_conditions, ReflectionList)
+Pat = CFML_api.DiffractionPattern(powder_pattern_simulation_conditions, ReflectionList)
