@@ -17,5 +17,7 @@ from CFML_api.API_Crystal_Metrics import Cell
 from CFML_api.API_Crystallographic_Symmetry import SpaceGroup
 from CFML_api.API_IO_Formats import CIFFile
 from CFML_api.API_Reflections_Utilities import Reflection
+from CFML_api.PowderPatternSimulation import PowderPatternSimulationConditions
+from CFML_api.PowderPatternSimulation import PowderPatternSimulationSource
 
 API_version = 0.2

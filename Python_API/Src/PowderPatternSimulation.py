@@ -12,11 +12,7 @@
 #
 # **************************************************************************
 
-import CFML_api.crysfml_binding as crysfml_binding
-
-import os
 import numpy as np
-import logging
 
 class PowderPatternSimulationSource():
     XRays = 0
@@ -32,11 +28,43 @@ class PowderPatternSimulationConditions():
         self.x_resolution = 0.0015
         self.theta_min = 1.00
         self.theta_step = 0.05
-        self.theta_max = 135 # or 120 ? #int(2.0*asind(stlmax*1.54056))
+        self.theta_max = 135.0 # or 120 ? #int(2.0*asind(stlmax*1.54056))
         self.job = PowderPatternSimulationSource.Neutrons
         self.lorentzian_size = 1900.0
         self.bkg = 50.0
-        # Gs ?
+        
+    def getSinThetaOverLambdaMax(self):
+        angle_max = min((self.theta_max+10.0)*0.5,90.0) * 180 / np.pi
+        return sin(angle_max/self.lamb)
+    
+    def readFromCFLFile(self, file_name):
+        with(open(file_name, "r")) as f:
+            for line in f.readlines():
+                line_splitted = line.split()
+                if len(line_splitted):
+                    if line_splitted[0].upper() == "TITLE":
+                        self.title = line[line.index(line_splitted[1]):]
+                    elif line_splitted[0].upper() == "UVWX":
+                        self.u_resolution = float(line_splitted[1])
+                        self.v_resolution = float(line_splitted[2])
+                        self.w_resolution = float(line_splitted[3])
+                        self.x_resolution = float(line_splitted[4])
+                    elif line_splitted[0].upper() == "LAMBDA":
+                        self.lamb = float(line_splitted[1])
+                    elif line_splitted[0].upper() == "BACKGD":
+                        self.bkg = float(line_splitted[1])
+                    elif line_splitted[0].upper() == "JOBTYPE":
+                        if line_splitted[0].upper() == "N":
+                            self.job = PowderPatternSimulationSource.Neutrons
+                        else:
+                            self.job = PowderPatternSimulationSource.XRays
+                    elif line_splitted[0].upper() == "PATTERN":
+                        self.theta_min = float(line_splitted[1])
+                        self.theta_step = float(line_splitted[2])
+                        self.theta_max = float(line_splitted[3]) 
+                    elif line_splitted[0].upper() == "SIZE_LG":
+                        self.lorentzian_size = float(line_splitted[1])
+
         
 class PowderPatternSimulator():       
     def __init__(self):
