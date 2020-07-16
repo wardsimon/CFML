@@ -42,7 +42,7 @@ module API_Reflections_Utilities
   type Reflection_List_type_p
      type(Reflection_List_type), pointer :: p
   end type Reflection_List_type_p
-  
+
 contains
 
   function reflections_utilities_hkl_uni_reflist(self_ptr, args_ptr) result(r) bind(c)
