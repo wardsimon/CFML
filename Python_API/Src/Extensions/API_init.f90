@@ -29,6 +29,10 @@ module API_init
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure
 
+  use API_Structure_Factors, only: &
+       structure_factors_structure_factors, &
+       structure_factors_write_structure_factors
+
   use API_Crystal_Metrics, only: &
        crystal_metrics_set_crystal_cell, &
        crystal_metrics_write_crystal_cell, &
@@ -83,7 +87,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(30)
+    call method_table%init(32)
     !--------------------------
     ! Crystallographic Symmetry (7)
     !--------------------------
@@ -146,7 +150,18 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(reflections_utilities_hkl_uni_reflist))  ! address of Fortran function to add
 
-    
+    !--------------------------
+    ! Structure Factors (2)
+    !--------------------------
+    call method_table%add_method("structure_factors_structure_factors", &                  ! method name
+         "Computes structure factors", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(structure_factors_structure_factors))  ! address of Fortran function to add
+
+    call method_table%add_method("structure_factors_write_structure_factors", &                  ! method name
+         "Print structure factors", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(structure_factors_write_structure_factors))  ! address of Fortran function to add
     !--------------------------
     ! Crystal Metrics (20)
     !--------------------------

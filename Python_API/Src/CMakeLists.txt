@@ -18,6 +18,7 @@ add_library(${LIBRARY_NAME} SHARED
   Extensions/API_Crystal_Metrics.f90
   Extensions/API_IO_Formats.f90
   Extensions/API_Reflections_Utilities.f90
+  Extensions/API_Structure_Factors.f90
   Extensions/forpy_mod.f90)
 
 # Forpy must be preprocessed
