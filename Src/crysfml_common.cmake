@@ -76,7 +76,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Propagk.f90
     CFML_Random.f90
     CFML_Refcodes.f90
-    CFML_Reflct_Util.f90
+    CFML_Reflections_Utilities.f90
     CFML_Sfac.f90
     CFML_Spher_Harm.f90
     ${STRING_UTILS}

@@ -1,9 +1,9 @@
 # **************************************************************************
 #
-# CrysFML API
+# CrysFML API IO Format
 #
-# @file      Src/__init__.py
-# @brief     __init__ for API module
+# @file      Src/API_Reflections_Utilities.py
+# @brief     Reflections utilities based on CrysFML
 #
 # @homepage  https://code.ill.fr/scientific-software/crysfml
 # @license   GNU LGPL (see LICENSE)
@@ -12,10 +12,10 @@
 #
 # **************************************************************************
 
-from CFML_api.API_Atom_TypeDef import AtomList
-from CFML_api.API_Crystal_Metrics import Cell
-from CFML_api.API_Crystallographic_Symmetry import SpaceGroup
-from CFML_api.API_IO_Formats import CIFFile
-from CFML_api.API_Reflections_Utilities import Reflection
+import CFML_api.crysfml_api as crysfml_api
 
-API_version = 0.2
+class Reflection():
+    def __init(self, address=None):
+        self.__address = None
+        if address is not None:
+            self.__address = address
