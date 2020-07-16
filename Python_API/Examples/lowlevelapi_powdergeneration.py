@@ -16,9 +16,9 @@ Cell.print_description()
 SpG.print_description()
 A.print_description()
 
-PowPat_conditions = CFML_api.Read_PowPatConditions()
+power_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
 
-#hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  PowPat_conditions.getSinThetaOverLambdaMax())
+#hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  power_pattern_simulation_conditions.getSinThetaOverLambdaMax())
 
 #hkl.StructureFactors(SpG, A)
 
