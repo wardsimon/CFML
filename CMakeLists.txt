@@ -10,6 +10,8 @@ option(USE_HDF "Build crysfml and wcrysfml library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
+option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)" OFF)
+option(PROG_EX "Build the Program Examples" ON)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
@@ -100,4 +102,21 @@ else()
     set_compiler_flags_08()
     # The subdirectories of the project.
     add_subdirectory(Src08)
+endif()
+
+# Build the program example executables and use them as functional tests
+if (PROG_EX)
+  enable_testing()
+
+  macro(add_runtest _name _bindir)
+    add_test(
+      NAME ${_name}
+      COMMAND python3 ${CMAKE_SOURCE_DIR}/Tests/${_name}/test --binary-dir=${_bindir} --work-dir=${CMAKE_BINARY_DIR}/Tests/${_name} --verbose --log=${CMAKE_BINARY_DIR}/Tests/${_name}/runtest.stderr.log)
+     #if(NOT "${_labels}" STREQUAL "")
+     set_tests_properties(${_name} PROPERTIES
+       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Tests/${_name})
+     #endif()
+   endmacro()
+  
+  add_subdirectory(Program_Examples/PowderPattern)
 endif()
