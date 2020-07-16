@@ -22,7 +22,9 @@ class Cell():
             self.__address = crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"]
         else:
             raise AttributeError
-
+    
+    def as_fortran_object(self):
+        return self.__address
     #def __del__(self):
         ## TODO
 

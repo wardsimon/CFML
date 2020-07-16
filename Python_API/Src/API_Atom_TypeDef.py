@@ -20,5 +20,8 @@ class AtomList():
         if address is not None:
             self.__address = address
 
+    def as_fortran_object(self):
+        return self.__address
+    
     def print_description(self):
         crysfml_api.atom_typedef_write_atom_list(self.__address)

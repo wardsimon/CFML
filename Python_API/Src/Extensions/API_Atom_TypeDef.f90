@@ -24,9 +24,10 @@ module API_Atom_TypeDef
 
 contains
 
-  subroutine get_alist_from_arg(args, alist_p)
+  subroutine get_atoms_list_from_arg(args, alist_p, indx)
     type(tuple)                            :: args
     type(Atom_list_type_p), intent(out)    :: alist_p
+    integer, optional                      :: indx
     
     type(object) :: arg_obj
     type(list) :: arg_list
@@ -36,7 +37,11 @@ contains
     integer :: ii
     type(object) :: t
 
-    ierror = args%getitem(arg_obj, 0)
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
     ierror = cast(arg_list, arg_obj)
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)
@@ -44,7 +49,7 @@ contains
     enddo
     alist_p = transfer(alist_p12, alist_p)
 
-  end subroutine get_alist_from_arg
+  end subroutine get_atoms_list_from_arg
 
   ! @brief Allocate an atom list for N atoms
   ! @todo Do we need to bind that function ??
@@ -122,7 +127,7 @@ contains
        return
     endif
     
-    call get_alist_from_arg(args, alist_p)
+    call get_atoms_list_from_arg(args, alist_p)
 
     call Write_Atom_List(alist_p%p)
 

@@ -68,6 +68,9 @@ class SpaceGroup():
     def __del__(self):
         crysfml_api.crystallographic_symmetry_del_spacegroup(self.__address)
     
+    def as_fortran_object(self):
+        return self.__address
+    
     def print_description(self):
         crysfml_api.crystallographic_symmetry_write_spacegroup(self.__address)
     

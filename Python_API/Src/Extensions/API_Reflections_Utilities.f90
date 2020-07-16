@@ -32,10 +32,6 @@ module API_Reflections_Utilities
   use API_Crystal_Metrics, only: &
        Crystal_Cell_Type_p, &
        get_cell_from_arg
-
-  use CFML_Crystal_Metrics,  only: & 
-       Write_Crystal_Cell
-
   
   implicit none
 
@@ -44,6 +40,34 @@ module API_Reflections_Utilities
   end type Reflection_List_type_p
 
 contains
+
+  subroutine get_reflection_list_from_arg(args, reflection_list_p, indx)
+    type(tuple)                            :: args
+    type(Reflection_List_type_p), intent(out) :: reflection_list_p
+    integer, optional                      :: indx
+
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: reflection_list_p12(12)
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
+
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(reflection_list_p12(ii), t)
+    enddo
+    reflection_list_p = transfer(reflection_list_p12, reflection_list_p)
+
+  end subroutine get_reflection_list_from_arg
 
   function reflections_utilities_hkl_uni_reflist(self_ptr, args_ptr) result(r) bind(c)
 
@@ -83,10 +107,7 @@ contains
        return
     endif
 
-    write(8,*) 'before get cell'
-
     call get_cell_from_arg(args, cell_p, 0)
-    call Write_Crystal_Cell(Cell_p%p)
     
     call get_space_group_type_from_arg(args, spg_p, 1)
 
@@ -101,14 +122,10 @@ contains
 
     !> @todo here value2 is assumed to be stlmax 
     MaxNumRef = get_maxnumref(value2,Cell_p%p%CellVol,mult=2*SpG_p%p%NumOps)
-
-    write(*,*) 'maxnumref',maxnumref
     
     allocate(hkl_p%p)
     call Hkl_Uni(cell_p%p,spg_p%p,friedel,value1,value2,"s",MaxNumRef,hkl_p%p)
 
-    write(*,*) 'happy'
-    
     hkl_p12 = transfer(hkl_p,hkl_p12)
     ierror = list_create(index_obj)
     do ii=1,12
