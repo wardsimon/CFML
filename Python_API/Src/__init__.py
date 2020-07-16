@@ -12,6 +12,13 @@
 #
 # **************************************************************************
 
+# Try to import fortran binding
+try:
+    import CFML_api.crysfml_api
+except ImportError as e:
+    raise ImportError(str(e) + "\n\n=> Fortran binding could not be found. Is it properly compiled ?")
+
+from CFML_api.FortranBindedClass import FortranBindedClass
 from CFML_api.API_Atom_TypeDef import AtomList
 from CFML_api.API_Crystal_Metrics import Cell
 from CFML_api.API_Crystallographic_Symmetry import SpaceGroup
