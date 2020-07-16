@@ -182,7 +182,17 @@ subroutine Read_Power_Pattern_Simulation_conditions(fich_cfl,PowPat_Conditions)
 
 end subroutine
 
-
+! @brief Computes the parameters for the pseudo-voight approximation
+!
+! @details Approximation of the Voigt profile V(x) using a linear
+! combination of a Gaussian curve G(x) and a Lorentzian curve L(x)
+! instead of their convolution.
+!
+! The full width at half maximum (FWHM) of the Voigt profile can be
+! found from the widths of the associated Gaussian (hg) and Lorentzian (hl) widths
+!
+! eta is a function of full width at half maximum (FWHM) parameter.
+! here a simple formula, accurate to 1%, is used
 Pure Subroutine TCH(Hg,Hl,Fwhm,Eta)
    !---- Arguments ----!
    real, intent(in)  :: hg
