@@ -24,11 +24,11 @@ module API_Reflections_Utilities
   use API_Crystallographic_Symmetry,  only: Space_Group_Type_p
   use API_Crystal_Metrics,            only: Crystal_Cell_Type_p
 
+  implicit none
+
   type Reflection_List_type_p
      type(Reflection_List_type), pointer :: p
   end type Reflection_List_type_p
-  
-  implicit none
 
 contains
 
