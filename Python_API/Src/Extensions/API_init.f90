@@ -19,6 +19,7 @@ module API_init
   
   use API_Crystallographic_Symmetry,only: &
        crystallographic_symmetry_set_spacegroup, &
+       crystallographic_symmetry_del_spacegroup, &
        crystallographic_symmetry_write_spacegroup, &
        crystallographic_symmetry_get_latt_trans, &
        crystallographic_symmetry_get_hexa, &
@@ -81,15 +82,20 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(28)
+    call method_table%init(29)
     !--------------------------
-    ! Crystallographic Symmetry (6)
+    ! Crystallographic Symmetry (7)
     !--------------------------
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_set_spacegroup))  ! address of Fortran function to add
-    
+
+    call method_table%add_method("crystallographic_symmetry_del_spacegroup", &                  ! method name
+         "Delete the space group", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_del_spacegroup))  ! address of Fortran function to add
+
     call method_table%add_method("crystallographic_symmetry_write_spacegroup", &                  ! method name
          "Return space group description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments

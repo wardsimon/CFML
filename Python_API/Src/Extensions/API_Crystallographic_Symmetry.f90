@@ -101,6 +101,38 @@ contains
 
   end function crystallographic_symmetry_set_spacegroup
 
+  function crystallographic_symmetry_del_spacegroup(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Space_Group_type_p) :: spgr_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_description expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    !
+    call get_space_group_type_from_arg(args, spgr_p)
+    deallocate(spgr_p%p)
+    !
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+  end function crystallographic_symmetry_del_spacegroup
+
   function crystallographic_symmetry_write_spacegroup(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr

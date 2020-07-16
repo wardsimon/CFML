@@ -65,6 +65,9 @@ class SpaceGroup():
         elif group_id is not None:
             self.__address = crysfml_api.crystallographic_symmetry_set_spacegroup(group_id)["address"]
     
+    def __del__(self):
+        crysfml_api.crystallographic_symmetry_del_spacegroup(self.__address)
+    
     def print_description(self):
         crysfml_api.crystallographic_symmetry_write_spacegroup(self.__address)
     
