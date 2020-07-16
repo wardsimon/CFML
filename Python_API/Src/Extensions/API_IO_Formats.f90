@@ -72,21 +72,21 @@ contains
     call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode="CIF")
 
     cell_p12 = transfer(cell_p, cell_p12)
-    deallocate(cell_p%p)
+    !deallocate(cell_p%p)
     ierror = list_create(cell_obj)
     do ii=1,12
        ierror = cell_obj%append(cell_p12(ii))
     end do
 
     spg_p12   = transfer(spg_p, spg_p12)
-    deallocate(spg_p%p)
+    !deallocate(spg_p%p)
     ierror = list_create(spg_obj)
     do ii=1,12
        ierror = spg_obj%append(spg_p12(ii))
     end do
 
     a_p12    = transfer(a_p, a_p12)
-    deallocate(a_p%p)
+    !deallocate(a_p%p)
     ierror = list_create(a_obj)
     do ii=1,12
        ierror = a_obj%append(a_p12(ii))
