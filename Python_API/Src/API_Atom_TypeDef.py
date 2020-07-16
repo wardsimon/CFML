@@ -2,7 +2,7 @@
 #
 # CrysFML API Atoms
 #
-# @file      Src/API_Atoms.py
+# @file      Src/API_Atom_TypeDef.py
 # @brief     Atoms properties based on CrysFML
 #
 # @homepage  https://code.ill.fr/scientific-software/crysfml
@@ -12,16 +12,9 @@
 #
 # **************************************************************************
 
-import CFML_api.crysfml_api as crysfml_api
+import CFML_api.crysfml_api
+import CFML_api.FortranBindedClass
 
-class AtomList():
-    def __init__(self, address=None):
-        self.__address = None
-        if address is not None:
-            self.__address = address
-
-    def as_fortran_object(self):
-        return self.__address
-    
+class AtomList(CFML_api.FortranBindedClass):   
     def print_description(self):
-        crysfml_api.atom_typedef_write_atom_list(self.__address)
+        CFML_api.crysfml_api.atom_typedef_write_atom_list(self.get_fortran_address())

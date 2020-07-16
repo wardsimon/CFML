@@ -11,7 +11,7 @@ angl = np.asarray([90,90,80], dtype='float32')
 a=CFML_api.Cell(cellv, angl)
 
 print("======")
-a.printDescription()
+a.print_description()
 print("======")
 print(a.lattpar)
 
