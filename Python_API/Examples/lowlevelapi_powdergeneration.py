@@ -16,9 +16,10 @@ Cell.print_description()
 SpG.print_description()
 A.print_description()
 
-power_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
+powder_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
 
-ReflectionList = CFML_api.ReflectionList(Cell, SpG, True, 0, power_pattern_simulation_conditions.getSinThetaOverLambdaMax())
+ReflectionList = CFML_api.ReflectionList(
+    Cell, SpG, True, 0, powder_pattern_simulation_conditions.getSinThetaOverLambdaMax())
 ReflectionList.compute_structure_factors(SpG, A)
 
-#Pat = CFML_api.Calc_powder_pattern(PowPat_conditions, hkl)
+Pat = CFML_api.DiffractionPattern(PowPat_conditions, ReflectionList)

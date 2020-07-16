@@ -60,6 +60,9 @@ module API_init
 
   use API_Reflections_Utilities, only: &
        reflections_utilities_hkl_uni_reflist
+
+  use API_Diffraction_Patterns, only: &
+       diffraction_patterns_compute_powder_pattern
   
   implicit none
 
@@ -87,7 +90,15 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(32)
+    call method_table%init(33)
+    !--------------------------
+    ! Diffraction Patterns (1)
+    !--------------------------
+    call method_table%add_method("diffraction_patterns_compute_powder_pattern", &                  ! method name
+         "compute the powder diffraction pattern from some experimental conditions and a set of reflections", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_compute_powder_pattern))  ! address of Fortran function to add
+
     !--------------------------
     ! Crystallographic Symmetry (7)
     !--------------------------

@@ -2,7 +2,7 @@
 #
 # CrysFML API Atoms
 #
-# @file      Src/API_Atoms.py
+# @file      Src/API_Atom_Typedef.py
 # @brief     Atoms properties based on CrysFML
 #
 # @homepage  https://code.ill.fr/scientific-software/crysfml
@@ -20,8 +20,5 @@ class AtomList():
         if address is not None:
             self.__address = address
 
-    def as_fortran_object(self):
-        return self.__address
-    
     def print_description(self):
         crysfml_api.atom_typedef_write_atom_list(self.__address)
