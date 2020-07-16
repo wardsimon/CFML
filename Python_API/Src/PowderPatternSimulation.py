@@ -43,7 +43,7 @@ class PowderPatternSimulationConditions():
                 line_splitted = line.split()
                 if len(line_splitted):
                     if line_splitted[0].upper() == "TITLE":
-                        self.title = line[line.index(line_splitted[1]):]
+                        self.title = line[line.index(line_splitted[1]):][:-1]
                     elif line_splitted[0].upper() == "UVWX":
                         self.u_resolution = float(line_splitted[1])
                         self.v_resolution = float(line_splitted[2])
@@ -64,6 +64,24 @@ class PowderPatternSimulationConditions():
                         self.theta_max = float(line_splitted[3]) 
                     elif line_splitted[0].upper() == "SIZE_LG":
                         self.lorentzian_size = float(line_splitted[1])
+    
+    def __str__(self):
+        ret = "TITLE: " + self.title + "\n"
+        ret += "LAMBDA: " + str(self.lamb) + "\n"
+        ret += "U RESOLUTION: " + str(self.u_resolution) + "\n"
+        ret += "V RESOLUTION: " + str(self.v_resolution) + "\n"
+        ret += "W RESOLUTION: " + str(self.w_resolution) + "\n"
+        ret += "X RESOLUTION: " + str(self.x_resolution) + "\n"
+        ret += "THETA MIN: " + str(self.theta_min) + "\n"
+        ret += "THETA STEP: " + str(self.theta_step) + "\n"
+        ret += "THETA MAX: " + str(self.theta_max) + "\n"
+        if self.job == PowderPatternSimulationSource.Neutrons:
+            ret += "JOB: NEUTRONS\n"
+        else:
+            ret += "JOB: XRAYS\n"
+        ret += "LORENTZIAN SIZE: " + str(self.lorentzian_size) + "\n"
+        ret += "BACKGROUND: " + str(self.bkg) + "\n"
+        return ret
 
         
 class PowderPatternSimulator():       
