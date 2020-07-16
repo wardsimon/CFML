@@ -16,9 +16,9 @@ Cell.print_description()
 SpG.print_description()
 A.print_description()
 
-#PowPat_conditions = CFML_api.Read_PowPatConditions(filename)
+PowPat_conditions = CFML_api.Read_PowPatConditions()
 
-#hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  PowPat_conditions.get_stlmax())
+#hkl = CFML_api.hkl_Uni(Cell, SpG, lFriedel, 0,  PowPat_conditions.getSinThetaOverLambdaMax())
 
 #hkl.StructureFactors(SpG, A)
 

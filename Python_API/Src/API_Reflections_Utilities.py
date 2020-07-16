@@ -14,7 +14,7 @@
 
 import CFML_api.crysfml_api as crysfml_api
 
-class Reflection():
+class ReflectionList():
     def __init(self, address=None):
         self.__address = None
         if address is not None:
