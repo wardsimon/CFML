@@ -254,11 +254,13 @@ Subroutine Calc_Powder_Pattern(PowPat_Conditions,Hkl,Pat)
 
    Y= to_deg*PowPat_Conditions%Lambda/PowPat_Conditions%Ls
    do i=1,hkl%nref
-      ss=PowPat_Conditions%Lambda*hkl%ref(i)%S
-      cs=sqrt(abs(1.0-ss*ss))
-      tt=ss/cs
+      ss=PowPat_Conditions%Lambda*hkl%ref(i)%S !ss = sin(theta)
+      cs=sqrt(abs(1.0-ss*ss))                  !cs = cos(theta)
+      tt=ss/cs                                 !tt = tan(theta)
       LorentzF=0.5/(ss*ss*cs)
-      Bragg=2.0*asind(ss)
+      Bragg=2.0*asind(ss)                      !Bragg = 2 * theta (in degrees)
+
+      !fwhm_G = U*tan^2(theta) + V*tan(theta) + W
       HG=sqrt(tt*(PowPat_Conditions%U*tt+PowPat_Conditions%V)+PowPat_Conditions%W)
       HL=PowPat_Conditions%X*tt + Y/cs
       call TCH(hg,hl,fwhm,eta)

@@ -214,7 +214,7 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_get_ang))  ! address of Fortran function to add
 
-        call method_table%add_method("crystal_metrics_get_lcell", &                  ! method name
+    call method_table%add_method("crystal_metrics_get_lcell", &                  ! method name
          "lcell getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_get_lcell))  ! address of Fortran function to add
