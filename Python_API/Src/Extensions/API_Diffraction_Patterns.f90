@@ -220,7 +220,7 @@ contains
 
     ! Doing boring stuff
     call get_diffraction_pattern_type_from_arg(args, diffraction_pattern_type_pointer)
-    ierror = ndarray_create(y_array, diffraction_pattern_type_pointer%p%y)
+    ierror = ndarray_create(y_array, diffraction_pattern_type_pointer%p%ycalc)
     ierror = dict_create(retval)
     ierror = retval%setitem("y", y_array)
     r = retval%get_c_ptr()
