@@ -62,7 +62,9 @@ module API_init
        reflections_utilities_hkl_uni_reflist
 
   use API_Diffraction_Patterns, only: &
-       diffraction_patterns_compute_powder_pattern
+       diffraction_patterns_compute_powder_pattern, &
+       diffraction_patterns_get_x, &
+       diffraction_patterns_get_y
   
   implicit none
 
@@ -90,14 +92,24 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(33)
+    call method_table%init(35)
     !--------------------------
-    ! Diffraction Patterns (1)
+    ! Diffraction Patterns (3)
     !--------------------------
     call method_table%add_method("diffraction_patterns_compute_powder_pattern", &                  ! method name
          "compute the powder diffraction pattern from some experimental conditions and a set of reflections", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(diffraction_patterns_compute_powder_pattern))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_x", &                  ! method name
+         "Get x array", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_x))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_y", &                  ! method name
+         "Get y array", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_y))  ! address of Fortran function to add
 
     !--------------------------
     ! Crystallographic Symmetry (7)

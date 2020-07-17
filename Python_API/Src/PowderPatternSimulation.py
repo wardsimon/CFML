@@ -32,6 +32,21 @@ class PowderPatternSimulationConditions():
         self.job = PowderPatternSimulationSource.Neutrons
         self.lorentzian_size = 1900.0
         self.bkg = 50.0
+    
+    def to_dict(self):
+        return {
+        "lambda":self.lamb,
+        "u_resolution":self.u_resolution,
+        "v_resolution":self.v_resolution,
+        "w_resolution":self.w_resolution,
+        "x_resolution":self.x_resolution,
+        "theta_min":self.theta_min,
+        "theta_step":self.theta_step,
+        "theta_max":self.theta_max,
+        "job":self.job,
+        "lorentzian_size":self.lorentzian_size,
+        "background":self.bkg
+        }
         
     def getSinThetaOverLambdaMax(self):
         angle_max = min((self.theta_max+10.0)*0.5,90.0) * 180 / np.pi

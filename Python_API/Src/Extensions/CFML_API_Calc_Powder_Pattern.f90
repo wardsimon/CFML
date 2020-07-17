@@ -1,4 +1,4 @@
-module CFML_API_PowderSimulation
+module CFML_API_Calc_Powder_Pattern
 
 use CFML_GlobalDeps,  only: to_Deg
 use CFML_Math_General,         only: asind,locate
@@ -10,13 +10,13 @@ use CFML_PowderProfiles_CW,    only: TCH_pVoigt,PseudoVoigt
 
 implicit none
 
-    Type :: PowPat_CW_Conditions
+    Type :: Powder_Pattern_Simulation_Conditions_type
        character(len=140) :: title
        integer :: job
        real    :: Lambda, U, V, W, X, Ls, Gs
        real    :: Thmin, Thmax, step
        real    :: scalef,bkg
-    End Type PowPat_CW_Conditions
+    End Type Powder_Pattern_Simulation_Conditions_type
 
 CONTAINS
 
@@ -40,7 +40,7 @@ subroutine compute_powder_pattern(input_filename, mode, PowPat_Conditions, Pat)
      ! Input/Output
      character(len=*) :: input_filename
      character(len=3)       :: mode
-     Type(PowPat_CW_Conditions)     :: PowPat_Conditions
+     Type(Powder_Pattern_Simulation_Conditions_type)     :: PowPat_Conditions
      Type(Diffraction_Pattern_Type) :: Pat
 
      !
@@ -123,7 +123,7 @@ subroutine Read_Power_Pattern_Simulation_conditions(fich_cfl,PowPat_Conditions)
      !
      implicit none
      Type(file_list_type)           :: fich_cfl
-     Type(PowPat_CW_Conditions)     :: PowPat_Conditions
+     Type(Powder_Pattern_Simulation_Conditions_type)     :: PowPat_Conditions
 
      character(len=8)       :: radiation
      integer                :: ier
@@ -218,7 +218,7 @@ End Subroutine TCH
 
 Subroutine Calc_Powder_Pattern(PowPat_Conditions,Hkl,Pat)
    !---- Argument ----!
-   Type(PowPat_CW_Conditions),     intent(in)  :: PowPat_Conditions
+   Type(Powder_Pattern_Simulation_Conditions_type),     intent(in)  :: PowPat_Conditions
    Type(Reflection_List_Type),     intent(in)  :: hkl
    Type(Diffraction_Pattern_Type), intent(out) :: Pat
 
@@ -288,4 +288,4 @@ Subroutine Calc_Powder_Pattern(PowPat_Conditions,Hkl,Pat)
    return
 End Subroutine Calc_Powder_Pattern
 
-end module
+end module CFML_API_Calc_Powder_Pattern

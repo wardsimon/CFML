@@ -16,9 +16,18 @@ import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
 class DiffractionPattern(CFML_api.FortranBindedClass):
-    def __init__(self, simulation_conditions, reflection_list):
+    def __init__(self, simulation_conditions, reflection_list, scale_f):
         self._set_fortran_address(CFML_api.crysfml_api.diffraction_patterns_compute_powder_pattern(
-            simulation_conditions, reflection_list))
+            simulation_conditions.to_dict(), reflection_list.get_fortran_address(), scale_f)["address"])
+        
+    def get_x(self):
+        return CFML_api.crysfml_api.diffraction_patterns_get_x(self.get_fortran_address())["x"]
+        
+    def get_y(self):
+        return CFML_api.crysfml_api.diffraction_patterns_get_y(self.get_fortran_address())["y"]
+        
+    x = property(get_x)
+    y = property(get_y)
 
 
 class PseudoVoigt():
@@ -54,7 +63,7 @@ class PseudoVoigt():
         ag= 0.93943727869965133377234032841018/self.fwhm
         bg= 2.7725887222397812376689284858327/(self.fwhm**2)
         al= 0.63661977236758134307553505349006/self.fwhm
-        bl= 4.0/self.fwhm**2)
+        bl= 4.0/self.fwhm**2
         gauss = ag* exp(-bg*x2)
         lor   = al/(1.0+bl*x2)
         pv_val = self.eta*lor + (1.0 - self.eta)*gauss

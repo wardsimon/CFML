@@ -20,6 +20,7 @@ add_library(${LIBRARY_NAME} SHARED
   Extensions/API_IO_Formats.f90
   Extensions/API_Reflections_Utilities.f90
   Extensions/API_Structure_Factors.f90
+  Extensions/CFML_API_Calc_Powder_Pattern.f90
   Extensions/forpy_mod.f90)
 
 # Forpy must be preprocessed
