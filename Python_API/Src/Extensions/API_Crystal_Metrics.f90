@@ -116,13 +116,46 @@ contains
     do ii=1,12
        ierror = index_obj%append(cell_p12(ii))
     end do
-    !deallocate(cell_p%p)
 
     ierror = dict_create(retval)
     ierror = retval%setitem("address", index_obj)
     r = retval%get_c_ptr()
 
   end function crystal_metrics_set_crystal_cell
+
+  ! @brief Print the description of the cell to standard output
+  function crystal_metrics_del_crystal_cell(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+
+    type(Crystal_Cell_type_p)   :: cell_p
+
+    r = C_NULL_PTR
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+
+    ierror = args%len(num_args)
+
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "del_crystal_Cell expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    call get_cell_from_arg(args, cell_p)
+
+    deallocate(cell_p%p)
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+  end function crystal_metrics_del_crystal_cell
 
   ! @brief Print the description of the cell to standard output
   function crystal_metrics_write_crystal_cell(self_ptr, args_ptr) result(r) bind(c)

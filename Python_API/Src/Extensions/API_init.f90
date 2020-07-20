@@ -35,6 +35,7 @@ module API_init
 
   use API_Crystal_Metrics, only: &
        crystal_metrics_set_crystal_cell, &
+       crystal_metrics_del_crystal_cell, &
        crystal_metrics_write_crystal_cell, &
        crystal_metrics_get_cell, &
        crystal_metrics_get_ang, &
@@ -92,7 +93,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(35)
+    call method_table%init(36)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -186,13 +187,18 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(structure_factors_write_structure_factors))  ! address of Fortran function to add
     !--------------------------
-    ! Crystal Metrics (20)
+    ! Crystal Metrics (21)
     !--------------------------
     call method_table%add_method("crystal_metrics_set_crystal_cell", &                  ! method name
          "Creates the crystal cell", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_set_crystal_cell))  ! address of Fortran function to add
     
+    call method_table%add_method("crystal_metrics_del_crystal_cell", &                  ! method name
+         "Creates the crystal cell", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_del_crystal_cell))  ! address of Fortran function to add
+
     call method_table%add_method("crystal_metrics_write_crystal_cell", &                  ! method name
          "Return the crystal cell description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments

@@ -20,21 +20,31 @@ class Cell(CFML_api.FortranBindedClass):
         if lattpar is not None and lattangle is not None:
             self._set_fortran_address(CFML_api.crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"])
     
-    #def __del__(self):
-        ## TODO
+    def __del__(self):
+        CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(self.get_fortran_address())
 
     def print_description(self):
         CFML_api.crysfml_api.crystal_metrics_write_crystal_cell(self.get_fortran_address())
 
     def get_lattpar(self):
         return CFML_api.crysfml_api.crystal_metrics_get_cell(self.get_fortran_address())["cell"]
-    
+
     def get_lattangle(self):
         return CFML_api.crysfml_api.crystal_metrics_get_ang(self.get_fortran_address())["ang"]
 
+    def set_lattpar(self, lattpar):
+        lattangle = CFML_api.crysfml_api.crystal_metrics_get_ang(self.get_fortran_address())["ang"]
+        CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(self.get_fortran_address())
+        self._set_fortran_address(CFML_api.crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"])
+
+    def set_lattangle(self, lattangle):
+        lattpar = CFML_api.crysfml_api.crystal_metrics_get_cell(self.get_fortran_address())["cell"]
+        CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(self.get_fortran_address())
+        self._set_fortran_address(CFML_api.crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"])
+
     def get_lattpar_refcode(self):
         return CFML_api.crysfml_api.crystal_metrics_get_lcell(self.get_fortran_address())["lcell"]
-    
+
     def get_lattangle_refcode(self):
         return CFML_api.crysfml_api.crystal_metrics_get_lang(self.get_fortran_address())["lang"]
     
@@ -80,8 +90,8 @@ class Cell(CFML_api.FortranBindedClass):
     def get_cartesian_frame(self):
         return CFML_api.crysfml_api.crystal_metrics_get_CartType(self.get_fortran_address())["CartType"]
 
-    lattpar = property(get_lattpar)                             # Direct cell parameters
-    lattangle = property(get_lattangle)
+    lattpar = property(get_lattpar, set_lattpar)                             # Direct cell parameters
+    lattangle = property(get_lattangle, set_lattangle)
     lattpar_refcode = property(get_lattpar_refcode)                 # Code number for refinement in optimization procedures
     lattangle_refcode = property(get_lattangle_refcode)
     lattpar_std_dev = property(get_lattpar_std_dev)                 # Standard deviations of the cell parameters
