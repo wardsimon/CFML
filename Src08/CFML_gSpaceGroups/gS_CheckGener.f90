@@ -20,7 +20,7 @@ SubModule (CFML_gSpaceGroups) SPG_Check_Gener
       logical                                          :: init, newgen
       integer                                          :: i,j,d,d_in,ngen_in,ngen,nop,nop_in,invt
       character(len=40), dimension(size(gen_in))       :: genAux
-      type(Symm_Oper_Type), dimension(0:256)           :: Op
+      type(Symm_Oper_Type), dimension(0:512)           :: Op
       type(rational),       dimension(:,:),allocatable :: Mat
 
       !> Init

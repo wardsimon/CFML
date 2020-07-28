@@ -22,18 +22,24 @@ Program Magnetic_Hall
       character(len=15) :: ID_BNS
       character(len=15) :: ID_OG
    End Type MAG_SYMB_TYPE
+   ! Type, public :: Shub_Spgr_Info_Type
+   !    character(len=8)  :: ID_BNS =" "   !  ID Number of BNS
+   !    character(len=15) :: BNS    =" "   !  BNS symbol
+   !    character(len=12) :: ID_OG  =" "   !  ID number of OG
+   !    character(len=15) :: OG     =" "   !  OG symbol
+   !    character(len=25) :: STD    =" "   !  Proposed standard symbol
+   !    character(len=25) :: MHall  =" "   !  Magnetic Hall symbol
+   ! End Type Shub_Spgr_Info_Type
 
    type(Mag_Symb_Type), dimension(1651) :: Mag_Symb
 
    character(len=50)                            :: str_BNS, str_Hall
    character(len=60), dimension(:), allocatable :: gen
-   integer                                      :: n, k
+   character(len=:), allocatable                :: generators
+   integer                                      :: i,n, k, j,nt, i_out=1
    integer                                      :: ik,ngen
    real(kind=cp), dimension(3)                  :: shift
-
    type(spg_type)                               :: SpG
-
-   integer                                      :: i,j,nt
    real(kind=cp) :: start, fin, st,fi
    !integer, dimension(1651)                     :: Litvin_to_IT
 
@@ -57,6 +63,9 @@ Program Magnetic_Hall
    !> Main
    call cpu_time(start)
    nt=0
+   open(unit=i_out,file="Magnetic_Hall_Symbols.txt",status="replace",action="write")
+   write(i_out,"(a)")&
+   'Litvin_Number  BNS_number   BNS_symbol         OG_number        OG_symbol      INT_number   INT_symbol                  MHall_symbol                    Explicit Generators separated by ";"'
    do n=1,1651
       !> Info from Database
       call cpu_time(st)
@@ -68,6 +77,11 @@ Program Magnetic_Hall
       ngen=0
       gen=" "
       call Get_Generators(str_Hall, Gen, ngen)
+      generators=" "
+      do i=1,ngen
+        generators=trim(generators)//trim(gen(i))//";"
+      end do      
+      generators=generators(1:len_trim(generators)-1)
       !
       !!> Constructor
       call Init_SpaceGroup(SpG)
@@ -93,9 +107,12 @@ Program Magnetic_Hall
       nt=nt+1
       !Litvin_to_IT(n)=ik
       if (trim(str_BNS) /= trim(Mag_symb(ik)%BNS)) then
-         write(unit=*,fmt='(i6,i6,t18,a,t40,a,t60,a,f8.4,a)') nt, ik, str_BNS, Mag_symb(ik)%BNS, 'ERROR  '//shubnikov_info(ik)%STD//shubnikov_info(ik)%MHALL//'  CPU:',fi-st,"seconds"
+         write(unit=*,fmt='(i6,i6,t18,a,t40,a,t60,a,f8.4,a)') nt, ik, str_BNS, Mag_symb(ik)%BNS, 'ERROR  '//shubnikov_info(ik)%STD//shubnikov_info(ik)%MHALL//'  CPU:',fi-st," seconds"
       else
-         write(unit=*,fmt='(i6,i6,t18,a,t40,a,t60,a,f8.4,a)') nt, ik, str_BNS, Mag_symb(ik)%BNS, 'OK     '//shubnikov_info(ik)%STD//shubnikov_info(ik)%MHALL//'  CPU:',fi-st,"seconds"
+         call Get_Generators(str_Hall, gen, ngen)
+         write(unit=*,fmt='(i6,i6,t18,a,t40,a,t60,a,f8.4,a)') nt, ik, str_BNS, Mag_symb(ik)%BNS, 'OK     '//shubnikov_info(ik)%STD//shubnikov_info(ik)%MHALL//'  CPU:',fi-st," seconds  => "//trim(generators)
+         write(unit=i_out,fmt='(i6,tr6,4(tr5,a),i6,tr5,a,tr5,a)')  &
+            ik,shubnikov_info(ik)%id_BNS, shubnikov_info(ik)%BNS,shubnikov_info(ik)%ID_OG,shubnikov_info(ik)%OG, nt, shubnikov_info(ik)%STD,shubnikov_info(ik)%MHall//"    "//trim(generators)
       end if
 
    end do

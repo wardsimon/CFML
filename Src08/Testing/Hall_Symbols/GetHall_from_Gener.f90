@@ -13,8 +13,9 @@ Program Magnetic_Hall
    implicit none
    
    character(len=50)                            :: str_BNS, str_Hall, str
+   character(len=:), allocatable                :: generators
    character(len=60), dimension(:), allocatable :: gen
-   integer                                      :: n, ngen
+   integer                                      :: i, n, ngen
    integer, dimension(3)                        :: shift
    
    !> Magnetic Symmetry Symbols (Proposed)
@@ -88,12 +89,16 @@ Program Magnetic_Hall
             str=Get_Hall_from_Generators(Ngen, Gen, shift)      
          case default
             str=Get_Hall_from_Generators(Ngen, Gen)
-      end select      
-      
+      end select 
+      generators=" "
+      do i=1,ngen
+        generators=trim(generators)//trim(gen(i))//";"
+      end do      
+      generators=generators(1:len_trim(generators)-1)
       if (trim(pack_string(Str)) /= trim(pack_string(str_Hall))) then
          write(unit=*,fmt='(i6,t18,a,t35,a,t60,a,t85,a)') n, trim(str_BNS), trim(str_Hall), trim(str),  'ERROR'
       else
-         write(unit=*,fmt='(i6,t18,a,t35,a,t60,a,t85,a)') n, trim(str_BNS), trim(str_Hall), trim(str),  'OK'
+         write(unit=*,fmt='(i6,t18,a,t35,a,t60,a,t85,a)') n, trim(str_BNS), trim(str_Hall), trim(str),  "OK  -> "//trim(generators)
       end if   
       
    end do   
