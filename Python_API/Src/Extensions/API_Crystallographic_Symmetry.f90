@@ -45,13 +45,16 @@ contains
     else          
        ierror = args%getitem(arg_obj, 0)
     endif
-  
     ierror = cast(arg_list, arg_obj)
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)
        ierror = cast(spgr_p12(ii), t)
+       call t%destroy
     enddo
     spgr_p = transfer(spgr_p12, spgr_p)
+
+    call arg_obj%destroy
+    call arg_list%destroy
 
   end subroutine get_space_group_type_from_arg
 
@@ -80,6 +83,7 @@ contains
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+
     call unsafe_cast_from_c_ptr(args, args_ptr)
     ! Check if the arguments are OK
     ierror = args%len(num_args)
@@ -96,15 +100,21 @@ contains
     allocate(spgr_p%p)
     call set_spacegroup(spgr,spgr_p%p)
     spgr_p12 = transfer(spgr_p, spgr_p12)
+
+    !
     ierror = list_create(index_obj)
     do ii=1,12
        ierror = index_obj%append(spgr_p12(ii))
     end do
-    !deallocate(spgr_p%p)
-    !
+
     ierror = dict_create(retval)
     ierror = retval%setitem("address", index_obj)
     r = retval%get_c_ptr()
+
+    deallocate(spgr)
+    call args%destroy
+    call index_obj%destroy
+
 
   end function crystallographic_symmetry_set_spacegroup
 
@@ -133,10 +143,16 @@ contains
 
     !
     call get_space_group_type_from_arg(args, spgr_p)
+
+    if(allocated(spgr_p%p%Latt_trans)) deallocate(spgr_p%p%Latt_trans)
+    if(allocated(spgr_p%p%SymOp)) deallocate(spgr_p%p%SymOp)
+    if(allocated(spgr_p%p%SymOpSymb)) deallocate(spgr_p%p%SymOpSymb)
     deallocate(spgr_p%p)
     !
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
+
+    call args%destroy
 
   end function crystallographic_symmetry_del_spacegroup
 

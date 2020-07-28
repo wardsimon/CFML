@@ -56,8 +56,11 @@ contains
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)
        ierror = cast(cell_p12(ii), t)
+       call t%destroy
     enddo
     cell_p = transfer(cell_p12, cell_p)
+    call arg_obj%destroy
+    call arg_list%destroy
 
   end subroutine get_cell_from_arg
 
@@ -121,6 +124,9 @@ contains
     ierror = retval%setitem("address", index_obj)
     r = retval%get_c_ptr()
 
+    call args%destroy
+    call index_obj%destroy
+
   end function crystal_metrics_set_crystal_cell
 
   ! @brief Print the description of the cell to standard output
@@ -154,6 +160,8 @@ contains
 
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
+
+    call args%destroy
 
   end function crystal_metrics_del_crystal_cell
 
