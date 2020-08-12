@@ -58,8 +58,10 @@ SubModule (CFML_gSpaceGroups) SPG_Match_Shubnikov_Group
         end if
 
         !> Load table for standard magnetic groups
-        call Read_Magnetic_Data()
-        if (Err_CFML%Ierr /=0) return
+        if(.not. Magnetic_DBase_allocated) then
+          call Read_Magnetic_Data()
+          if (Err_CFML%Ierr /=0) return
+        end if
 
         !> Set the range of possible magnetic groups from the laue class
         select case (trim(G%laue))

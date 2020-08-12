@@ -20,7 +20,8 @@ SubModule (CFML_gSpaceGroups) SPG_Oper_Mult
 
       d=n-1
       Op3%Mat=matmul(Op1%Mat,Op2%Mat)
-      Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_LI)
+      !Op3%Mat(1:d,n)=mod(Op3%Mat(1:d,n),1_LI)
+      Op3%Mat(1:d,n)=rational_modulo_lat(Op3%Mat(1:d,n))
       do i=1,d
          do
             if (Op3%Mat(i,n) < 0_LI//1_LI) then

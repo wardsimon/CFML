@@ -18,7 +18,7 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Type
       !---- Local variables ----!
       integer :: i,j,nlat
       logical :: latt_p, latt_a, latt_b, latt_c, latt_i, latt_r, &
-                 latt_s, latt_h, latt_f, latt_z
+                 latt_s, latt_h, latt_f, latt_x
       integer,        dimension(10)   :: latt_given
       type(rational), dimension(3,10) :: lattice
 
@@ -50,10 +50,10 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Type
       end if
 
       if (nlat > 3) then  !non conventional centring
-         lattyp="Z"
-         Err_CFML%Ierr = 1
-         Err_CFML%Msg = "Get_Lattice_Type@SPACEG: Number of centring vectors > 3."
-         return
+         lattyp="X"
+         !Err_CFML%Ierr = 1
+         !Err_CFML%Msg = "Get_Lattice_Type@SPACEG: Number of centring vectors > 3."
+         !return
       end if
 
       latt_a=.false.
@@ -64,7 +64,7 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Type
       latt_s=.false. ! Rombohedral,reverse setting
       latt_h=.false. ! Hexagonally centred
       latt_f=.false.
-      latt_z=.false.
+      latt_x=.false.
 
       do i = 1 , N
          latt_given(:) = 0
@@ -98,16 +98,14 @@ SubModule (CFML_gSpaceGroups) SPG_Lattice_Type
          end do
 
          if (sum(latt_given) == 0) then
-            latt_z = .true.
+            latt_x = .true.
             exit
          end if
       end do
 
       !> Lattice Type
-      if (latt_z) then
-         lattyp  = "Z"
-         Err_CFML%Ierr = 1
-         Err_CFML%Msg = "Get_Lattice_Type@SPACEG: Unable to identify lattice type."
+      if (latt_x) then
+         lattyp  = "X"
          return
       end if
 

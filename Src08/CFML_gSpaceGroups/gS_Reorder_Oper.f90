@@ -69,19 +69,17 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
       !> Check if the group is paramagnetic
       j=0
       do i=2,Multip
-         if (Op(i)== Op_identp) then
-            j=i
+         if (Op(i) == Op_identp) then
+            j=i !Position of 1'
             exit
          end if
       end do
 
-      if (j /= 0) Then
-         if (Op(j)%time_inv < 0) then
-            do i=2,Multip   !Nullify all primed operators
-               if (Op(i)%time_inv < 0) nul(i) = .true.
-            end do
-            mag_type=2
-         end if
+      if (j /= 0) Then  !Only for paramagnetic groups
+         mag_type=2
+         do i=2,Multip   !Nullify all primed operators
+            if (Op(i)%time_inv < 0) nul(i) = .true.
+         end do
       end if
 
       !> Look for centre of symmetry, and centring translations
@@ -90,10 +88,10 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
          if (nul(j)) cycle
          invt= Op(j)%time_inv
          imat=Op(j)%Mat(1:d,1:d)
-         if (rational_equal(identity,imat) .and. invt == 1) then
+         if (rational_equal(identity,imat) .and. invt == 1) then !A lattice centring operator
             num_lat=num_lat+1
             Lat_tr(:,num_lat)=Op(j)%Mat(1:d,n)
-            Op_Lat(num_lat)=Op(j)
+            Op_Lat(num_lat) = Op(j)
             nul(j)=.true.   !Nullify centring translations
             cycle
          end if
@@ -115,26 +113,15 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
             centred = 0
          end if
       end if
-
       !> Nullify operators deduced by lattice translations and centre of symmetry
       do j=2,Multip-1
          if (nul(j)) cycle
-
-         if (mag_type ==2) then
-            Op_aux=Op(j)*Op_identp
-            do i=j+1,Multip
-               if (nul(i)) cycle
-               if (Op_aux == Op(i)) then
-                  nul(i)=.true.
-               end if
-            end do
-         end if
-
          if (num_lat > 0 .and. i_centre /= 0) then
-            Op_aux=Op(j)*Op_centre
+            Op_aux=Op_centre*Op(j)
             do L=1,num_lat
-               Op_aux1=Op(j)*Op_Lat(L)
-               Op_aux2=Op_aux1*Op_centre
+               Op_aux1=Op_Lat(L)*Op(j) !Changed!=> in general they not commute
+               Op_aux2=Op_centre*Op_aux1
+               !write(*,"(2i5,a)")j,L,"  "//Get_Symb_from_Op(Op(j))//"  "//Get_Symb_from_Op(Op_Lat(L))//"       "//Get_Symb_from_Op(Op_aux1)//"    "//Get_Symb_from_Op(Op_aux2)
                do i=j+1,Multip
                   if (nul(i)) cycle
                   if (Op_aux == Op(i) .or. Op_aux1 == Op(i) .or. Op_aux2 == Op(i)) then
@@ -147,7 +134,7 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
 
          if (num_lat > 0) then
             do L=1,num_lat
-               Op_aux=Op(j)*Op_Lat(L)
+               Op_aux=Op_Lat(L)*Op(j)
                do i=j+1,Multip
                   if (nul(i)) cycle
                   if (Op_aux == Op(i)) then
@@ -158,7 +145,7 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
          end if
 
          if (i_centre /= 0) then
-            Op_aux=Op(j)*Op_centre
+            Op_aux=Op_centre*Op(j)
             do i=j+1,Multip
                if (nul(i)) cycle
                if (Op_aux == Op(i) ) then
@@ -174,13 +161,10 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
       nulo=zero
 
       do_ext: do j=2,Multip
-         !if(nul(j)) cycle
          invt= Op(j)%time_inv
          imat=Op(j)%Mat(1:d,1:d)
          atr=Op(j)%Mat(1:d,n)
          !> Modification JGP
-         !if (rational_equal(identity,imat) .and. invt == -1) then
-             !if (rational_equal(atr,nulo)) cycle
          if (rational_equal(identity,imat) .and. invt == -1 .and. mag_type /= 2) then
             num_alat=num_alat+1
             aLat_tr(:,num_alat)=atr
@@ -215,7 +199,7 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
 
       m=Numops*(num_lat+1)*cent(centred)
       if (mag_type == 2) m=m*2
-      if ( m /= Multip) then !Check that it is OK
+      if ( m /= Multip ) then !Check that it is OK
          Err_CFML%Ierr = 1
          write(unit=Err_CFML%Msg,fmt="(2(a,i4))") "Reorder_Operators@SPACEG: Warning in Multip=",Multip, " Calculated Multip: ",m
          return
@@ -228,7 +212,7 @@ SubModule (CFML_gSpaceGroups) SPG_Reorder_Operators
       if (i_centre /= 0) then   !First apply the centre of symmetry
          do i=1,Numops
             m=m+1
-            Op(m) = Op(i) * Op_centre
+            Op(m) = Op_centre * Op(i) 
          end do
       end if
 

@@ -72,8 +72,10 @@ SubModule (CFML_gSpaceGroups) SPG_Identify_Group
       pout=(pout .or. CFML_DEBUG)
       !>=================
 
-      call Read_Magnetic_Data()
-      if (Err_CFML%IErr /=0) return
+      if(.not. Magnetic_DBase_allocated) then
+        call Read_Magnetic_Data()
+        if (Err_CFML%IErr /=0) return
+      end if
 
       call Identify_PointGroup(G)
       if (Err_CFML%Ierr /= 0) return
