@@ -15,6 +15,20 @@
 import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
-class AtomList(CFML_api.FortranBindedClass):   
+class AtomList(CFML_api.FortranBindedClass):
+    """ Class for the list of Atoms type(Atom_list_type) in CFML. 
+
+    ...
+    Attributes
+    ----------
+
+    Methods
+    -------
+    print_description
+        Print the list of atoms
+    """
+    
     def print_description(self):
+        """ Print the list of atoms. """
+        
         CFML_api.crysfml_api.atom_typedef_write_atom_list(self.get_fortran_address())
