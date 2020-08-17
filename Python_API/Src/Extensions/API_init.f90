@@ -24,8 +24,29 @@ module API_init
        crystallographic_symmetry_get_latt_trans, &
        crystallographic_symmetry_get_hexa, &
        crystallographic_symmetry_get_numspg, &
-       crystallographic_symmetry_get_spg_symb
-  
+       crystallographic_symmetry_get_spg_symb, &
+       crystallographic_symmetry_get_hall, &
+       crystallographic_symmetry_get_ghall, &
+       crystallographic_symmetry_get_CrystalSys, &
+       crystallographic_symmetry_get_Laue, &
+       crystallographic_symmetry_get_PG, &
+       crystallographic_symmetry_get_Info, &
+       crystallographic_symmetry_get_SG_setting, &
+       crystallographic_symmetry_get_SPG_lat, &
+       crystallographic_symmetry_get_SPG_latsy, &
+       crystallographic_symmetry_get_NumLat, &
+       crystallographic_symmetry_get_bravais, &
+       crystallographic_symmetry_get_centre, &
+       crystallographic_symmetry_get_centred, &
+       crystallographic_symmetry_get_centre_coord, &
+       crystallographic_symmetry_get_numops, &
+       crystallographic_symmetry_get_multip, &
+       crystallographic_symmetry_get_num_gen, &
+       crystallographic_symmetry_get_SymOp, &
+       crystallographic_symmetry_get_SymopSymb, &
+       crystallographic_symmetry_get_wyckoff, &
+       crystallographic_symmetry_get_R_asym_unit
+       
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure
 
@@ -93,7 +114,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(36)
+    call method_table%init(57)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -113,7 +134,7 @@ CONTAINS
          c_funloc(diffraction_patterns_get_y))  ! address of Fortran function to add
 
     !--------------------------
-    ! Crystallographic Symmetry (7)
+    ! Crystallographic Symmetry (28)
     !--------------------------
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
@@ -149,6 +170,112 @@ CONTAINS
          "spg_symb getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_spg_symb))  ! address of Fortran function to add
+
+        call method_table%add_method("crystallographic_symmetry_get_hall", &                  ! method name
+         "hall getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_hall))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_ghall", &                  ! method name
+         "ghall getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_ghall))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_CrystalSys", &                  ! method name
+         "CrystalSys getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_CrystalSys))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_Laue", &                  ! method name
+         "Laue getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_Laue))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_PG", &                  ! method name
+         "PG getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_PG))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_Info", &                  ! method name
+         "Info getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_Info))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_SG_setting", &                  ! method name
+         "SG_setting getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_SG_setting))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_SPG_lat", &                  ! method name
+         "SPG_lat getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_SPG_lat))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_SPG_latsy", &                  ! method name
+         "SPG_latsy getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_SPG_latsy))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_NumLat", &                  ! method name
+         "NumLat getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_NumLat))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_bravais", &                  ! method name
+         "bravais getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_bravais))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_centre", &                  ! method name
+         "centre getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_centre))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_centred", &                  ! method name
+         "centred getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_centred))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_centre_coord", &                  ! method name
+         "centre_coord getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_centre_coord))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_numops", &                  ! method name
+         "numops getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_numops))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_multip", &                  ! method name
+         "multip getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_multip))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_num_gen", &                  ! method name
+         "num_gen getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_num_gen))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_SymOp", &                  ! method name
+         "SymOp getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_SymOp))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_SymopSymb", &                  ! method name
+         "SymopSymb getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_SymopSymb))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff", &                  ! method name
+         "wyckoff getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff))  ! address of Fortran function to add
+    
+    call method_table%add_method("crystallographic_symmetry_get_R_asym_unit", &                  ! method name
+         "R_asym_unit getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_R_asym_unit))  ! address of Fortran function to add
+    
     
     !--------------------------
     ! IO formats (1)

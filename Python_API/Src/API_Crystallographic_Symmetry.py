@@ -27,34 +27,28 @@ class WyckoffType(CFML_api.FortranBindedClass):
     pass
 
 class SpaceGroup(CFML_api.FortranBindedClass):
-    """
-       integer                                       :: NumSpg=0         ! Number of the Space Group
-       character(len=20)                             :: SPG_Symb=" "     ! Hermann-Mauguin Symbol
-       character(len=16)                             :: Hall=" "         ! Hall symbol
-       character(len=90)                             :: gHall=" "        ! Generalised Hall symbol
-       character(len=12)                             :: CrystalSys=" "   ! Crystal system
-       character(len= 5)                             :: Laue=" "         ! Laue Class
-       character(len= 5)                             :: PG=" "           ! Point group
-       character(len= 5)                             :: Info=" "         ! Extra information
-       character(len=90)                             :: SG_setting=" "   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-       logical                                       :: Hexa=.false.     !
-       character(len= 1)                             :: SPG_lat=" "      ! Lattice type
-       character(len= 2)                             :: SPG_latsy=" "    ! Lattice type Symbol
-       integer                                       :: NumLat=0         ! Number of lattice points in a cell
-       real(kind=cp), allocatable,dimension(:,:)     :: Latt_trans       ! Lattice translations (3,12)
-       character(len=51)                             :: Bravais=" "      ! String with Bravais symbol + translations
-       character(len=80)                             :: Centre=" "       ! Alphanumeric information about the center of symmetry
-       integer                                       :: Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-       real(kind=cp), dimension(3)                   :: Centre_coord=0.0 ! Fractional coordinates of the inversion centre
-       integer                                       :: NumOps=0         ! Number of reduced set of S.O.
-       integer                                       :: Multip=0         ! Multiplicity of the general position
-       integer                                       :: Num_gen          ! Minimum number of operators to generate the Group
-       type(Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
-       character(len=50),   allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
-       type(Wyckoff_Type)                            :: Wyckoff          ! Wyckoff Information
-       real(kind=cp),dimension(3,2)                  :: R_Asym_Unit=0.0  ! Asymmetric unit in real space
+    """ A class used to describe a Crystallographic Space Group type(Space_group_type) in CFML
+
+    ...
+    Attributes
+    ----------
+    group_id : int
+       Space group number listed in the International Tables for Crystallography
+
+    Methods
+    -------
+    print_description
+        Prints the lattice cell description
+
     """
     def __init__(self, group_id=None):
+        """
+        Parameters
+        ----------
+        group_id : int
+            Space group number
+        """
+        
         if group_id is not None:
             self._set_fortran_address(CFML_api.crysfml_api.crystallographic_symmetry_set_spacegroup(group_id)["address"])
     
@@ -62,117 +56,181 @@ class SpaceGroup(CFML_api.FortranBindedClass):
         CFML_api.crysfml_api.crystallographic_symmetry_del_spacegroup(self.get_fortran_address())
     
     def print_description(self):
+        """ Prints the lattice cell description """
+        
         CFML_api.crysfml_api.crystallographic_symmetry_write_spacegroup(self.get_fortran_address())
-    
-    def get_lattice_translation(self):
+
+    @property
+    def lattice_translation(self):
         """
-        @brief Lattice translation matrix
+        Lattice translation matrix
         """
         return CFML_api.crysfml_api.crystallographic_symmetry_get_latt_trans(self.get_fortran_address())["latt_trans"]
-    
+
+    @property
     def is_hexa(self):
         """
-        @brief Is space group hexagonal
+        Is space group hexagonal
         """
         return CFML_api.crysfml_api.crystallographic_symmetry_get_hexa(self.get_fortran_address())["hexa"]
-    
-    def get_number_of_space_group(self):
+
+    @property
+    def space_group_number(self):
         """
-        @brief Number of the space group
+        Number of the space group
         """
         return CFML_api.crysfml_api.crystallographic_symmetry_get_numspg(self.get_fortran_address())["numspg"]
-    
-    def get_space_group_symbol(self):
+
+    @property
+    def space_group_symbol(self):
         """
-        @brief Space group symbol as text
+        Hermann-Mauguin Symbol (str)
         """
         return CFML_api.crysfml_api.crystallographic_symmetry_get_spg_symb(self.get_fortran_address())["spg_symb"]
     
-    def get_hall_symbol(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_hall(self.get_fortran_address())
+    @property
+    def hall_symbol(self):
+        """
+        Hall symbol
+        """
+        return crysfml_api.crystallographic_symmetry_get_hall(self.__address)["hall"]
     
-    def get_generalized_hall_symbolp(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_ghall(self.get_fortran_address())
+    @property
+    def generalized_hall_symbol(self):
+        """
+        Generalised Hall symbol
+        """
+        return crysfml_api.crystallographic_symmetry_get_ghall(self.__address)["ghall"]
     
-    def get_crystal_system(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_crystalsys(self.get_fortran_address())
+    @property
+    def crystal_system(self):
+        """
+        Crystal System
+        """
+        return crysfml_api.crystallographic_symmetry_get_CrystalSys(self.__address)["CrystalSys"]
     
-    def get_laue_class(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_laue(self.get_fortran_address())
+    @property
+    def laue_class(self):
+        """
+        Laue class
+        """
+        return crysfml_api.crystallographic_symmetry_get_Laue(self.__address)["Laue"]
     
-    def get_point_group(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_pg(self.get_fortran_address())
+    @property
+    def point_group(self):
+        """
+        Point group
+        """
+        return crysfml_api.crystallographic_symmetry_get_PG(self.__address)["PG"]
     
-    def get_extra_information(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_info(self.get_fortran_address())
-
-    def get_space_group_setting(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_sg_setting(self.get_fortran_address())
+    @property
+    def extra_information(self):
+        """
+        Extra Information
+        """
+        return crysfml_api.crystallographic_symmetry_get_Info(self.__address)["Info"]
     
-    def get_space_group_lattice_type(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_spg_lat(self.get_fortran_address())
+    @property
+    def space_group_setting(self):
+        """
+        Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
+        """
+        return crysfml_api.crystallographic_symmetry_get_SG_setting(self.__address)["SG_setting"]
     
-    def get_space_group_lattice_type_symbol(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_spg_latsy(self.get_fortran_address())
+    @property
+    def space_group_lattice_type(self):
+        """
+        Lattice type
+        """
+        return crysfml_api.crystallographic_symmetry_get_SPG_lat(self.__address)["SPG_lat"]
     
-    def get_number_of_lattice_points(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_numlat(self.get_fortran_address())
+    @property
+    def space_group_lattice_type_symbol(self):
+        """
+        Lattice type Symbol
+        """
+        return crysfml_api.crystallographic_symmetry_get_SPG_latsy(self.__address)["SPG_latsy"]
     
-    def get_bravais(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_bravais(self.get_fortran_address())
+    @property
+    def number_of_lattice_points(self):
+        """
+        Number of lattice points in a cell
+        """
+        return crysfml_api.crystallographic_symmetry_get_NumLat(self.__address)["NumLat"]
     
-    def get_centre(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_centre(self.get_fortran_address())
+    @property
+    def bravais(self):
+        """
+        String with Bravais symbol + translations
+        """
+        return crysfml_api.crystallographic_symmetry_get_bravais(self.__address)["bravais"]
     
-    def get_centric(self):
-        return CentricType(CFML_api.crysfml_api.crystallographic_symmetry_get_centric(self.get_fortran_address()))
-
-    def get_inversion_centre(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_centre_coord(self.get_fortran_address())
+    @property
+    def centre(self):
+        """
+        Alphanumeric information about the center of symmetry
+        """
+        return crysfml_api.crystallographic_symmetry_get_centre(self.__address)["centre"]
     
-    def get_number_of_reduced_set(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_numops(self.get_fortran_address())
+    @property
+    def centric(self):
+        """
+        Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
+        """
+        return crysfml_api.crystallographic_symmetry_get_centred(self.__address)["centred"]
     
-    def get_multiplicity(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_multip(self.get_fortran_address())
+    @property
+    def inversion_centre(self):
+        """
+        Fractional coordinates of the inversion centre
+        """
+        return crysfml_api.crystallographic_symmetry_get_centre_coord(self.__address)["centre_coord"]
     
-    def get_operators_minimum_number(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_num_gen(self.get_fortran_address())
+    @property
+    def number_of_symops(self):
+        """
+        Number of reduced set of Symmetry Operators
+        """
+        return crysfml_api.crystallographic_symmetry_get_numops(self.__address)["numops"]
     
-    def get_symmetry_operators(self):
-        return SymmetryOperators(CFML_api.crysfml_api.crystallographic_symmetry_get_symop(self.get_fortran_address()))
+    @property
+    def multiplicity(self):
+        """
+        Multiplicity of the general position
+        """
+        return crysfml_api.crystallographic_symmetry_get_multip(self.__address)["multip"]
     
-    def get_symmetry_operators_as_text(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_sympopsymb(self.get_fortran_address())
+    @property
+    def operators_minimum_number(self):
+        """
+        Minimum number of operators to generate the Group
+        """
+        return crysfml_api.crystallographic_symmetry_get_num_gen(self.__address)["num_gen"]
     
-    def get_wyckoff_type(self):
-        return WyckoffType(CFML_api.crysfml_api.crystallographic_symmetry_get_wycoff(self.get_fortran_address()))
-        
-    def get_asymetric_unit(self):
-        return CFML_api.crysfml_api.crystallographic_symmetry_get_r_asym_unit(self.get_fortran_address())
-        
-        
-    number_of_space_group = property(get_number_of_space_group)
-    space_group_symbol = property(get_space_group_symbol)
-    hall_symbol = property(get_hall_symbol)
-    generalized_hall_symbolp = property(get_generalized_hall_symbolp)
-    crystal_system = property(get_crystal_system)
-    laue_class = property(get_laue_class)
-    point_group = property(get_point_group)
-    extra_information = property(get_extra_information)
-    space_group_setting = property(get_space_group_setting)
-    space_group_lattice_type = property(get_space_group_lattice_type)
-    space_group_lattice_type_symbol = property(get_space_group_lattice_type_symbol)
-    number_of_lattice_points = property(get_number_of_lattice_points)
-    lattice_translation = property(get_lattice_translation)
-    bravais = property(get_bravais)
-    centre = property(get_centre)
-    centric = property(get_centric)
-    inversion_centre = property(get_inversion_centre)
-    number_of_reduced_set = property(get_number_of_reduced_set)
-    multiplicity = property(get_multiplicity)
-    operators_minimum_number = property(get_operators_minimum_number)
-    symmetry_operators = property(get_symmetry_operators)
-    symmetry_operators_as_text = property(get_symmetry_operators_as_text)
-    wyckoff_type = property(get_wyckoff_type)
-    asymetric_unit = property(get_asymetric_unit)
+    @property
+    def symmetry_operators(self):
+        """
+        Symmetry operators (192)
+        """
+        return crysfml_api.crystallographic_symmetry_get_SymOp(self.__address)["SymOp"]
+    
+    @property
+    def symmetry_operators_as_text(self):
+        """
+        String form of symmetry operators
+        """
+        return crysfml_api.crystallographic_symmetry_get_SymopSymb(self.__address)["SymopSymb"]
+    
+    @property
+    def wyckoff_info(self):
+        """
+        Wyckoff Information
+        """
+        return crysfml_api.crystallographic_symmetry_get_wyckoff(self.__address)["wyckoff"]
+    
+    @property
+    def asymetric_unit(self):
+        """
+        Asymmetric unit in real space
+        """
+        return crysfml_api.crystallographic_symmetry_get_R_asym_unit(self.__address)["R_asym_unit"]

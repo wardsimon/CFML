@@ -24,12 +24,13 @@ class DerivedType():
             else:
                 ret +=\
     """
-    def get_%s(self):"""  % (param_python_name)
+    @property
+    def %s(self):"""  % (param_python_name)
     
             ret +=\
     """
         \"\"\"
-        @brief %s
+        %s
         \"\"\"
         return crysfml_api.%s_get_%s(self.__address)["%s"]
     """ % (description, self.fortran_module_name, param_fortran_name, param_fortran_name)

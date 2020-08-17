@@ -51,6 +51,8 @@ class Cell(CFML_api.FortranBindedClass):
         CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(self.get_fortran_address())
 
     def print_description(self):
+        """ Prints the lattice cell description """
+        
         CFML_api.crysfml_api.crystal_metrics_write_crystal_cell(self.get_fortran_address())
 
     @property
