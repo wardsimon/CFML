@@ -251,7 +251,7 @@
 
             else
 
-                   !Eventual super-super-exchange path
+                   !Possible super-super-exchange path
                    !                          A'
                    !                        / |
                    !                  vaap /  |
