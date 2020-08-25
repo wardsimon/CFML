@@ -78,7 +78,45 @@ module API_init
        crystal_metrics_get_CartType
 
   use API_Atom_TypeDef, only: &
-       atom_typedef_write_atom_list
+       atom_typedef_write_atom_list, &
+       atom_typedef_get_Lab, &
+       atom_typedef_get_ChemSymb, &
+       atom_typedef_get_SfacSymb, &
+       atom_typedef_get_wyck, &
+       atom_typedef_get_Active, &
+       atom_typedef_get_Z, &
+       atom_typedef_get_Mult, &
+       atom_typedef_get_X, &
+       atom_typedef_get_X_Std, &
+       atom_typedef_get_MX, &
+       atom_typedef_get_LX, &
+       atom_typedef_get_Occ, &
+       atom_typedef_get_Occ_Std, &
+       atom_typedef_get_MOcc, &
+       atom_typedef_get_LOcc, &
+       atom_typedef_get_Biso, &
+       atom_typedef_get_Biso_std, &
+       atom_typedef_get_MBiso, &
+       atom_typedef_get_LBiso, &
+       atom_typedef_get_Utype, &
+       atom_typedef_get_ThType, &
+       atom_typedef_get_U, &
+       atom_typedef_get_U_std, &
+       atom_typedef_get_MU, &
+       atom_typedef_get_LU, &
+       atom_typedef_get_Ueq, &
+       atom_typedef_get_Charge, &
+       atom_typedef_get_Moment, &
+       atom_typedef_get_Ind, &
+       atom_typedef_get_NVar, &
+       atom_typedef_get_VarF, &
+       atom_typedef_get_MVarF, &
+       atom_typedef_get_LVarF, &
+       atom_typedef_get_AtmInfo, &
+       atom_typedef_get_m_xyz, &
+       atom_typedef_get_sm_xyz, &
+       atom_typedef_get_Mm_xyz, &
+       atom_typedef_get_Lm_xyz
 
   use API_Reflections_Utilities, only: &
        reflections_utilities_hkl_uni_reflist
@@ -114,7 +152,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(57)
+    call method_table%init(95)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -286,13 +324,201 @@ CONTAINS
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
     !--------------------------
-    ! Atom Typedef (1)
+    ! Atom Typedef (39)
     !--------------------------
     call method_table%add_method("atom_typedef_write_atom_list", &                  ! method name
          "Return the atom list description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
-
+    call method_table%add_method("atom_typedef_get_Lab", &                  ! method name
+         "Lab getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Lab))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_ChemSymb", &                  ! method name
+         "ChemSymb getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_ChemSymb))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_SfacSymb", &                  ! method name
+         "SfacSymb getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_SfacSymb))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_wyck", &                  ! method name
+         "wyck getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_wyck))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Active", &                  ! method name
+         "Active getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Active))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Z", &                  ! method name
+         "Z getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Z))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Mult", &                  ! method name
+         "Mult getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Mult))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_X", &                  ! method name
+         "X getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_X))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_X_Std", &                  ! method name
+         "X_Std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_X_Std))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_MX", &                  ! method name
+         "MX getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_MX))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_LX", &                  ! method name
+         "LX getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_LX))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Occ", &                  ! method name
+         "Occ getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Occ))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Occ_Std", &                  ! method name
+         "Occ_Std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Occ_Std))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_MOcc", &                  ! method name
+         "MOcc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_MOcc))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_LOcc", &                  ! method name
+         "LOcc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_LOcc))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Biso", &                  ! method name
+         "Biso getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Biso))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Biso_std", &                  ! method name
+         "Biso_std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Biso_std))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_MBiso", &                  ! method name
+         "MBiso getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_MBiso))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_LBiso", &                  ! method name
+         "LBiso getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_LBiso))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Utype", &                  ! method name
+         "Utype getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Utype))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_ThType", &                  ! method name
+         "ThType getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_ThType))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_U", &                  ! method name
+         "U getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_U))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_U_std", &                  ! method name
+         "U_std getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_U_std))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_MU", &                  ! method name
+         "MU getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_MU))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_LU", &                  ! method name
+         "LU getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_LU))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Ueq", &                  ! method name
+         "Ueq getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Ueq))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Charge", &                  ! method name
+         "Charge getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Charge))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Moment", &                  ! method name
+         "Moment getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Moment))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Ind", &                  ! method name
+         "Ind getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Ind))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_NVar", &                  ! method name
+         "NVar getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_NVar))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_VarF", &                  ! method name
+         "VarF getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_VarF))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_MVarF", &                  ! method name
+         "MVarF getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_MVarF))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_LVarF", &                  ! method name
+         "LVarF getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_LVarF))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_AtmInfo", &                  ! method name
+         "AtmInfo getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_AtmInfo))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_m_xyz", &                  ! method name
+         "m_xyz getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_m_xyz))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_sm_xyz", &                  ! method name
+         "sm_xyz getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_sm_xyz))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Mm_xyz", &                  ! method name
+         "Mm_xyz getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Mm_xyz))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_get_Lm_xyz", &                  ! method name
+         "Lm_xyz getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_Lm_xyz))  ! address of Fortran function to add
     !--------------------------
     ! Reflection Utilities (1)
     !--------------------------
