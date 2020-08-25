@@ -1,6 +1,6 @@
 from DerivedType import DerivedType
 
-d = DerivedType("Atom", "Atom_Type", "atom_typedef")
+d = DerivedType("Atom", "Atom_Type", "atom_typedef", "atom")
 
 
 d.addParam("label","Lab","string","label")         
@@ -48,7 +48,7 @@ d.addParam("u_array_std_dev","U_std","ndarray","Array of standard deviation of t
 d.addParam("multiplier_u_array","MU","ndarray","Array of multipliers for the anisotropic thermal coefficients")
 d.addParam("lsq_u_qrrqy","LU","ndarray","Array of labels in the LSQ list for the anisotropic thermal coefficients")
 
-d.addParam("u_equiv","Ueq","object","Equivalent isotropic atomic displacement parameter, U(equiv), in angstroms squared, calculated from anisotropic atomic displacement parameters.
+d.addParam("u_equiv","Ueq","object","Equivalent isotropic atomic displacement parameter, U(equiv), in angstroms squared, calculated from anisotropic atomic displacement parameters. \n\
 U(equiv) = (1/3) sum~i~[sum~j~(U^ij^ a*~i~ a*~j~ a~i~ a~j~)]")
 
 d.addParam("formal_charge","Charge","object","The net integer charge assigned to this atom. This is the formal charge assignment normally found in chemical diagrams.")
@@ -70,5 +70,3 @@ d.addParam("multiplier_m_xyz","Mm_xyz","ndarray","Multipliers of the magnetic mo
 d.addParam("lsq_m_xyz","Lm_xyz","ndarray","Label in the LSQ list of the magnetic moment along x,y,")
 
 d.generate_template("file_atom")
-
-

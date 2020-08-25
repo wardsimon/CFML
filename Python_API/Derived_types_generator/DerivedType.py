@@ -1,8 +1,9 @@
 class DerivedType():
-    def __init__(self, python_type_name, fortran_type_name, fortran_module_name):
+    def __init__(self, python_type_name, fortran_type_name, fortran_module_name, fortran_object_name):
         self.python_type_name = python_type_name
         self.fortran_type_name = fortran_type_name
         self.fortran_module_name = fortran_module_name
+        self.fortran_object_name = fortran_object_name
         self.__params = []
     
     def addParam(self, param_python_name, param_fortran_name, type, description):
@@ -16,6 +17,14 @@ class DerivedType():
     
     def __generate_python(self, file_name):
         ret = ""
+        # Generate destructor
+        ret += \
+    """
+    def __del__(self):
+        CFML_api.crysfml_api.%s_del_%s(self.get_fortran_address())
+    """ % (self.fortran_module_name, self.fortran_object_name)
+    
+        # Generate getters
         for (param_python_name, param_fortran_name, type, description) in self.__params:
             if type == "bool":                
                 ret +=\
@@ -32,7 +41,7 @@ class DerivedType():
         \"\"\"
         %s
         \"\"\"
-        return crysfml_api.%s_get_%s(self.__address)["%s"]
+        return CFML_api.crysfml_api.%s_get_%s(self.get_fortran_address())["%s"]
     """ % (description, self.fortran_module_name, param_fortran_name, param_fortran_name)
 
         with(open(file_name, "a")) as file:
@@ -40,7 +49,29 @@ class DerivedType():
             file.write(ret + "\n\n")
             
     def __generate_init(self, file_name):   
-        ret = ""          
+        ret = ""
+        
+        # Count and import
+        count = 0
+        ret += \
+    """
+    use API_%s,only: &""" % (self.__toCustomCase(self.fortran_module_name))
+    
+        for (_, param_fortran_name, type, _) in self.__params:
+            count += 1
+            ret += \
+    """
+    %s_get_%s, &""" % (self.fortran_module_name, param_fortran_name)
+        ret = ret[:-3]+"\n"
+        
+        # Method registration
+        ret += \
+    """
+    !--------------------------
+    ! %s (%s)
+    !--------------------------
+    """% (self.__toCustomCase(self.fortran_module_name).replace("_", " "), str(count))
+    
         for (_, param_fortran_name, type, _) in self.__params:
             ret += \
     """
@@ -67,7 +98,7 @@ class DerivedType():
     def __generate_fortran_init(self, ret):
         return ret
     
-    def __generate_fortran_destructor(self, ret): 
+    def __generate_fortran_destructor(self, ret):
         return ret
        
     def __generate_fortran_getters(self, ret):
@@ -133,9 +164,17 @@ class DerivedType():
             ret += \
     """
     r = retval%%get_c_ptr()
+    call args%%destroy
     
   end function %s_get_%s
   
   """ %  (self.fortran_module_name, param_fortran_name)
   
+        return ret
+
+    def __toCustomCase(self, snake_case_str):
+        ret = ""
+        for substr in snake_case_str.split("_"):
+            ret = ret + substr[0].upper() + substr[1:] + "_"
+        ret = ret[:-1]
         return ret
