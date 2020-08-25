@@ -79,6 +79,7 @@ module API_init
 
   use API_Atom_TypeDef, only: &
        atom_typedef_write_atom_list, &
+       atom_typedef_get_item, &
        atom_typedef_get_Lab, &
        atom_typedef_get_ChemSymb, &
        atom_typedef_get_SfacSymb, &
@@ -152,7 +153,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(95)
+    call method_table%init(96)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -326,10 +327,16 @@ CONTAINS
     !--------------------------
     ! Atom Typedef (39)
     !--------------------------
+    call method_table%add_method("atom_typedef_get_item", &                  ! method name
+         "Get a specific atom", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_item))  ! address of Fortran function to add
+    
     call method_table%add_method("atom_typedef_write_atom_list", &                  ! method name
          "Return the atom list description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
+    
     call method_table%add_method("atom_typedef_get_Lab", &                  ! method name
          "Lab getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments

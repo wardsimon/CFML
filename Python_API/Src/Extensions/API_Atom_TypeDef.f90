@@ -83,9 +83,57 @@ contains
 
   end subroutine get_atom_type_from_arg
 
-  ! @brief Allocate an atom list for N atoms
-  ! @todo Do we need to bind that function ??
-  function atom_typedef_set_atomlist(self_ptr, args_ptr) result(r) bind(c)
+!!$  ! @brief Allocate an atom list for N atoms
+!!$  ! @todo Do we need to bind that function ??
+!!$  function atom_typedef_set_atomlist(self_ptr, args_ptr) result(r) bind(c)
+!!$
+!!$    type(c_ptr), value :: self_ptr
+!!$    type(c_ptr), value :: args_ptr
+!!$    type(c_ptr) :: r
+!!$    
+!!$    type(tuple) :: args
+!!$    type(dict)  :: retval
+!!$    integer     :: num_args
+!!$    integer     :: ierror
+!!$    integer     :: i,ii
+!!$    type(list)  :: index_obj
+!!$
+!!$    type(object)                         :: natom_obj
+!!$    integer                              :: natom
+!!$    type(Atom_list_type_p)               :: alist_p
+!!$    integer                              :: alist_p12(12)
+!!$       
+!!$    r = C_NULL_PTR      
+!!$    call unsafe_cast_from_c_ptr(args, args_ptr)
+!!$    
+!!$    ierror = args%len(num_args)
+!!$    
+!!$    if (num_args /=1 ) then
+!!$       call raise_exception(TypeError, "set_atomlist expects exactly 1 argument")
+!!$       call args%destroy
+!!$       return
+!!$    endif
+!!$     
+!!$    ierror = args%getitem(natom_obj, 0)        
+!!$    ierror = cast_nonstrict(natom, natom_obj)
+!!$    
+!!$       
+!!$    allocate(alist_p%p)
+!!$    call Allocate_Atom_List(natom, alist_p%p) 
+!!$    
+!!$    alist_p12 = transfer(alist_p,alist_p12)
+!!$    ierror = list_create(index_obj)
+!!$    do ii=1,12
+!!$       ierror = index_obj%append(alist_p12(ii))
+!!$    end do
+!!$
+!!$    ierror = dict_create(retval)
+!!$    ierror = retval%setitem("address", index_obj)
+!!$    r = retval%get_c_ptr()
+!!$
+!!$  end function atom_typedef_set_atomlist
+
+  function atom_typedef_get_item(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -95,43 +143,49 @@ contains
     type(dict)  :: retval
     integer     :: num_args
     integer     :: ierror
-    integer     :: i,ii
-    type(list)  :: index_obj
+    integer     :: ii
 
-    type(object)                         :: natom_obj
-    integer                              :: natom
     type(Atom_list_type_p)               :: alist_p
-    integer                              :: alist_p12(12)
-       
+    type(Atom_type_p)                    :: a_p
+
+    type(object) :: item_obj
+    integer      :: item, a_p12(12)
+    type(list)   :: a_obj
+
     r = C_NULL_PTR      
     call unsafe_cast_from_c_ptr(args, args_ptr)
     
     ierror = args%len(num_args)
     
-    if (num_args /=1 ) then
-       call raise_exception(TypeError, "set_atomlist expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_item expects exactly 2 arguments")
        call args%destroy
        return
     endif
-     
-    ierror = args%getitem(natom_obj, 0)        
-    ierror = cast_nonstrict(natom, natom_obj)
     
-       
-    allocate(alist_p%p)
-    call Allocate_Atom_List(natom, alist_p%p) 
-    
-    alist_p12 = transfer(alist_p,alist_p12)
-    ierror = list_create(index_obj)
+    call get_atoms_list_from_arg(args, alist_p, 0)
+
+    ierror = args%getitem(item_obj, 1)
+    ierror = cast_nonstrict(item, item_obj)
+
+    allocate(a_p%p)
+
+    a_p%p = alist_p%p%atom(item)
+
+    a_p12    = transfer(a_p, a_p12)
+    ierror = list_create(a_obj)
     do ii=1,12
-       ierror = index_obj%append(alist_p12(ii))
+       ierror = a_obj%append(a_p12(ii))
     end do
 
     ierror = dict_create(retval)
-    ierror = retval%setitem("address", index_obj)
-    r = retval%get_c_ptr()
+    ierror = retval%setitem("Atom", a_obj)
 
-  end function atom_typedef_set_atomlist
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function atom_typedef_get_item
+  
 
   ! @brif Print the description of the atom list to standard output
   ! @todo Optional arguments
@@ -165,6 +219,7 @@ contains
 
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
+    call args%destroy
 
   end function atom_typedef_write_atom_list
 

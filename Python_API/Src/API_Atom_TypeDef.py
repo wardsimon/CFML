@@ -27,6 +27,14 @@ class AtomList(CFML_api.FortranBindedClass):
     print_description
         Print the list of atoms
     """
+    #def __del__(self):
+    
+    def __getitem__(self,key):
+        dict = CFML_api.crysfml_api.atom_typedef_get_item(self.get_fortran_address(key))
+        atom = CFML_api.API_Atom_TypeDef.Atom.from_fortran_adress(dict["Atom"])
+        return atom
+
+    #def __setitem__(self,key,atom):
     
     def print_description(self):
         """ Print the list of atoms. """
