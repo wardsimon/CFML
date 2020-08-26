@@ -29,7 +29,7 @@ module API_Structure_Factors
 
   use API_Atom_TypeDef, only: &
        Atom_list_type_p, &
-       get_atoms_list_from_arg
+       get_atom_list_type_from_arg
 
   use API_Reflections_Utilities, only: &
       Reflection_List_type_p, &
@@ -71,7 +71,7 @@ contains
        return
     endif
 
-    call get_atoms_list_from_arg(args, atom_list_p, 0)
+    call get_atom_list_type_from_arg(args, atom_list_p, 0)
 
     call get_space_group_type_from_arg(args, spg_p, 1)
 

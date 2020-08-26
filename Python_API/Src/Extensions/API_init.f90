@@ -78,8 +78,10 @@ module API_init
        crystal_metrics_get_CartType
 
   use API_Atom_TypeDef, only: &
-       atom_typedef_write_atom_list, &
+       atom_typedef_del_atom_list, &
        atom_typedef_get_item, &
+       atom_typedef_get_natoms, &
+       atom_typedef_del_atom, &
        atom_typedef_get_Lab, &
        atom_typedef_get_ChemSymb, &
        atom_typedef_get_SfacSymb, &
@@ -117,7 +119,8 @@ module API_init
        atom_typedef_get_m_xyz, &
        atom_typedef_get_sm_xyz, &
        atom_typedef_get_Mm_xyz, &
-       atom_typedef_get_Lm_xyz
+       atom_typedef_get_Lm_xyz, &
+       atom_typedef_write_atom_list
 
   use API_Reflections_Utilities, only: &
        reflections_utilities_hkl_uni_reflist
@@ -153,7 +156,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(96)
+    call method_table%init(99)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -325,17 +328,32 @@ CONTAINS
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
     !--------------------------
-    ! Atom Typedef (39)
+    ! Atom Typedef (42)
     !--------------------------
+    call method_table%add_method("atom_typedef_del_atom_list", &                  ! method name
+         "Delete an atom list", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_del_atom_list))  ! address of Fortran function to add
+    
     call method_table%add_method("atom_typedef_get_item", &                  ! method name
          "Get a specific atom", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_get_item))  ! address of Fortran function to add
+
+    call method_table%add_method("atom_typedef_get_natoms", &                  ! method name
+         "natoms getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_get_natoms))  ! address of Fortran function to add
     
     call method_table%add_method("atom_typedef_write_atom_list", &                  ! method name
          "Return the atom list description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
+    
+    call method_table%add_method("atom_typedef_del_atom", &                  ! method name
+         "Delete an atom", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_del_atom))  ! address of Fortran function to add
     
     call method_table%add_method("atom_typedef_get_Lab", &                  ! method name
          "Lab getter", &  !doc-string

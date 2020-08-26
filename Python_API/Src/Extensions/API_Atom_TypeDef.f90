@@ -29,7 +29,7 @@ module API_Atom_TypeDef
 
 contains
 
-  subroutine get_atoms_list_from_arg(args, alist_p, indx)
+  subroutine get_atom_list_type_from_arg(args, alist_p, indx)
     type(tuple)                            :: args
     type(Atom_list_type_p), intent(out)    :: alist_p
     integer, optional                      :: indx
@@ -54,7 +54,7 @@ contains
     enddo
     alist_p = transfer(alist_p12, alist_p)
 
-  end subroutine get_atoms_list_from_arg
+  end subroutine get_atom_list_type_from_arg
 
   subroutine get_atom_type_from_arg(args, atom_p, indx)
     type(tuple)                            :: args
@@ -133,6 +133,43 @@ contains
 !!$
 !!$  end function atom_typedef_set_atomlist
 
+  function atom_typedef_del_atom_list(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Atom_list_type_p) :: a_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "del_atom_list expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    !
+    call get_atom_list_type_from_arg(args, a_p)
+
+    if(allocated(a_p%p%atom)) deallocate(a_p%p%atom)
+    deallocate(a_p%p)
+    !
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+
+  end function atom_typedef_del_atom_list
+
   function atom_typedef_get_item(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
@@ -163,7 +200,7 @@ contains
        return
     endif
     
-    call get_atoms_list_from_arg(args, alist_p, 0)
+    call get_atom_list_type_from_arg(args, alist_p, 0)
 
     ierror = args%getitem(item_obj, 1)
     ierror = cast_nonstrict(item, item_obj)
@@ -185,6 +222,39 @@ contains
     call args%destroy
 
   end function atom_typedef_get_item
+
+  function atom_typedef_get_natoms(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Atom_list_type_p) :: atom_list_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_natoms expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_atom_list_type_from_arg(args, atom_list_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("natoms", atom_list_type_pointer%p%natoms)
+    r = retval%get_c_ptr()
+    call args%destroy
+    
+  end function atom_typedef_get_natoms
+  
   
 
   ! @brif Print the description of the atom list to standard output
@@ -213,7 +283,7 @@ contains
        return
     endif
     
-    call get_atoms_list_from_arg(args, alist_p)
+    call get_atom_list_type_from_arg(args, alist_p)
 
     call Write_Atom_List(alist_p%p)
 
@@ -228,6 +298,42 @@ contains
   !----------------------------------------------------------------------------------
   ! type(Atom_type)
   !----------------------------------------------------------------------------------
+  function atom_typedef_del_atom(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Atom_type_p) :: a_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "del_atom expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    !
+    call get_atom_type_from_arg(args, a_p)
+
+    deallocate(a_p%p)
+    !
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+
+  end function atom_typedef_del_atom
+    
   function atom_typedef_get_Lab(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr

@@ -70,3 +70,10 @@ d.addParam("multiplier_m_xyz","Mm_xyz","ndarray","Multipliers of the magnetic mo
 d.addParam("lsq_m_xyz","Lm_xyz","ndarray","Label in the LSQ list of the magnetic moment along x,y,")
 
 d.generate_template("file_atom")
+
+
+d = DerivedType("AtomList", "Atom_list_type", "atom_typedef", "atom list")
+
+d.addParam("natoms","natoms","object","total number of atoms in the list")
+
+d.generate_template("file_atom_list")

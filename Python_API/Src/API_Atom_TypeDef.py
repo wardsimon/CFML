@@ -15,34 +15,6 @@
 import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
-class AtomList(CFML_api.FortranBindedClass):
-    """ Class for the list of Atoms type(Atom_list_type) in CFML. 
-
-    ...
-    Attributes
-    ----------
-
-    Methods
-    -------
-    print_description
-        Print the list of atoms
-    """
-    #def __del__(self):
-    
-    def __getitem__(self,key):
-        dict = CFML_api.crysfml_api.atom_typedef_get_item(self.get_fortran_address(key))
-        atom = CFML_api.API_Atom_TypeDef.Atom.from_fortran_adress(dict["Atom"])
-        return atom
-
-    #def __setitem__(self,key,atom):
-    
-    def print_description(self):
-        """ Print the list of atoms. """
-        
-        CFML_api.crysfml_api.atom_typedef_write_atom_list(self.get_fortran_address())
-
-
-
 class Atom(CFML_api.FortranBindedClass):
     """ Class for a given aton type(Atom_type) in CFML
 
@@ -326,3 +298,38 @@ class Atom(CFML_api.FortranBindedClass):
         Label in the LSQ list of the magnetic moment along x,y,
         """
         return CFML_api.crysfml_api.atom_typedef_get_Lm_xyz(self.get_fortran_address())["Lm_xyz"]
+
+
+class AtomList(CFML_api.FortranBindedClass):
+    """ Class for the list of Atoms type(Atom_list_type) in CFML. 
+
+    ...
+    Attributes
+    ----------
+
+    Methods
+    -------
+    print_description
+        Print the list of atoms
+    """
+    def __del__(self):
+        CFML_api.crysfml_api.atom_typedef_del_atom_list(self.get_fortran_address())
+    
+    def __getitem__(self,key):
+        dict = CFML_api.crysfml_api.atom_typedef_get_item(self.get_fortran_address(),key)
+        atom = CFML_api.API_Atom_TypeDef.Atom.from_fortran_address(dict["Atom"])
+        return atom
+
+    #def __setitem__(self,key,atom):
+
+    @property
+    def natoms(self):
+        """
+        total number of atoms in the list
+        """
+        return CFML_api.crysfml_api.atom_typedef_get_natoms(self.get_fortran_address())["natoms"]
+    
+    def print_description(self):
+        """ Print the list of atoms. """
+        
+        CFML_api.crysfml_api.atom_typedef_write_atom_list(self.get_fortran_address())
