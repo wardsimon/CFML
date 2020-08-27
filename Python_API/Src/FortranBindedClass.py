@@ -22,6 +22,9 @@ class FortranBindedClass():
         instance.__address = address
         return instance
     
+    def set_parent(self, parent):
+        self.parent = parent
+    
     def _set_fortran_address(self, address):
         self.__address = address
 
