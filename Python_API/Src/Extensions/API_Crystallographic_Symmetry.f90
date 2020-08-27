@@ -17,13 +17,25 @@ module API_Crystallographic_Symmetry
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
 
-  use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, Write_SpaceGroup
+  use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, Write_SpaceGroup, Sym_Oper_Type, Wyckoff_Type, Wyck_Pos_Type
 
   implicit none
 
   type Space_Group_Type_p
      type(Space_Group_Type), pointer :: p
   end type Space_Group_Type_p
+
+  type Symmetry_Operator_Type_p
+     type(Sym_Oper_Type), pointer :: p
+  end type Symmetry_Operator_Type_p
+
+  type Wyckoff_Type_p
+     type(Wyckoff_Type), pointer :: p
+  end type Wyckoff_Type_p
+
+  type Wyckoff_Orbit_Type_p
+     type(Wyck_Pos_Type), pointer :: p
+  end type Wyckoff_Orbit_Type_p
 
 contains
 
@@ -57,6 +69,99 @@ contains
     call arg_list%destroy
 
   end subroutine get_space_group_type_from_arg
+
+  subroutine get_symmetry_operator_type_from_arg(args, symmetry_operator_p, indx)
+    type(tuple)                            :: args
+    type(Symmetry_Operator_Type_p), intent(out)  :: symmetry_operator_p
+    integer, optional                      :: indx
+
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: symmetry_operator_p12(12)
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(symmetry_operator_p12(ii), t)
+       call t%destroy
+    enddo
+    symmetry_operator_p = transfer(symmetry_operator_p12, symmetry_operator_p)
+
+    call arg_obj%destroy
+    call arg_list%destroy
+
+  end subroutine get_symmetry_operator_type_from_arg
+
+  subroutine get_wyckoff_type_from_arg(args, wyckoff_type_pointer, indx)
+    type(tuple)                            :: args
+    type(Wyckoff_Type_p), intent(out)  :: wyckoff_type_pointer
+    integer, optional                      :: indx
+
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: wyckoff_type_p12(12)
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(wyckoff_type_p12(ii), t)
+       call t%destroy
+    enddo
+    wyckoff_type_pointer = transfer(wyckoff_type_p12, wyckoff_type_pointer)
+
+    call arg_obj%destroy
+    call arg_list%destroy
+
+  end subroutine get_wyckoff_type_from_arg
+
+  subroutine get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer, indx)
+    type(tuple)                            :: args
+    type(Wyckoff_Orbit_Type_p), intent(out)  :: wyckoff_orbit_type_pointer
+    integer, optional                      :: indx
+
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: wyckoff_orbit_type_p12(12)
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(wyckoff_orbit_type_p12(ii), t)
+       call t%destroy
+    enddo
+    wyckoff_orbit_type_pointer = transfer(wyckoff_orbit_type_p12, wyckoff_orbit_type_pointer)
+
+    call arg_obj%destroy
+    call arg_list%destroy
+
+  end subroutine get_wyckoff_orbit_type_from_arg
 
   !-------------------------------------------------------------------------
   ! Implementation of our Python methods
@@ -191,6 +296,147 @@ contains
 
   end function crystallographic_symmetry_write_spacegroup
 
+
+  function crystallographic_symmetry_get_SymOp(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ii
+    type(list)         :: index_obj
+    integer :: ierror
+    type(Space_Group_Type_p) :: space_group_type_pointer
+    type(Symmetry_Operator_Type_p) :: symmetry_operator_pointer
+    integer :: symmetry_operator_pointer12(12)
+    type(object) :: ind_obj
+    integer :: ind
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_SymOp expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
+
+    ierror = args%getitem(ind_obj, 1)
+    ierror = cast(ind, ind_obj)
+
+    symmetry_operator_pointer%p=>space_group_type_pointer%p%SymOp(ind)
+    symmetry_operator_pointer12 = transfer(symmetry_operator_pointer, symmetry_operator_pointer12)
+    ierror = list_create(index_obj)
+    do ii=1,12
+       ierror = index_obj%append(symmetry_operator_pointer12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("SymOp", index_obj)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call index_obj%destroy
+    call ind_obj%destroy
+
+  end function crystallographic_symmetry_get_SymOp
+
+
+  function crystallographic_symmetry_get_SymopSymb(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Space_Group_Type_p) :: space_group_type_pointer
+    type(object) :: ind_obj
+    integer :: ind
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_SymopSymb expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
+    ierror = args%getitem(ind_obj, 1)
+    ierror = cast(ind, ind_obj)
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("SymopSymb", trim(space_group_type_pointer%p%SymopSymb(ind)))
+
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call ind_obj%destroy
+
+  end function crystallographic_symmetry_get_SymopSymb
+
+
+  function crystallographic_symmetry_get_wyckoff(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    integer :: ii
+    type(list)         :: index_obj
+    type(Space_Group_Type_p) :: space_group_type_pointer
+    type(Wyckoff_Type_p) :: wyckoff_pointer
+    integer :: wyckoff_pointer12(12)
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_wyckoff expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_space_group_type_from_arg(args, space_group_type_pointer)
+
+    wyckoff_pointer%p=>space_group_type_pointer%p%Wyckoff
+    wyckoff_pointer12 = transfer(wyckoff_pointer, wyckoff_pointer12)
+    ierror = list_create(index_obj)
+    do ii=1,12
+       ierror = index_obj%append(wyckoff_pointer12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("wyckoff", index_obj)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call index_obj%destroy
+
+  end function crystallographic_symmetry_get_wyckoff
+
   function crystallographic_symmetry_get_latt_trans(self_ptr, args_ptr) result(r) bind(c)
 
     type(c_ptr), value :: self_ptr
@@ -222,6 +468,8 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("latt_trans", latt_trans)
     r = retval%get_c_ptr()
+    call args%destroy
+    call latt_trans%destroy
 
   end function crystallographic_symmetry_get_latt_trans
 
@@ -254,6 +502,7 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("hexa", space_group_type_pointer%p%hexa)
     r = retval%get_c_ptr()
+    call args%destroy
 
   end function crystallographic_symmetry_get_hexa
 
@@ -286,6 +535,7 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("numspg", space_group_type_pointer%p%numspg)
     r = retval%get_c_ptr()
+    call args%destroy
 
   end function crystallographic_symmetry_get_numspg
 
@@ -319,10 +569,12 @@ contains
     ierror = retval%setitem("spg_symb", trim(space_group_type_pointer%p%spg_symb))
 
     r = retval%get_c_ptr()
+    call args%destroy
 
   end function crystallographic_symmetry_get_spg_symb
 
-   function crystallographic_symmetry_get_hall(self_ptr, args_ptr) result(r) bind(c)
+
+  function crystallographic_symmetry_get_hall(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -351,7 +603,8 @@ contains
     ierror = retval%setitem("hall", trim(space_group_type_pointer%p%hall))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_hall
   
   
@@ -384,7 +637,8 @@ contains
     ierror = retval%setitem("ghall", trim(space_group_type_pointer%p%ghall))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_ghall
   
   
@@ -417,7 +671,8 @@ contains
     ierror = retval%setitem("CrystalSys", trim(space_group_type_pointer%p%CrystalSys))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_CrystalSys
   
   
@@ -450,7 +705,8 @@ contains
     ierror = retval%setitem("Laue", trim(space_group_type_pointer%p%Laue))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_Laue
   
   
@@ -483,7 +739,8 @@ contains
     ierror = retval%setitem("PG", trim(space_group_type_pointer%p%PG))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_PG
   
   
@@ -516,7 +773,8 @@ contains
     ierror = retval%setitem("Info", trim(space_group_type_pointer%p%Info))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_Info
   
   
@@ -549,7 +807,8 @@ contains
     ierror = retval%setitem("SG_setting", trim(space_group_type_pointer%p%SG_setting))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_SG_setting
   
   
@@ -582,7 +841,8 @@ contains
     ierror = retval%setitem("SPG_lat", trim(space_group_type_pointer%p%SPG_lat))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_SPG_lat
   
   
@@ -615,7 +875,8 @@ contains
     ierror = retval%setitem("SPG_latsy", trim(space_group_type_pointer%p%SPG_latsy))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_SPG_latsy
   
   
@@ -647,7 +908,8 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("NumLat", space_group_type_pointer%p%NumLat)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_NumLat
   
   
@@ -680,7 +942,8 @@ contains
     ierror = retval%setitem("bravais", trim(space_group_type_pointer%p%bravais))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_bravais
   
   
@@ -713,7 +976,8 @@ contains
     ierror = retval%setitem("centre", trim(space_group_type_pointer%p%centre))
     
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_centre
   
   
@@ -745,7 +1009,8 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("centred", space_group_type_pointer%p%centred)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_centred
   
   
@@ -780,7 +1045,9 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("centre_coord", centre_coord)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+    call centre_coord%destroy
+
   end function crystallographic_symmetry_get_centre_coord
   
   
@@ -812,7 +1079,8 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("numops", space_group_type_pointer%p%numops)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_numops
   
   
@@ -844,7 +1112,8 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("multip", space_group_type_pointer%p%multip)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_multip
   
   
@@ -876,109 +1145,11 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("num_gen", space_group_type_pointer%p%num_gen)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+
   end function crystallographic_symmetry_get_num_gen
   
-  
-  function crystallographic_symmetry_get_SymOp(self_ptr, args_ptr) result(r) bind(c)
-        
-    type(c_ptr), value :: self_ptr
-    type(c_ptr), value :: args_ptr
-    type(c_ptr) :: r
-    type(tuple) :: args
-    type(dict) :: retval
-    integer :: num_args
-    integer :: ierror
-    type(Space_Group_Type_p) :: space_group_type_pointer
-  
-    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
-    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
-    call unsafe_cast_from_c_ptr(args, args_ptr)
-    ! Check if the arguments are OK
-    ierror = args%len(num_args)
-    ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_SymOp expects exactly 1 argument")
-       call args%destroy
-       return
-    endif
-    
-    ! Doing boring stuff
-    call get_space_group_type_from_arg(args, space_group_type_pointer)
-    ierror = dict_create(retval)
-    !> @todo type(Sym_Oper_Type), allocatable,dimension(:)
-    !ierror = retval%setitem("SymOp", space_group_type_pointer%p%SymOp)
-    r = retval%get_c_ptr()
-    
-  end function crystallographic_symmetry_get_SymOp
-  
-  
-  function crystallographic_symmetry_get_SymopSymb(self_ptr, args_ptr) result(r) bind(c)
-        
-    type(c_ptr), value :: self_ptr
-    type(c_ptr), value :: args_ptr
-    type(c_ptr) :: r
-    type(tuple) :: args
-    type(dict) :: retval
-    integer :: num_args
-    integer :: ierror
-    type(Space_Group_Type_p) :: space_group_type_pointer
-  
-    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
-    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
-    call unsafe_cast_from_c_ptr(args, args_ptr)
-    ! Check if the arguments are OK
-    ierror = args%len(num_args)
-    ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_SymopSymb expects exactly 1 argument")
-       call args%destroy
-       return
-    endif
-    
-    ! Doing boring stuff
-    call get_space_group_type_from_arg(args, space_group_type_pointer)
-    ierror = dict_create(retval)
-    !> @todo character(len=50),   allocatable,dimension(:)
-    !ierror = retval%setitem("SymopSymb", space_group_type_pointer%p%SymopSymb)
-    r = retval%get_c_ptr()
-    
-  end function crystallographic_symmetry_get_SymopSymb
-  
-  
-  function crystallographic_symmetry_get_wyckoff(self_ptr, args_ptr) result(r) bind(c)
-        
-    type(c_ptr), value :: self_ptr
-    type(c_ptr), value :: args_ptr
-    type(c_ptr) :: r
-    type(tuple) :: args
-    type(dict) :: retval
-    integer :: num_args
-    integer :: ierror
-    type(Space_Group_Type_p) :: space_group_type_pointer
-  
-    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
-    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
-    call unsafe_cast_from_c_ptr(args, args_ptr)
-    ! Check if the arguments are OK
-    ierror = args%len(num_args)
-    ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_wyckoff expects exactly 1 argument")
-       call args%destroy
-       return
-    endif
-    
-    ! Doing boring stuff
-    call get_space_group_type_from_arg(args, space_group_type_pointer)
-    ierror = dict_create(retval)
-    !> @todo type(Wyckoff_Type)
-    !ierror = retval%setitem("wyckoff", space_group_type_pointer%p%wyckoff)
-    r = retval%get_c_ptr()
-    
-  end function crystallographic_symmetry_get_wyckoff
-  
-  
+
   function crystallographic_symmetry_get_R_asym_unit(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
@@ -1010,38 +1181,339 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("R_asym_unit", R_asym_unit)
     r = retval%get_c_ptr()
-    
+    call args%destroy
+    call R_asym_unit%destroy
+
   end function crystallographic_symmetry_get_R_asym_unit
-  
+
+  function crystallographic_symmetry_get_symmetry_operator_rotation_matrix(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Symmetry_Operator_Type_p) :: symmetry_operator_pointer
+
+    type(ndarray) :: rotation_matrix
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_symmetry_operator_rotation_matrix expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_symmetry_operator_type_from_arg(args, symmetry_operator_pointer)
+    ierror = ndarray_create(rotation_matrix, symmetry_operator_pointer%p%Rot)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("rotation_matrix", rotation_matrix)
+
+    r = retval%get_c_ptr()
+    call args%destroy
+    call rotation_matrix%destroy
+
+  end function crystallographic_symmetry_get_symmetry_operator_rotation_matrix
+
+  function crystallographic_symmetry_get_symmetry_operator_trans_matrix(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Symmetry_Operator_Type_p) :: symmetry_operator_pointer
+
+    type(ndarray) :: translation_matrix
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_symmetry_operator_translation_matrix expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_symmetry_operator_type_from_arg(args, symmetry_operator_pointer)
+    ierror = ndarray_create(translation_matrix, symmetry_operator_pointer%p%Tr)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("translation_matrix", translation_matrix)
+    r = retval%get_c_ptr()
+    call args%destroy
+    call translation_matrix%destroy
+
+  end function crystallographic_symmetry_get_symmetry_operator_trans_matrix
+
+  function crystallographic_symmetry_get_wyckoff_num_orbit(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Type_p) :: wyckoff_type_pointer
+
+    type(ndarray) :: translation_matrix
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_symmetry_operator_translation_matrix expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_type_from_arg(args, wyckoff_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("num_orbit", wyckoff_type_pointer%p%num_orbit)
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_num_orbit
+
+  function crystallographic_symmetry_get_wyckoff_orbits(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ii
+    type(list)         :: index_obj
+    integer :: ierror
+    type(Wyckoff_Type_p) :: wyckoff_type_pointer
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+    integer :: wyckoff_orbit_type_pointer12(12)
+    type(object) :: ind_obj
+    integer :: ind
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_wyckoff_orbits expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_type_from_arg(args, wyckoff_type_pointer)
+
+    ierror = args%getitem(ind_obj, 1)
+    ierror = cast(ind, ind_obj)
+
+    wyckoff_orbit_type_pointer%p=>wyckoff_type_pointer%p%orbit(ind)
+    wyckoff_orbit_type_pointer12 = transfer(wyckoff_orbit_type_pointer, wyckoff_orbit_type_pointer12)
+    ierror = list_create(index_obj)
+    do ii=1,12
+       ierror = index_obj%append(wyckoff_orbit_type_pointer12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("orbit", index_obj)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call index_obj%destroy
+    call ind_obj%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_orbits
+
+  function crystallographic_symmetry_get_wyckoff_multp(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_wyckoff_multp expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("multp", wyckoff_orbit_type_pointer%p%multp)
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_multp
 
 
+  function crystallographic_symmetry_get_wyckoff_site(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_wyckoff_site expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("site", trim(wyckoff_orbit_type_pointer%p%site))
+
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_site
 
 
-     ! integer                                       :: NumSpg=0         ! Number of the Space Group
-     ! character(len=20)                             :: SPG_Symb=" "     ! Hermann-Mauguin Symbol
-     ! character(len=16)                             :: Hall=" "         ! Hall symbol
-     ! character(len=90)                             :: gHall=" "        ! Generalised Hall symbol
-     ! character(len=12)                             :: CrystalSys=" "   ! Crystal system
-     ! character(len= 5)                             :: Laue=" "         ! Laue Class
-     ! character(len= 5)                             :: PG=" "           ! Point group
-     ! character(len= 5)                             :: Info=" "         ! Extra information
-     ! character(len=90)                             :: SG_setting=" "   ! Information about the SG setting (IT,KO,ML,ZA,Table,Standard,UnConventional)
-     ! logical                                       :: Hexa=.false.     !
-     ! character(len= 1)                             :: SPG_lat=" "      ! Lattice type
-     ! character(len= 2)                             :: SPG_latsy=" "    ! Lattice type Symbol
-     ! integer                                       :: NumLat=0         ! Number of lattice points in a cell
-     ! real(kind=cp), allocatable,dimension(:,:)     :: Latt_trans       ! Lattice translations (3,12)
-     ! character(len=51)                             :: Bravais=" "      ! String with Bravais symbol + translations
-     ! character(len=80)                             :: Centre=" "       ! Alphanumeric information about the center of symmetry
-     ! integer                                       :: Centred=0        ! Centric or Acentric [ =0 Centric(-1 no at origin),=1 Acentric,=2 Centric(-1 at origin)]
-     ! real(kind=cp), dimension(3)                   :: Centre_coord=0.0 ! Fractional coordinates of the inversion centre
-     ! integer                                       :: NumOps=0         ! Number of reduced set of S.O.
-     ! integer                                       :: Multip=0         ! Multiplicity of the general position
-     ! integer                                       :: Num_gen          ! Minimum number of operators to generate the Group
-     ! type(Sym_Oper_Type), allocatable,dimension(:) :: SymOp            ! Symmetry operators (192)
-     ! character(len=50),   allocatable,dimension(:) :: SymopSymb        ! Strings form of symmetry operators
-     ! type(Wyckoff_Type)                            :: Wyckoff          ! Wyckoff Information
-     ! real(kind=cp),dimension(3,2)                  :: R_Asym_Unit=0.0  ! Asymmetric unit in real space   A
+  function crystallographic_symmetry_get_wyckoff_norb(self_ptr, args_ptr) result(r) bind(c)
 
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_wyckoff_norb expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("norb", wyckoff_orbit_type_pointer%p%norb)
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_norb
+
+
+  function crystallographic_symmetry_get_wyckoff_str_orig(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_wyckoff_str_orig expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("str_orig", trim(wyckoff_orbit_type_pointer%p%str_orig))
+
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_str_orig
+
+
+  function crystallographic_symmetry_get_wyckoff_str_orbit(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Wyckoff_Orbit_Type_p) :: wyckoff_orbit_type_pointer
+    type(object) :: ind_obj
+    integer :: ind
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_wyckoff_str_orbit expects exactly 2 argument")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    call get_wyckoff_orbit_type_from_arg(args, wyckoff_orbit_type_pointer)
+    ierror = args%getitem(ind_obj, 1)
+    ierror = cast(ind, ind_obj)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("str_orbit", trim(wyckoff_orbit_type_pointer%p%str_orbit(ind)))
+
+    r = retval%get_c_ptr()
+    call args%destroy
+
+  end function crystallographic_symmetry_get_wyckoff_str_orbit
 
 end module API_Crystallographic_Symmetry

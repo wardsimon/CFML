@@ -45,7 +45,16 @@ module API_init
        crystallographic_symmetry_get_SymOp, &
        crystallographic_symmetry_get_SymopSymb, &
        crystallographic_symmetry_get_wyckoff, &
-       crystallographic_symmetry_get_R_asym_unit
+       crystallographic_symmetry_get_R_asym_unit, &
+       crystallographic_symmetry_get_symmetry_operator_rotation_matrix, &
+       crystallographic_symmetry_get_symmetry_operator_trans_matrix, &
+       crystallographic_symmetry_get_wyckoff_num_orbit, &
+       crystallographic_symmetry_get_wyckoff_orbits, &
+       crystallographic_symmetry_get_wyckoff_multp, &
+       crystallographic_symmetry_get_wyckoff_site, &
+       crystallographic_symmetry_get_wyckoff_norb, &
+       crystallographic_symmetry_get_wyckoff_str_orig, &
+       crystallographic_symmetry_get_wyckoff_str_orbit
        
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure
@@ -156,7 +165,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(99)
+    call method_table%init(108)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -176,7 +185,7 @@ CONTAINS
          c_funloc(diffraction_patterns_get_y))  ! address of Fortran function to add
 
     !--------------------------
-    ! Crystallographic Symmetry (28)
+    ! Crystallographic Symmetry (37)
     !--------------------------
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
@@ -213,7 +222,7 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_spg_symb))  ! address of Fortran function to add
 
-        call method_table%add_method("crystallographic_symmetry_get_hall", &                  ! method name
+    call method_table%add_method("crystallographic_symmetry_get_hall", &                  ! method name
          "hall getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_hall))  ! address of Fortran function to add
@@ -318,7 +327,52 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_R_asym_unit))  ! address of Fortran function to add
     
-    
+    call method_table%add_method("crystallographic_symmetry_get_symmetry_operator_rotation_matrix", &                  ! method name
+         "Symmetry operator rotation matrix getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_symmetry_operator_rotation_matrix))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_symmetry_operator_trans_matrix", &                  ! method name
+         "Symmetry operator translation matrix getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_symmetry_operator_trans_matrix))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_num_orbit", &                  ! method name
+         "Wyckoff Type num orbit getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_num_orbit))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_orbits", &                  ! method name
+         "Wyckoff Type orbit getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_orbits))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_multp", &                  ! method name
+         "Wyckoff Orbit multiplicity getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_multp))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_site", &                  ! method name
+         "Wyckoff Orbit site getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_site))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_norb", &                  ! method name
+         "Wyckoff Orbit norb getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_norb))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_str_orig", &                  ! method name
+         "Wyckoff Orbit str_orig getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_str_orig))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_wyckoff_str_orbit", &                  ! method name
+         "Wyckoff Orbit str_orbit getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_wyckoff_str_orbit))  ! address of Fortran function to add
+
+
     !--------------------------
     ! IO formats (1)
     !--------------------------
