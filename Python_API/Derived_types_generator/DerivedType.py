@@ -163,9 +163,14 @@ class DerivedType():
             
             ret += \
     """
-    r = retval%%get_c_ptr()
-    call args%%destroy
-    
+    r = retval%get_c_ptr()
+    call args%destroy
+    """
+            if type == "ndarray":
+                ret += """call %s%%destroy
+    """ %(param_fortran_name)
+            ret += \
+    """ 
   end function %s_get_%s
   
   """ %  (self.fortran_module_name, param_fortran_name)

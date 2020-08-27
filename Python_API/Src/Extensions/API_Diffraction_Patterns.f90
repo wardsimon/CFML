@@ -191,6 +191,9 @@ contains
     ierror = retval%setitem("x", x_array)
     r = retval%get_c_ptr()
 
+    call args%destroy
+    call x_array%destroy
+
   end function diffraction_patterns_get_x
 
   function diffraction_patterns_get_y(self_ptr, args_ptr) result(r) bind(c)
@@ -224,6 +227,9 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("y", y_array)
     r = retval%get_c_ptr()
+
+    call args%destroy
+    call y_array%destroy
 
   end function diffraction_patterns_get_y
 
