@@ -13,44 +13,24 @@ rem
    goto FIN
 rem
 :CONT
-   if x%1 == xf95       goto F95
-   if x%1 == xlf95      goto LF95
-   if x%1 == xg95       goto G95
    if x%1 == xgfortran  goto GFOR
    if x%1 == xifort     goto IFORT
    if x%1 == xifortd     goto IFORTD
    echo    Unknown compiler!
    goto FIN
 rem
-rem ****---- Absoft Compiler ----****
-:F95
-   goto END
-rem
-rem ****---- Lahey Compiler ----****
-:LF95
-   lf95 -c Sup_Exc.f90    -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95 -c Simbo.f90      -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC"
-   lf95  *.obj -out Simbo -tp -nomap -stchk -nchk -o1 -mod ".;c:\CrysFML\lahey\LibC" -lib c:\CrysFML\lahey\LibC\CrysFML
-   goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Sup_Exc.f90 /O2 /nologo /heap-arrays:100 /IC:\CrysFML\ifort\LibC
-   ifort /c Simbo.f90   /O2 /nologo /heap-arrays:100 /IC:\CrysFML\ifort\LibC
-   link /subsystem:console  /out:Simbo.exe *.obj C:\CrysFML\ifort\LibC\CrysFML.lib
+   ifort /c Sup_Exc.f90 /O2 /nologo /heap-arrays:100 /I%CRYSFML%\ifort64\LibC
+   ifort /c Simbo.f90   /O2 /nologo /heap-arrays:100 /I%CRYSFML%\ifort64\LibC
+   link /subsystem:console  /out:Simbo.exe *.obj %CRYSFML%\ifort64\LibC\CrysFML.lib
    goto END
 rem
 :IFORTD
-   ifort /c Sup_Exc.f90 /debug:full /check /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
-   ifort /c Simbo.f90   /debug:full /check /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
-   link /subsystem:console /out:Simbo.exe *.obj C:\CrysFML\ifort_debug\LibC\CrysFML.lib
-   goto END
-rem
-rem **---- G95 Compiler ----**
-:G95
-   g95 -c Sup_Exc.f90  -I../../G95/LibC
-   g95 -c Simbo.f90    -I../../G95/LibC
-   g95 *.o -o Simbo    -L../../G95/LibC   -lcrysfml
+   ifort /c Sup_Exc.f90 /debug:full /check /traceback  /nologo  /heap-arrays:100 /I%CRYSFML%\ifort64_debug\LibC 
+   ifort /c Simbo.f90   /debug:full /check /traceback  /nologo  /heap-arrays:100 /I%CRYSFML%\ifort64_debug\LibC
+   link /subsystem:console /out:Simbo.exe *.obj %CRYSFML%\ifort64_debug\LibC\CrysFML.lib
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**
