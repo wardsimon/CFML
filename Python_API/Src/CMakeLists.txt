@@ -74,3 +74,5 @@ endif()
 # Installing example files
 install(DIRECTORY "../Examples" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
 install(DIRECTORY "../Examples/Data" DESTINATION ${PYTHON_API_PREFIX}/Examples FILES_MATCHING PATTERN "*.cfl" PATTERN "*.cif")
+# Installing tests files
+install(DIRECTORY "../Tests" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
