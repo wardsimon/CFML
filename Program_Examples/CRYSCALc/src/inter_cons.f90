@@ -523,7 +523,7 @@ END subroutine interactive_mode
       case ('MU', 'CALC_MU', 'MU_CALC', 'ABSORPTION', 'ABSORPTION_CALC', 'CALC_ABSORPTION')
        if(keyword_MU) call Absorption_routine
 
- 
+
       CASE ('SITE_INFO', 'LIST_SITE_INFO', 'GEN_EQUIV_ATOMS', 'WYCKOFF')
         !site_info_all_atoms = .true.
         IF(nb_atom /=0 .AND. keyword_SPGR) then
@@ -938,10 +938,10 @@ END subroutine interactive_mode
 
       case ('REF_SIR')
         call write_REF('SIR')
-		
+
       case ("REF_SPF", "REF_SUPERFLIP", "SPF", "SUPERFLIP")
         call write_REF('SPF')
-		
+
 
       case ('REF_SADABS', 'REF_SAD', 'SADABS')
         call write_REF('SADABS')

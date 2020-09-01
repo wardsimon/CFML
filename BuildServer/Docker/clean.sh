@@ -11,5 +11,13 @@ images=`docker images -q -f "dangling=true"`
 # If some dangling images have been found, remove them
 if [ -n "$images" ]
 then
-    docker rmi -f ${images}
+    docker rmi ${images}
+fi
+
+# Also remove docker volumes
+volumes=`docker volume ls -q -f "dangling=true"`
+# If some dangling volumes have been found, remove them
+if [ -n "$volumes" ]
+then
+    docker volume rm ${volumes}
 fi

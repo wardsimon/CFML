@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -177,7 +177,7 @@ Module CFML_FFT
    public :: SFFT, HFFT
 
    !---- Definitions ----!
-   
+
    !--------------------!
    !---- PARAMETERS ----!
    !--------------------!
@@ -195,7 +195,7 @@ Module CFML_FFT
    !-------------------!
    !integer, save :: StatusF                  ! Information on FFT Routines
 
-   
+
    !!----
    !!---- TYPE, public :: Points_Interval_Type
    !!----
@@ -215,16 +215,16 @@ Module CFML_FFT
       Module Procedure Fft6D
       Module Procedure Fft7D
    End Interface
-   
+
    !---- General Procedures ----!
    Interface
-      Module Pure Function F_FFT(Array, Mode ) Result(fft)
+      Pure Module Function F_FFT(Array, Mode ) Result(fft)
          !---- Arguments ----!
          complex(kind=cp), dimension(:),      intent(in) :: Array  !  In -> real array containing real parts of transform
          character(len=*),          optional, intent(in) :: Mode   !  In -> type="INV" : backward transform. Absent or whatever -> forward transform
-         complex(kind=cp), dimension(size(Array))        :: fft 
+         complex(kind=cp), dimension(size(Array))        :: fft
       End Function F_FFT
-      
+
       Module Function Fft1D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:), intent(in)             :: array     ! In -> Complex array
@@ -232,33 +232,33 @@ Module CFML_FFT
          logical,                        intent(in),  optional  :: inv       ! In -> If .true., inverse transformation will be performed.
          complex(fftkind), dimension(size(array, 1))            :: ft
       End Function Fft1D
-      
+
       Module Function Fft2D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:), intent(in)                :: array         ! In -> Complex array
          integer,          dimension(:),   intent(in),  optional     :: dim           ! In -> array containing the dimensions to be transformed
-         logical,                          intent(in),  optional     :: inv 
+         logical,                          intent(in),  optional     :: inv
          complex(fftkind), dimension(size(array, 1), size(array, 2)) :: ft
       End Function Fft2D
-      
+
       Module Function Fft3D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:,:), intent(in)               :: array        ! In -> Complex array
          integer,          dimension(:),     intent(in),  optional    :: dim          ! In -> array containing the dimensions to be transformed
-         logical,                            intent(in),  optional    :: inv 
+         logical,                            intent(in),  optional    :: inv
          complex(fftkind), &
             dimension(size(array, 1), size(array, 2), size(array, 3)) :: ft
       End Function Fft3D
-      
+
       Module Function Fft4D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:,:,:), intent(in)                   :: array         ! In -> Complex array
          integer,          dimension(:),       intent(in),  optional        :: dim           ! In -> array containing the dimensions to be transformed
-         logical,                              intent(in),  optional        :: inv  
+         logical,                              intent(in),  optional        :: inv
          complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4)) :: ft
-      End Function Fft4D 
-      
+      End Function Fft4D
+
       Module Function Fft5D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:,:,:,:), intent(in)                   :: array           ! In -> Complex array
@@ -268,7 +268,7 @@ Module CFML_FFT
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
             size(array, 5))                                                   :: ft
       End Function Fft5D
-      
+
       Module Function Fft6D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:,:,:,:,:), intent(in)                 :: array         ! In -> Complex array
@@ -277,43 +277,43 @@ Module CFML_FFT
          complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
             size(array, 5), size(array, 6))                                   :: ft
-      End Function Fft6D 
-      
+      End Function Fft6D
+
       Module Function Fft7D(Array, Dim, Inv) Result(Ft)
          !--- formal parameters
          complex(fftkind), dimension(:,:,:,:,:,:,:), intent(in)               :: array      ! In -> Complex array
          integer,          dimension(:),             intent(in),  optional    :: dim        ! In -> array containing the dimensions to be transformed
-         logical,                                    intent(in),  optional    :: inv 
+         logical,                                    intent(in),  optional    :: inv
          complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
             size(array, 5), size(array, 6), size(array, 7))                   :: ft
       End Function Fft7D
-      
+
       Module Subroutine Fftn(Array, Shape, Dim, Inv, Stat)
          !--- formal parameters
          complex(fftkind), dimension(:), intent(in out)       :: array
          integer,          dimension(:), intent(in)           :: shape
          integer,          dimension(:), intent(in),  optional:: dim
          logical,                        intent(in),  optional:: inv
-         integer,                        intent(out), optional:: stat  
+         integer,                        intent(out), optional:: stat
       End Subroutine Fftn
-      
-      Module Pure Subroutine Hfft(Array,Ifset,Iferr)
+
+      Pure Module Subroutine Hfft(Array,Ifset,Iferr)
          !---- Arguments ----!
          complex(kind=cp), dimension(0:,0:,0:), intent(in out) :: Array       ! In -> Contains the complex 3D array to be transformed
          integer,                               intent(in    ) :: IfSet       ! In -> 1,2 Inverse Fourier Transform; -1,-2 Fourier Transform
          integer,                               intent(   out) :: IFerr       ! Out -> Flags to error. 0 No error
       End Subroutine Hfft
-      
-      Module Pure Subroutine Sfft( Array, Mode,Iferr )
+
+      Pure Module Subroutine Sfft( Array, Mode,Iferr )
          !---- Arguments ----!
          complex(kind=cp), dimension(:),      intent(in out) :: Array   ! In -> real array containing real parts of transform
          character(len=*), optional,          intent(in)     :: Mode    ! In -> type="INV" : backward transform; Absent or whatever : forward transform
          integer,          optional,          intent(   out) :: Iferr   ! Out -> Flags to error. 0 No error
       End Subroutine Sfft
-      
+
    End Interface
-   
+
  Contains
     !!--++
     !!--++ SUBROUTINE FFTRADIX
@@ -968,8 +968,8 @@ Module CFML_FFT
           RETURN
        END SUBROUTINE permute
 
-    End Subroutine Fftradix 
-    
+    End Subroutine Fftradix
+
     !!----
     !!---- CONVOL
     !!----
@@ -989,7 +989,7 @@ Module CFML_FFT
     !!----   generates my_interval%np values  h(i), i=1,my_interval%np corresponding
     !!-->>   to the convolution of a pseudo-Voigt function with a hat function
     !!----
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Pure Function Convol(F, Pf, G, Pg, Interval) Result(Conv)
        !---- Arguments ----!
@@ -1084,7 +1084,7 @@ Module CFML_FFT
     !!----   generates 150 values  h(i), i=1,150 corresponding to the convolution
     !!----   of a pseudo-Voigt function with a hat function
     !!----
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np) Result(Conv)
        !---- Arguments ----!
@@ -1204,6 +1204,6 @@ Module CFML_FFT
        end if
 
        return
-    End Function Convol_Peaks  
-   
+    End Function Convol_Peaks
+
  End Module CFML_FFT

@@ -1,15 +1,16 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_010
+SubModule (CFML_Reflections) RFL_Refl_Conditions
+   implicit none
    Contains
-   
+
    !!--++
    !!--++ SEARCH_EXTINTIONS_IUNIT
    !!--++    (Overloaded)
    !!--++    Write information about the Reflections Extintion for SpaceGroup
    !!--++
-   !!--++ 24/06/2019 
+   !!--++ 24/06/2019
    !!
    Module Subroutine Search_Extinctions_Iunit(SpG, Iunit)
       !---- Arguments ----!
@@ -20,7 +21,7 @@ SubModule (CFML_Reflections) RFL_010
          call init_ref_cond()
          hkl_ref_cond_ini=.true.
       end if
-      
+
       if (present(Iunit)) then
          call write_integral_conditions(SpG, iunit)
          call write_glide_planes_conditions(SpG,iunit)
@@ -29,17 +30,17 @@ SubModule (CFML_Reflections) RFL_010
          call write_integral_conditions(SpG)
          call write_glide_planes_conditions(SpG)
          call write_screw_axis_conditions(SpG)
-      end if   
+      end if
 
    End Subroutine Search_Extinctions_Iunit
-   
+
    !!--++
    !!--++ SEARCH_EXTINCTIONS_FILE
    !!--++    (Overloaded)
    !!--++    Write information about the Reflections Extintion for SpaceGroup
    !!--++    in filevar variable
    !!--++
-   !!--++ 24/06/2019 
+   !!--++ 24/06/2019
    !!
    Module Subroutine Search_Extinctions_File(SpG, nlines, filevar)
       !---- Arguments ----!
@@ -78,7 +79,7 @@ SubModule (CFML_Reflections) RFL_010
 
       return
    End Subroutine Search_Extinctions_File
-    
+
    !!--++
    !!--++ INIT_REFL_CONDITIONS()
    !!--++    Initialize the Reflection conditions information array
@@ -108,7 +109,7 @@ SubModule (CFML_Reflections) RFL_010
             "(  h  k  0)   h+k=4n : (001) glide plane with a/4 +- b/4 translations (d)       " , &
             "(  h  -h   0 l) l=2n : (11-20) glide plane with c/2 translation (c)             " , &
             "(  0   k  -k l) l=2n : (-2110) glide plane with c/2 translation (c)             " /)
-      
+
       Hkl_Ref_Conditions(21:39)(1:80)   = (/  &
             "( -h   0   h l) l=2n : (1-210) glide plane with c/2 translation (c)             " , &
             "(  h   h -2h l) l=2n : (1-100) glide plane with c/2 translation (c)             " , &
@@ -129,7 +130,7 @@ SubModule (CFML_Reflections) RFL_010
             "(  h  k  h)  2h+k=4n : (-101) glide plane with +-a/4 +- b/4 + c/4 translation(d)" , &
             "( -h  k  h)     k=2n : (101)  glide plane with b/2 translation (b,n)            " , &
             "( -h  k  h)  2h+k=4n : (101)  glide plane with +-a/4 +- b/4 + c/4 translation(d)" /)
-        
+
         Hkl_Ref_Conditions(40:58)(1:80)   = (/  &
             "(h 0 0)      h=2n : screw axis // [100] with  a/2 translation (21)              " , & ! monoclinic, ortho., tetra and cubic
             "(h 0 0)      h=2n : screw axis // [100] with 2a/4 translation (42)              " , & ! cubic
@@ -152,13 +153,13 @@ SubModule (CFML_Reflections) RFL_010
             "(0 0 0 l)    l=6n : screw axis // [00l] axis with 5c/6 translation (65)         " /)
 
    End Subroutine Init_Refl_Conditions
-   
+
    !!--++
    !!--++ WRITE_GLIDE_PLANES_CONDITIONS
    !!--++    Reflections Conditions according with I.T. Table 2.2.13.2
    !!--++    space.
    !!--++
-   !!--++ 24/06/2019 
+   !!--++ 24/06/2019
    !!
    Module Subroutine Write_Glide_Planes_Conditions(SpG,Iunit)
       !---- Arguments ----!
@@ -990,13 +991,13 @@ SubModule (CFML_Reflections) RFL_010
       end if
 
    End Subroutine Write_Glide_Planes_Conditions
-   
+
    !!--++
    !!--++ INTEGRAL_CONDITIONS
    !!--++    Integral Conditions according with I.T. Table 2.2.13.1
    !!--++    space.
    !!--++
-   !!--++ 24/06/2019 
+   !!--++ 24/06/2019
    !!
    Module Subroutine Write_Integral_Conditions(SpG,iunit)
       !---- Arguments ----!
@@ -1208,12 +1209,12 @@ SubModule (CFML_Reflections) RFL_010
 
       return
    End Subroutine Write_Integral_Conditions
-   
+
    !!--++
    !!--++ WRITE_SCREW_AXIS_CONDITIONS
    !!--++    Reflections conditions for Screw axes Table 2.2.13.2
    !!--++
-   !!--++ 24/06/2019 
+   !!--++ 24/06/2019
    !!
    Module Subroutine Write_Screw_Axis_Conditions(SpG ,Iunit)
       !---- Arguments ----!
@@ -1522,5 +1523,5 @@ SubModule (CFML_Reflections) RFL_010
       end if
 
    End Subroutine Write_Screw_Axis_Conditions
-   
-End SubModule RFL_010   
+
+End SubModule RFL_Refl_Conditions

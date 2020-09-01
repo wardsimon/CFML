@@ -182,7 +182,7 @@ end module atomic_data
 
 module shannon_module
 
- 
+
 !# Extrait de :
 !#        R.D. Shannon
 !#        Acta Cryst 1976, A32, 751
@@ -221,8 +221,8 @@ module shannon_module
 
 contains
  subroutine set_shannon
-  
-  if (.not. ALLOCATED(SHANNON)) ALLOCATE(SHANNON(nb_shannon_lines))                
+
+  if (.not. ALLOCATED(SHANNON)) ALLOCATE(SHANNON(nb_shannon_lines))
 
    SHANNON(  1) = SHANNON_type('AC+3',  '6p6 ',   'VI   ', '  ',     1.23  ,  1.12   )
    SHANNON(  2) = SHANNON_type('AG+1',  '4d10',   'II   ', '  ',     0.81  ,  0.67   )

@@ -126,7 +126,7 @@
            else
                ssg_file=trim(database_path)//'ssg_datafile.txt'
            end if
-         end if        
+         end if
          open(unit=i_db,file=ssg_file,status='old',action='read',position='rewind',iostat=ier)
          if(ier /= 0) then
            ok=.false.

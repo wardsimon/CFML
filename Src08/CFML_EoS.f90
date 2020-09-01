@@ -48,12 +48,12 @@
 !!----    ...   2015: Modifications for 2003 compatibility and Eos development (RJA,  JGP)
 !!----    ...   2016: Modifications for curved phase boundaries and fitting moduli (RJA)
 !!----    ...   2016: Modifications to add PVT table to EoS structure as alternative to EoS parameters (RJA)
-!!----    ...   2017: Split write_eoscal to improve error handling, new thermalP eos (RJA) 
+!!----    ...   2017: Split write_eoscal to improve error handling, new thermalP eos (RJA)
 !!----    ...   2018: New routines: physical_check, get_kp, added pscale,vscale,lscale to data_list_type (RJA)
 !!
 Module CFML_EoS
    !---- Use Modules ----!
-   Use CFML_GlobalDeps,only: CP, err_cfml, clear_error
+   Use CFML_GlobalDeps,only: CP, err_cfml, clear_error, pi
    Use CFML_Maths,     only: Debye,Second_Derivative,spline_interpol
    Use CFML_Metrics,   only: Cell_Type, Get_Cryst_Family, Set_Crystal_Cell
    Use CFML_Strings,   only: u_case, string_real, string_numstd, number_lines, get_words, get_numstd, &
@@ -255,686 +255,686 @@ Module CFML_EoS
    Interface
       Module Function Get_Pressure(V,T,EosPar) Result(P)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: V
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: P
       End Function Get_Pressure
-      
+
       Module Function Get_Pressure_Esd(V,T,EosPar) Result(esd)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: EsD 
+         real(kind=cp),  intent(in) :: V
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: EsD
       End Function Get_Pressure_Esd
-      
+
       Module Function Get_Pressure_K(K,T,Eos,Itype,Pest) Result(P)
          !---- Arguments ----!
-         real(kind=cp),           intent(in) :: K       
-         real(kind=cp),           intent(in) :: T       
-         type(Eos_Type),          intent(in) :: EoS     
+         real(kind=cp),           intent(in) :: K
+         real(kind=cp),           intent(in) :: T
+         type(Eos_Type),          intent(in) :: EoS
          integer,                 intent(in) :: itype
-         real(kind=cp), optional, intent(in) :: Pest   
-         real(kind=cp)                       :: P 
+         real(kind=cp), optional, intent(in) :: Pest
+         real(kind=cp)                       :: P
       End Function Get_Pressure_K
-      
+
       Module Function Get_Pressure_X(X,T,Eos,Xtype,Pest) Result(P)
          !---- Arguments ----!
-         real(kind=cp),           intent(in) :: x       
-         real(kind=cp),           intent(in) :: T       
-         type(Eos_Type),          intent(in) :: EoS     
-         integer,                 intent(in) :: Xtype   
-         real(kind=cp), optional, intent(in) :: Pest 
-         real(kind=cp)                       :: P   
+         real(kind=cp),           intent(in) :: x
+         real(kind=cp),           intent(in) :: T
+         type(Eos_Type),          intent(in) :: EoS
+         integer,                 intent(in) :: Xtype
+         real(kind=cp), optional, intent(in) :: Pest
+         real(kind=cp)                       :: P
       End Function Get_Pressure_X
-      
+
       Module Function Get_V0_T(T,EosPar) Result(V)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T        
-         type(Eos_Type), intent(in) :: EoSPar   
-         real(kind=cp)              :: V   
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: V
       End Function Get_V0_T
-      
+
       Module Function Get_Volume(P,T,EosPar) Result(v)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: V 
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: V
       End Function Get_Volume
-      
+
       Module Function Get_Volume_New(P,T,EosPar) Result(v)
         !---- Arguments ----!
-        real(kind=cp),  intent(in) :: P       
-        real(kind=cp),  intent(in) :: T       
-        type(Eos_Type), intent(in) :: EoSPar  
+        real(kind=cp),  intent(in) :: P
+        real(kind=cp),  intent(in) :: T
+        type(Eos_Type), intent(in) :: EoSPar
         real(kind=cp)              :: V
       End Function Get_Volume_New
-      
+
       Module Function Get_Volume_K(K,T,E) Result(V)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: K      
-         real(kind=cp),  intent(in) :: T      
-         type(Eos_Type), intent(in) :: E    
-         real(kind=cp)              :: V  
+         real(kind=cp),  intent(in) :: K
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: E
+         real(kind=cp)              :: V
       End Function Get_Volume_K
-      
+
       Module Function Get_Volume_K_old(K,T,E) Result(V)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: K      
-         real(kind=cp),  intent(in) :: T      
-         type(Eos_Type), intent(in) :: E 
-         real(kind=cp)              :: V     
+         real(kind=cp),  intent(in) :: K
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: E
+         real(kind=cp)              :: V
       End Function Get_Volume_K_old
-      
+
       Module Function Get_Volume_S(S,T,Eospar) Result(V)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: S       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: S
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: V
       End Function Get_Volume_S
-      
+
       Module Function Get_Transition_Pressure(T,EosPar) Result(Ptr)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: Ptr
       End Function Get_Transition_Pressure
-      
+
       Module Function Get_Transition_Strain(P,T,EosPar) Result(vs)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: Vs 
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: Vs
       End Function Get_Transition_Strain
-      
+
       Module Function Get_Transition_Temperature(P,EosPar) Result(Tr)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         type(Eos_Type), intent(in) :: EoSPar  
-         real(kind=cp)              :: Tr       
+         real(kind=cp),  intent(in) :: P
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: Tr
       End Function Get_Transition_Temperature
-      
+
       Module Function Transition_Phase(P,T,Eospar) Result(Ip)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         logical                    :: Ip 
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         logical                    :: Ip
       End Function Transition_Phase
-      
+
       Module Function Get_Temperature(P,V,EosPar) Result(T)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         real(kind=cp),  intent(in) :: V       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: V
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: T
       End Function Get_Temperature
-      
+
       Module Function Get_Temperature_P0(Vin,EosPar,Tmin,Tmax) Result(Tk)
          !---- Arguments ----!
-         real(kind=cp),           intent(in) :: Vin       
-         type(Eos_Type),          intent(in) :: EoSPar    
-         real(kind=cp), optional, intent(in) :: Tmin      
+         real(kind=cp),           intent(in) :: Vin
+         type(Eos_Type),          intent(in) :: EoSPar
+         real(kind=cp), optional, intent(in) :: Tmin
          real(kind=cp), optional, intent(in) :: Tmax
          real(kind=cp)                       :: Tk
       End Function Get_Temperature_P0
-      
+
       Module Function NormPressure_Eos(S,T,EosPar) Result(F)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: S       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: S
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: F
       End Function NormPressure_Eos
-      
+
       Module Function NormPressure_P(S,P,imodel) Result(F)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: S      
-         real(kind=cp),  intent(in) :: P      
-         integer      ,  intent(in) :: imodel 
+         real(kind=cp),  intent(in) :: S
+         real(kind=cp),  intent(in) :: P
+         integer      ,  intent(in) :: imodel
          real(kind=cp)              :: F
       End Function NormPressure_P
-      
+
       Module Function Pressure_F(F,S,EosPar) Result(P)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: F       
-         real(kind=cp),  intent(in) :: S       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: F
+         real(kind=cp),  intent(in) :: S
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: P
       End Function Pressure_F
-      
+
       Module Function Strain(VV0,EosPar) Result(S)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: VV0     
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: VV0
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: S
       End Function Strain
-      
+
       Module Function Strain_EOS(V,T,EosPar) Result(S)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: S 
+         real(kind=cp),  intent(in) :: V
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: S
       End Function Strain_EOS
-      
+
       Module Function Get_K(P,T,EosPar) Result(K)
          !---- Arguments ----!
-         real(kind=cp),intent(in)        :: p       
-         real(kind=cp),intent(in)        :: t       
-         type(Eos_Type),intent(in)       :: Eospar  
+         real(kind=cp),intent(in)        :: p
+         real(kind=cp),intent(in)        :: t
+         type(Eos_Type),intent(in)       :: Eospar
          real(kind=cp)                   :: K
       End Function Get_K
-      
+
       Module Function Get_K0_T(T,Eospar) Result(k0)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: k0
       End Function Get_K0_T
-      
+
       Module Function Get_Kp(P,T,EosPar) Result(Kp)
          !---- Arguments ----!
-         real(kind=cp),intent(in)        :: p       
-         real(kind=cp),intent(in)        :: t       
-         type(Eos_Type),intent(in)       :: Eospar 
-         real(kind=cp)                   :: kp 
+         real(kind=cp),intent(in)        :: p
+         real(kind=cp),intent(in)        :: t
+         type(Eos_Type),intent(in)       :: Eospar
+         real(kind=cp)                   :: kp
       End  Function Get_Kp
-      
+
       Module Function Get_Kp0_T(T,Eospar) Result(kp0)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: kp0  
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: kp0
       End Function Get_Kp0_T
-      
+
       Module Function Get_Kpp0_T(T,Eospar) Result(kpp0)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: kpp0  
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: kpp0
       End Function Get_Kpp0_T
-      
+
       Module Function Get_GPT(P,T,EoSPar) Result(gpt)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P      
-         real(kind=cp),  intent(in) :: T      
-         type(Eos_Type), intent(in) :: EosPar 
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EosPar
          real(kind=cp)              :: Gpt
       End Function Get_GPT
-      
+
       Module Function Get_Grun_PT(P,T,Eospar) Result(G)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: P       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar 
-         real(kind=cp)              :: G 
+         real(kind=cp),  intent(in) :: P
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
+         real(kind=cp)              :: G
       End Function Get_Grun_PT
-      
+
       Module Function Get_Grun_V(V,Eospar)  Result(Grun)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: V
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: Grun
       End Function Get_Grun_V
-      
+
       Module Function K_Cal(V,T,Eospar,P) Result(kc)
          !---- Arguments ----!
-         real(kind=cp),            intent(in) :: V       
-         real(kind=cp),            intent(in) :: T       
-         type(Eos_Type),           intent(in) :: EoSPar  
-         real(kind=cp),  optional, intent(in) :: P  
-         real(kind=cp)                        :: kc     
+         real(kind=cp),            intent(in) :: V
+         real(kind=cp),            intent(in) :: T
+         type(Eos_Type),           intent(in) :: EoSPar
+         real(kind=cp),  optional, intent(in) :: P
+         real(kind=cp)                        :: kc
       End Function K_Cal
-      
+
       Module Function Kp_Cal(V,T,EoSpar,P) Result (kpc)
          !---- Arguments ----!
-         real(kind=cp),           intent(in) :: V       
-         real(kind=cp),           intent(in) :: T       
-         type(Eos_Type),          intent(in) :: EoSPar  
-         real(kind=cp), optional, intent(in) :: P 
-         real(kind=cp)                       :: kpc       
+         real(kind=cp),           intent(in) :: V
+         real(kind=cp),           intent(in) :: T
+         type(Eos_Type),          intent(in) :: EoSPar
+         real(kind=cp), optional, intent(in) :: P
+         real(kind=cp)                       :: kpc
       End Function Kp_Cal
-      
+
       Module Function Kpp_Cal(V,T,EoSpar) Result (kppc)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         real(kind=cp),  intent(in) :: T       
+         real(kind=cp),  intent(in) :: V
+         real(kind=cp),  intent(in) :: T
          type(Eos_Type), intent(in) :: EoSPar
-         real(kind=cp)              :: kppc    
+         real(kind=cp)              :: kppc
       End Function Kpp_Cal
-      
+
       Module Function Get_Props_PTVTable(P,T,V,EosPar,Res) Result(Val)
          !---- Arguments ----!
-         real(kind=cp),    intent(in) :: P       
-         real(kind=cp),    intent(in) :: T       
-         real(kind=cp),    intent(in) :: V       
-         type(Eos_Type),   intent(in) :: EoSPar  
-         character(len=*), intent(in) :: Res 
-         real(kind=cp)                :: Val    
+         real(kind=cp),    intent(in) :: P
+         real(kind=cp),    intent(in) :: T
+         real(kind=cp),    intent(in) :: V
+         type(Eos_Type),   intent(in) :: EoSPar
+         character(len=*), intent(in) :: Res
+         real(kind=cp)                :: Val
       End Function Get_Props_PTVTable
-      
+
       Module Function Murn_Interpolate_PTVTable(I,J,P,Eos) Result(V)
          !---- Arguments ----!
-         integer,        intent(in) :: I      
-         integer,        intent(in) :: J      
-         real(kind=cp),  intent(in) :: P      
-         type(Eos_Type), intent(in) :: EoS  
+         integer,        intent(in) :: I
+         integer,        intent(in) :: J
+         real(kind=cp),  intent(in) :: P
+         type(Eos_Type), intent(in) :: EoS
          real(kind=cp)              :: V
       End Function Murn_Interpolate_PTVTable
-      
+
       Module Function EthDebye(T,Theta,Eospar) Result(Eth)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: T       
-         real(kind=cp),  intent(in) :: Theta   
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: T
+         real(kind=cp),  intent(in) :: Theta
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: Eth
       End Function EthDebye
-      
+
       Module Function Get_DebyeT(V, Eos) result(DebyeT)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         type(Eos_Type), intent(in) :: EoS 
-         real(kind=cp)              :: DebyeT    
+         real(kind=cp),  intent(in) :: V
+         type(Eos_Type), intent(in) :: EoS
+         real(kind=cp)              :: DebyeT
       End Function Get_DebyeT
-      
+
       Module Function Pthermal(V,T,EosPar) Result(Pth)
          !---- Arguments ----!
-         real(kind=cp),  intent(in) :: V       
-         real(kind=cp),  intent(in) :: T       
-         type(Eos_Type), intent(in) :: EoSPar  
+         real(kind=cp),  intent(in) :: V
+         real(kind=cp),  intent(in) :: T
+         type(Eos_Type), intent(in) :: EoSPar
          real(kind=cp)              :: PTh
       End Function Pthermal
-      
+
       Module Function VscaleMGD(E) Result(MGD)
          !---- Arguments ----!
-         type(Eos_Type),intent(in)  :: E          
-         logical                    :: MGD        
+         type(Eos_Type),intent(in)  :: E
+         logical                    :: MGD
       End Function VscaleMGD
-      
+
       Module Function Get_Property_X(P,T,Eos,Xtype) Result(val)
          !---- Arguments ----!
-         real(kind=cp),     intent(in) :: P       
-         real(kind=cp),     intent(in) :: T       
-         type(Eos_Type),    intent(in) :: EoS     
-         integer, optional, intent(in) :: xtype   
+         real(kind=cp),     intent(in) :: P
+         real(kind=cp),     intent(in) :: T
+         type(Eos_Type),    intent(in) :: EoS
+         integer, optional, intent(in) :: xtype
          real(kind=cp)                 :: Val
       End Function Get_Property_X
-      
+
       Module Function Alpha_Cal(P,T,Eospar, DeltaT) Result(Alpha)
          !---- Arguments ----!
-         real(kind=cp),            intent(in) :: P       
-         real(kind=cp),            intent(in) :: T       
-         type(Eos_Type),           intent(in) :: EoSPar  
-         real(kind=cp),  optional, intent(in) :: DeltaT  
+         real(kind=cp),            intent(in) :: P
+         real(kind=cp),            intent(in) :: T
+         type(Eos_Type),           intent(in) :: EoSPar
+         real(kind=cp),  optional, intent(in) :: DeltaT
       End Function Alpha_Cal
-      
+
       Module Function dKdT_Cal(P,T,Eospar,DeltaT) Result(dKdT)
          !---- Arguments ----!
-         real(kind=cp),            intent(in) :: P       
-         real(kind=cp),            intent(in) :: T       
-         type(Eos_Type),           intent(in) :: EoSPar  
-         real(kind=cp),  optional, intent(in) :: DeltaT  
+         real(kind=cp),            intent(in) :: P
+         real(kind=cp),            intent(in) :: T
+         type(Eos_Type),           intent(in) :: EoSPar
+         real(kind=cp),  optional, intent(in) :: DeltaT
          real(kind=cp)                        :: dKdT
       End Function dKdT_Cal
-      
+
       Module Subroutine Allocate_EoS_Data_List(N, E)
          !---- Arguments ----!
-         integer,                    intent(in)       :: N  
-         type (eos_data_list_type),  intent(in out)   :: E  
+         integer,                    intent(in)       :: N
+         type (eos_data_list_type),  intent(in out)   :: E
       End Subroutine Allocate_EoS_Data_List
-      
+
       Module Subroutine Allocate_EoS_List(N, E)
          !---- Arguments ----!
-         integer,               intent(in)       :: N  
-         type (eos_list_type),  intent(in out)   :: E  
+         integer,               intent(in)       :: N
+         type (eos_list_type),  intent(in out)   :: E
       End Subroutine Allocate_EoS_List
-      
+
       Module Subroutine Deallocate_EoS_Data_List(E)
          !---- Arguments ----!
-         type (eos_data_list_type), intent(in out)   :: E  
+         type (eos_data_list_type), intent(in out)   :: E
       End Subroutine Deallocate_EoS_Data_List
-      
+
       Module Subroutine Deallocate_EoS_List(E)
          !---- Arguments ----!
-         type (eos_list_type), intent(in out)   :: E  
+         type (eos_list_type), intent(in out)   :: E
       End Subroutine Deallocate_EoS_List
-      
+
       Module Subroutine Init_EoS_Cross(Eospar)
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Init_EoS_Cross
-      
+
       Module Subroutine Init_EoS_Data_Type(E)
          !---- Arguments ----!
          type (EoS_Data_Type), intent(in out)   :: E
       End Subroutine Init_EoS_Data_Type
-      
+
       Module Subroutine Init_EoS_Shear(Eospar)
          !---- Arguments ----!
          type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Init_EoS_Shear
-      
+
       Module Subroutine Init_EoS_Thermal(Eospar)
          !---- Arguments ----!
          type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Init_EoS_Thermal
-      
+
       Module Subroutine Init_EoS_Transition(Eospar)
          !---- Arguments ----!
          type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Init_EoS_Transition
-      
+
       Module Subroutine Init_EoS_Type(Eospar,CLin,IThermal,ITransition,Ishear,Icross)
          !---- Arguments ----!
-         type (EoS_Type),            intent(out)    :: Eospar       
-         character(len=*), optional, intent(in)     :: CLin         
-         integer,          optional, intent(in)     :: IThermal     
-         integer,          optional, intent(in)     :: ITransition  
-         integer,          optional, intent(in)     :: IShear       
-         integer,          optional, intent(in)     :: ICross       
+         type (EoS_Type),            intent(out)    :: Eospar
+         character(len=*), optional, intent(in)     :: CLin
+         integer,          optional, intent(in)     :: IThermal
+         integer,          optional, intent(in)     :: ITransition
+         integer,          optional, intent(in)     :: IShear
+         integer,          optional, intent(in)     :: ICross
       End Subroutine Init_EoS_Type
-      
+
       Module Subroutine Set_Cross_Names(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar  
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_Cross_Names
-      
+
       Module Subroutine Set_EoS_Factors(Eospar)
          !---- Arguments ----!
          type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_EoS_Factors
-      
+
       Module Subroutine Set_Eos_Names(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar   
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_Eos_Names
-      
+
       Module Subroutine Set_EoS_Use(Eospar)
       !---- Arguments ----!
-      type (EoS_Type), intent(in out) :: Eospar  
+      type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_EoS_Use
-      
+
       Module Subroutine Set_EoS_Implied_Values(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar  
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_EoS_Implied_Values
-      
+
       Module Subroutine Set_Shear_Names(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar  
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_Shear_Names
-      
+
       Module Subroutine Set_Thermal_Names(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar  
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_Thermal_Names
-      
+
       Module Subroutine Set_Transition_Names(Eospar)
          !---- Arguments ----!
-         type (EoS_Type), intent(in out) :: Eospar  
+         type (EoS_Type), intent(in out) :: Eospar
       End Subroutine Set_Transition_Names
 
       Module Subroutine Read_EoS_DataFile(fname,dat)
          !---- Arguments ----!
-         character(len=*),          intent(in)  :: fname   
-         type (eos_data_list_type), intent(out) :: dat     
+         character(len=*),          intent(in)  :: fname
+         type (eos_data_list_type), intent(out) :: dat
       End Subroutine Read_EoS_DataFile
-      
+
       Module Subroutine Read_Eos_File(Fname,Eos)
          !---- Arguments ----!
-         character(len=*),intent(in)  :: fname  
-         type (EoS_Type), intent(out) :: Eos    
+         character(len=*),intent(in)  :: fname
+         type (EoS_Type), intent(out) :: Eos
       End Subroutine Read_Eos_File
-      
+
       Module Subroutine Read_Eos_In(Flines,Eos)
          !---- Arguments ----!
          character(len=*),dimension(:),intent(in)   :: flines
          type(Eos_type),               intent(out)  :: eos
       End Subroutine Read_Eos_In
-      
+
       Module Subroutine Read_Multiple_Eos_File(Fname,Eoslist)
          !---- Arguments ----!
-         character(len=*),     intent(in)  :: fname     
-         type (EoS_List_Type), intent(out) :: Eoslist   
+         character(len=*),     intent(in)  :: fname
+         type (EoS_List_Type), intent(out) :: Eoslist
       End Subroutine Read_Multiple_Eos_File
-      
+
       Module Subroutine Write_EoS_DataFile(dat,lun)
          !---- Arguments ----!
-         type (eos_data_list_type), intent(in) :: dat  
-         integer,                   intent(in) :: lun  
+         type (eos_data_list_type), intent(in) :: dat
+         integer,                   intent(in) :: lun
       End Subroutine Write_EoS_DataFile
-      
+
       Module Subroutine Write_Eos_File(Eos,Lun)
          !---- Arguments ----!
-         type (EoS_Type),intent(in)   :: Eos 
-         integer,intent(in)           :: lun 
+         type (EoS_Type),intent(in)   :: Eos
+         integer,intent(in)           :: lun
       End Subroutine Write_Eos_File
-      
+
       Module Subroutine Write_Eoscal(Pmin,Pmax,Pstep,Tmin,Tmax,Tstep,Tscale_In,Eos,Lun,Nprint,eoscal_err)
          !---- Arguments ----!
-         real(kind=cp),    intent(in)  ::  pmin, pmax, pstep   
-         real(kind=cp),    intent(in)  ::  tmin,tmax,tstep     
-         character(len=*), intent(in)  ::  tscale_in           
-         type(EoS_Type),   intent(in)  ::  eos                 
-         integer,          intent(in)  ::  lun                  
-         integer,          intent(out) ::  nprint               
-         logical,          intent(out) ::  eoscal_err           
+         real(kind=cp),    intent(in)  ::  pmin, pmax, pstep
+         real(kind=cp),    intent(in)  ::  tmin,tmax,tstep
+         character(len=*), intent(in)  ::  tscale_in
+         type(EoS_Type),   intent(in)  ::  eos
+         integer,          intent(in)  ::  lun
+         integer,          intent(out) ::  nprint
+         logical,          intent(out) ::  eoscal_err
       End Subroutine Write_Eoscal
-      
+
       Module Subroutine Write_Eoscal_Header(Eos,Lun,Tscale_In)
          !---- Arguments ----!
-         type(EoS_Type),intent(in)   :: eos         
-         integer,       intent(in)   :: lun         
-         character(len=*),intent(in) :: tscale_in   
+         type(EoS_Type),intent(in)   :: eos
+         integer,       intent(in)   :: lun
+         character(len=*),intent(in) :: tscale_in
       End Subroutine Write_Eoscal_Header
-      
+
       Module Subroutine Write_Info_Eos(Eospar,iout)
          !---- Arguments ----!
-         type(Eos_Type),    intent(in) :: Eospar  
-         integer, optional, intent(in) :: iout    
+         type(Eos_Type),    intent(in) :: Eospar
+         integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Eos
-      
+
       Module Subroutine Write_Info_Eos_Cross(Eos,Iout)
          !---- Arguments ----!
          type(Eos_Type),    intent(in) :: Eos
          integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Eos_Cross
-      
+
       Module Subroutine Write_Info_Eos_Shear(Eos,Iout)
          !---- Arguments ----!
          type(Eos_Type),    intent(in) :: Eos
          integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Eos_Shear
-      
+
       Module Subroutine Write_Info_Eos_Thermal(Eospar,iout)
          !---- Arguments ----!
-         type(Eos_Type),    intent(in) :: Eospar  
-         integer, optional, intent(in) :: iout    
+         type(Eos_Type),    intent(in) :: Eospar
+         integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Eos_Thermal
-      
+
       Module Subroutine Write_Info_Eos_Transition(Eospar,iout)
          !---- Arguments ----!
-         type(Eos_Type),    intent(in) :: Eospar  
-         integer, optional, intent(in) :: iout    
+         type(Eos_Type),    intent(in) :: Eospar
+         integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Eos_Transition
-      
+
       Module Subroutine Calc_Conlev(Eos,ix,iy,isig,xyy,n)
          !---- Arguments ----!
-         type(Eos_Type),              intent(in)  :: Eos         
-         integer,                     intent(in)  :: ix       
-         integer,                     intent(in)  :: iy       
-         integer,                     intent(in)  :: isig        
-         real(kind=cp),dimension(:,:),intent(out) :: xyy         
-         integer,                     intent(out) :: n          
+         type(Eos_Type),              intent(in)  :: Eos
+         integer,                     intent(in)  :: ix
+         integer,                     intent(in)  :: iy
+         integer,                     intent(in)  :: isig
+         real(kind=cp),dimension(:,:),intent(out) :: xyy
+         integer,                     intent(out) :: n
       End Subroutine Calc_Conlev
-      
+
       Module Subroutine Write_Data_Conlev(xyy,n,iout)
          !---- Arguments ----!
-         real(kind=cp),dimension(:,:),intent(in)   :: xyy  
-         integer,                     intent(in)   :: n    
-         integer, optional,           intent(in)   :: iout 
+         real(kind=cp),dimension(:,:),intent(in)   :: xyy
+         integer,                     intent(in)   :: n
+         integer, optional,           intent(in)   :: iout
       End Subroutine Write_Data_Conlev
-      
+
       Module Subroutine Write_Info_Conlev(Eos,ix,iy,isig,iout)
          !---- Arguments ----!
          type(Eos_Type),    intent(in) :: Eos
-         integer,           intent(in) :: ix  
-         integer,           intent(in) :: iy  
-         integer,           intent(in) :: isig  
+         integer,           intent(in) :: ix
+         integer,           intent(in) :: iy
+         integer,           intent(in) :: isig
          integer, optional, intent(in) :: iout
       End Subroutine Write_Info_Conlev
-      
+
       Module Function Get_Tait(Eospar,T) Result(Vec)
          !---- Arguments ----!
-         type(Eos_Type),            intent(in)  :: Eospar  
-         real(kind=cp),             intent(in)  :: T       
-         real(kind=cp),dimension(3)             :: Vec     
+         type(Eos_Type),            intent(in)  :: Eospar
+         real(kind=cp),             intent(in)  :: T
+         real(kind=cp),dimension(3)             :: Vec
       End Function Get_Tait
-      
+
       Module Subroutine Deriv_Partial_P(V,T,Eospar,td,xtype,calc)
          !---- Arguments ----!
-         real(kind=cp),                      intent(in)  :: V       
-         real(kind=cp),                      intent(in)  :: T       
-         type(Eos_Type),                     intent(in)  :: Eospar  
-         real(kind=cp), dimension(n_eospar), intent(out) :: td      
-         integer,optional,                   intent(in)  :: xtype   
-         character(len=*),optional,          intent(in)  :: calc    
+         real(kind=cp),                      intent(in)  :: V
+         real(kind=cp),                      intent(in)  :: T
+         type(Eos_Type),                     intent(in)  :: Eospar
+         real(kind=cp), dimension(n_eospar), intent(out) :: td
+         integer,optional,                   intent(in)  :: xtype
+         character(len=*),optional,          intent(in)  :: calc
       End Subroutine Deriv_Partial_P
-      
+
       Module Subroutine Deriv_Partial_P_Analytic(V,T,Eospar,td)
          !---- Arguments ----!
-         real(kind=cp),                      intent(in)  :: V       
-         real(kind=cp),                      intent(in)  :: T       
-         type(Eos_Type),                     intent(in)  :: Eospar  
-         real(kind=cp), dimension(n_eospar), intent(out) :: td      
+         real(kind=cp),                      intent(in)  :: V
+         real(kind=cp),                      intent(in)  :: T
+         type(Eos_Type),                     intent(in)  :: Eospar
+         real(kind=cp), dimension(n_eospar), intent(out) :: td
       End Subroutine Deriv_Partial_P_Analytic
-      
+
       Module Subroutine Deriv_Partial_P_Numeric(X1,X2,Eospar,td,xtype,calc)
          !---- Arguments ----!
-         real(kind=cp),                      intent(in) :: X1,X2   
-         type(Eos_Type),                     intent(in) :: Eospar  
-         real(kind=cp), dimension(n_eospar), intent(out):: td      
-         integer,         optional,          intent(in) :: xtype   
-         character(len=*),optional,          intent(in) :: calc    
-      End Subroutine Deriv_Partial_P_Numeric 
-      
+         real(kind=cp),                      intent(in) :: X1,X2
+         type(Eos_Type),                     intent(in) :: Eospar
+         real(kind=cp), dimension(n_eospar), intent(out):: td
+         integer,         optional,          intent(in) :: xtype
+         character(len=*),optional,          intent(in) :: calc
+      End Subroutine Deriv_Partial_P_Numeric
+
       Module Subroutine FfCal_Dat(V,V0,P,Eospar,F,S)
          !---- Arguments ----!
-         real(kind=cp),           intent(in)  :: V       
-         real(kind=cp),           intent(in)  :: V0      
-         real(kind=cp),           intent(in)  :: P       
-         type(Eos_Type),          intent(in)  :: EoSPar  
-         real(kind=cp), optional, intent(out) :: F       
-         real(kind=cp), optional, intent(out) :: S       
+         real(kind=cp),           intent(in)  :: V
+         real(kind=cp),           intent(in)  :: V0
+         real(kind=cp),           intent(in)  :: P
+         type(Eos_Type),          intent(in)  :: EoSPar
+         real(kind=cp), optional, intent(out) :: F
+         real(kind=cp), optional, intent(out) :: S
       End Subroutine FfCal_Dat
-      
+
       Module Subroutine FfCal_Dat_Esd(V,SigV,V0,SigV0,P,SigP,EosPar,F,SigF,S,SigS)
          !---- Arguments ----!
-         real(kind=cp),  intent(in)  :: V       
-         real(kind=cp),  intent(in)  :: SigV    
-         real(kind=cp),  intent(in)  :: V0      
-         real(kind=cp),  intent(in)  :: SigV0   
-         real(kind=cp),  intent(in)  :: P       
-         real(kind=cp),  intent(in)  :: SigP    
-         type(Eos_Type), intent(in)  :: EoSPar  
-         real(kind=cp),  intent(out) :: F       
-         real(kind=cp),  intent(out) :: SigF    
-         real(kind=cp),  intent(out) :: S       
-         real(kind=cp),  intent(out) :: SigS    
+         real(kind=cp),  intent(in)  :: V
+         real(kind=cp),  intent(in)  :: SigV
+         real(kind=cp),  intent(in)  :: V0
+         real(kind=cp),  intent(in)  :: SigV0
+         real(kind=cp),  intent(in)  :: P
+         real(kind=cp),  intent(in)  :: SigP
+         type(Eos_Type), intent(in)  :: EoSPar
+         real(kind=cp),  intent(out) :: F
+         real(kind=cp),  intent(out) :: SigF
+         real(kind=cp),  intent(out) :: S
+         real(kind=cp),  intent(out) :: SigS
       End Subroutine FfCal_Dat_Esd
-      
+
       Module Subroutine FfCal_EoS(P,T,Eospar,F,S)
          !---- Arguments ----!
-         real(kind=cp),           intent(in)     :: P       
-         real(kind=cp),           intent(in)     :: T       
-         type(Eos_Type),          intent(in)     :: Eospar  
-         real(kind=cp),           intent(out)    :: F       
-         real(kind=cp),           intent(out)    :: S       
+         real(kind=cp),           intent(in)     :: P
+         real(kind=cp),           intent(in)     :: T
+         type(Eos_Type),          intent(in)     :: Eospar
+         real(kind=cp),           intent(out)    :: F
+         real(kind=cp),           intent(out)    :: S
       End Subroutine FfCal_EoS
-      
+
       Module Subroutine Murn_PTVTable(i,j,Eos,Eosm)
          !---- Arguments ----!
-         integer,        intent(in)  :: i      
-         integer,        intent(in)  :: j      
-         type(Eos_Type), intent(in)  :: EoS    
-         type(Eos_Type), intent(out) :: EoSm   
+         integer,        intent(in)  :: i
+         integer,        intent(in)  :: j
+         type(Eos_Type), intent(in)  :: EoS
+         type(Eos_Type), intent(out) :: EoSm
       End Subroutine Murn_PTVTable
-      
+
       Module Subroutine Check_Scales(E,dat)
          !---- Arguments ----!
-         type(Eos_Type),                       intent(in)  :: E     
-         type (eos_data_list_type), optional,  intent(in)  :: dat   
+         type(Eos_Type),                       intent(in)  :: E
+         type (eos_data_list_type), optional,  intent(in)  :: dat
       End  Subroutine Check_Scales
-      
+
       Module Subroutine EoSParams_Check(EoSPar)
          !---- Argument ----!
          type (EoS_Type), intent(in out) :: EoSPar
       End Subroutine EoSParams_Check
-      
+
       Module Subroutine Physical_Check(Ein,Pin,Tin,Vin)
          !---- Arguments ----!
-         type(Eos_Type),        intent(in) :: Ein 
-         real(kind=cp),optional,intent(in) :: pin 
-         real(kind=cp),optional,intent(in) :: tin 
-         real(kind=cp),optional,intent(in) :: vin 
+         type(Eos_Type),        intent(in) :: Ein
+         real(kind=cp),optional,intent(in) :: pin
+         real(kind=cp),optional,intent(in) :: tin
+         real(kind=cp),optional,intent(in) :: vin
       End Subroutine Physical_Check
-      
+
       Module Subroutine Physical_Check_old(P,T,E)
          !---- Arguments ----!
-         real(kind=cp),    intent(in) :: p  
-         real(kind=cp),    intent(in) :: t  
-         type(Eos_Type),   intent(in) :: E  
+         real(kind=cp),    intent(in) :: p
+         real(kind=cp),    intent(in) :: t
+         type(Eos_Type),   intent(in) :: E
       End Subroutine Physical_Check_old
-      
+
       Module Subroutine PVEos_Check(Pin,Vin,Tin,ein,vpresent)
          !---- Arguments ----!
-         real(kind=cp),optional,intent(in) :: pin  
-         real(kind=cp),optional,intent(in) :: vin  
-         real(kind=cp),optional,intent(in) :: tin  
-         type(Eos_Type),        intent(in) :: Ein  
-         logical,               intent(in) :: vpresent 
+         real(kind=cp),optional,intent(in) :: pin
+         real(kind=cp),optional,intent(in) :: vin
+         real(kind=cp),optional,intent(in) :: tin
+         type(Eos_Type),        intent(in) :: Ein
+         logical,               intent(in) :: vpresent
       End Subroutine PVEos_Check
-      
+
       Module Function Eoscal_Text(P,T,Tscale_In,Eos) Result(text)
          !---- Arguments ----!
-         real(kind=cp),    intent(in)  :: p             
-         real(kind=cp),    intent(in)  :: t             
-         character(len=*), intent(in)  :: tscale_in     
-         type(EoS_Type),   intent(in)  :: eos           
-         character(len=:), allocatable :: text             
+         real(kind=cp),    intent(in)  :: p
+         real(kind=cp),    intent(in)  :: t
+         character(len=*), intent(in)  :: tscale_in
+         type(EoS_Type),   intent(in)  :: eos
+         character(len=:), allocatable :: text
       End Function Eoscal_Text
-      
+
       Module Subroutine Transform_Esd(P,T,Eospar,Esd)
          !---- Arguments ----!
-         real(kind=cp),   intent(in)              :: p        
-         real(kind=cp),   intent(in)              :: t        
-         type (EoS_Type), intent(in)              :: eospar   
-         real(kind=cp),dimension(:), intent(out)  :: esd      
+         real(kind=cp),   intent(in)              :: p
+         real(kind=cp),   intent(in)              :: t
+         type (EoS_Type), intent(in)              :: eospar
+         real(kind=cp),dimension(:), intent(out)  :: esd
       End Subroutine Transform_Esd
-      
+
       Module Subroutine EoS_Cal(P,T,EoSpar,Parvals)
          !---- Arguments ----!
-         real(kind=cp),                intent(in)  :: P       
-         real(kind=cp),                intent(in)  :: T       
-         type(Eos_Type),               intent(in)  :: EoSPar  
-         real(kind=cp),  dimension(:), intent(out) :: Parvals 
+         real(kind=cp),                intent(in)  :: P
+         real(kind=cp),                intent(in)  :: T
+         type(Eos_Type),               intent(in)  :: EoSPar
+         real(kind=cp),  dimension(:), intent(out) :: Parvals
       End Subroutine EoS_Cal
-      
+
       Module Subroutine EoS_Cal_Esd(P,T,EoSpar,Esd)
          !---- Arguments ----!
-         real(kind=cp),                intent(in)  :: P       
-         real(kind=cp),                intent(in)  :: T       
-         type(Eos_Type),               intent(in)  :: EoSPar  
-         real(kind=cp),  dimension(:), intent(out) :: Esd     
+         real(kind=cp),                intent(in)  :: P
+         real(kind=cp),                intent(in)  :: T
+         type(Eos_Type),               intent(in)  :: EoSPar
+         real(kind=cp),  dimension(:), intent(out) :: Esd
       End Subroutine EoS_Cal_Esd
-      
+
    End Interface
-   
+
 Contains
    !!--++
    !!--++ EOS_TO_VEC
@@ -984,7 +984,7 @@ Contains
          !> phase transition: no changes required for linear
       end if
    End Subroutine EoS_to_Vec
-   
+
    !!--++
    !!--++ VEC_TO_EOS
    !!--++ Pass values fron a vector to respective EoS parameter
@@ -1149,8 +1149,8 @@ Contains
             Err_CFML%Msg="Cell values for first data in the data file are inconsistent"
             return
          end if
-         
-         !> Now check if all data the same. 
+
+         !> Now check if all data the same.
          !> If they are not, set system=' ' because there may be a transition
          do i=2,ndat
             ncell%cell=dat%eosd(i)%cell

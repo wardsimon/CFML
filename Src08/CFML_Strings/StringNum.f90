@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
- Submodule (CFML_Strings) StrNum
+ Submodule (CFML_Strings) STR_StrNum
    !---- Parameters ----!
    implicit none
 
@@ -18,7 +18,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_Fraction_1Dig(V) Result(Str)
+    Pure Module Function String_Fraction_1Dig(V) Result(Str)
        !---- Argument ----!
        real(kind=cp),    intent( in) :: V   !  Real value
        character(:), allocatable     :: Str !  Fracction in character form
@@ -70,7 +70,7 @@
     !!---- STRING_REAL
     !!----    Return a string of w characters containing the real value VAL
     !!----
-    Module Pure Function String_Real(Val,W) Result(Str)
+    Pure Module Function String_Real(Val,W) Result(Str)
        !---- Arguments ----!
        real(kind=cp), intent(in)  :: val        ! value to be output
        integer,       intent(in)  :: w          ! Width
@@ -157,7 +157,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Frac_Trans_1Dig(Vec) Result(Str)
+    Pure Module Function Frac_Trans_1Dig(Vec) Result(Str)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent( in)   :: Vec  ! Vector
        character(:),allocatable                   :: Str  ! String with conversion to fractional
@@ -192,7 +192,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_Fraction_2Dig(V) Result(Str)
+    Pure Module Function String_Fraction_2Dig(V) Result(Str)
        !---- Argument ----!
        real(kind=cp),    intent( in) :: v    ! Real value
        character(:), allocatable     :: Str  ! Fraction in character form
@@ -257,7 +257,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Frac_Trans_2Dig(Vec) Result(Str)
+    Pure Module Function Frac_Trans_2Dig(Vec) Result(Str)
        !---- Argument ----!
        real(kind=cp), dimension(3), intent(in) :: Vec   ! Vector
        character(:), allocatable               :: Str   ! String with conversion to fractional
@@ -558,7 +558,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function Set_Symb_From_Mat(Mat,cod) Result(Symb)
+    Pure Module Function Set_Symb_From_Mat(Mat,cod) Result(Symb)
        !---- Arguments ----!
        real(kind=cp),dimension(3,3),    intent(in)  :: Mat    ! Array
        character(len=1), dimension(3),  intent(in)  :: cod    ! Codes (/"u","v","w"/) or (/"x","y","z"/)
@@ -980,7 +980,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function NumCol_from_NumFmt(Str) Result(n_col)
+    Pure Module Function NumCol_from_NumFmt(Str) Result(n_col)
        !---- Argument ----!
        character (len=*), intent(in)  :: Str    ! Input format string
        integer                        :: n_col  ! Integer number of columns
@@ -1125,7 +1125,7 @@
     !!----
     !!---- 05/04/2019
     !!
-    Module Pure Function String_NumStd(Value, Std) Result(Str)
+    Pure Module Function String_NumStd(Value, Std) Result(Str)
        !---- Argument ----!
        real(kind=cp),   intent(in)  :: Value    ! Value
        real(kind=cp),   intent(in)  :: Std      ! Standard deviation
@@ -1133,7 +1133,7 @@
 
        !---- Local Variables ----!
        character(len=10) :: fmtcar
-       character(len=40) :: aux
+       character(len=40) :: aux,sss
        integer           :: n,np,iy,long
        real(kind=cp)     :: y
 
@@ -1183,28 +1183,28 @@
 
        aux=" "
        write(unit=aux,fmt=fmtcar) value
-       str=trim(adjustl(aux))
-       n=len_trim(str)
-       if (str(n:n) == ".") then
-          str(n:n)=" "
+       sss=trim(adjustl(aux))
+       n=len_trim(sss)
+       if (sss(n:n) == ".") then
+          sss(n:n)=" "
        end if
-       str=trim(str)//"("
-       n=len_trim(str)
-       np=len(str)-n-1             !number of available places for writing
+       sss=trim(sss)//"("
+       n=len_trim(sss)
+       np=len(sss)-n-1             !number of available places for writing
        aux=" "
        write(unit=aux,fmt=*) iy
        aux=pack_string(aux)
        long=len_trim(aux)
        if (long > np) then
-          str=str(1:n-2)//"("//aux(1:np)//")"
+          sss=sss(1:n-2)//"("//aux(1:np)//")"
        else
-          str=str(1:n)//trim(aux)//")"
+          sss=sss(1:n)//trim(aux)//")"
        end if
-       aux=pack_string(str)
+       aux=pack_string(sss)
        if (aux(1:1) /= "-") aux=" "//trim(aux)
        str=trim(aux)
 
        return
     End Function String_NumStd
 
- End Submodule StrNum
+ End Submodule STR_StrNum

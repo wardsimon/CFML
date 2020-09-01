@@ -6,11 +6,9 @@ mkdir build_%compiler%
 cd build_%compiler%
 
 if %compiler% neq gfortran (
-cmake -G "NMake Makefiles" -D USE_HDF=ON -D CMAKE_Fortran_COMPILER=%compiler% ..
+cmake -G "NMake Makefiles" -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=%compiler% -D HEAP_ARRAYS=ON -D USE_HDF=ON -D HDF5_INCLUDE_PATH=%HDF5_INCLUDE_PATH% -D HDF5_LIBRARY_PATH=%HDF5_LIBRARY_PATH% ..
 ) else (
-rem C++ and C compiles must be set. Also, a "trick" has been set on the build server to build with MinGW
-rem See See http://hdf-forum.184993.n3.nabble.com/HDF5-and-MinGW-td3393676.html for more details about this "trick"
-cmake -G "MinGW Makefiles" -D USE_HDF=ON -D CMAKE_Fortran_COMPILER=%compiler% -D CMAKE_CXX_COMPILER=g++.exe -D CMAKE_C_COMPILER=gcc.exe  -D MINGW_HDF_TRICK=1 ..
+cmake -G "MinGW Makefiles" -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=%compiler% -D USE_HDF=OFF -D HDF5_INCLUDE_PATH=%HDF5_INCLUDE_PATH% -D HDF5_LIBRARY_PATH=%HDF5_LIBRARY_PATH% ..
 )
-
 cmake --build .
+ctest

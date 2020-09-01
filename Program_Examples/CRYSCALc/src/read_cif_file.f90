@@ -733,7 +733,7 @@ subroutine read_CIF_input_file_TR(input_unit, input_CIF_file)
    if (ON_screen_CIF_item) call Write_extracted_cif_parameter(CIF_string(1:48), trim(input_CIF_file), trim(string_value))
   end if
 
-  
+
   CIF_string = '_computing_structure_refinement'
   call get_champ_value(input_unit, trim(CIF_string), string_value, ok)
   if(ok .and. string_value(1:1) /= '?') then

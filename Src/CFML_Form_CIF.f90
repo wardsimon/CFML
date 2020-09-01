@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -1181,7 +1182,7 @@
        character(len=4)                  :: dire
        character(len=40)                 :: magmom
        character(len=5)                  :: label
-       character(len=132), dimension(1)  :: filevar
+       character(len=180), dimension(1)  :: filevar
        character(len=*), parameter       :: digpm="0123456789+-"
 
        !---- Init ----!
@@ -3352,7 +3353,7 @@
        integer, dimension(3,3)          :: isim,msim
        real(kind=cp)                    :: p_mag
        real(kind=cp), dimension(3)      :: tr,v
-       character(len=132)               :: line,ShOp_symb,setting,Parent
+       character(len=180)               :: line,ShOp_symb,setting,Parent
        character(len=40),dimension(10)  :: words
        logical                          :: u_type,m_type,inv_type, ttst,nonmag
 
@@ -3764,13 +3765,13 @@
        real(kind=cp),    dimension(6)      :: values,std
        real(kind=cp),    dimension(3,3)    :: matr
        real(kind=cp),    dimension(3,384)  :: orb
-       character(len=132)                  :: lowline,keyword,line, mxmymz_op,linat
-       character(len=132),dimension(384)   :: sym_strings, cent_strings
-       character(len=132),dimension(384)   :: atm_strings
-       character(len=132),dimension(384)   :: mom_strings
-       character(len=132),dimension(30)    :: constr_strings, mag_scatt_string
-       character(len=132),dimension(30)    :: irreps_strings
-       character(len=132),dimension(30)    :: kv_strings
+       character(len=180)                  :: lowline,keyword,line, mxmymz_op,linat
+       character(len=180),dimension(384)   :: sym_strings, cent_strings
+       character(len=180),dimension(384)   :: atm_strings
+       character(len=180),dimension(384)   :: mom_strings
+       character(len=180),dimension(30)    :: constr_strings, mag_scatt_string
+       character(len=180),dimension(30)    :: irreps_strings
+       character(len=180),dimension(30)    :: kv_strings
        character(len=20), dimension(15)    :: lab_items
        character(len=50)                   :: shubk
        character(len=2)                    :: chars
@@ -4841,7 +4842,7 @@
        Type(Job_Info_type), optional,intent(out)  :: Job_Info
 
        !---- Local variables ----!
-       character(len=132)               :: line
+       character(len=256)               :: line
        character(len= 20)               :: Spp
        character(len= 40),dimension(192):: gen
        integer                          :: i, nauas, ndata, iph, n_ini,n_end,ngen,k,nsym
@@ -4975,7 +4976,7 @@
        Integer, optional,              intent(in)     :: Nphase
 
        !---- Local variables ----!
-       character(len=132)            :: line
+       character(len=180)            :: line
        integer                       :: i,n,nmol,npos,n_ini,n_end,ierr,nauas, iph, ndata
        integer, parameter               :: maxph=21  !Maximum number of phases "maxph-1"
        integer, dimension(maxph)        :: ip
@@ -5104,7 +5105,7 @@
        Type(Job_Info_type),     optional,intent(out)  :: Job_Info
 
        !---- Local variables ----!
-       character(len=132)               :: line
+       character(len=180)               :: line
        character(len= 50)               :: Spp,setting
        !character(len= 40),dimension(192):: gen
        integer                          :: i, nauas, ndata, iph, n_ini,n_end,k !,ngen
@@ -5219,7 +5220,7 @@
        Integer,             optional,intent( in)  :: Nphase
 
        !---- Local Variables ----!
-       character(len=132)                :: line
+       character(len=180)                :: line
        character(len= 20)                :: Spp
        character(len=60), dimension(192) :: symm_car
 
@@ -5358,7 +5359,7 @@
 
        !---- Local Variables ----!
        logical                           :: multi,ask_phase,is_codewords
-       character(len=132)                :: line
+       character(len=180)                :: line
        character(len= 20)                :: Spp, label
        integer                           :: i,j, k,iv, nauas, ndata, iph, n_ini,n_end, nlong1
        integer, parameter                :: maxph=21  !Maximum number of phases "maxph-1"
@@ -5702,7 +5703,7 @@
        Character(len=*),     optional,intent(in)      :: CFrame
        !---- Local variables -----!
        Type (Atom_list_type)                         :: A
-       character(len=132), allocatable, dimension(:) :: file_dat
+       character(len=256), allocatable, dimension(:) :: file_dat
        character(len=3)                              :: modec
        integer                                       :: i,nlines
 
@@ -5876,7 +5877,7 @@
        Character(len=*),    optional,intent( in)     :: CFrame
 
        !---- Local variables -----!
-       character(len=132), allocatable, dimension(:) :: file_dat
+       character(len=180), allocatable, dimension(:) :: file_dat
        character(len=3)                              :: modec
        integer                                       :: nlines
 
@@ -5999,7 +6000,7 @@
        Type(file_list_type),optional,    intent(in out)  :: file_list
        Character(len=*),    optional,    intent( in)     :: CFrame
        !
-       character(len=132), allocatable, dimension(:) :: file_dat
+       character(len=256), allocatable, dimension(:) :: file_dat
        character(len=3)                              :: modec
        integer                                       :: nlines
 
@@ -6417,7 +6418,7 @@
 
        !---- Local Variables ----!
        logical             :: info
-       character(len=132)  :: line
+       character(len=180)  :: line
        character(len=30)   :: comm,date_time
        !character(len=1)    :: statut
        integer,save        :: iunit
@@ -6734,7 +6735,7 @@
 
        !---- Local Variables ----!
        logical                           :: info,aniso
-       character(len=132)                :: line
+       character(len=180)                :: line
        character(len=1), parameter       :: qmark='?'
        character(len=30)                 :: comm,adptyp
        character(len=30),dimension(6)    :: text
@@ -7915,27 +7916,30 @@
        return
     End Subroutine Get_NPhases_PCRFile
     !!----
-    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment)
-    !!----    integer,                  intent(in)    :: lun
-    !!----    type (Space_Group_Type),  intent(in)    :: SpG
-    !!----    type (Crystal_Cell_Type), intent(in)    :: Cel
-    !!----    type (atom_list_type),    intent(in)    :: Atm
-    !!----    character(len=*),optional,intent(in)    :: comment
+    !!---- Subroutine Write_CFL(lun,Cel,SpG,Atm,comment,info_lines,scat)
+    !!----    integer,                               intent(in)    :: lun
+    !!----    type (Space_Group_Type),               intent(in)    :: SpG
+    !!----    type (Crystal_Cell_Type),              intent(in)    :: Cel
+    !!----    type (atom_list_type),                 intent(in)    :: Atm
+    !!----    character(len=*),             optional,intent(in)    :: comment
+    !!----    character(len=*),dimension(:),optional,intent(in)    :: info_lines
+    !!----    logical,                      optional,intent(in)    :: scat
     !!----
     !!----    (OVERLOADED)
     !!----
     !!----    Write a CFL-file with atom_list_type
     !!----
-    !!---- Update: July - 2014
+    !!---- Update: July - 2014, May -2020
     !!
-    Subroutine Write_CFL_Atom_List_Type(lun,Cel,SpG,Atm,comment)
+    Subroutine Write_CFL_Atom_List_Type(lun,Cel,SpG,Atm,comment,info_lines,scat)
        !---- Arguments ----!
-       integer,                  intent(in)    :: lun
-       type (Space_Group_Type),  intent(in)    :: SpG
-       type (Crystal_Cell_Type), intent(in)    :: Cel
-       type (atom_list_type),    intent(in)    :: Atm
-       character(len=*),optional,intent(in)    :: comment
-
+       integer,                               intent(in)    :: lun
+       type (Space_Group_Type),               intent(in)    :: SpG
+       type (Crystal_Cell_Type),              intent(in)    :: Cel
+       type (atom_list_type),                 intent(in)    :: Atm
+       character(len=*),             optional,intent(in)    :: comment
+       character(len=*),dimension(:),optional,intent(in)    :: info_lines
+       logical,                      optional,intent(in)    :: scat
        !----- Local variables -----!
        integer                         :: j !,loc
        real(kind=cp), dimension(6)     :: a,sa
@@ -7955,7 +7959,21 @@
        write(unit=lun,fmt="(a,6a16)") "Cell ",text
        write(unit=lun,fmt="(a,i3)")"!     Space Group # ",SpG%NumSpg
        write(unit=lun,fmt="(a,a)") "Spgr  ",SpG%SPG_Symb
-       call Write_Atoms_CFL(Atm,Lun,cel)
+       if(present(scat)) then
+         call Write_Atoms_CFL(Atm,Lun,cel,scat=scat)
+       else
+         call Write_Atoms_CFL(Atm,Lun,cel)
+       end if
+
+       if(present(info_lines)) then
+         j=0
+         write(unit=lun,fmt="(a)") "!"
+         do
+          j=j+1
+          write(unit=lun,fmt="(a)") trim(info_lines(j))
+          if(u_case(info_lines(j)(1:14)) == "END_INFO_LINES") exit
+         end do
+       end if
 
        return
     End Subroutine Write_CFL_Atom_List_Type
@@ -8001,20 +8019,22 @@
        return
     End Subroutine Write_CFL_Molcrys
     !!----
-    !!---- Subroutine Write_Atoms_CFL(Ats,Lun,Cell)
+    !!---- Subroutine Write_Atoms_CFL(Ats,Lun,Cell,scat)
     !!----    Type (atom_list_type),dimension(:),  intent(in) :: Ats     !  In -> Atom List
     !!----    integer, optional,                   intent(in) :: lun     !  In -> Unit to write
     !!----    Type(Crystal_Cell_Type), optional,   intent(in) :: Cell    !  In -> Transform to thermal parameters
+    !!----    logical, optional,                   intent(in) :: scat    !  In -> if present output Scattering Symbol instead of chemical element
     !!----
     !!----    Write the atoms in the asymmetric unit for a CFL file
     !!----
-    !!---- Update: February - 2003
+    !!---- Update: February - 2003, May -2020
     !!
-    Subroutine Write_Atoms_CFL_ATM(Ats,Lun,cell)
+    Subroutine Write_Atoms_CFL_ATM(Ats,Lun,cell,scat)
        !---- Arguments ----!
        type (atom_list_type),            intent(in) :: Ats
        integer, optional,                intent(in) :: Lun
        Type(Crystal_Cell_Type), optional,intent(in) :: Cell
+       logical,                 optional,intent(in) :: scat
 
        !---- Local Variables ----!
        character(len=30),dimension(6) :: text
@@ -8060,11 +8080,15 @@
           end do
           call SetNum_Std(ats%atom(i)%Biso, ats%atom(i)%Biso_std, text(4))
           call SetNum_Std(ats%atom(i)%Occ, ats%atom(i)%Occ_std, text(5))
-
-          write (unit=iunit,fmt=forma) &
-                "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
-                 ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
-
+          if(present(scat)) then
+             write (unit=iunit,fmt=forma) &
+             "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%SfacSymb, (text(j),j=1,5), &
+              ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
+          else
+             write (unit=iunit,fmt=forma) &
+             "Atom   ",trim(ats%atom(i)%lab),ats%atom(i)%chemsymb, (text(j),j=1,5), &
+              ats%atom(i)%moment,ats%atom(i)%charge,"# "//ats%atom(i)%AtmInfo
+          end if
           if (ats%atom(i)%thtype == "aniso") then
 
              if (ats%atom(i)%utype == "beta") then
@@ -8344,7 +8368,7 @@
        type(Atom_List_Type),            intent(in)           :: Am
        type(Crystal_Cell_Type),optional,intent(in)           :: Cell
        !
-       Character(len=132)             :: line
+       Character(len=180)             :: line
        character(len=80),dimension(6) :: text
        character(len=2)               :: invc
        real(kind=cp)                  :: occ,occ_std,uiso,uiso_std

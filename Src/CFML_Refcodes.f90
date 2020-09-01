@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -417,7 +418,10 @@
     !!----    character(len=*), dimension(mNCode), public, parameter :: mCode_Nam
     !!----
     !!----    Variable for treatement Codes
-    !!----    mag clone of CODE_NAM
+    !!----    mag clone of CODE_NAM.
+    !!----    The item "K_", has been added to take into account the number of the propagation vector
+    !!----    to which the other parameters refer. Giving "K_3" together with another keyword means that
+    !!----    the keyword refers to the propagation vector number 3.
     !!---- Created: December - 2011
     !!
     character(len=*),dimension(mNCode), public, parameter :: mCode_Nam=(/"Rx_   ","Ry_   ","Rz_   ",&
@@ -1078,7 +1082,7 @@
 
        !---- Eliminate N Parameter ----!
        do i=1,FmAtom%natoms
-       ik=FmAtom%atom(i)%nvk
+          ik=FmAtom%atom(i)%nvk
           do j=1,3
            do k=1,ik
              if (FmAtom%atom(i)%lSkR(j,k) == N) then
@@ -2065,7 +2069,7 @@
     End Subroutine Fill_RefCodes_FAtom
 
     !!--++
-    !!--++ Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom)
+    !!--++ Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,ik,FmAtom)
     !!--++    integer,                       intent(in)     :: Key
     !!--++    character(len=*),              intent(in)     :: Dire
     !!--++    integer,                       intent(in)     :: Na
@@ -2074,6 +2078,7 @@
     !!--++    real(kind=cp),                 intent(in)     :: Xu
     !!--++    real(kind=cp),                 intent(in)     :: Xs
     !!--++    integer,                       intent(in)     :: Ic
+    !!--++    integer,                       intent(in)     :: ik
     !!--++    type(mAtom_List_Type),         intent(in out) :: FmAtom
     !!--++
     !!--++ Write on Vectors the Information for Free Magnetic Atoms
@@ -2081,7 +2086,7 @@
     !!--++ Created: December - 2011
     !!--++ Updated: February - 2012
     !!--++
-    Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,FmAtom)
+    Subroutine Fill_RefCodes_FmAtom(Key,Dire,Na,Nb,Xl,Xu,Xs,Ic,ik,FmAtom)
        !---- Arguments ----!
        integer,                       intent(in)     :: Key
        character(len=*),              intent(in)     :: Dire
@@ -2091,10 +2096,11 @@
        real(kind=cp),                 intent(in)     :: Xu
        real(kind=cp),                 intent(in)     :: Xs
        integer,                       intent(in)     :: Ic
+       integer,                       intent(in)     :: ik
        type(mAtom_List_Type),         intent(in out) :: FmAtom
 
        !---- Local variables ----!
-       integer           :: j,nc,ik
+       integer           :: j,nc
 
        call init_err_refcodes()
        if (Na <= 0) then
@@ -2104,8 +2110,8 @@
        end if
 
        !---- Get im, number of the magnetic matrices/irrep set
-       ik=FmAtom%atom(na)%nvk
-
+       !ik=FmAtom%atom(na)%nvk !This is wrong, ik should be provided in the argument of the subroutine
+                               !in order to select the corresponding Fourier coefficient
        select case (dire)
           !---- FIX Directive ----!
           case ("fix")
@@ -2154,14 +2160,14 @@
                                call Delete_RefCodes(nc,FmAtom)
                             end if
 
-                      case (14:22)
+                      case (14:25)
                          !---- C1_,..C12_ ----!
                             if (FmAtom%atom(na)%lbas(nb-13,ik) /=0) then
                                nc=FmAtom%atom(na)%lbas(nb-13,ik)
                                call Delete_RefCodes(nc,FmAtom)
                             end if
 
-                      case (23)
+                      case (26:)
                          err_refcodes=.true.
                          ERR_RefCodes_Mess="Option not defined for this type of variable "
                          return
@@ -2320,7 +2326,7 @@
                             V_list(np_refi)=na
                          end if
 
-                      case (14:22)
+                      case (14:25)
                          !---- C1_,..C12_ ----!
                          if (FmAtom%atom(na)%lbas(nb-13,ik) ==0) then
 
@@ -2341,7 +2347,7 @@
                             end if
                          end if
 
-                      case (23:)
+                      case (26:)
                          err_refcodes=.true.
                          ERR_RefCodes_Mess="Option Not defined by this type of variables"
                          return
@@ -5395,31 +5401,35 @@
     End Subroutine Get_ConCodes_Line_FAtom
 
     !!--++
-    !!--++ Subroutine Get_ConCodes_Line_FmAtom(Line,FmAtom)
+    !!--++ Subroutine Get_ConCodes_Line_FmAtom(Line,ik,FmAtom)
     !!--++    character(len=*),         intent(in)     :: Line
-    !!--++    integer,                  intent(in)     :: Nat
+    !!--++    integer,                  intent(in)     :: ik
     !!--++    type(mAtom_List_Type),    intent(in out) :: FmAtom
     !!--++
     !!--++ Get the Magnetic Constraints Relations: Presently only 'equal'
-    !!--++ mag clone of Get_ConCodes_Line_FAtom
-    !!--++ Created: December - 2011
+    !!--++ mag clone of Get_ConCodes_Line_FAtom.
+    !!--++ Created: December - 2011, updated March 2020.
+    !!--++
     !!
-    Subroutine Get_ConCodes_Line_FmAtom(Line,FmAtom)
+    Subroutine Get_ConCodes_Line_FmAtom(Line,ik,FmAtom)
        !---- Arguments ----!
        character(len=*),     intent(in)     :: Line
+       integer,              intent(in)     :: ik
        type(mAtom_List_Type),intent(in out) :: FmAtom
 
        !---- Local variables ----!
+       character(len=len(Line))         :: Linem
        character(len=20), dimension(30) :: label
        integer                          :: j,ic,n,na,nb,nc,nd,npos
-       integer                          :: nl,nl2,iv,ik
+       integer                          :: nl,nl2,iv
        integer, dimension(1)            :: ivet
        real(kind=cp)                    :: fac_0,fac_1
        real(kind=cp),dimension(1)       :: vet
 
        call init_err_refcodes()
-
+       Linem=line
        nl=0
+
        call getword(line,label,ic)
        if (ic < 2) then
           err_refcodes=.true.
@@ -5466,8 +5476,6 @@
           return
        end if
 
-       !---- Get im, number of the magnetic matrices/irrep set
-       ik=FmAtom%atom(na)%nvk
 
        select case (nb)
           case ( 1:3)
@@ -5485,10 +5493,10 @@
           case (13)
              fac_0=FmAtom%atom(na)%mmphas(ik)
                 nl=FmAtom%atom(na)%lmphas(ik)
-           case (14:22)
+          case (14:25)
              fac_0=FmAtom%atom(na)%mbas(nb-13,ik)
                 nl=FmAtom%atom(na)%lbas(nb-13,ik)
-         case (23:)
+         case (26:)
              err_refcodes=.true.
              ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
              return
@@ -5577,12 +5585,12 @@
                 call Delete_refCodes(nl2,FmAtom)
                 FmAtom%atom(nc)%mmphas(ik)=fac_1
                 FmAtom%atom(nc)%lmphas(ik)=nl
-             case (14:22)
+             case (14:25)
                 nl2=FmAtom%atom(nc)%lbas(nd-13,ik)
                 call Delete_refCodes(nl2,FmAtom)
                 FmAtom%atom(nc)%mbas(nd-13,ik)=fac_1
                 FmAtom%atom(nc)%lbas(nd-13,ik)=nl
-             case (23:)
+             case (26:)
                 err_refcodes=.true.
                 ERR_RefCodes_Mess="Incompatible Code-name for parameter name: "//trim(label(1))
                 return
@@ -6546,10 +6554,11 @@
     End Subroutine Get_RefCodes_Line_FAtom
 
     !!--++
-    !!--++ Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom)
+    !!--++ Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,ik,FmAtom)
     !!--++    integer,                 intent(in)     :: Key
     !!--++    character(len=*),        intent(in)     :: Dire
     !!--++    character(len=*),        intent(in)     :: Line
+    !!--++    integer,                 intent(in)     :: ik
     !!--++    type(mAtom_List_Type),   intent(in out) :: FmAtom
     !!--++
     !!--++ Get Refinement Codes for Free Magnetic Atom type
@@ -6557,11 +6566,12 @@
     !!--++ Created: December - 2011
     !!--++ Updated: February - 2012
     !!
-    Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,FmAtom)
+    Subroutine Get_RefCodes_Line_FmAtom(Key,Dire,Line,ik,FmAtom)
        !---- Arguments ----!
        integer,                 intent(in)     :: Key
        character(len=*),        intent(in)     :: Dire
        character(len=*),        intent(in)     :: Line
+       integer,                 intent(in)     :: ik
        type(mAtom_List_Type),   intent(in out) :: FmAtom
 
        !---- Local Variables ----!
@@ -6576,11 +6586,12 @@
 
        call init_err_refcodes()
 
+
        nlong=len_trim(line)
-       if (nlong ==0) then
+       if (nlong == 0) then
           !---- Default Values ----!
           do i=1,FmAtom%natoms
-             call Fill_Refcodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,FmAtom)
+             call Fill_Refcodes(Key,Dire,i,0,0.0_cp,0.0_cp,0.0_cp,0,ik,FmAtom)
           end do
 
        else
@@ -6593,7 +6604,7 @@
           end do
           ndir=count(ilabel(1:ic) < 1)
 
-          if (ndir <=0) then
+          if (ndir <= 0) then
              !--- [INF,[SUP,[STEP,[COND]]]] ----!
              call getnum(line,vet,ivet,iv)
              select case (iv)
@@ -6629,7 +6640,7 @@
 
              nb=0
              do na=1,FmAtom%natoms
-                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom)
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,ik,FmAtom)
              end do
              if (err_refcodes) return
 
@@ -6653,7 +6664,7 @@
 
                 !---- Label ----!
                 npos=index(label(n_ini),"_")
-                if (npos >0) then
+                if (npos > 0) then
                    do j=1,mncode
                       if (u_case(label(n_ini)(1:npos))==u_case(trim(mcode_nam(j)))) then
                          nb=j
@@ -6700,7 +6711,7 @@
                    end select
                 end do
 
-                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,FmAtom)
+                call Fill_Refcodes(key,dire,na,nb,x_low,x_up,x_step,icond,ik,FmAtom)
                 if (err_refcodes) return
 
                 n_ini=minloc(ilabel,dim=1)
@@ -8128,7 +8139,8 @@
     !!--++
     !!--++    Subroutine for treatment of magnetic Codes controls
     !!--++    magnetic clone of Read_RefCodes_File_FmAtom + Magdom
-    !!--++ Created: February - 2012
+    !!--++    Modified to get the umber of the propagation vector to which the directive refers
+    !!--++ Created: February - 2012, updated March 2020
     !!
     Subroutine Read_RefCodes_File_MagStr(file_dat,n_ini,n_end,FmAtom,Mag_dom)
        !---- Arguments ----!
@@ -8141,7 +8153,7 @@
        !---- Local variables ----!
        character(len=132)              :: line
        character(len=132),dimension(5) :: dire
-       integer                         :: i,k,nlong
+       integer                         :: i,k,nlong,ik,ier
        integer                         :: nop_in_line,key
 
        call init_err_refcodes()
@@ -8152,6 +8164,17 @@
           if (line(1:1) =="!") cycle
           k=index(line,"!")
           if( k /= 0) line=trim(line(1:k-1))
+
+          !Determine to which propagation vector refers the instruction that must be at the end of the line
+          k=index(u_case(line),"KV_")
+
+          if(k == 0) then
+            ik=1 !Refers to the first propagation vector
+          else
+            read(unit=line(k+3:),fmt=*,iostat=ier) ik
+            if(ier /= 0) ik=1
+            line=line(1:k-1)
+          end if
 
           select case (l_case(line(1:4)))
 
@@ -8172,11 +8195,11 @@
                       case default
                          key=0
                    end select
-                   if (key /=0.and.key /=4) call cutst(dire(k),nlong)
-                   if (key ==4) then
-                    call get_refcodes_line(key,"fix",dire(k),Mag_dom)
+                   if (key /=0 .and. key /=4) call cutst(dire(k),nlong)
+                   if (key == 4) then
+                     call get_refcodes_line(key,"fix",dire(k),Mag_dom)
                    else
-                    call get_refcodes_line(key,"fix",dire(k),FmAtom)
+                     call get_refcodes_line(key,"fix",dire(k),ik,FmAtom)
                    end if
                    if (err_refcodes) return
                 end do
@@ -8199,11 +8222,11 @@
                          key=0
                    end select
 
-                   if (key /=0.and.key /=4) call cutst(dire(k),nlong)
-                   if (key ==4) then
+                   if (key /= 0 .and. key /= 4) call cutst(dire(k),nlong)
+                   if (key == 4) then
                     call get_refcodes_line(key,"var",dire(k),Mag_dom)
                    else
-                    call get_refcodes_line(key,"var",dire(k),FmAtom)
+                    call get_refcodes_line(key,"var",dire(k),ik,FmAtom)
                    end if
                    if (err_refcodes) return
                 end do
@@ -8211,10 +8234,10 @@
              !---- Main Directive: EQUAL ----! under construction
              case ("equa")
                 call cutst(line,nlong)
-                   if (key ==4) then
+                   if (key == 4) then
                     call get_concodes_line(line,Mag_dom)
                    else
-                    call get_concodes_line(line,FmAtom)
+                    call get_concodes_line(line,ik,FmAtom)
                    end if
 
           end select
@@ -8829,29 +8852,35 @@
     !!
 
     !!--++
-    !!--++ Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
+    !!--++ Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode,MultG)
     !!--++    type(Atom_List_Type),       intent(in out) :: FAtom
     !!--++    character(len=*), optional, intent(in)     :: Mode
+    !!--++    integer,          optional, intent(in)     :: MultG
     !!--++
     !!--++    (Overloaded)
     !!--++
     !!--++ Update: November 22 - 2013.
     !!--++ Modified to include standard deviations, November 3, 2013 (JRC)
     !!
-    Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode)
+    Subroutine VState_to_AtomsPar_FAtom(FAtom,Mode,MultG)
        !---- Arguments ----!
        type(Atom_List_Type),       intent(in out) :: FAtom
        character(len=*), optional, intent(in)     :: Mode
+       integer,          optional, intent(in)     :: MultG
 
        !---- Local Variables ----!
        integer          :: i,j,l
+       real(kind=cp)    :: fac1,fac2
        character(len=1) :: car
 
        call init_err_refcodes()
 
        car="s"
        if (present(mode)) car=adjustl(mode)
-
+       if(present(MultG)) then
+         fac1=FAtom%atom(1)%Occ*real(MultG)/real(FAtom%atom(1)%mult)
+         fac1=1.0/fac1
+       end if
        do i=1,FAtom%natoms
           !---- XYZ ----!
           do j=1,3
@@ -8907,8 +8936,13 @@
 
               end select
               FAtom%atom(i)%occ_std=v_vec_std(l)*FAtom%atom(i)%mocc
-          end if
 
+              if(present(MultG)) then  !Update occupancy from occupation factors
+                fac2=fac1*real(MultG)/real(FAtom%atom(i)%mult)
+                FAtom%atom(i)%VarF(1)=FAtom%atom(i)%occ*fac2
+                FAtom%atom(i)%VarF(2)=FAtom%atom(i)%occ_std*fac2
+              end if
+          end if
 
           !---- BANIS ----!
           do j=1,6

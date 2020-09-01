@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen09
+SubModule (CFML_Random) Random_Von_Mises_sub
+  implicit none
   Contains
    !!----
    !!---- RANDOM_VON_MISES
@@ -89,13 +90,13 @@ SubModule (CFML_Random) RandomGen09
 
       return
    End Function Random_Von_Mises
-   
+
    !!--++
    !!--++ INTEGRAL
    !!--++
    !!--++    Gaussian integration of exp(k.cosx) from a to b.
    !!--++
-   !!--++ 14/04/2019 
+   !!--++ 14/04/2019
    !!
    Module Function Integral(A, B, Dk) Result(Resultt)
       !---- Arguments ----!
@@ -122,5 +123,5 @@ SubModule (CFML_Random) RandomGen09
 
       return
    End Function Integral
-   
-End SubModule RandomGen09  
+
+End SubModule Random_Von_Mises_sub

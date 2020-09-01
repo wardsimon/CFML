@@ -1354,7 +1354,7 @@
        !> Init
        fval=0.0_dp
        call init_err_mathgen()
-       
+
        !> Check
        if (n <= 0) then
           ERR_MathGen=.true.
@@ -1998,7 +1998,7 @@
        !> Init
        fval=0.0_dp
        call init_err_mathgen()
-       
+
        !> Check
        if (abs(x) > 2.0*pi) then
           ! Error Flag

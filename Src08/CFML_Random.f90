@@ -17,7 +17,7 @@
 !!----               Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
 !!----               Tierry Roisnel     (CDIFX,Rennes France)
 !!----               Eric Pellegrini    (ILL)
-!!----               Ross Angel         (University of Pavia) 
+!!----               Ross Angel         (University of Pavia)
 !!----
 !!---- This library is free software; you can redistribute it and/or
 !!---- modify it under the terms of the GNU Lesser General Public
@@ -115,9 +115,9 @@
 
     !---- Local Variables ----!
     implicit none
-    
+
     private
-    
+
     !---- Public Procedures ----!
     public  :: random_beta, random_binomial1, random_binomial2,  &
                random_cauchy, random_chisq,                      &
@@ -142,163 +142,163 @@
     real(kind=cp), parameter :: ZERO = 0.0_cp
     real(kind=cp), parameter :: VLARGE = huge(1.0_cp)
     real(kind=cp), parameter :: VSMALL = tiny(1.0_cp)
-    
+
     Interface
        Module Function Bin_Prob(N, P, R) Result(Fn_Val)
           !---- Arguments ----!
           integer, intent(in)         :: n, r
           real(kind=cp), intent(in)   :: p
           real(kind=cp)               :: fn_val
-       End Function Bin_Prob  
-       
+       End Function Bin_Prob
+
        Module Function Gg_F(Methodeg) Result(Gg)
           !---- Arguments ----!
           integer,       intent(in) :: methodeg
           real(kind=cp)             :: gg
        End Function Gg_F
-       
+
        Module Function Gpg_F(Mt,Methodeg,Gpstab) Result(Gpg)
           !---- Arguments ----!
           real(kind=cp), intent(in) :: mt
           integer,       intent(in) :: methodeg,gpstab
           integer                   :: gpg
        End Function Gpg_F
-       
+
        Module Function Gpp_F(Mt) Result(Gpp)
           !---- Arguments ----!
           real(kind=cp), intent(in) :: mt
-          integer                   :: gpp  
-       End Function Gpp_F    
-       
+          integer                   :: gpp
+       End Function Gpp_F
+
        Module Function Integral(A, B, Dk) Result(Resultt)
           !---- Arguments ----!
           real(kind=cp), intent(in)      :: a, b
           real(kind=dp), intent(in)      :: dk
           real(kind=cp)                  :: resultt
-       End Function Integral   
-       
+       End Function Integral
+
        Module Function Lngamma(X) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=dp), intent(in) :: x
           real(kind=dp)             :: fn_val
-       End Function Lngamma   
-       
+       End Function Lngamma
+
        Module Function Random_Beta(Aa, Bb, First) Result(Fn_Val)
           !---- Arguments ----!
-          real(kind=cp), intent(in)    :: aa, bb   
+          real(kind=cp), intent(in)    :: aa, bb
           logical,       intent(in)    :: first
           real(kind=cp)                :: fn_val
-       End Function Random_Beta 
-       
+       End Function Random_Beta
+
        Module Function Random_Binomial1(N, P, First) Result(Ival)
           !---- Arguments ----!
-          integer,       intent(in)  :: n       
-          real(kind=cp), intent(in)  :: p       
-          logical,       intent(in)  :: first   
+          integer,       intent(in)  :: n
+          real(kind=cp), intent(in)  :: p
+          logical,       intent(in)  :: first
           integer                    :: ival
        End Function Random_Binomial1
-       
-       Module Function Random_Binomial2(N, Pp, First) Result(Ival) 
+
+       Module Function Random_Binomial2(N, Pp, First) Result(Ival)
           !---- Arguments ----!
-          integer,       intent(in)    :: n        
-          real(kind=cp), intent(in)    :: pp       
-          logical,       intent(in)    :: first    
+          integer,       intent(in)    :: n
+          real(kind=cp), intent(in)    :: pp
+          logical,       intent(in)    :: first
           integer                      :: ival
        End Function Random_Binomial2
-       
+
        Module Function Random_Cauchy() Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp) :: fn_val
-       End Function Random_Cauchy   
-       
+       End Function Random_Cauchy
+
        Module Function Random_ChiSQ(Ndf, First) Result(Fn_Val)
           !---- Arguments ----!
           integer, intent(in) :: ndf
           logical, intent(in) :: first
           real(kind=cp)       :: fn_val
-       End Function Random_ChiSQ   
-       
+       End Function Random_ChiSQ
+
        Module Function Random_Exponential() Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp)  :: fn_val
        End Function Random_Exponential
-       
+
        Module Function Random_Gamma(S, First) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp), intent(in)  :: s        !shape parameter of distribution (0.0 < real)
           logical,       intent(in)  :: first
           real(kind=cp)              :: fn_val
-       End Function Random_Gamma   
-       
+       End Function Random_Gamma
+
        Module Function Random_Gamma1(S, First) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp), intent(in)   :: s         ! shape parameter of distribution (1.0 < real)
           logical,       intent(in)   :: first
           real(kind=cp)               :: fn_val
        End Function Random_Gamma1
-      
+
        Module Function Random_Gamma2(S, First) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp), intent(in)   :: s         ! shape parameter of distribution (1.0 < real)
           logical,       intent(in)   :: first
           real(kind=cp)               :: fn_val
-       End Function Random_Gamma2 
-       
+       End Function Random_Gamma2
+
        Module Function Random_Inv_Gauss(H, B, First) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp), intent(in)  :: h, b      ! parameter of distribution (0 <= real)
           logical,       intent(in)  :: first
           real(kind=cp)              :: fn_val
        End Function Random_Inv_Gauss
-       
+
        Module Function Random_Neg_Binomial(Sk, P) Result(Ival)
           !---- Arguments ----!
-          real(kind=cp), intent(in)   :: sk   
-          real(kind=cp), intent(in)   :: p    
-          integer                     :: ival  
+          real(kind=cp), intent(in)   :: sk
+          real(kind=cp), intent(in)   :: p
+          integer                     :: ival
        End Function Random_Neg_Binomial
-       
+
        Module Function Random_Normal() Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp) :: fn_val
-       End Function Random_Normal   
-       
+       End Function Random_Normal
+
        Module Subroutine Random_Mvnorm(N, H, D, First, F, X)
           !---- Arguments ----!
-          integer,                            intent(in) :: n       
-          real(kind=cp), dimension(n),        intent(in) :: h       
-          real(kind=cp), dimension(n*(n+1)/2),intent(in) :: d       
-          logical,                            intent(in) :: first 
-          real(kind=cp), dimension(n*(n+1)/2),intent(out):: f       
-          real(kind=cp), dimension(n),        intent(out):: x  
-       End Subroutine Random_Mvnorm        
-      
+          integer,                            intent(in) :: n
+          real(kind=cp), dimension(n),        intent(in) :: h
+          real(kind=cp), dimension(n*(n+1)/2),intent(in) :: d
+          logical,                            intent(in) :: first
+          real(kind=cp), dimension(n*(n+1)/2),intent(out):: f
+          real(kind=cp), dimension(n),        intent(out):: x
+       End Subroutine Random_Mvnorm
+
        Module Function Random_Poisson(mt) Result(Ival)
           !---- Arguments ----!
           real(kind=cp), intent(in)    :: mt
           integer                      :: Ival
        End Function Random_Poisson
-      
+
        Module Function Random_T(M) Result(Fn_Val)
           !---- Arguments ----!
-          integer,      intent(in)  :: m        
+          integer,      intent(in)  :: m
           real(kind=cp)             :: fn_val
        End Function Random_T
-       
+
        Module Function Random_Von_Mises(K, First) Result(Fn_Val)
           !---- Arguments ----!
-          real(kind=cp), intent(in)  :: k         
-          logical,       intent(in)  :: first     
+          real(kind=cp), intent(in)  :: k
+          logical,       intent(in)  :: first
           real(kind=cp)              :: fn_val
-       End Function Random_Von_Mises 
-       
+       End Function Random_Von_Mises
+
        Module Function Random_Weibull(a) Result(Fn_Val)
           !---- Arguments ----!
           real(kind=cp), intent(in)  :: a
           real(kind=cp)              :: fn_val
-       End Function Random_Weibull   
-       
-           
+       End Function Random_Weibull
+
+
     End Interface
 
  Contains
@@ -308,7 +308,7 @@
     !!----
     !!----    Generate a random ordering of the integers 1 ... n.
     !!----
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Subroutine Random_Order(N, Order)
        !---- Arguments ----!
@@ -341,7 +341,7 @@
     !!----
     !!---- SEED_RANDOM_NUMBER
     !!----
-    !!---- 14/04/2019 
+    !!---- 14/04/2019
     !!
     Subroutine Seed_Random_Number(I_input,I_output)
        !---- Arguments ----!

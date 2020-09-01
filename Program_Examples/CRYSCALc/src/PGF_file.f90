@@ -18,13 +18,13 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
   LOGICAL                                :: FCF_plot, FCF_plot_stl
 
   !if(debug_proc%level_2)  call write_debug_proc_level(2, "create_PGF_file")
-  
+
  ! creation d'un fichier format PGF (pour WinPLOTR): F2 = f(sinTheta/wave)
 
  FCF_plot     = .false.
  FCF_plot_stl = .false.
  long = len_trim(X_legend)
- 
+
  ! entete
 
  open(unit=11, file=trim(pgf_file))
@@ -73,8 +73,8 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    PGF_style = 0
    FCF_plot_stl  = .true.
   end if
-  
- 
+
+
  ELSEIF(long ==4) then
   if(X_legend(1:4) == 'bcoh') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Neutron coherent scattering length'
@@ -109,7 +109,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : |b| (10^-12 cm)'
    titre =  'mod_b = f(energy)'
    PGF_style = 1
-  END IF 
+  END IF
  ELSEIF(long ==10) then
   if(X_legend(1:10) == 'RE_data_Re') then
    WRITE(11,'(a)')      '# DATA FROM:  Atomic data and nuclear data tables 44, 191-207 (1990)'
@@ -129,7 +129,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
    WRITE(11,'(a)')      '# Y LEGEND TEXT   : Im(b) (10^-12 cm)'
    titre =  'Im_b = f(energy)'
    PGF_style = 1
-  end if  
+  end if
  ELSEIF(X_legend(1:2) == 'Ag') then
   IF(X_legend(3:) == '_tics') then
    WRITE(11,'(a)')      '# MAIN LEGEND TEXT: Total interaction cross section (Ag radiation)'
@@ -268,7 +268,7 @@ subroutine create_PGF_file(pgf_file, X,Y, string, npts, X_legend )
  Ymin = minval(Y(1:npts))
  Ymax = maxval(Y(1:npts))
 
- 
+
  !write(11, '(a,4(x,F4.2),a)') '#   XMIN XMAX     : ', 0., Xmax, 0., Xmax, ' 1 1'
  if(.not. FCF_plot) then
  write(11, '(a,2(1x,F6.2),a)') '#   XMIN XMAX     : ', 0., real(int((10*Xmax+1)))/10

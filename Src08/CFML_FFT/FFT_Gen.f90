@@ -1,14 +1,14 @@
 !!----
-!!---- 
+!!----
 !!----
 Submodule (CFML_FFT) FFTGen
- 
+  implicit none
  Contains
     !!--++
     !!--++ FFT1D
     !!--++    FFT one dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft1D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -17,17 +17,17 @@ Submodule (CFML_FFT) FFTGen
        logical,                        intent(in),  optional:: inv       ! In -> If .true., inverse transformation will be performed.
                                                                          !       Default is .false., i.e. forward transformation.
        complex(fftkind), dimension(size(array, 1))          :: ft
-       
+
        !--- function result
        integer :: ierr
-       
+
        ierr=0
        ft = array
        call fftn(ft, shape(array), dim, inv = inv, stat = ierr)
        if (ierr /=0) then
           Err_CFML%IErr=1
           Err_CFML%Msg="FFT1D@CFML_FFT: Error in FFT!"
-       end if  
+       end if
 
        return
     End Function Fft1D
@@ -36,7 +36,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT2D
     !!--++    FFT two dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft2D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -45,7 +45,7 @@ Submodule (CFML_FFT) FFTGen
        logical,                          intent(in),  optional:: inv           ! In -> If .true., inverse transformation will be performed.
                                                                                !       Default is .false., i.e. forward transformation.
        complex(fftkind), dimension(size(array, 1), size(array, 2)):: ft
-       
+
        !--- function result
        integer                                                    :: ierr
 
@@ -54,17 +54,17 @@ Submodule (CFML_FFT) FFTGen
 
        allocate( work(size(array)) )
        work = reshape(array, (/ size(array) /))
-       
+
        ierr=0
        call fftn(work, shape(array), dim, inv, stat = ierr)
        ft = reshape(work, (/ size(array, 1), size(array, 2) /))
-       
+
        if (allocated(work)) deallocate(work)
        if (ierr /=0) then
           Err_CFML%IErr=1
           Err_CFML%Msg="FFT2D@CFML_FFT: Error in FFT!"
-       end if   
-            
+       end if
+
        return
     End Function Fft2D
 
@@ -72,7 +72,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT3D
     !!--++    FFT three dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft3D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -91,7 +91,7 @@ Submodule (CFML_FFT) FFTGen
 
        allocate( work(size(array)) )
        work = reshape(array, (/ size(array) /))
-       
+
        ierr=0
        call fftn(work, shape(array), dim, inv, stat = ierr)
        ft = reshape(work, (/ size(array, 1), size(array, 2), size(array, 3) /))
@@ -109,7 +109,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT4D
     !!--++    FFT four dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft4D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -132,7 +132,7 @@ Submodule (CFML_FFT) FFTGen
        call fftn(work, shape(array), dim, inv, stat = ierr)
        ft = reshape(work, (/ size(array, 1), size(array, 2), size(array, 3), &
                              size(array, 4) /))
-       
+
        if (allocated(work)) deallocate(work)
        if (ierr /=0) then
           Err_CFML%IErr=1
@@ -146,7 +146,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT5D
     !!--++    FFT five dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft5D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -157,7 +157,7 @@ Submodule (CFML_FFT) FFTGen
 
        !--- function result
        integer :: ierr
-       
+
        complex(fftkind), dimension( &
             size(array, 1), size(array, 2), size(array, 3), size(array, 4), &
             size(array, 5)):: ft
@@ -167,7 +167,7 @@ Submodule (CFML_FFT) FFTGen
 
        allocate( work(size(array)) )
        work = reshape(array, (/ size(array) /))
-       
+
        ierr=0
        call fftn(work, shape(array), dim, inv, stat = IErr)
        ft = reshape(work, (/ size(array, 1), size(array, 2), size(array, 3), &
@@ -186,7 +186,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT6D
     !!--++    FFT six dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft6D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -206,7 +206,7 @@ Submodule (CFML_FFT) FFTGen
 
        allocate( work(size(array)) )
        work = reshape(array, (/ size(array) /))
-       
+
        ierr=0
        call fftn(work, shape(array), dim, inv, stat = ierr)
        ft = reshape(work, (/ size(array, 1), size(array, 2), size(array, 3), &
@@ -225,7 +225,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFT7D
     !!--++    FFT seven dimension
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Function Fft7D(Array, Dim, Inv) Result(Ft)
        !--- formal parameters
@@ -264,7 +264,7 @@ Submodule (CFML_FFT) FFTGen
     !!--++ FFTN
     !!--++    General routine for FFT calculations
     !!--++
-    !!--++ 14/04/2019 
+    !!--++ 14/04/2019
     !!
     Module Subroutine Fftn(Array, Shape, Dim, Inv, Stat)
        !--- formal parameters
@@ -276,7 +276,7 @@ Submodule (CFML_FFT) FFTGen
 
        !--- local arrays
        integer, dimension(size(shape)):: d
-       
+
        !--- local scalars
        logical      :: inverse
        integer      :: i, ndim, ntotal

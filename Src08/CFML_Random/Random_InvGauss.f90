@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen05
-  Contains
+SubModule (CFML_Random) Random_Gauss
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_INV_GAUSS
    !!----
@@ -15,7 +16,7 @@ SubModule (CFML_Random) RandomGen05
    !!----    with density proportional to  gig**(h-1) * exp(-0.5*b*(gig+1/gig))
    !!----    using a ratio method.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Inv_Gauss(H, B, First) Result(Fn_Val)
       !---- Arguments ----!
@@ -78,6 +79,6 @@ SubModule (CFML_Random) RandomGen05
       fn_val = x
 
       return
-   End Function Random_Inv_Gauss 
-   
-End SubModule RandomGen05  
+   End Function Random_Inv_Gauss
+
+End SubModule Random_Gauss

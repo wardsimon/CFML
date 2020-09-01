@@ -74,6 +74,19 @@ cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D
 cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_Fortran_COMPILER_FORCED=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
 -----------------------------------------------------------------------OK for debug
 
+Building CrysFML08  
+==================
+# Console Only for Ifort in debug mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+# Console Only for Ifort in release mode
+cmake -G "NMake Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+
+# Console Only for gfortran in debug mode
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+# Console Only for gfortran in release mode
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+
+ 
 Building CrysFML for use with HDF5
 ==================================
 We should use the alternative CFML_ILL_Instrm_Data_Nexus.f90 instead of CFML_ILL_Instrm_Data.f90. This is done via pre-processor.

@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -1596,6 +1597,12 @@
               exit
             end if
           end if
+          ! TSAMP (the sample temperature) in the same line as Xmin, Step, Xmax
+          i=index(aline,"TSAMP")
+          if(i /= 0) then
+                read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
+                if (ier /= 0) pat%tsamp = 0.0
+          end if
           ! Reading Xmin, Step, Xmax, Title (optional)
           call getword(aline,dire,nc)
           if (nc > 2) then
@@ -1624,13 +1631,6 @@
                 end if
 
                 exit  ! Salida del Bucle
-             end if
-
-             ! TSAMP
-             i=index(aline,"TSAMP")
-             if (i /= 0) then
-                read(unit=aline(i+5:),fmt=*,iostat=ier) pat%tsamp
-                if (ier /= 0) pat%tsamp = 0.0
              end if
           end if
 

@@ -2,15 +2,16 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_012
+SubModule (CFML_Profiles) PRF_Exponential
+  implicit none
    Contains
    !!----
    !!---- EXPONENTIAL
    !!----
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Function Exponential(X,Par) Result (Ex_Val)
+   Pure Module Function Exponential(X,Par) Result (Ex_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -28,13 +29,13 @@ SubModule (CFML_Profiles) PRF_012
 
       return
    End Function Exponential
-   
+
    !!----
    !!---- EXPONENTIAL_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
+   Pure Module Subroutine Exponential_Der(X,Par,Ex_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in) :: x
       real(kind=cp),           dimension(:),intent(in) :: par
@@ -59,5 +60,5 @@ SubModule (CFML_Profiles) PRF_012
 
       return
    End Subroutine Exponential_Der
-    
-End SubModule PRF_012
+
+End SubModule PRF_Exponential

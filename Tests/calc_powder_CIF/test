@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from runtest_cfml import Filter, TestRun
+
+test = TestRun(__file__, sys.argv)
+
+f = Filter()
+
+f.add(from_string = 'lambda',
+      num_lines = 30,
+      abs_tolerance = 1.0e-3)
+
+if os.name == "nt":
+    test.run('calc_powder.exe',['STO.cif'], {'dat': f})
+else:
+    test.run('calc_powder',['STO.cif'], {'dat': f})
+
+sys.exit(test.return_code)

@@ -244,12 +244,12 @@
       integer                                     :: N=0        ! Max index of used EoS  in List - depends on crystal system: 6 for triclinic or mono, 3 for rest
       character(len=30)                           :: system     ! Crystal system name, including setting info (e.g. b-unique for mono)
       type(EoS_Type),dimension(0:6)               :: EoS        ! EoS Parameters for V,a,b,c,d100,d010,d001
-      type(Eos_type)                              :: eosc       ! The common factors to all EoS in an EoS      
+      type(Eos_type)                              :: eosc       ! The common factors to all EoS in an EoS
       integer,dimension(0:6)                      :: loaded = 0 ! 0 when absent, 1 when eos present, 2 set by symmetry, 3 when possible to calc (set by set_cell_types)
       character(len=1),dimension(0:6,3)           :: cout = ' ' ! output array for reporting PV, VT and PVT types of EoS
    End Type EoS_Cell_Type
-   
-   
+
+
    !!----
    !!----  TYPE :: EOS_DATA_TYPE
    !!--..
@@ -6726,7 +6726,7 @@ Contains
          else if(index(text,'COMMENT') /= 0)then
             idoc=idoc+1
             if(idoc <= size(eos%doc))eos%doc(idoc)=trim(text(c:))
-            
+
          else if(index(text,'SYSTEM') /= 0)then
              eos%system=trim(adjustl(text(c:)))
 
@@ -8077,7 +8077,7 @@ Contains
          end if
       end do
       write(unit=lun,fmt='(a)',iostat=ierr) ' '
-      
+
       !> Crystal system
       write(unit=lun,fmt='(a,a)',iostat=ierr) 'System =',trim(eos%system)
 
@@ -8208,7 +8208,7 @@ Contains
       !real(kind=cp),dimension(6) :: parvals(7)
       !real(kind=cp),dimension(6) :: esd
       !real(kind=cp),dimension(19):: parout,esdout
-      !real(kind=cp)              :: v0,agt,fp,fs  
+      !real(kind=cp)              :: v0,agt,fp,fs
 
       !> init
       nprint=0    ! output counter

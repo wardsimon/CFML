@@ -1,14 +1,15 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen03
-  Contains
+SubModule (CFML_Random) Random_Cauchy_sub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_CAUCHY
    !!----
    !!----    Generate a random deviate from the standard Cauchy distribution
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Cauchy() Result(Fn_Val)
       !---- Arguments ----!
@@ -28,5 +29,5 @@ SubModule (CFML_Random) RandomGen03
 
       return
    End Function Random_Cauchy
-   
-End SubModule RandomGen03
+
+End SubModule Random_Cauchy_sub

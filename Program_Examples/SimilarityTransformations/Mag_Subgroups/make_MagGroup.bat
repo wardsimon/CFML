@@ -9,7 +9,7 @@ rem
    if not x%1 == x goto CONT
    cls
    echo    MAKE_MAGGROUP: Make MagGroupk Compilation
-   echo    Syntax: make_MagGroup [f95/lf95/g95/gfortran/ifort] [deb]
+   echo    Syntax: make_MagGroup [gfortran/ifort] [deb]
    goto END
 rem
 :CONT
@@ -21,14 +21,14 @@ rem
 rem ****---- Intel Compiler ----****
 :IFORT
    if x%2 == xdeb goto IFORTD
-   ifort /c MagGroups_K.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c MagGroups_K.f90 /O2 /nologo /I%CRYSFML%\ifort64\LibC
    rem ifort /exe:MagGroups_K *.obj C:\CrysFML\ifort\LibC\crysfml.lib
-   link /subsystem:console /out:MagGroups_K.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   link /subsystem:console /out:MagGroups_K.exe *.obj %CRYSFML%\ifort64\LibC\crysfml.lib
    goto END
 :IFORTD
-   ifort /c MagGroups_K.f90 /debug:full /check /traceback  /nologo  /heap-arrays:100 /IC:\CrysFML\ifort_debug\LibC
+   ifort /c MagGroups_K.f90 /debug:full /check /traceback  /nologo  /heap-arrays:100 /I%CRYSFML%\ifort64_debug\LibC
    rem ifort /exe:MagGroups_K *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
-   link /subsystem:console /out:MagGroups_K.exe *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   link /subsystem:console /out:MagGroups_K.exe *.obj %CRYSFML%\ifort64_debug\LibC\crysfml.lib
    goto END
 rem
 rem **---- GFORTRAN Compiler ----**

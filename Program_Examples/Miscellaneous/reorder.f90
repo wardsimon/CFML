@@ -23,7 +23,7 @@
     Character(len=80),public  :: ERR_Util_Mess=" "
 
     contains
-    
+
     !!----
     !!---- Character Function U_Case(Text) Result (Mtext)
     !!----    character (len=*), intent(in) :: text   !  In -> String:"Input Line"
@@ -50,7 +50,7 @@
        end do
 
        return
-    End Function U_Case    
+    End Function U_Case
 
     !!----
     !!---- Subroutine File_To_FileList(File_dat,File_list)
@@ -286,46 +286,46 @@
        end if
 
     End Subroutine QSort
-    
-    Recursive Subroutine quick_sort(list, order)    
+
+    Recursive Subroutine quick_sort(list, order)
        ! Quick sort routine from:
        ! Brainerd, W.S., Goldberg, C.H. & Adams, J.C. (1990) "Programmer's Guide to
        ! Fortran 90", McGraw-Hill  ISBN 0-07-000248-7, pages 149-150.
        ! Modified by Alan Miller to include an associated integer array which gives
        ! the positions of the elements in the original order.
-       
+
        Real,    Dimension (:), Intent(In out)  :: list
        Integer, Dimension (:), Intent(Out)     :: order
-       
+
        ! Local variable
        Integer :: i
-       
+
        Do i = 1, SIZE(list)
          order(i) = i
        End Do
-       
+
        Call quick_sort_1(1, SIZE(list))
-       
+
        Contains
-    
+
          Recursive Subroutine quick_sort_1(left_end, right_end)
-         
+
             Integer, Intent(In) :: left_end, right_end
-            
+
             !     Local Variables
             Integer             :: i, j, itemp
             Real                :: reference, temp
             Integer, Parameter  :: max_simple_sort_size = 6
-            
+
             If (right_end < left_end + max_simple_sort_size) Then
               ! Use interchange sort for small lists
               Call interchange_sort(left_end, right_end)
-            
+
             Else
               ! Use partition ("quick") sort
               reference = list((left_end + right_end)/2)
               i = left_end - 1; j = right_end + 1
-            
+
               Do
                 ! Scan list from left end until element >= reference is found
                 Do
@@ -337,8 +337,8 @@
                   j = j - 1
                   If (list(j) <= reference) Exit
                 End Do
-            
-            
+
+
                 If (i < j) Then
                   ! Swap two out-of-order elements
                   temp = list(i); list(i) = list(j); list(j) = temp
@@ -350,22 +350,22 @@
                   Exit
                 End If
               End Do
-            
+
               If (left_end < j) Call quick_sort_1(left_end, j)
               If (i < right_end) CalL quick_sort_1(i, right_end)
             End If
-         
+
          End Subroutine quick_sort_1
-         
-         
+
+
          Subroutine interchange_sort(left_end, right_end)
-         
+
             Integer, Intent(In) :: left_end, right_end
-            
+
             !     Local variables
             Integer             :: i, j, itemp
             Real                :: temp
-            
+
             Do i = left_end, right_end - 1
               Do j = i+1, right_end
                 If (list(i) > list(j)) Then
@@ -374,19 +374,19 @@
                 End If
               End Do
             End Do
-         
+
          End Subroutine interchange_sort
-    
+
     End Subroutine quick_sort
-    
+
     Subroutine simple_sort(arr, order)
        real,    dimension(:), intent(in)  :: arr
-       integer, dimension(:), intent(out) :: order            
+       integer, dimension(:), intent(out) :: order
        !     Local variables
        real, dimension(size(arr)) :: list
        Integer                    :: i, j, itemp
        Real                       :: temp
-       
+
        list=arr
        Do i=1,size(list)
        	 order(i)=i
@@ -399,11 +399,11 @@
            End If
          End Do
        End Do
-    
-    End Subroutine simple_sort    
-  
+
+    End Subroutine simple_sort
+
   End Module Qsort_Mod
-  
+
   Program reorder
     use utilities
     use qsort_mod
@@ -472,14 +472,14 @@
     !Order by figure of merit in ascending order
     !call QSort(merit,nsol)
     !call quick_sort(merit,ind)
-    call simple_sort(merit,ind)    
+    call simple_sort(merit,ind)
     !Write the *.ord file
     Call Get_LogUnit(lun)
     open(unit=lun,file=trim(filcod)//".ord", status="replace",action="write")
     !Copy the first lines up to "SELECTED OPTION"
     do i=1, file_lines%nlines
     	write(unit=lun,fmt="(a)") trim(file_lines%line(i))
-    	if(index(file_lines%line(i),"SELECTED OPTION") /= 0) exit    	
+    	if(index(file_lines%line(i),"SELECTED OPTION") /= 0) exit
     end do
     do i=1,nsol
     	!j=merit(nsol-i+1)%order  !this is the index of the hihger figure of merit

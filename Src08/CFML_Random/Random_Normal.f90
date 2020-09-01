@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen06
-  Contains
+SubModule (CFML_Random) Random_Normal_sub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_NORMAL
    !!----
@@ -16,7 +17,7 @@ SubModule (CFML_Random) RandomGen06
    !!----    The algorithm uses the ratio of uniforms method of A.J. Kinderman
    !!----    and J.F. Monahan augmented with quadratic bounding curves.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Normal() Result(Fn_Val)
       !---- Arguments ----!
@@ -30,7 +31,7 @@ SubModule (CFML_Random) RandomGen06
 
       !> Init
       Fn_val=0.0_cp
-      
+
       !---- Generate P = (u,v) uniform in rectangle enclosing ----!
       !---- acceptance region                                 ----!
       do
@@ -58,7 +59,7 @@ SubModule (CFML_Random) RandomGen06
 
       return
    End Function Random_Normal
-   
+
    !!----
    !!---- RANDOM_MVNORM
    !!----
@@ -69,7 +70,7 @@ SubModule (CFML_Random) RandomGen06
    !!--..    Dagpunar, J. "Principles of random variate generation"
    !!--..    Clarendon Press, Oxford, 1988.   ISBN 0-19-852202-9
    !!--..
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Subroutine Random_Mvnorm(N, H, D, First, F, X)
       !---- Arguments ----!
@@ -95,7 +96,7 @@ SubModule (CFML_Random) RandomGen06
          err_cfml%msg="RANDOM_MVNORM@RANDOM: Wrong size of Vector"
          return
       end if
-      
+
       if (first) then                        ! initialization, if necessary
          n2 = 2*n
          if (d(1) < zero) then
@@ -142,5 +143,5 @@ SubModule (CFML_Random) RandomGen06
 
       return
    End Subroutine Random_Mvnorm
-   
-End Submodule RandomGen06  
+
+End Submodule Random_Normal_sub

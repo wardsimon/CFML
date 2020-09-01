@@ -17,11 +17,11 @@ subroutine write_cryscalc_NEWS(input_string)
 
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '17' .or. news_year(1:4) == '2017') then
 
-   call write_cryscalc_news_line(input_string,  '')   
+   call write_cryscalc_news_line(input_string,  '')
    call write_cryscalc_news_line(input_string,  '. Jan. 17 :')
    if(expert_mode) then
    call write_cryscalc_news_line(input_string,  '  # NEWS keyword can contain "EXPERT_ONLY" as argument to output only ')
-   call write_cryscalc_news_line(input_string,  '    CRYSCALC news available only in expert mode.')   
+   call write_cryscalc_news_line(input_string,  '    CRYSCALC news available only in expert mode.')
    end if
    if(.not. news_only_expert) then
    call write_cryscalc_news_line(input_string,  '  # "EULER_TO_KAPPA" routine has been corrected for Chi values')
@@ -52,12 +52,12 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '  # Compilation of CRYSCALC with the latest version of CRYSFML')
    call write_cryscalc_news_line(input_string,  '    (dec. 2016)')
    call write_cryscalc_news_line(input_string,  "  # New CELL_ESD keyword: input of esd's for cell parameters and")
-   call write_cryscalc_news_line(input_string,  '    calculation of corresponding unit cell volume ESD.')   
-   
+   call write_cryscalc_news_line(input_string,  '    calculation of corresponding unit cell volume ESD.')
+
    call write_cryscalc_news_line(input_string,  '  # New GET_TRANSF_MAT keyword provides the transformation matrix')
    call write_cryscalc_news_line(input_string,  '    between two primitive unit cells (determinant of the matrix')
    call write_cryscalc_news_line(input_string,  '    is equal to 1).')
-   
+
    call write_cryscalc_news_line(input_string,  '  # New REDUCE keyword provides conventional unit cell parameters')
    call write_cryscalc_news_line(input_string,  '    and transformation matrix between input cell and conventional')
    call write_cryscalc_news_line(input_string,  '    cell(s). The routine is based on Get_conventional_Unit_Cells')
@@ -65,7 +65,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  ' ')
    end if
   end if
-  
+
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '16' .or. news_year(1:4) == '2016') then
    call write_cryscalc_news_line(input_string,  '')
    call write_cryscalc_news_line(input_string,  '. Dec. 16 :')
@@ -75,7 +75,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '    [only in EPERT mode]')
    endif
    if(.not. news_only_expert) then
-   call write_cryscalc_news_line(input_string,  '  # When creating import.CIF from .P4P and .HKL files, scans features') 
+   call write_cryscalc_news_line(input_string,  '  # When creating import.CIF from .P4P and .HKL files, scans features')
    call write_cryscalc_news_line(input_string,  '    (type of scan, DX, exposition time, starting angles for theta, omega')
    call write_cryscalc_news_line(input_string,  '    phi and chi motors) are extracted from .sfrm images.')
    call write_cryscalc_news_line(input_string,  '')
@@ -104,7 +104,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '    to skip a command in a CFL input file. This keyword can')
    call write_cryscalc_news_line(input_string,  '    be replaced by "!" or "#" character.')
    end if
-  
+
    if(.not. news_only_expert) then
    call write_cryscalc_news_line(input_string,  '')
    call write_cryscalc_news_line(input_string,  '. Oct. 16 :')
@@ -121,7 +121,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '    has to be followed by the labelling of the 5 atoms defining the cone,')
    call write_cryscalc_news_line(input_string,  '    corresponding to metal, centered atom and 3 ligand atoms respectively')
    end if
-   
+
    call write_cryscalc_news_line(input_string,  '')
    if(.not. news_only_expert) then
    call write_cryscalc_news_line(input_string,  '. Sept. 16 :')
@@ -162,7 +162,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '  # New "CONDENSED" argument for WRITE_SYM_OP keyword: ')
    call write_cryscalc_news_line(input_string,  '    output symmetry operators list in a condensed way.')
    end if
-   
+
    if(.not. news_only_expert) then
    call write_cryscalc_news_line(input_string,  '')
    call write_cryscalc_news_line(input_string,  '. May 16 :')
@@ -606,7 +606,7 @@ subroutine write_cryscalc_NEWS(input_string)
    call write_cryscalc_news_line(input_string,  '  # "HKL_statistics" keyword (value = 0/1) can be input in the cryscalc.ini')
    call write_cryscalc_news_line(input_string,  '    setting file to output or not statistics on hkl reflections. ')
    end if
-   
+
    if(expert_mode) then
     if(news_only_expert) then
     call write_cryscalc_news_line(input_string,  '')
@@ -989,7 +989,7 @@ subroutine write_cryscalc_NEWS(input_string)
   call write_cryscalc_news_line(input_string,  '    given as argument.')
   end if
   end if
-  
+
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '07' .or. news_year(1:4) == '2007') then
   if(.not. news_only_expert) then
   call write_cryscalc_news_line(input_string,  '')
@@ -1043,7 +1043,7 @@ subroutine write_cryscalc_NEWS(input_string)
   call write_cryscalc_news_line(input_string,  '     created and can be directly read by WinGX as a KappaCCD file')
   end if
   endif
-  
+
   if(news_year(1:3) == 'all' .or. news_year(1:2) == '06' .or. news_year(1:4) == '2006') then
   if(.not. news_only_expert) then
   call write_cryscalc_news_line(input_string,  '')

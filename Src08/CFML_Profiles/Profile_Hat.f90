@@ -2,15 +2,16 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_013
+SubModule (CFML_Profiles) PRF_Hat
+  implicit none
    Contains
    !!----
    !!---- FUNCTION HAT
    !!----
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Function Hat(X,Par) Result (H_Val)
+   Pure Module Function Hat(X,Par) Result (H_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -29,13 +30,13 @@ SubModule (CFML_Profiles) PRF_013
 
       return
    End Function Hat
-   
+
    !!----
    !!----  HAT_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Subroutine Hat_Der(X,Par,H_Val,Dpar)
+   Pure Module Subroutine Hat_Der(X,Par,H_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in)  :: x
       real(kind=cp),           dimension(:),intent(in)  :: par
@@ -61,6 +62,6 @@ SubModule (CFML_Profiles) PRF_013
 
       return
    End Subroutine Hat_Der
-   
-   
-End SubModule PRF_013
+
+
+End SubModule PRF_Hat

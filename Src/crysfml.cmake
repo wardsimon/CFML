@@ -6,6 +6,11 @@
 set(SOURCES CFML_IO_Mess.f90
             CFML_Optimization_SAn.f90)
 
+# Add CFML_HDF5 module if USE_HDF5 = ON
+if(USE_HDF)
+    set(SOURCES ${SOURCES} CFML_HDF5.f90)
+endif()
+
 # Set the optimization flags.
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
@@ -23,9 +28,6 @@ set_source_files_properties(${CRYSFML_COMMON_OBJECTS} PROPERTIES GENERATED true)
 
 set(LIBRARY_NAME crysfml)
 
-# This directory contains the crysfml_common library mod files.
-include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
-
 # The crysfml library is the CONSOLE version of the library.
 add_library(${LIBRARY_NAME} STATIC ${SOURCES} ${CRYSFML_COMMON_OBJECTS})
 
@@ -33,10 +35,20 @@ add_library(${LIBRARY_NAME} STATIC ${SOURCES} ${CRYSFML_COMMON_OBJECTS})
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 # The directory where the crysfml specific module files will be stored.
-set(CRYSFML_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_modules)
+set(CRYSFML_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_modules CACHE INTERNAL "")
 
 # Sets the path where to place the mod files for the crysfml library.
 set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_MODULE_DIRECTORY})
+
+# This directory contains the crysfml_common library mod files.
+include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
+
+# HDF
+if(USE_HDF)
+    include_directories(${HDF5_INCLUDE_DIR})
+    # target_link_libraries should be useless here
+    #target_link_libraries(${LIBRARY_NAME} ${HDF5_LIBRARIES})
+endif()
 
 #################################
 # Install section

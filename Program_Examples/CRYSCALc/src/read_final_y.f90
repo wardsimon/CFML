@@ -252,7 +252,7 @@ subroutine read_mod_reflexion_from_FINAL_Y(file_unit, H_h, H_k, H_l, H_m, H_F2, 
     H_m = 0
     do i=1, nvk
      write(M_string, '(a,i1,a)') 'M',i,'="'
-     call get_integer_value_from_FINAL_Y(trim(M_string), ivk, line)	
+     call get_integer_value_from_FINAL_Y(trim(M_string), ivk, line)
      !call get_integer_value_from_FINAL_Y('M1="', ivk, line)
      if(ivk /=0) H_m = i*ivk
     end do

@@ -1,9 +1,10 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen02
+SubModule (CFML_Random) Random_Binomial
 
-  Contains
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_BINOMIAL1
    !!----
@@ -15,7 +16,7 @@ SubModule (CFML_Random) RandomGen02
    !!--..    binomial variables", Commun. Statist. - Theor. Meth. 15(3),
    !!--..    805-813.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Binomial1(N, P, First) Result(Ival)
       !---- Arguments ----!
@@ -33,7 +34,7 @@ SubModule (CFML_Random) RandomGen02
 
       !> Init
       Ival=0
-      
+
       if (first) then
          r0 = (n+1)*p
          p_r=bin_prob(n, p, r0)
@@ -88,9 +89,9 @@ SubModule (CFML_Random) RandomGen02
    !!----    of events from N independent trials, each of which has a
    !!----    probability of event P.
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
-   Module Function Random_Binomial2(N, Pp, First) Result(Ival) 
+   Module Function Random_Binomial2(N, Pp, First) Result(Ival)
       !---- Arguments ----!
       integer,       intent(in)    :: n        ! The number of trials in the binomial distribution from which a random deviate is to be generated
       real(kind=cp), intent(in)    :: pp       ! The probability of an event in each trial of the binomial distribution from which a random deviate
@@ -262,7 +263,7 @@ SubModule (CFML_Random) RandomGen02
 
       return
    End Function Random_Binomial2
-   
+
    !!--++
    !!--++ SUBROUTINE BIN_PROB
    !!--++
@@ -290,7 +291,7 @@ SubModule (CFML_Random) RandomGen02
 
       return
    End Function Bin_Prob
-   
+
    !!--++
    !!--++ SUBROUTINE LNGAMMA
    !!--++
@@ -357,7 +358,7 @@ SubModule (CFML_Random) RandomGen02
 
       return
    End Function Lngamma
-   
+
    !!----
    !!---- RANDOM_NEG_BINOMIAL
    !!----
@@ -372,7 +373,7 @@ SubModule (CFML_Random) RandomGen02
    !!--..    dagpunar, j. "principles of random variate generation"
    !!--..    clarendon press, oxford, 1988.   isbn 0-19-852202-9
    !!----
-   !!---- 14/04/2019 
+   !!---- 14/04/2019
    !!
    Module Function Random_Neg_Binomial(Sk, P) Result(Ival)
       !---- Arguments ----!
@@ -430,5 +431,5 @@ SubModule (CFML_Random) RandomGen02
 
       return
    End Function Random_Neg_Binomial
-   
-End Submodule RandomGen02  
+
+End Submodule Random_Binomial

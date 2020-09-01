@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Strings) StrTools
+Submodule (CFML_Strings) STR_StrTools
    !---- Parameters ----!
    implicit none
 
@@ -14,7 +14,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Pack_String(Str) Result (Strp)
+   Pure Module Function Pack_String(Str) Result (Strp)
       !---- Argument ----!
       character(len=*), intent(in) :: str    ! Input String
       character(len=len_trim(str)) :: strp   ! Output string
@@ -40,7 +40,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function String_Count(str,substr) Result(N)
+   Pure Module Function String_Count(str,substr) Result(N)
       !---- Arguments ----!
       character(len=*), intent(in) :: str       ! Input String
       character(len=*), intent(in) :: substr    ! Substring model
@@ -73,7 +73,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function L_Case(Str) Result (LStr)
+   Pure Module Function L_Case(Str) Result (LStr)
       !---- Argument ----!
       character (len=*), intent(in) :: Str    ! Input String
       character (len=len(str))      :: LStr   ! lower case of Text
@@ -98,7 +98,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function U_Case(Str) Result (UStr)
+   Pure Module Function U_Case(Str) Result (UStr)
       !---- Argument ----!
       character (len=*), intent(in) :: Str   ! Input string
       character (len=len(Str))      :: UStr  ! Upper conversion
@@ -123,7 +123,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Strip_String(str, to_strip) Result(sstr)
+   Pure Module Function Strip_String(str, to_strip) Result(sstr)
       !---- Arguments----!
       character(len=*), intent(in) :: str            ! Input string
       character(len=*), intent(in) :: to_strip       ! Pattern
@@ -152,7 +152,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Equal_Sets_Text(str1,n1,str2,n2) result(Equal)
+   Pure Module Function Equal_Sets_Text(str1,n1,str2,n2) result(Equal)
       !---- Arguments ----!
       character(len=*), dimension(:), intent(in) :: str1              ! Vector of String
       character(len=*), dimension(:), intent(in) :: str2              ! Vector of String
@@ -213,7 +213,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Get_Dirname(Str) Result(Directory)
+   Pure Module Function Get_Dirname(Str) Result(Directory)
       !---- Argument ----!
       Character(Len=*), Intent (In)  :: Str          ! String containing Path + Filename
       Character(Len=:), allocatable  :: Directory    ! Path
@@ -237,7 +237,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Get_Filename(Str) Result(Filename)
+   Pure Module Function Get_Filename(Str) Result(Filename)
       !---- Argument ----!
       character(Len=*), intent(in)  :: Str       ! String containing Path + Filename
       character(Len=:), allocatable :: Filename  ! Filename
@@ -261,7 +261,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Function Get_Extension(filename, dotted) Result(extension)
+   Pure Module Function Get_Extension(filename, dotted) Result(extension)
       !---- Arguments ----!
       character(len=*),  intent(in)  :: filename     ! Input filename
       logical, optional, intent(in)  :: dotted       ! If True, the extension will be returned with a dot
@@ -279,7 +279,7 @@ Submodule (CFML_Strings) StrTools
           extension=" "
       else
           !> Handle the optional dotted argument.
-          dot=.true.
+          dot=.false.
           if (present(dotted)) dot=dotted
 
           if (.not. dot) idx = idx + 1
@@ -308,7 +308,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Subroutine Get_Separator_Pos(Str,car,pos,ncar)
+   Pure Module Subroutine Get_Separator_Pos(Str,car,pos,ncar)
       !---- Arguments ----!
       character(len=*),      intent(in)  :: Str   ! Inout String
       character(len=1),      intent(in)  :: car   ! Separator character
@@ -404,7 +404,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Subroutine Cut_String(Str1,nlong1,Str2,nlong2)
+   Pure Module Subroutine Cut_String(Str1,nlong1,Str2,nlong2)
       !---- Argument ----!
       character(len=*),           intent(in out) :: Str1     ! Input string / Out: string without the first word
       character(len=*), optional, intent(   out) :: Str2     ! The first word of String on Input
@@ -458,7 +458,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Subroutine Get_Substring_Positions(str,substr,pos,nsubs)
+   Pure Module Subroutine Get_Substring_Positions(str,substr,pos,nsubs)
       !---- Arguments ----!
       character(len=*),      intent(in)  :: str         ! In -> Input String
       character(len=*),      intent(in)  :: substr      ! In -> Substring
@@ -495,7 +495,7 @@ Submodule (CFML_Strings) StrTools
    !!----
    !!---- 05/04/2019
    !!
-   Module Pure Subroutine SubString_Replace(string, substr, repstr, warning)
+   Pure Module Subroutine SubString_Replace(string, substr, repstr, warning)
       !---- Arguments ----!
       character(len=*), intent(in out) :: string   ! Input/output string
       character(len=*), intent(in)     :: substr   ! Subtring to be replaced
@@ -562,7 +562,7 @@ Submodule (CFML_Strings) StrTools
     !!----
     !!---- 03/04/2019
     !!
-    Module Recursive Subroutine Sort_Strings(Str)
+    Recursive Module Subroutine Sort_Strings(Str)
        !---- Argument ----!
        character(len=*), dimension(:), intent(in out) :: Str
 
@@ -586,7 +586,7 @@ Submodule (CFML_Strings) StrTools
     !!----
     !!---- 03/04/2019
     !!
-    Module Pure Subroutine Sort_PR_Partition(A, Marker)
+    Pure Module Subroutine Sort_PR_Partition(A, Marker)
        !---- Arguments ----!
        character(len=*), dimension(:), intent(in out) :: A
        integer,                        intent(   out) :: marker
@@ -630,4 +630,4 @@ Submodule (CFML_Strings) StrTools
 
 
 
-End Submodule StrTools
+End Submodule STR_StrTools

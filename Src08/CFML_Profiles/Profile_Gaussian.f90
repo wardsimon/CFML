@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_003
+SubModule (CFML_Profiles) PRF_Gaussian
+  implicit none
    Contains
    !!----
    !!---- FUNCTION GAUSSIAN
@@ -10,7 +11,7 @@ SubModule (CFML_Profiles) PRF_003
    !!----
    !!---- Update: October - 2005
    !!
-   Module Pure Function Gaussian(X,Par) Result (Gauss_Val)
+   Pure Module Function Gaussian(X,Par) Result (Gauss_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -26,13 +27,13 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Function Gaussian
-   
+
    !!----
    !!---- Subroutine Gaussian_Der
    !!----
    !!---- Update: October - 2005
    !!
-   Module Pure Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
+   Pure Module Subroutine Gaussian_Der(X,Par,Gauss_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                       intent(in) :: x
       real(kind=cp),          dimension(:),intent(in) :: par
@@ -55,12 +56,12 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Subroutine Gaussian_Der
-   
+
    !!--++
    !!--++ GAUSSIAN
    !!--++    Return value of Gaussian at 'Pos' for peak at 'Pos0' and 'Gamma'
    !!--++
-   !!--++ 21/04/2019 
+   !!--++ 21/04/2019
    !!
    Module Subroutine Prof_Gaussian(Pos , Pos0 , Gamma , Dgdt , Dgdg, Gauss )
       !---- Arguments ----!
@@ -90,5 +91,5 @@ SubModule (CFML_Profiles) PRF_003
 
       return
    End Subroutine Prof_Gaussian
-    
-End SubModule PRF_003
+
+End SubModule PRF_Gaussian

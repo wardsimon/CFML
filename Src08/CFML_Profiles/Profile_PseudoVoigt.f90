@@ -3,15 +3,16 @@
 !!----
 !!---- 21/04/19
 !!
-SubModule (CFML_Profiles) PRF_006
-   Contains 
+SubModule (CFML_Profiles) PRF_Pseudovoigt
+  implicit none
+   Contains
     !!----
     !!---- FUNCTION PSEUDOVOIGT
     !!----
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Function Pseudovoigt(X,Par) Result (Pv_Val)
+    Pure Module Function Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -33,7 +34,7 @@ SubModule (CFML_Profiles) PRF_006
 
        return
     End Function Pseudovoigt
-    
+
     !!----
     !!---- SUBROUTINE PSEUDOVOIGT_DER
     !!----
@@ -42,7 +43,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+    Pure Module Subroutine Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
@@ -89,7 +90,7 @@ SubModule (CFML_Profiles) PRF_006
 
        return
     End Subroutine Pseudovoigt_Der
-    
+
 
     !!----
     !!---- CALC_PSEUDO_VOIGT
@@ -100,7 +101,7 @@ SubModule (CFML_Profiles) PRF_006
     !!----    This subroutine is useful for calculating the contribution of a single peak.
     !!----    It calls prof_val without using derivatives
     !!----
-    !!---- 21/04/2019 
+    !!---- 21/04/2019
     !!
     Module Subroutine Calc_Pseudo_Voigt(x,y,Twoth0,Eta,Fwhm,asym1,asym2)
        !---- Arguments ----!
@@ -126,10 +127,10 @@ SubModule (CFML_Profiles) PRF_006
           call Prof_Val( eta, fwhm, asym1, asym2, x(i), twoth0, dprdt, dprdg,  &
                          dprde , dprds , dprdd , y(i), use_asym, use_hps)
        end do
-      
+
        return
     End Subroutine Calc_Pseudo_Voigt
-    
+
     !!--++
     !!--++ PSVOIGTIAN
     !!--++
@@ -164,14 +165,14 @@ SubModule (CFML_Profiles) PRF_006
 
        return
     End Subroutine PsVoigtian
-    
+
     !!----
     !!---- FUNCTION SPLIT_PSEUDOVOIGT
     !!----
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
+    Pure Module Function Split_Pseudovoigt(X,Par) Result (Pv_Val)
        !---- Arguments ----!
        real(kind=cp),              intent(in) :: x
        real(kind=cp), dimension(:),intent(in) :: par
@@ -202,13 +203,13 @@ SubModule (CFML_Profiles) PRF_006
 
        return
     End Function Split_Pseudovoigt
-    
+
     !!----
     !!---- SUBROUTINE SPLIT_PSEUDOVOIGT_DER
     !!----
     !!---- Update: October - 2005
     !!
-    Module Pure Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
+    Pure Module Subroutine Split_Pseudovoigt_Der(X,Par,Pv_Val,Dpar)
        !---- Arguments ----!
        real(kind=cp),                       intent(in) :: x
        real(kind=cp), dimension(:),         intent(in) :: par
@@ -297,6 +298,6 @@ SubModule (CFML_Profiles) PRF_006
 
        return
     End Subroutine Split_Pseudovoigt_Der
-   
 
- End SubModule PRF_006
+
+ End SubModule PRF_Pseudovoigt

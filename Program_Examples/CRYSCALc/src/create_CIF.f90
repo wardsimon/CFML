@@ -87,7 +87,7 @@ subroutine write_CIF_file(input_string)
    WRITE(CIF_unit, '(a)')  "# and Tmin = Tmax * 'relative-correction-factor'.                      #"
    WRITE(CIF_unit, '(a)')  "# SADABS output:                                                       #"
    !WRITE(CIF_unit, '(3a)') "# ", TRIM(SADABS%line_ratio), "         #"
-   call write_cif_line(trim(SADABS%line_ratio)) 
+   call write_cif_line(trim(SADABS%line_ratio))
    WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------#"
   ELSEIF(LEN_TRIM(SADABS%line_estimated_Tmin_Tmax) /=0) then
    if(SADABS%line_estimated_Tmin_Tmax(1:1) /= '?') then
@@ -99,7 +99,7 @@ subroutine write_CIF_file(input_string)
    WRITE(CIF_unit, '(a)')  "# SADABS output:                                                             #"
    endif
    !WRITE(CIF_unit, '(3a)') "# ", TRIM(SADABS%line_estimated_Tmin_Tmax), "                #"
-   call write_cif_line(trim(SADABS%line_estimated_Tmin_Tmax))   
+   call write_cif_line(trim(SADABS%line_estimated_Tmin_Tmax))
    WRITE(CIF_unit, '(a)')  "# The ratio of these values is more reliable than their absolute values!     #"
    WRITE(CIF_unit, '(a)')  "#----------------------------------------------------------------------------#"
    end if
@@ -1009,7 +1009,7 @@ end subroutine write_CIF_author
 subroutine write_CIF_text(input_unit)
  use cryscalc_module, only : SQUEEZE, structure_refinement, debug_proc
  use CIF_module,      only : CIF_parameter, CIF_sep_line_full
- implicit none  
+ implicit none
   integer,   intent(in) :: input_unit
   logical               :: SHELXL_2014
   character (len=512)   :: CIF_string
@@ -1053,7 +1053,7 @@ subroutine write_CIF_text(input_unit)
    if(structure_refinement%name(1:11) == 'SHELXL-2014' .or. &
       structure_refinement%name(1:11) == 'SHELXL-2016') SHELXL_2014 = .true.
    endif
-   
+
    if(SQUEEZE%procedure) then
     if(SHELXL_2014) then
      call write_CIF(input_unit, "The contribution of the disordered solvents to the structure factors was ")
@@ -1064,7 +1064,7 @@ subroutine write_CIF_text(input_unit)
      call write_CIF(input_unit, "was estimated following the BYPASS algorithm, implemented as the SQUEEZE option")
      call write_CIF(input_unit, "in PLATON. A new data set, free of solvent contribution, was then used in the")
      call write_CIF(input_unit, "final refinement.")
-	end if 
+	end if
    endif
 
    call write_CIF(input_unit, ";")
@@ -1326,15 +1326,15 @@ subroutine center_CIF_line(import_string)
   integer                           :: i, long_1, long
 
   long = len_trim(import_string)
-  !long_1 = CIF_line_width/2 - int(long/2)  
-  long_1 = int((CIF_line_width - long)/2)  -1 
-  
+  !long_1 = CIF_line_width/2 - int(long/2)
+  long_1 = int((CIF_line_width - long)/2)  -1
+
 
   write(fmt_, '(a,i2,a)') '(', long_1, 'a1,a)'
   write(new_string, trim(fmt_)) (' ', i=1, long_1), trim(import_string)
  !call write_cif_line(trim(new_string))
 
-  long = len_trim(new_string) +2 
+  long = len_trim(new_string) +2
   write(fmt_, '(a,i2,a)') '(a,a,', CIF_line_width - long, 'x,a)'
   WRITE(CIF_unit, fmt = trim(fmt_)) "#", trim(new_string), "#"
 
@@ -1391,7 +1391,7 @@ subroutine center_CIF_line(import_string)
   WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_full)
   WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_empty)
 
- 
+
   long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
   write(import_string, '(2a)') "Instrument             : ", trim(CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1))
   call write_cif_line(trim(import_string))

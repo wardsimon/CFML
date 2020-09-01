@@ -3,7 +3,8 @@
 #################################
 
 if(USE_HDF)
-  add_definitions(-DUSE_HDF)
+   add_definitions(-DUSE_HDF)
+   find_package(hdf5_crysfml)
 endif()
 
 # Build crysfml_common library.

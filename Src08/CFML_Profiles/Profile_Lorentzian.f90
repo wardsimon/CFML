@@ -2,15 +2,16 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_005
+SubModule (CFML_Profiles) PRF_Lorentzian
+  implicit none
    Contains
    !!----
    !!---- LORENTZIAN
    !!----
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Function Lorentzian(X,Par) Result (Lor_Val)
+   Pure Module Function Lorentzian(X,Par) Result (Lor_Val)
       !---- Arguments ----!
       real(kind=cp),              intent(in) :: x
       real(kind=cp), dimension(:),intent(in) :: par
@@ -26,13 +27,13 @@ SubModule (CFML_Profiles) PRF_005
 
       return
    End Function Lorentzian
-   
+
    !!----
    !!---- LORENTZIAN_DER
    !!----
-   !!---- 21/04/2019 
+   !!---- 21/04/2019
    !!
-   Module Pure Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
+   Pure Module Subroutine Lorentzian_Der(X,Par,Lor_Val,Dpar)
       !---- Arguments ----!
       real(kind=cp),                        intent(in) :: x
       real(kind=cp),           dimension(:),intent(in) :: par
@@ -55,13 +56,13 @@ SubModule (CFML_Profiles) PRF_005
 
       return
    End Subroutine Lorentzian_Der
-    
+
    !!--++
    !!--++ LORENTZIAN
    !!--++
    !!--++    Return value of Lorentzian at 'Pos' for peak at 'Pos0' and 'Gamma'
    !!--++
-   !!--++ 21/04/2019 
+   !!--++ 21/04/2019
    !!
    Module Subroutine Prof_Lorentzian(Pos , Pos0 , Gamma , Dldt , Dldg, Lorentz )
       !---- Arguments ----!
@@ -69,7 +70,7 @@ SubModule (CFML_Profiles) PRF_005
       real(kind=cp), intent(in) :: pos0
       real(kind=cp), intent(in) :: gamma
       real(kind=cp), intent(out):: dldt        !is derivative of L wrt Pos0
-      real(kind=cp), intent(out):: dldg        !is derivative of L wrt Gamma 
+      real(kind=cp), intent(out):: dldg        !is derivative of L wrt Gamma
       real(kind=cp), intent(out):: lorentz
 
       !---- Local Variables ----!
@@ -87,5 +88,5 @@ SubModule (CFML_Profiles) PRF_005
 
       return
    End Subroutine Prof_Lorentzian
-   
-End SubModule PRF_005
+
+End SubModule PRF_Lorentzian

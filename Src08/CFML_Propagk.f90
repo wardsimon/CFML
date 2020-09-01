@@ -307,10 +307,10 @@
     !!
     Subroutine K_Star(K,Spacegroup,Gk,ext)
        !---- Arguments ----!
-       real(kind=cp), dimension(3), intent (in) :: k
-       Type (SpG_Type),             intent (in) :: SpaceGroup
-       Type (Group_k_Type),         intent(out) :: Gk
-       logical, optional,           intent(in)  :: ext
+       real(kind=cp), dimension(3), intent(in) :: k
+       Type (SpG_Type),             intent(in) :: SpaceGroup
+       Type (Group_k_Type),         intent(out):: Gk
+       logical, optional,           intent(in) :: ext
 
        !---- Local Variables ----!
        real(kind=cp), dimension(3)  :: h
@@ -318,7 +318,7 @@
        integer                      :: i, j, m, l, ng
 
        ng=SpaceGroup%numops  !Reduced set of symmetry operators (the firsts of the list: there is no centring translation nor inversion centre)
-       Gk%co=0           !Initializing pointers
+       Gk%co=0               !Initializing pointers
        Gk%p=0
        ind=1
        Gk%g0=SpaceGroup  !<- Copy the whole space group to the component G0 of Gk
@@ -431,9 +431,25 @@
 
        !---- Local Variables ----!
        character(len=50),dimension(Gk%G0%multip) :: gen
-       integer                                   :: i, j, ng, ngen
+       integer                                   :: i, j, ng, ngen,e_numops,e0_numops
+
 
        ng=Gk%G0%numops
+
+       e_numops=ng
+       e0_numops=Gk%ngk
+
+       if(Gk%G0%centred /= 1) then
+          e_numops=2*e_numops
+          e0_numops=2*e0_numops
+       end if
+
+       !Check first if the extended little group is equal to the parent group
+       if(e0_numops == e_numops) then
+          SPGk=Gk%G0
+          return
+       end if
+
        if(Gk%G0%centred /= 1) ng=ng+1
        Ngen=0
        do i=2,Gk%ngk
@@ -480,7 +496,7 @@
              gen(ngen)="x+2/3,y+1/3,z+1/3"
        End Select
        Call Set_SpaceGroup(" ",SPGk,Ngen,Gen)
-       return
+
     End Subroutine Set_Gk
 
     !!----
@@ -503,7 +519,7 @@
        real(kind=cp), dimension(3)  :: h,k
        character(len=4)             :: kvec
        character(len=:),allocatable :: formato
-       integer                      :: i, j, lu, l, m
+       integer                      :: i, j, lu, l, m,n_ext
 
        lu=6
        if (present(lun)) lu=lun
@@ -514,7 +530,7 @@
        h=Gk%stark(:,1)
        m=Gk%ngk
        if(.not. Gk%k_equiv_minusk .and. Gk%minusk) m=m*2
-
+       n_ext=m
        write(unit=lu,fmt="(a,3f8.4,a)") " => The input propagation vector is: K=(",h," )"
        if (Gk%k_equiv_minusk) then
           write(unit=lu,fmt="(a,i3,a)")    " =>  K .. IS .. equivalent to -K, the extended little group is G(k) "
@@ -573,6 +589,14 @@
           j=Gk%p(i)
           write(unit=lu,fmt="(2(a,i3),a,a)") "    ",i," SYMM(",j,") = ", trim(Gk%G0%Symb_Op(j))
        end do
+
+       if(Gk%extended) then
+          write(unit=lu,fmt="(/,a,/)")    " => The extended little group G(k,-k) has the following symmetry operators: "
+          do i=1, n_ext
+             j=Gk%p(i)
+             write(unit=lu,fmt="(2(a,i3),a,a)") "    ",i," SYMM(",j,") = ", trim(Gk%G0%Symb_Op(j))
+          end do
+       end if
 
        if (.not. Gk%k_equiv_minusk .and. Gk%G0%Centred == 1) then
           write(unit=lu,fmt="(/,a)")    " => The original space group is non-centrosymmetric and K is not equivalent to -K"

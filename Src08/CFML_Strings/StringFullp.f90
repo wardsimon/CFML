@@ -3,11 +3,11 @@
 !!----
 !!----
 !!
-Submodule (CFML_Strings) FullPString
+Submodule (CFML_Strings) STR_FullPString
    !---- Parameters ----!
    implicit none
-   
-   !> PARAMETERS 
+
+   !> PARAMETERS
    character(len=*),  parameter :: CTAB          = Char(9)         ! Character parameter for TAB
    Integer ,          parameter :: IENDFMT       = 0               ! Integer parameter for EndFMT
    Integer ,          parameter :: IINTE         =-1               ! Integer parameter for iInte
@@ -30,19 +30,19 @@ Submodule (CFML_Strings) FullPString
    Integer ,          parameter :: IERRSEPMISS   =10
    Integer ,          parameter :: IERREFRMT     =11
    Integer ,          parameter :: IERRNUMBER    =12
-   
+
    !> Variables
    Integer :: Line_Nb       ! Line number (findFMT)
 
  Contains
-    
+
     !!--++
     !!--++ BUILDFMT
     !!--++
     !!--++    (PRIVATE)
     !!--++    Add a new field to the FMT string
     !!--++
-    !!--++ 05/04/2019 
+    !!--++ 05/04/2019
     !!
     Module Subroutine BuildFMT(iFld,nCar,nStr,FMTstring)
        !---- Arguments ----!
@@ -81,7 +81,7 @@ Submodule (CFML_Strings) FullPString
 
        !> numeric part of Integer and real fields
        if (iFld < 0) then
-          !> hundredth 
+          !> hundredth
           if (nCar >= 100) then
              N = Int(nCar/100)
              nStr = nStr + 1
@@ -93,7 +93,7 @@ Submodule (CFML_Strings) FullPString
              nCar = nCar - N*100
           end if
 
-          !> tenth 
+          !> tenth
           if (nCar >= 10) then
              N = Int(nCar/10)
              nStr = nStr + 1
@@ -105,7 +105,7 @@ Submodule (CFML_Strings) FullPString
              nCar = nCar - N*10
           end if
 
-          !> units 
+          !> units
           nStr = nStr + 1
           if (nStr > Len(FMTstring)) then
              Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
@@ -113,7 +113,7 @@ Submodule (CFML_Strings) FullPString
           end if
           FMTstring(nStr:nStr) = Char(nCar+48)
 
-          !> Add ".0" to the end of real fields 
+          !> Add ".0" to the end of real fields
           if (iFld == iReal) then
              nStr = nStr + 2
              if (nStr > Len(FMTstring)) then
@@ -124,7 +124,7 @@ Submodule (CFML_Strings) FullPString
           end if
 
        else if (iFld > 0) then
-          !> numeric part of "A" fields 
+          !> numeric part of "A" fields
           nStr = nStr + 1
           if (nStr > Len(FMTstring)) then
              Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
@@ -138,7 +138,7 @@ Submodule (CFML_Strings) FullPString
           end if
        end if
 
-       !> Add a separator "," after each new FORTRAN field 
+       !> Add a separator "," after each new FORTRAN field
        nStr = nStr + 1
        if (nStr > Len(FMTstring)) then
           Err_CFML%Ierr = iErrStrLength          ! format string length exceeded
@@ -148,7 +148,7 @@ Submodule (CFML_Strings) FullPString
 
        return
     End Subroutine BuildFMT
-    
+
     !!----
     !!---- FINDFMT
     !!----
@@ -406,8 +406,8 @@ Submodule (CFML_Strings) FullPString
     !!
     Module Subroutine FindFMT_Err(aLine,nC_L)
        !---- Arguments ----!
-       Character(len=*), intent(in) ::   aLine      ! Current data line                   
-       Integer,         intent (in) ::   nC_L       ! location of last character treated  
+       Character(len=*), intent(in) ::   aLine      ! Current data line
+       Integer,         intent (in) ::   nC_L       ! location of last character treated
 
        !---- Local variables ----!
        Integer, parameter                             :: MssgBeg=-2   ! lower message number
@@ -448,7 +448,8 @@ Submodule (CFML_Strings) FullPString
 
        !---- Output data line and print a mark at error location ----!
        Ln = max(Len_trim(aLine),1)
-       if (Ln <= 129) then
+       Ln = min(Ln,178)  !Prevent overflow of Err_CFML%txt that has a maximum of 180 characters
+       if (Ln <= 175) then
           Err_CFML%nl=2
           Write(unit=Err_CFML%txt(2),fmt="(tr1,a)") "'"//aLine(1:Ln)//"'"
           if (nC_L == 1) then
@@ -469,7 +470,7 @@ Submodule (CFML_Strings) FullPString
 
        return
     End Subroutine FindFMT_Err
-    
+
     !!----
     !!---- INC_LINENUM
     !!----    Increments the current line number
@@ -506,7 +507,7 @@ Submodule (CFML_Strings) FullPString
 
        return
     End Subroutine Init_FindFMT
-    
+
     !!--++
     !!--++ SGETFTMFIELD
     !!--++
@@ -554,7 +555,7 @@ Submodule (CFML_Strings) FullPString
 
        return
     End Subroutine SGetFTMfield
-    
+
     !!--++
     !!--++ SUBROUTINE TREATMCHARFIELD
     !!--++
@@ -820,5 +821,5 @@ Submodule (CFML_Strings) FullPString
 
        return
     End Subroutine TreatNumerField
- 
-End Submodule FullPString
+
+End Submodule STR_FullPString

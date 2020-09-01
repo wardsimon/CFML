@@ -143,21 +143,21 @@ subroutine read_cif_and_create_ARCHIVE
 
 
 
-  if(include_experimenter_name) then  
+  if(include_experimenter_name) then
    if(len_trim(experimenter) /= 0) then
     write(CIF_string, fmt = '(2a)') 'Experimenter      : ', trim(experimenter)
-    call write_cif_line(trim(CIF_string))   
+    call write_cif_line(trim(CIF_string))
 	WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_empty)
    else
     if(AUTHOR%first_name(1:1) /= "?" .and.  AUTHOR%name(1:1) /= "?" .and. AUTHOR%TEAM(1:1) /= '?') then
      !WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_empty)
      write(CIF_string, fmt = '(4a)') 'Experimenter      : ', &
                                       trim(AUTHOR%first_name)//' '//trim(AUTHOR%name)//" ["//trim(AUTHOR%team)//"]"
-     call write_cif_line(trim(CIF_string))     
+     call write_cif_line(trim(CIF_string))
 	 WRITE(CIF_unit, '(a)')  trim(CIF_sep_line_empty)
-    end if	
-   end if	
-  
+    end if
+   end if
+
    long = len_trim(CIF_parameter_DEVICE%diffrn_measurement_device_type)
    write(CIF_string, fmt = '(2a)')  'Instrument        : ', trim(CIF_parameter_DEVICE%diffrn_measurement_device_type(2:long-1))
    call write_cif_line(trim(CIF_string))
@@ -401,7 +401,7 @@ subroutine read_cif_and_create_ARCHIVE
   WRITE(CIF_unit, '(2a)') "_reflns_number_total                    ", trim(CIF_parameter%reflns_number_total)
   WRITE(CIF_unit, '(2a)') "_reflns_number_gt                       ", trim(CIF_parameter%reflns_number_gt)
   WRITE(CIF_unit, '(2a)') "_reflns_threshold_expression            ", ">2sigma(I)"
- 
+
   if(CIF_parameter%Friedel_coverage(1:1) /="?") then
    WRITE(CIF_unit, '(2a)') "_reflns_Friedel_coverage                ", trim(CIF_parameter%Friedel_coverage)
    WRITE(CIF_unit, '(2a)') "_reflns_Friedel_fraction_max            ", trim(CIF_parameter%Friedel_fraction_max)
@@ -418,9 +418,9 @@ subroutine read_cif_and_create_ARCHIVE
    WRITE(CIF_unit, '(a)')  "systematic absences."
    WRITE(CIF_unit, '(a)')  ";"
   endif
- 
-  
-  
+
+
+
   call write_CIF_file('COMPUTER_PROGRAMS')
 
   call write_CIF_file('REFINEMENT_INFO')

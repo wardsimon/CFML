@@ -52,16 +52,22 @@ rem
 rem
 rem > Compilation
    if [%_COMP%]==[ifort] (
-      ifort /c Twin_Mod.f90          /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c DataRed_Mod.f90       /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c DataRed_reflections.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
-      ifort /c DataRed.f90           /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c Twin_Mod.f90                   /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_Mod.f90                /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_rnw_reflections.f90    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed_treat_reflections.f90  /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
+      ifort /c DataRed.f90                    /nologo %OPT1% /I%CRYSFML%\%DIRECTORY%\LibC08
       ifort /exe:DataRed *.obj  %CRYSFML%\%DIRECTORY%\LibC08\crysfml.lib /link /stack:300000000 
    )
 rem   
    if [%_COMP%]==[gfortran] (
-      gfortran -c DataRed.f90             %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c Twin_Mod.f90                   %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c DataRed_Mod.f90                %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c DataRed_rnw_reflections.f90    %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c DataRed_treat_reflections.f90  %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
+      gfortran -c DataRed.f90                    %OPT1% -I%CRYSFML%\%DIRECTORY%\LibC08
       gfortran -o DataRed.exe *.o -L%CRYSFML%\%DIRECTORY%\LibC08 -lcrysfml
    )
-rem   
+rem 
+   if exist %FULLPROF% copy DataRed.exe %FULLPROF%\DataRed_New.exe  
    del *.obj *.mod *.o *.map *.bak > nul

@@ -692,7 +692,7 @@ subroutine calcul_dhkl
 
  if(debug_proc%level_2)  call write_debug_proc_level(2, "calcul_dhkl")
 
- 
+
  IF(.NOT. keyword_CELL) then
   call write_info('')
   call write_info('   CELL parameters have to be known for d_hkl calculation ...')

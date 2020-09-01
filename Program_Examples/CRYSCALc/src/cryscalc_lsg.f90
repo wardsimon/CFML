@@ -11,8 +11,8 @@ subroutine list_space_groups()
    LOGICAL                           :: ok
 
    if(debug_proc%level_2)  call write_debug_proc_level(2, "list_space_groups")
-   
-   IF(.NOT. known_space_groups) then   
+
+   IF(.NOT. known_space_groups) then
     call definition_space_groups()
     known_space_groups = .true.
    endif
@@ -36,8 +36,8 @@ subroutine list_space_groups()
 
         call test_Bravais(sg(i), ok)
         IF(.NOT. ok) cycle
-        
-        n_ok = n_ok + 1 
+
+        n_ok = n_ok + 1
         WRITE(message_text, '(10x,I3,5x, a,I1,7x,a)') n_ok, 'IT# ', i,TRIM(sg(i))
         call write_info(TRIM(message_text))
        end do
@@ -56,7 +56,7 @@ subroutine list_space_groups()
 
         call test_Bravais(sg(i), ok)
         IF(.NOT. ok) cycle
- 
+
         n_ok = n_ok + 1
         if(i<10) then
          WRITE(message_text, '(10x,I3,5x,a,I1,7x,a)') n_ok, 'IT# ',i,TRIM(sg(i))
@@ -99,7 +99,7 @@ subroutine list_space_groups()
         IF(list_sg_centric(2) .AND. sg(i)(j+1:j+1)=='c') cycle
         call test_Bravais(sg(i), ok)
         IF(.NOT. ok) cycle
-        
+
         n_ok = n_ok + 1
         if(i < 100) then
          WRITE(message_text, '(10x,I3,5x,I2,6x,a)') n_ok, 'IT# ', i,TRIM(sg(i))

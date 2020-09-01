@@ -1,0 +1,42 @@
+
+  ------------------------------------------------------------------------------
+  Group number:  139     Symb: I 4/m m m  Transf. to standard: a,-b,-c;0,0,0
+  ------------------------------------------------------------------------------
+  Total number of subgroups:   12
+
+  Sub-Group Number #   1 of index:    4          Symb: P422  Transf. to standard: -b,a,c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;-x,y,-z,1
+  Coset decomposition of  G: I 4/m m m(  4) =  H(P422)  + {-x,-y,-z,1} H + {x+1/2,y+1/2,z+1/2,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H
+
+  Sub-Group Number #   2 of index:    8            Symb: P4  Transf. to standard: a,b,c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;y,-x,z,1
+  Coset decomposition of  G: I 4/m m m(  8) =  H(P4)  + {-x,y,-z,1} H + {-x,-y,-z,1} H + {x,-y,z,1} H + {x+1/2,y+1/2,z+1/2,1} H + {-x+1/2,y+1/2,-z+1/2,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H + {x+1/2,-y+1/2,z+1/2,1} H
+
+  Sub-Group Number #   3 of index:    4          Symb: P4/m  Transf. to standard: a,b,c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;-x,-y,-z,1
+  Coset decomposition of  G: I 4/m m m(  4) =  H(P4/m)  + {-x,y,-z,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H + {-x+1/2,y+1/2,-z+1/2,1} H
+
+  Sub-Group Number #   4 of index:    4          Symb: Pmmm  Transf. to standard: c,a,b;0,0,0    Generators: -x,-y,z,1;-x,y,-z,1;-x,-y,-z,1
+  Coset decomposition of  G: I 4/m m m(  4) =  H(Pmmm)  + {-y,x,z,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H + {-y+1/2,x+1/2,z+1/2,1} H
+
+  Sub-Group Number #   5 of index:    4          Symb: Pmmm  Transf. to standard: -a+c,a+c,b;0,0,0    Generators: -x,-y,z,1;-y,-x,-z,1;-x,-y,-z,1
+  Coset decomposition of  G: I 4/m m m(  4) =  H(Pmmm)  + {-y,x,z,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H + {-y+1/2,x+1/2,z+1/2,1} H
+
+  Sub-Group Number #   6 of index:    2        Symb: P4/mmm  Transf. to standard: -b,a,c;0,0,0    Generators: -y,x,z,1;-x,y,-z,1;-x,-y,-z,1
+  Coset decomposition of  G: I 4/m m m(  2) =  H(P4/mmm)  + {-x+1/2,-y+1/2,-z+1/2,1} H
+
+  Sub-Group Number #   7 of index:    2          Symb: I422  Transf. to standard: a,-b,-c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;-x,y,-z,1;x+1/2,y+1/2,z+1/2,1
+  Coset decomposition of  G: I 4/m m m(  2) =  H(I422)  + {-x+1/2,-y+1/2,-z+1/2,1} H
+
+  Sub-Group Number #   8 of index:    4            Symb: I4  Transf. to standard: a,-b,-c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;y,-x,z,1;x+1/2,y+1/2,z+1/2,1
+  Coset decomposition of  G: I 4/m m m(  4) =  H(I4)  + {-x,y,-z,1} H + {-x+1/2,-y+1/2,-z+1/2,1} H + {x,-y,z,1} H
+
+  Sub-Group Number #   9 of index:    2          Symb: I4/m  Transf. to standard: a,-b,-c;0,0,0    Generators: -x,-y,z,1;-y,x,z,1;-x,-y,-z,1;x+1/2,y+1/2,z+1/2,1
+  Coset decomposition of  G: I 4/m m m(  2) =  H(I4/m)  + {-x,y,-z,1} H
+
+  Sub-Group Number #  10 of index:    2          Symb: Immm  Transf. to standard: c,-a,-b;0,0,0    Generators: -x,-y,z,1;-x,y,-z,1;-x,-y,-z,1;x+1/2,y+1/2,z+1/2,1
+  Coset decomposition of  G: I 4/m m m(  2) =  H(Immm)  + {-y,x,z,1} H
+
+  Sub-Group Number #  11 of index:    2          Symb: Cmmm  Transf. to standard: b+c,b-c,-a;0,0,0    Generators: -x,-y,z,1;-y,-x,-z,1;-x,-y,-z,1;x+1/2,y+1/2,z+1/2,1
+  Coset decomposition of  G: I 4/m m m(  2) =  H(Cmmm)  + {-y,x,z,1} H
+
+  Sub-Group Number #  12 of index:    1        Symb: I4/mmm  Transf. to standard: a,-b,-c;0,0,0    Generators: -y,x,z,1;-x,y,-z,1;-x,-y,-z,1;x+1/2,y+1/2,z+1/2,1
+
+  CPU_Time for all calculations:   0 minutes,   9.18750 seconds

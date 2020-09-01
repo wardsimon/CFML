@@ -1,12 +1,13 @@
 !!----
-SubModule (CFML_Messages) Question
+SubModule (CFML_Messages) Wmess_Question
+  Implicit none
    Contains
    !!----
    !!---- QUESTION_MESSAGE
    !!----
    !!----    Print an question on the screen
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Question_Message(Mess, Title)
       !---- Argument ----!
@@ -23,7 +24,7 @@ SubModule (CFML_Messages) Question
 
       return
    End Subroutine Question_Message
-   
-   
-   
-End SubModule Question   
+
+
+
+End SubModule Wmess_Question

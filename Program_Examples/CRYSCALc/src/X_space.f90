@@ -11,7 +11,7 @@ subroutine X_space_calculation(input_string)
   eps=0.001
 
   if(debug_proc%level_2)  call write_debug_proc_level(2, "X_space_calculation ("//trim(input_string)//")")
-  
+
   select case (input_string)
       case ('STL')
        call write_info('')

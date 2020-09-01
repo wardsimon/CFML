@@ -1,13 +1,14 @@
 !!----
-SubModule (CFML_Messages) Infos
+SubModule (CFML_Messages) Wmess_Infos
+  Implicit none
    Contains
-   
+
    !!----
    !!---- INFO_MESSAGE
    !!----
    !!----    Print an message on the screen or in "Iunit" if present
    !!----
-   !!---- 03/05/2019 
+   !!---- 03/05/2019
    !!
    Module Subroutine Info_Message(Mess, iunit)
       !---- Arguments ----!
@@ -24,5 +25,5 @@ SubModule (CFML_Messages) Infos
 
       return
    End Subroutine Info_Message
-   
-End SubModule Infos   
+
+End SubModule Wmess_Infos

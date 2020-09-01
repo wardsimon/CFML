@@ -14,3 +14,11 @@ KVECT    0.5 0  0.25
 Q_coeff  1  
 !Q_coeff  0 1
 HKL_T   5
+SCALE  0.5
+TWIN
+TWIN_nam  Test_Twin
+TWIN_typ  3
+TWIN_rot  1 0 0  90
+TWIN_rot  0 0 1  45
+TWIN_spg  P b a m
+END_TWIN

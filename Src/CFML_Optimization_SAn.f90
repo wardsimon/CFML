@@ -11,6 +11,7 @@
 !!----
 !!---- Authors: Juan Rodriguez-Carvajal (ILL)
 !!----          Javier Gonzalez-Platas  (ULL)
+!!----          Nebil Ayape Katcho      (ILL)
 !!----
 !!---- Contributors: Laurent Chapon     (ILL)
 !!----               Marc Janoschek     (Los Alamos National Laboratory, USA)
@@ -73,7 +74,7 @@
 !!--++       CHECK                       [Private]
 !!--++       CHECKM                      [Private]
 !!--++       INIT_RAN                    [Private]
-!!--++       LOCAL_OPTIM                 [Private]
+!!----       LOCAL_OPTIM
 !!----       SANN_OPT_MULTICONF
 !!----       SET_SIMANN_COND
 !!----       SET_SIMANN_MSTATEV
@@ -104,14 +105,14 @@
     !---- List of public subroutines ----!
     public :: SimAnneal_gen, SimAnneal_MultiConf, Set_SimAnn_Cond, Set_SimAnn_StateV, &
               Write_SimAnn_Cond, Write_SimAnn_StateV, Set_SimAnn_MStateV, Write_SimAnn_MStateV, &
-              SAnn_Opt_MultiConf
+              SAnn_Opt_MultiConf, Local_Optim
 
     !---- List of public overloaded procedures: subroutines ----!
 
     !---- List of private functions ----!
 
     !---- List of private subroutines ----!
-    private:: checkm, check, init_ran, Local_Optim
+    private:: checkm, check, init_ran
 
     !---- Definitions ----!
     !!----
@@ -138,18 +139,19 @@
     !!----  TYPE :: MULTISTATE_VECTOR_TYPE
     !!--..
     !!----  Type, public  :: MultiState_Vector_Type
-    !!----    integer                            :: npar    ! Number of parameters of the model.
-    !!----    integer                            :: nconf   ! Number of configurations.
-    !!----    integer, dimension(np_SAN,np_CONF) :: code    ! =0 fixed parameter, =1 variable parameter
-    !!----    integer, dimension(np_SAN)         :: bound   ! =0 fixed boundaries,=1 periodic boundaries
-    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: state   ! Vector State with the current configuration
-    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: stp     ! Step vector (one value for each parameter)
-    !!----    real(kind=cp),    dimension(np_SAN)         :: low     ! Low-limit value of parameters
-    !!----    real(kind=cp),    dimension(np_SAN)         :: high    ! High-limit value of parameters
-    !!----    real(kind=cp),    dimension(np_SAN)         :: cost    ! Vector with cost of the different configurations
-    !!----    real(kind=cp),    dimension(np_SAN)         :: config  ! Vector State with the best configuration
-    !!----    real(kind=cp),    dimension(np_SAN)         :: sigma   ! Sigma of the Vector State with the best configuration
-    !!----    character(len=15),dimension(np_SAN):: nampar  ! name of parameters of the model
+    !!----    integer                                     :: npar      ! Number of parameters of the model. To be supplied in the calling program
+    !!----    integer                                     :: nconf     ! Number of configurations.
+    !!----    integer,          dimension(np_SAN)         :: code      !=0 fixed parameter, =1 variable parameter
+    !!----    integer,          dimension(np_SAN)         :: bound     !=0 fixed boundaries, =1 periodic boundaries
+    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: state     !Vector State characterizing the current configuration
+    !!----    real(kind=cp),    dimension(np_SAN,np_CONF) :: stp       !Step vector (one value for each parameter)
+    !!----    real(kind=cp),    dimension(np_CONF)        :: cost      !Vector with cost of the different configurations
+    !!----    real(kind=cp),    dimension(np_SAN)         :: low       !Low-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN)         :: high      !High-limit value of parameters
+    !!----    real(kind=cp),    dimension(np_SAN)         :: config    !Vector State characterizing the current best configuration
+    !!----    real(kind=cp),    dimension(np_SAN)         :: sigma     !Sigma of the Vector State characterizing the current best configuration
+    !!----    character(len=15),dimension(np_SAN)         :: nampar    !name of parameters of the model
+    !!----    real(kind=cp)                               :: best_cost !Cost of the best configurations
     !!----  End Type MultiState_Vector_Type
     !!----
     !!---- Derived type containing the parameters and configurations to be optimized,
@@ -159,18 +161,19 @@
     !!---- Update: March - 2005
     !!
     Type, public  :: MultiState_Vector_Type
-      integer                                     :: npar    ! Number of parameters of the model. To be supplied in the calling program
-      integer                                     :: nconf   ! Number of configurations.
-      integer,          dimension(np_SAN)         :: code    !=0 fixed parameter, =1 variable parameter
-      integer,          dimension(np_SAN)         :: bound   !=0 fixed boundaries, =1 periodic boundaries
-      real(kind=cp),    dimension(np_SAN,np_CONF) :: state   !Vector State characterizing the current configuration
-      real(kind=cp),    dimension(np_SAN,np_CONF) :: stp     !Step vector (one value for each parameter)
-      real(kind=cp),    dimension(np_CONF)        :: cost    !Vector with cost of the different configurations
-      real(kind=cp),    dimension(np_SAN)         :: low     !Low-limit value of parameters
-      real(kind=cp),    dimension(np_SAN)         :: high    !High-limit value of parameters
-      real(kind=cp),    dimension(np_SAN)         :: config  !Vector State characterizing the current best configuration
-      real(kind=cp),    dimension(np_SAN)         :: sigma   !Sigma of the Vector State characterizing the current best configuration
-      character(len=15),dimension(np_SAN)         :: nampar  !name of parameters of the model
+      integer                                     :: npar      ! Number of parameters of the model. To be supplied in the calling program
+      integer                                     :: nconf     ! Number of configurations.
+      integer,          dimension(np_SAN)         :: code      !=0 fixed parameter, =1 variable parameter
+      integer,          dimension(np_SAN)         :: bound     !=0 fixed boundaries, =1 periodic boundaries
+      real(kind=cp),    dimension(np_SAN,np_CONF) :: state     !Vector State characterizing the current configuration
+      real(kind=cp),    dimension(np_SAN,np_CONF) :: stp       !Step vector (one value for each parameter)
+      real(kind=cp),    dimension(np_CONF)        :: cost      !Vector with cost of the different configurations
+      real(kind=cp),    dimension(np_SAN)         :: low       !Low-limit value of parameters
+      real(kind=cp),    dimension(np_SAN)         :: high      !High-limit value of parameters
+      real(kind=cp),    dimension(np_SAN)         :: config    !Vector State characterizing the current best configuration
+      real(kind=cp),    dimension(np_SAN)         :: sigma     !Sigma of the Vector State characterizing the current best configuration
+      character(len=15),dimension(np_SAN)         :: nampar    !name of parameters of the model
+      real(kind=cp)                               :: best_cost !Cost of the best configurations
     End Type MultiState_Vector_Type
 
     !!----
@@ -454,26 +457,28 @@
        return
     End Subroutine Init_Ran
 
-    !!--++
-    !!--++ Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)
-    !!--++    integer,                      intent(in)      :: n
-    !!--++    real(kind=cp), dimension(:),  intent(in out)  :: x
-    !!--++    real(kind=cp),                intent(out)     :: f
-    !!--++    real(kind=cp), dimension(:),  intent(in)      :: low,high
-    !!--++    integer, dimension(:),        intent(in)      :: bound
-    !!--++    Interface
-    !!--++       Subroutine Model_Functn(v,cost)
-    !!--++          real,dimension(:),    intent( in):: v
-    !!--++          real,                 intent(out):: cost
-    !!--++       End Subroutine Model_Functn
-    !!--++    End Interface
-    !!--++
-    !!--++   (Private)
-    !!--++   Unirandi subroutine
-    !!--++   Adapted by J. Rodriguez-Carvajal to F90
-    !!--++   Original comments (slightly modified) follow
-    !!--++
-    !!--++ Update: April - 2008
+    !!----
+    !!---- Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)
+    !!----    integer,                      intent(in)      :: n
+    !!----    real(kind=cp), dimension(:),  intent(in out)  :: x
+    !!----    real(kind=cp),                intent(out)     :: f
+    !!----    real(kind=cp), dimension(:),  intent(in)      :: low,high
+    !!----    integer, dimension(:),        intent(in)      :: bound
+    !!----    Interface
+    !!----       Subroutine Model_Functn(v,cost)
+    !!----          real,dimension(:),    intent( in):: v
+    !!----          real,                 intent(out):: cost
+    !!----       End Subroutine Model_Functn
+    !!----    End Interface
+    !!----
+    !!----   (Public)
+    !!----   Unirandi subroutine
+    !!----   T.  Csendes,  ”Nonlinear  parameter  estimation  by  global  optimization, effciency  and  reliability,
+    !!----   Acta Cybernetica,  vol.  8,  no.  4,  pp.  361–370, 1988.
+    !!----   Adapted by J. Rodriguez-Carvajal to F90
+    !!----   Original comments (slightly modified) follow
+    !!----
+    !!---- Update: April - 2008
     !!
     Subroutine Local_Optim(Model_Functn,n,x,f,low,high,bound)
        !---- Arguments ----!
@@ -506,6 +511,7 @@
        eps =  0.00001
        maxfn=10000
        CALL Model_Functn(x, f) !starting value of the function
+       !write(*,*) "  f=",f
        do_outm: do
           call random_number(r)              !  Evaluate 100 random vectors r(100,n)
           irndm = 0
@@ -524,6 +530,7 @@
             x1(1:n) = x(1:n)+h*r(irndm,1:n)
             call Boundary_Cond(n,x1,low,high,bound)
             CALL Model_Functn(x1, f1)
+           ! write(*,*) "  f1-1=",f1
             nfev = nfev+1
             IF (f1 >= f) then
                IF (nfev > maxfn) exit do_outm
@@ -531,6 +538,7 @@
                x1(1:n) = x(1:n)+h*r(irndm,1:n)
                call Boundary_Cond(n,x1,low,high,bound)
                CALL Model_Functn(x1, f1)
+              ! write(*,*) "  f1-2=",f1
                nfev = nfev+1
                IF (f1 >= f) then
                   IF (nfev > maxfn) exit do_outm
@@ -563,7 +571,6 @@
             h = ABS(h*half)                 ! Decrease step length
           End do do_intm
        End do do_outm
-       Return
 
     End Subroutine Local_Optim
 
@@ -609,7 +616,7 @@
 
           Subroutine Write_FST(fst_file,v,cost)
              Use CFML_GlobalDeps, only: Cp
-             character(len=*),     intent(in):: fst_file
+             character(len=*),              intent(in):: fst_file
              real(kind=cp),dimension(:),    intent(in):: v
              real(kind=cp),                 intent(in):: cost
           End Subroutine Write_FST
@@ -617,9 +624,9 @@
 
        !--- Local Variables ---!
        character (len=256)                         :: messag, strings
-       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt, minut !, last
        real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                                                      prob, rav, rati, plage, stepav, random !, shift
+                                                      prob, rav, rati, plage, stepav, random, tini,tf, sec !, shift
        integer, parameter                          :: i_conf=99
        integer, dimension(1)                       :: seed
        logical, dimension(np_CONF)                 :: dead
@@ -725,6 +732,7 @@
        neval=0
        nacp=0
        costav(:)=0.0
+       call cpu_time(tini)
        do ntp=1,c%num_temps     ! Global DO for changing temperature
             naj(:)   =0
            cost(:)   =0.0
@@ -734,14 +742,18 @@
           temp=c%anneal*Temp  ! Current temperature
 
           strings=" "
-          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
-               "       Number of function evaluations:",neval
+          call cpu_time(tf)
+          sec=(tf-tini)/60.0
+          minut=int(sec)
+          sec=(sec-real(minut))*60.0
+          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8,a,i5,a,f8.4,a)") "  => New Temp:",temp,"  NT: ",ntp, &
+               "       Number of function evaluations:",neval,"         Cumulated CPU-time: ",minut," minutes",sec," seconds"
           call mess(strings)
           write(unit=ipr,fmt="(/,a)") trim(strings)
 
           do j=1,vs%nconf   ! loop over different configuration state vectors
 
-             if(dead(j)) cycle  !skip is configuration is dead
+             if(dead(j)) cycle  !skip if configuration is dead
 
              do ncf=1,c%nm_cycl
                 ! last=vs%npar
@@ -891,7 +903,7 @@
 
             !Perform a local minimization if the cost function is lower than c%threshold
             !Use as starting point the average configuration
-            if(cost(j) < c%threshold .and. .not. dead(j)) then
+            if((cost(j) < c%threshold .and. .not. dead(j)) .or. ntp == c%num_temps) then
                write(unit=strings,fmt="(a,i3,a,f8.2)") " => Local Optimization of Configuration #",j,"   Average Cost: ",cost(j)
                call mess(strings)
                write(unit=ipr,fmt="(a)") trim(strings)
@@ -990,9 +1002,10 @@
        strings=" "
        write(unit=strings,fmt="(a,f16.4,a,i2)")" -> Best Solution Cost (before eventual local optimization) = ",costop,&
                                                " :: from configuration: ",jopt
+       vs%best_cost=costop
        call mess(strings)
        write(unit=ipr,fmt="(/,a)") trim(strings)
-       messag=" -> Configuration parameters :"
+       messag=" -> Best Configuration Parameters :"
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
@@ -1152,6 +1165,7 @@
        vs%sigma(:) = 0.0
        vs%cost(:) =0.0
        vs%Nampar(:) = " "
+       vs%best_cost=1.0e8
 
        !----  Copying arguments in state vector
        vs%npar        = n
@@ -1178,9 +1192,9 @@
     !!---- Subroutine Set_SimAnn_StateV(n,Con,Bounds,VNam,Vec,vs,cod)
     !!----    integer,                      intent(in) :: n      !number of parameters
     !!----    integer,         dimension(:),intent(in) :: con    !Boundary conditions
-    !!----    real(kind=cp),          dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
+    !!----    real(kind=cp), dimension(:,:),intent(in) :: Bounds ! (1,:)-> Low, (2,:) -> High, (3,:) -> Step
     !!----    character(len=*),dimension(:),intent(in) :: VNam   !Names of parameters
-    !!----    real(kind=cp),            dimension(:),intent(in) :: Vec    !Initial value of parameters
+    !!----    real(kind=cp),   dimension(:),intent(in) :: Vec    !Initial value of parameters
     !!----    type(State_Vector_Type),      intent(out):: vs     !Initial State vector
     !!----    integer,optional,dimension(:),intent(in) :: cod    !If present, cod(i)=0 fix the "i" parameter
     !!----
@@ -1611,9 +1625,9 @@
 
        !--- Local Variables ---!
        character (len=256)                         :: messag, strings
-       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt !, last
+       integer                                     :: i, j, k, neval, ncf, ntp, naver, jj, survive, jopt, minut  !, last
        real(kind=cp)                               :: temp, ep, ener, costop, half_init_avstp, sumdel,sumsig, &
-                                                      prob, rav, rati, plage, stepav, random !, shift
+                                                      prob, rav, rati, plage, stepav, random,tini,tf,sec !, shift
        integer, parameter                          :: i_conf=99
        integer,          dimension(1)              :: seed
        logical,          dimension(np_CONF)        :: dead
@@ -1719,6 +1733,7 @@
        neval=0
        nacp=0
        costav(:)=0.0
+       call cpu_time(tini)
        do ntp=1,c%num_temps     ! Global DO for changing temperature
             naj(:)   =0
            cost(:)   =0.0
@@ -1728,8 +1743,12 @@
           temp=c%anneal*Temp  ! Current temperature
 
           strings=" "
-          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8)") "  => New Temp:",temp,"  NT: ",ntp, &
-               "       Number of function evaluations:",neval
+          call cpu_time(tf)
+          sec=(tf-tini)/60.0
+          minut=int(sec)
+          sec=(sec-real(minut))*60.0
+          write(unit=strings,fmt="(a,f9.5,a,i5,a,i8,a,i5,a,f8.4,a)") "  => New Temp:",temp,"  NT: ",ntp, &
+               "       Number of function evaluations:",neval,"         Cumulated CPU-time: ",minut," minutes",sec," seconds"
           call mess(strings)
           write(unit=ipr,fmt="(/,a)") trim(strings)
 
@@ -1926,6 +1945,7 @@
 
        !---- Re-calculate the cost function for the best configuration ----!
        call Model_Funct(vs%config,Costop)
+       vs%best_cost=costop
 
        messag=" "
        call mess(messag)
@@ -1940,6 +1960,7 @@
        call mess(messag)
        write(unit=ipr,fmt="(a,/)") trim(messag)
        do i=1,vs%npar
+         vs%sigma(i)=sigp(i,jopt)
          write(unit=strings,fmt="(i6,a,2F16.5)")  i,"  "//vs%nampar(i), vs%config(i),sigp(i,jopt)
          write(unit=ipr,fmt="(a)") trim(strings)
          call mess(strings)

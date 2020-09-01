@@ -11,20 +11,19 @@
     Use CFML_strings, only: File_Type, Reading_File
     Use Twin_Mod
     Use DataRed_Mod
-    Use DataRed_Reflections
+    Use DataRed_rnw_Reflections_Mod
+    Use DataRed_treat_Reflections_Mod
     Use CFML_Propagation_Vectors
     implicit none
 
-    integer :: narg,len_cmdline,ier,lenf,idot,lun,i
+    integer                      :: narg,len_cmdline,idot,lun,i
     character(len=:),allocatable :: cmdline,filered
-    character(len=256)           :: line, title
-    logical :: esta
+    logical :: esta, debug=.true.
 
-    type(RefList_Type)          :: Ref
+    type(Reflection_List)       :: Ref
     type(File_Type)             :: cfl_file
     type(Twin_Type)             :: Tw
-    Type(SPG_Type)              :: SpG, twSpG
-    Type(SuperSpaceGroup_Type)  :: SSpG
+    class(SPG_Type),allocatable :: SpG, twSpG
     Type(Cell_G_Type)           :: cell
     Type(Conditions_Type)       :: cond
     Type(kvect_info_Type)       :: kinf
@@ -69,6 +68,9 @@
           if(Err_CFML%Ierr /= 0) then
             write(unit=*,fmt="(a)")  Err_CFML%Msg
             call CloseProgram()
+          else if (.not. allocated(SpG)) then
+            write(unit=*,fmt="(a)")  " => No space group is allocated! Check your input file!"
+            call CloseProgram()
           else
             if(cond%eps_given) then
               call Set_Eps_Math(cond%epsg)
@@ -84,7 +86,7 @@
             end do
           end if
 
-          if(len_trim(cond%filhkl) /= 0) then  !Read Reflections and contruct RefList_Type object Ref
+          if(len_trim(cond%filhkl) /= 0) then  !Read Reflections and contruct Reflection_list object Ref
             if(cond%prop .and. SpG%mag_type == 1) then
               call Read_Reflections_File(cond%filhkl,cond,kinf,Cell,Ref,Gk)
             else
@@ -105,16 +107,38 @@
              else
                Call Write_Conditions(cfl_file,cond,Cell,SpG,kinf,tw,cond%forma,lun)
              end if
-             Call Write_Reflections(Ref,kinf,lun)
-             Call Treat_Reflections(Ref,cond,cell,SpG,kinf,tw,lun)
+
+             if(tw%ISpG)  then
+               call Set_SpaceGroup(tw%twin_SpG,twSpG)
+               write(unit=lun,fmt="(/,a)") "     SPACE GROUP FOR DOMAINS OF A TWINNED CRYSTAL: USED FOR SYSTEMATIC ABSENCES"
+               write(unit=lun,fmt="( a)") "     =========================================================================="
+               call Write_SpaceGroup_Info(twSpG,lun)
+             end if
+             if(cond%print_all) Call Write_Reflections(Ref,cond,kinf,lun)
+             if(cond%prop .and. SpG%mag_type == 1 .and. kinf%nk <= 1 .and. cond%hkl_type /= 11 .and. cond%hkl_type /= 12) then
+               Call Treat_Reflections(Ref,cond,cell,SpG,kinf,Gk(1),tw,lun)
+             else
+               if(kinf%nk == 0) then
+                 Call Treat_Reflections("SHUB",Ref,cond,cell,SpG,kinf,tw,lun) !,debug)
+               else
+                 Call Treat_Reflections("SUPER",Ref,cond,cell,SpG,kinf,tw,lun) !,debug)
+               end if
+             end if
           end if
         end if
     else
         write(unit=*,fmt="(a)") " => An input (xxx.red or xxx.cfl) datared file is needed !"
         call CloseProgram()
     End if
-    !Now Read the Reflections File
-    !call
+    write(unit=*,fmt="(a)")     " => Program finished O.K.!, look in output files!"
+    write(unit=*,fmt="(a,a)")   "           Output  file: ", trim(cond%fileout)//".out"
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//".int"
+    if(cond%split_mag) &
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//"_mag.int"
+    if(cond%to_og) &
+    write(unit=*,fmt="(a,a)")   "      Reflections  file: ", trim(cond%fileout)//"_mag_og.int"
+    write(unit=*,fmt="(a,a)")   "           Reject  file: ", trim(cond%fileout)//".rej"
+    write(unit=*,fmt="(a)")   " "
 
     Contains
       Subroutine CloseProgram()

@@ -248,7 +248,7 @@ averages
 
 cryst   1  1 0 0
 ----------------------------------------------------------------------------------------------
-           Of course the user should modify the manually the exchange interactions, add
+           Of course the user should modify manually the exchange interactions, add
            anisotropy if needed, convert the isotropic exchange to anisotropic,etc.
 
 

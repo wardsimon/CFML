@@ -921,7 +921,7 @@
     Subroutine Cost_Coordination(cost)
        real,      intent(out):: cost
        !---- Local variables ----!
-       integer :: i 
+       integer :: i
        real    :: delta
 
        cost=0.0
@@ -1136,7 +1136,7 @@
        integer ::  i, iposr, ihkl, irc,nphase,ideltr, i_prf
        real    :: twtet, dd, scl,yymi,yyma,t1,t2
        character (len=1)   :: tb
-       character (len=50)  :: forma1 
+       character (len=50)  :: forma1
        !-----------------------------------------------
        !check for very high values of intensities and rescal everything in such a case
        ! scl: scale factor scl=1.0 (normal ymax < 1e6, 0.1 multiplier)

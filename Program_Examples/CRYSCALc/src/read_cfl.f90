@@ -95,7 +95,7 @@ end subroutine incident_beam
 !-------------------------------------------------------------------------
  subroutine identification_CFL_keywords(read_line)
   USE cryscalc_module
-  USE wavelength_module  
+  USE wavelength_module
   USE macros_module
   USE text_module ,                   ONLY : CIF_lines_nb, CIF_title_line
   USE CFML_crystallographic_symmetry, ONLY : Get_Multip_Pos
@@ -722,42 +722,42 @@ end subroutine incident_beam
 	  if(i_error == 0 ) then
 	   atom_coord(1, nb_atom)  = var(1)
 	  else
-       call write_info('... Wrong x atomic coordinate ...')	  
+       call write_info('... Wrong x atomic coordinate ...')
 	   return
-	  end if 
+	  end if
 	  read(arg_string(4), *, iostat=i_error) var(2)
 	  if(i_error == 0 ) then
 	   atom_coord(2, nb_atom)  = var(2)
 	  else
-       call write_info('... Wrong y atomic coordinate ...')	  
+       call write_info('... Wrong y atomic coordinate ...')
 	   return
-	  end if 
+	  end if
 	  read(arg_string(5), *, iostat=i_error) var(3)
 	  if(i_error == 0 ) then
-	   atom_coord(3, nb_atom)  = var(3)	   
+	   atom_coord(3, nb_atom)  = var(3)
 	  else
-       call write_info('... Wrong z atomic coordinate ...')	  
+       call write_info('... Wrong z atomic coordinate ...')
 	   return
-	  end if 
+	  end if
       if(nb_arg > 3) then
 	  read(arg_string(4), *, iostat=i_error) var(4)
 	  if(i_error == 0 ) then
 	   atom_Biso(nb_atom)  = var(4)
 	  else
-       call write_info('... Wrong atomic Biso ...')	  
-	  end if 
+       call write_info('... Wrong atomic Biso ...')
+	  end if
 	  end if
 	  if(nb_arg > 4) then
   	  read(arg_string(5), *, iostat=i_error) var(5)
 	  if(i_error == 0 ) then
 	   atom_occ_perc(nb_atom)  = var(5)
 	  else
-       call write_info('... Wrong atomic site occupancy ...')	  
-	  end if 
+       call write_info('... Wrong atomic site occupancy ...')
+	  end if
 	  end if
 
 
-	 
+
       !READ(arg_string(3), *) atom_coord(1, nb_atom)  ! x
       !READ(arg_string(4), *) atom_coord(2, nb_atom)  ! y
       !READ(arg_string(5), *) atom_coord(3, nb_atom)  ! z
@@ -766,7 +766,7 @@ end subroutine incident_beam
 
     END IF
 
-	
+
     if(write_details) then
     call write_info(' ')
     if(i /=0)  then
@@ -782,7 +782,7 @@ end subroutine incident_beam
      ELSEIF(nb_arg == 5) then
       WRITE(message_text,'(a,2a6,5(1x,F9.6))') '  > ATOM: ', trim(atom_label(nb_atom)),trim(atom_typ(nb_atom)),  &
                                                (atom_coord(i,nb_atom),i=1,3), atom_Biso(nb_atom), atom_occ_perc(nb_atom)
-     endif    
+     endif
 	endif
 	if(SPG%NumSpg /=0) then
 	 mult = Get_Multip_pos(atom_coord(:,nb_atom), SPG)
@@ -815,14 +815,14 @@ end subroutine incident_beam
     H(2,nb_hkl) = var(2)
     H(3,nb_hkl) = var(3)
     WRITE(message_text,'(a,3F6.2)') '  > HKL: ', H(1,nb_hkl), H(2,nb_hkl), H(3,nb_hkl)
-	
+
 	! ---------- feb. 2017 : check if systematic absence ----------------------
 	if(SPG%numspg /=0) then
      if(hkl_absent(H(:, nb_hkl), SPG)) then
       call write_info("   Warning: Requested reflection IS a SYSTEMATIC absence in the current space group !")
 	  nb_hkl = nb_hkl - 1
-      return   
-     end if  
+      return
+     end if
   	 mult = HKL_mult(H(:, nb_hkl), SPG, .true.)
 	 write(message_text, '(a,5x,a,i3)') trim(message_text), ' mult = ', mult
 	end if

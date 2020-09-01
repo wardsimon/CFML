@@ -41,7 +41,7 @@
 Module CFML_Reflections
    !---- Use Modules ----!
    Use CFML_GlobalDeps,                only: CP, PI, TPI, Err_CFML, Clear_Error
-   Use CFML_gSpaceGroups,              only: Spg_Type
+   Use CFML_gSpaceGroups,              only: Spg_Type,kvect_info_type
    Use CFML_Maths,                     only: Trace, Sort, Equal_vector
    Use CFML_Metrics,                   only: Cell_G_Type
    Use CFML_Strings,                   only: l_case
@@ -54,7 +54,7 @@ Module CFML_Reflections
 
    !---- List of public functions ----!
    public :: H_Absent, mH_Absent , H_Equal, H_Latt_Absent , H_Equiv, H_Mult, H_S, &
-             Get_MaxNumRef, Get_Asymm_Unit_H
+             Get_MaxNumRef, Get_Asymm_Unit_H, Get_h_info
 
    !---- List of public subroutines ----!
    public :: H_Equiv_List, Initialize_RefList, Gener_Reflections, Search_Extinctions, &
@@ -111,18 +111,6 @@ Module CFML_Reflections
       class(refl_type), dimension(:), allocatable :: Ref    ! Reflection List
    End Type RefList_Type
 
-   !!----
-   !!---- TYPE :: KVECT_INFO_TYPE
-   !!--..
-   !!
-   Type, public :: Kvect_Info_Type
-      integer                                      :: nk=0        ! Number of independent k-vectors
-      real(kind=cp),allocatable,dimension(:,:)     :: kv          ! k-vectors (3,nk)
-      real(kind=cp),allocatable,dimension(:)       :: sintlim     ! sintheta/lambda limits (nk)
-      integer,allocatable,dimension(:)             :: nharm       ! number of harmonics along each k-vector
-      integer                                      :: nq=0        ! number of effective set of Q_coeff > nk
-      integer,allocatable,dimension(:,:)           :: q_coeff     ! number of q_coeff(nk,nq)
-   End Type kvect_info_type
 
 
    !---- Private Variables ----!
@@ -185,13 +173,14 @@ Module CFML_Reflections
          logical                                   :: info
       End Function H_Equiv
 
-      Module Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List)
+      Module Subroutine H_Equiv_List(H, SpG, Friedel, Mult, H_List,ipos)
          !---- Arguments ----!
          integer, dimension(:),    intent (in) :: H
          class(SpG_Type),          intent (in) :: SpG
          Logical,                  intent (in) :: Friedel
          integer,                  intent(out) :: mult
          integer, dimension(:,:),  intent(out) :: h_list
+         integer, optional,        intent(out) :: ipos
       End Subroutine H_Equiv_List
 
       Module Function H_Mult(H, SpG, Friedel) Result(N)
@@ -295,7 +284,7 @@ Module CFML_Reflections
          integer, dimension(3)               :: k
       End Function Get_Asymm_Unit_H
 
-      Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only)
+      Module Subroutine Gener_Reflections(Cell,Sintlmax,Mag,Num_Ref,Reflex,SpG,kinfo,order,powder,mag_only,Friedel)
          !---- Arguments ----!
          class(Cell_G_Type),                          intent(in)     :: Cell
          real(kind=cp),                               intent(in)     :: Sintlmax
@@ -307,7 +296,15 @@ Module CFML_Reflections
          character(len=*),              optional,     intent(in)     :: Order
          logical,                       optional,     intent(in)     :: Powder
          logical,                       optional,     intent(in)     :: Mag_only
+         logical,                       optional,     intent(in)     :: Friedel
       End Subroutine Gener_Reflections
+
+      Module Function Get_h_info(h,SpG,mag)  Result(info)
+         integer, dimension(:), intent (in) :: h
+         class(SpG_Type),       intent (in) :: SpG
+         logical,               intent (in) :: mag
+         integer, dimension(4)              :: info
+      End Function Get_h_info
 
       Module Subroutine Init_Refl_Conditions()
          !---- Arguments ----!

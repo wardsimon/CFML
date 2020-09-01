@@ -18,10 +18,10 @@
  !!----
  !!----   TITLE  whatever set of characters identifying the job
  !!----   CELL   a b c alpha beta gamma (four real values, cell parameters)
- !!----   SHUB   SpgSymbol[:a,b,c;1/2,0,0]     Standard Shubnikov symbo and setting change 
+ !!----   SHUB   SpgSymbol[:a,b,c;1/2,0,0]     Standard Shubnikov symbo and setting change
  !!----   UVWX   u v w x    (four real values defining the resolution of the instrument TCH Pseudo-Voigt)
  !!----   LAMBDA  lambda    (1 real value, wavelength)
- !!----   JOBTYPE   Neutrons  
+ !!----   JOBTYPE   Neutrons
  !!----   PATTERN  Tmin  step Tmax  (intial angle, step and final angle for calculations of powder pattern)
  !!----   SIZE_L   Lorentzian_Size   (one real in angstroms)
  !!----   POWFILE  name_of_powder_diffraction_data_file
@@ -38,7 +38,7 @@
  !!---- The program uses CrysFML and a module called Gen_Powder_Pattern where the subroutine for
  !!---- calculating the powder diffraction pattern is stored
  !!----
- Module Gen_Powder_Pattern
+ Module Gen_Mag_Powder_Pattern
     !---- Use Modules ----!
     use CFML_GlobalDeps,           only: to_Deg,cp
     use CFML_Math_General,         only: asind,locate
@@ -168,19 +168,19 @@
 
        return
     End Subroutine Calc_Powder_Pattern
-    
+
     Subroutine Write_PRF(fileprf,lambda,Pat,hkl)
        character(len=*),               intent(in)  :: fileprf
        real(kind=cp),                  intent(in)  :: lambda
        Type(Diffraction_Pattern_Type), intent(in)  :: Pat
        Type(Reflect_List_Type),        intent(in)  :: hkl
-       
+
        integer :: i,j,i_prf
        character(len=*),parameter :: tb=char(9)
        character (len=50) :: forma1,forma2
        real :: ymax,scl
        open(newunit=i_prf,file=trim(fileprf),status="replace",action="write")
-       
+
        ymax=Pat%ymax
        scl=1.0
        do
@@ -206,8 +206,8 @@
        write(i_prf,'(15a)')' 2Theta',tb,'Yobs',tb,'Ycal',tb,  &
         'Yobs-Ycal',tb,'Backg',tb,'Posr',tb,'(hkl)',tb,'K'
        !dd=(y(i,n_pat)-yc(i,n_pat))*scl
-       do  i=1,Pat%npts 
-         write(i_prf,forma1) Pat%x(i),tb,Pat%ycalc(i)*scl,tb,Pat%ycalc(i)*scl,tb, -ymax/4.0,tb,0.0              
+       do  i=1,Pat%npts
+         write(i_prf,forma1) Pat%x(i),tb,Pat%ycalc(i)*scl,tb,Pat%ycalc(i)*scl,tb, -ymax/4.0,tb,0.0
        end do
        !Writing reflections
        do j=1,hkl%Nref
@@ -215,11 +215,11 @@
            write(i_prf,'(f12.4,9a,i8,a,3i3,a,2i3)')  2.0*asind(hkl%Ref(j)%s*Lambda), &
                tb,'        ',tb,'        ',tb,'        ',  &
                tb,'        ',tb,0, tb//'(',hkl%Ref(j)%h,')'//tb,hkl%Ref(j)%imag,1
-       end do     
-      close(unit=i_prf)       
-    End Subroutine Write_PRF 
+       end do
+      close(unit=i_prf)
+    End Subroutine Write_PRF
 
-  End Module Gen_Powder_Pattern
+  End Module Gen_Mag_Powder_Pattern
 
   !!----
   !!----  Program Calculation_of_Powder_Patterns
@@ -244,7 +244,7 @@
                                                file_list_type, Get_moment_ctr
      use CFML_Structure_Factors,         only: Strf_List_Type
 
-     use Gen_Powder_Pattern
+     use Gen_Mag_Powder_Pattern
 
      !---- Variables ----!
      implicit none
@@ -298,7 +298,7 @@
      end if
 
 
-     inquire(file=trim(filcod)//".mcif",exist=esta)   
+     inquire(file=trim(filcod)//".mcif",exist=esta)
      if (esta) then
         call Readn_set_Xtal_Structure(trim(filcod)//".mcif",Cell,SpG,A,Mode="CIF")
      else
@@ -310,7 +310,7 @@
         call Readn_set_Xtal_Structure(trim(filcod)//".cfl",Cell,SpG,A,Mode="CFL",file_list=fich_cfl)
         mode="CFL"
      end if
-     
+
      if (err_form) then
         write(unit=*,fmt="(a)") trim(err_form_mess)
      else
@@ -404,9 +404,9 @@
 
        ! Calculate sinTheta/Lambda max from 2Thetamax     PPC%Thmax= int(2.0*asind(stlmax*1.56))
        stlmax=sind(min((PPC%Thmax+10.0)*0.5,90.0))/PPC%lambda
-     
+
      end if !if error
-     
+
      write(unit=lun,fmt="(/,a)")  " => CALCULATION OF NEUTRON POWDER DIFFRACTION PATTERN"
      !PPC%title=Trim(PPC%title)
      write(unit=lun,fmt="(  a,4f10.5)")  " => Resolution parameters UVWX: ",PPC%U,PPC%V,PPC%W,PPC%X
@@ -415,7 +415,7 @@
      write(unit=lun,fmt="(  a,2f10.2)")  " => Lorentzian size: ",PPC%Ls
      write(unit=lun,fmt="(  a,3f10.5)")  " => 2Theta range and step: ",PPC%Thmin,PPC%step,PPC%Thmax
      write(unit=lun,fmt="(  a,3f10.5)")  " => Maximum sin(Theta)/Lambda (for generating reflections): ",stlmax
-     
+
      ! Now calculate structure factors
      write(*,*) " => Calculating structure factors ..."
      call cpu_time(tini)
@@ -432,7 +432,7 @@
      call Write_Structure_Factors(lun,hkl,stf,full)
      write(*,"(a,i8)") "  => Total number of generated reflections is ",hkl%nref
      write(unit=lun,fmt="(a,i9)") " => Total number of generated reflections is ",hkl%nref
-     
+
      call cpu_time(tini)
      PPC%Scalef=cell%RCellVol
      call Calc_powder_pattern(PPC,hkl,Stf,Pat)
@@ -444,25 +444,25 @@
      write(unit=lun,fmt="(a,f15.3,a)") " => CPU-time for all calculations: ",tim*ftim,units
      write(*,*) " => Writing powder pattern file: "//trim(powfile)
      open(unit=lp,file=trim(powfile),status="replace",action="write")
-       write(unit=lp,fmt="(a)") "XYDATA" 
+       write(unit=lp,fmt="(a)") "XYDATA"
        write(unit=lp,fmt="(a,f12.5)") "TITLE "//trim(Pat%Title)
        write(unit=lp,fmt="(a,5f12.5)") "UVWX_Size_L: ", PPC%U, PPC%V, PPC%W,PPC%X,PPC%Ls
-       write(unit=lp,fmt="(a)") "FILE: "//trim(powfile)  
-       write(unit=lp,fmt="(a)") "TEMP    273.0   273.0" 
-       write(unit=lp,fmt="(a)") "INTER   1.0000  1.0000  0 0.00000 <- internal multipliers for X, Y-Sigma, Interpol, StepIn" 
+       write(unit=lp,fmt="(a)") "FILE: "//trim(powfile)
+       write(unit=lp,fmt="(a)") "TEMP    273.0   273.0"
+       write(unit=lp,fmt="(a)") "INTER   1.0000  1.0000  0 0.00000 <- internal multipliers for X, Y-Sigma, Interpol, StepIn"
        write(unit=lp,fmt="(a,3f10.4)")"! Angular range (min,step,max):", Pat%xmin,Pat%step,Pat%xmax
        write(unit=lp,fmt="(a)")"!     2theta             Y       "
-       do i=1,Pat%npts     
+       do i=1,Pat%npts
          write(unit=lp,fmt="(2f16.4)") Pat%x(i),Pat%ycalc(i)+PPC%bkg
        end do
      close(unit=lun)
-     if(len_trim(powfile) == 0) then 
+     if(len_trim(powfile) == 0) then
        prf_file=trim(filcod)//".prf"
      else
        i=index(powfile,".",back=.true.)
        prf_file=powfile(1:i)//"prf"
      end if
-     write(*,*) " => Writing PRF file: "//trim(prf_file) 
+     write(*,*) " => Writing PRF file: "//trim(prf_file)
      call Write_PRF(prf_file,PPc%Lambda,Pat,hkl)
      stop
 

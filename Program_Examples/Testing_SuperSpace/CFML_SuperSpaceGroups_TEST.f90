@@ -12,7 +12,7 @@
 
 
    !--- new----------------------------------------------------------------------
-   use CFML_Math_General,              only: Determinant, Equal_Matrix, & 
+   use CFML_Math_General,              only: Determinant, Equal_Matrix, &
                                             Equal_Vector, Modulo_Lat, Zbelong
    use CFML_Crystallographic_Symmetry, only: Space_Group_Type, set_SpaceGroup, &
                                              Write_SpaceGroup, Symmetry_Symbol, &
@@ -31,7 +31,7 @@
     private
     public :: Allocate_SSG_SymmOps, Set_SSG_Reading_Database, Write_SSG, Gen_Group, &
               Get_SSymSymb_from_Mat,Get_Mat_From_SSymSymb, Gen_SReflections,  &
-              Gen_SSGroup, Set_Intersection_SPGt 
+              Gen_SSGroup, Set_Intersection_SPGt
 
     !---new----------------------------------------------------------------------
     public :: Set_SSGs_from_Gkk_MYTEST, Get_Generators_From_SpGOpList, get_H_R_vectors, &
@@ -475,7 +475,7 @@
 !
 !    End Subroutine Set_SSGs_from_Gkk
 !
-    
+
 
 !--- new------------------------------------------------------------------------------
 
@@ -507,7 +507,7 @@
       character(len=50), dimension(10)                 :: gen
       character(len=70)                                :: op_symb
       integer                                          :: ngen
-      type(SSym_Oper_Type), dimension(:), allocatable  :: setOpGen 
+      type(SSym_Oper_Type), dimension(:), allocatable  :: setOpGen
 
 
       write(*,"(/a/)") " => Entering subroutine Set_SSGs_from_Gkk_MYTEST"
@@ -536,15 +536,15 @@
 
      !>Derive possible superspace groups from Gkk
      !
-     !!call get_H_R_vectors(Gkk, kv, vectors_H_R) 
+     !!call get_H_R_vectors(Gkk, kv, vectors_H_R)
      !!call get_Max_Order(Gkk, max_order)
      !
 
 
-     if(allocated(vectors_H_R_all_kvecs)) deallocate(vectors_H_R_all_kvecs) 
+     if(allocated(vectors_H_R_all_kvecs)) deallocate(vectors_H_R_all_kvecs)
      allocate(vectors_H_R_all_kvecs(4,Gkk%multip,nk))
      do i=1,nk
-      call get_H_R_vectors(Gkk, kv(:,i), vectors_H_R) 
+      call get_H_R_vectors(Gkk, kv(:,i), vectors_H_R)
       vectors_H_R_all_kvecs(:,:,i)=vectors_H_R
       vectors_H_R=0
      enddo
@@ -556,16 +556,16 @@
 
      call get_Max_Order(Gkk, max_order)
      call Allocate_Vector_Of_Orders(Gkk, vec_all_orders)
-     call get_Group_Orders(Gkk,vec_all_orders) 
+     call get_Group_Orders(Gkk,vec_all_orders)
 
 
-     !--- select one 
+     !--- select one
      !
      call Get_Generators_From_SpGSymbol(Gkk,gen,point_op,ngen)
      !call Get_Generators_From_SpGOpList(Gkk, point_op, ngen)
      !--------------
 
-     call Allocate_SSG_SymmOps(nk, 8*Gkk%multip, setOpGen) 
+     call Allocate_SSG_SymmOps(nk, 8*Gkk%multip, setOpGen)
 
 
      call genToSgen_all_nk( nk, ngen, point_op, Gkk, vectors_H_R_all_kvecs, Dd, setOpGen )  !<-----------HERE I AM
@@ -574,7 +574,7 @@
 
 
      write(*,"(/a/)") " => Exiting subroutine Set_SSGs_from_Gkk_MYTEST"
-    
+
     !>>
     !>>      !First: colorless groups of type 1
     !>>      !Second: black and white groups of type 3
@@ -590,7 +590,7 @@ Subroutine Get_Generators_From_SpGOpList(SpG, point_op, ngen)
       integer, dimension(10),             intent(out) :: point_op
       integer,                            intent(out) :: ngen
       !--- Local variables ---!
-      integer                 :: i,j,n,m,nOps 
+      integer                 :: i,j,n,m,nOps
       integer, dimension(3,3) :: testMatrix
 
       !--- Algorithm description
@@ -600,17 +600,17 @@ Subroutine Get_Generators_From_SpGOpList(SpG, point_op, ngen)
       !    From the structure of the list of operators of the SPG,
       !    if the 4th /= (2nd)**3, then, the 4th is gnerator
 
-      !if(allocated(gen_set)) deallocate(gen_set) 
+      !if(allocated(gen_set)) deallocate(gen_set)
       !allocate(gen_set(SPGk_in%multip))  ! maximum size is the group's
 
 
       !> IMPORTANT: keep out the Id of the gen list (shift operator numbers)
       !
       point_op   =0
-      !-->point_op(1)=1 !if considering the ID as part of the gen list 
-      !-->point_op(2)=2 
+      !-->point_op(1)=1 !if considering the ID as part of the gen list
+      !-->point_op(2)=2
       point_op(1)=2 !keep out the Id of the gen list
-      point_op(2)=3 
+      point_op(2)=3
       ngen=2
       testMatrix=matmul(SpG%SymOp(3)%Rot,SpG%SymOp(3)%Rot) ! (the 2nd)**2
       testMatrix=matmul(SpG%SymOp(3)%Rot, testMatrix)      ! (the 2nd)**3
@@ -621,7 +621,7 @@ Subroutine Get_Generators_From_SpGOpList(SpG, point_op, ngen)
        ngen=3
       end if
 
-End Subroutine Get_Generators_From_SpGOpList 
+End Subroutine Get_Generators_From_SpGOpList
 
 !---------------------------------------------------------------
 
@@ -638,22 +638,22 @@ Subroutine get_H_R_vectors(SPGk_out, vec_k, vecs_H_R)
 
       !> allocate H(R) vector with the number of operators (SPGk_out%multip)
       WRITE(*,*) "number of  R_S matrices = ", SPGk_out%multip
-      if(allocated(vecs_H_R)) deallocate(vecs_H_R) 
-      allocate(vecs_H_R(4,SPGk_out%multip)) 
+      if(allocated(vecs_H_R)) deallocate(vecs_H_R)
+      allocate(vecs_H_R(4,SPGk_out%multip))
       vecs_H_R=-10
 
       do j=1, SPGk_out%multip+0
-          vec_k_prime=matmul(vec_k, SPGk_out%SymOp(j)%Rot) 
-          vec_k_condition1=vec_k_prime-vec_k ! k1=k'-k  <=>  k' = kR = +k + H(R)   
+          vec_k_prime=matmul(vec_k, SPGk_out%SymOp(j)%Rot)
+          vec_k_condition1=vec_k_prime-vec_k ! k1=k'-k  <=>  k' = kR = +k + H(R)
           vec_k_condition2=vec_k_prime+vec_k ! k2=k'+k  <=>  k' = kR = -k + H(R)
 
           ! if k1=H(R) belongs to reciprocal lattice, then ...
-          if(        k_EQUIV(vec_k_prime, vec_k,  SPGk_out%SPG_lat)    ) then  
+          if(        k_EQUIV(vec_k_prime, vec_k,  SPGk_out%SPG_lat)    ) then
                vecs_H_R(1:3,j)=vec_k_condition1
-               vecs_H_R(4:4,j)=1 
+               vecs_H_R(4:4,j)=1
           else if(   k_EQUIV(vec_k_prime, -vec_k, SPGk_out%SPG_lat)    ) then
                vecs_H_R(1:3,j)=vec_k_condition2
-               vecs_H_R(4:4,j)=-1     
+               vecs_H_R(4:4,j)=-1
           else
                WRITE(*,*) "Error computing the H(R)!"
           end if
@@ -670,14 +670,14 @@ End Subroutine get_H_R_vectors
 !---------------------------------------------------------------
 
 Subroutine get_Max_Order(SPG_in, maxorder)
-! this function returns the maximum order 
-! (defined as the exponent to become the Identity) 
+! this function returns the maximum order
+! (defined as the exponent to become the Identity)
 ! of a group of rotational operators
 
 type(Space_Group_type), intent(in)    :: SPG_in
 integer,                intent(out)   :: maxorder
 
-real(kind=cp), dimension(3,3)     :: ID, CM, TM 
+real(kind=cp), dimension(3,3)     :: ID, CM, TM
 integer                           :: cnt, i, j
 !integer, dimension(SPG_in%multip) :: vec_all_orders
 
@@ -690,7 +690,7 @@ maxorder=0
 out:do i=1, SPG_in%multip
    CM=SPG_in%Symop(i)%rot ! Current Matrix
    TM=SPG_in%Symop(1)%rot ! Test Matrix (initiallized to the Id)
-   cnt=0 
+   cnt=0
    in:do j=2,6 !order is never greater than 6
        cnt=cnt+1
        TM=matmul(TM,CM)
@@ -704,7 +704,7 @@ out:do i=1, SPG_in%multip
        else
           continue
        end if
-  
+
   end do in
 end do out
 
@@ -727,14 +727,14 @@ end Subroutine Allocate_Vector_Of_Orders
 !---------------------------------------------------------------
 
 Subroutine  get_Group_Orders(SPG_in, vec_all_orders)
-! this function returns the maximum order 
-! (defined as the exponent to become the Identity) 
+! this function returns the maximum order
+! (defined as the exponent to become the Identity)
 ! of a group of rotational operators
 
 type(Space_Group_type), intent(in)             :: SPG_in
 integer, dimension(SPG_in%multip), intent(out) :: vec_all_orders
 
-real(kind=cp), dimension(3,3)     :: ID, CM, TM 
+real(kind=cp), dimension(3,3)     :: ID, CM, TM
 integer                           :: cnt, i, j, maxorder
 
 TM=SPG_in%Symop(1)%rot ! Current Matrix
@@ -746,7 +746,7 @@ maxorder=0
 out:do i=1, SPG_in%multip
    CM=SPG_in%Symop(i)%rot ! Current Matrix
    TM=SPG_in%Symop(1)%rot ! Test Matrix (initz. to Id)
-   cnt=0 
+   cnt=0
    in:do j=2,6 !order is never greater than 6
        cnt=cnt+1
        TM=matmul(TM,CM)
@@ -757,10 +757,10 @@ out:do i=1, SPG_in%multip
              maxorder=cnt
           end if
           cycle out
-       else       
+       else
           continue
        end if
-  
+
   end do in
 end do out
 
@@ -774,7 +774,7 @@ Subroutine genToSgen_all_nk( nk, ngen, point_op, SPGk_out, vecs_H_R, Dd_dim, set
       Type(Space_Group_Type),                             intent (in) :: SPGk_out
       !real(kind=cp), dimension(:,:), allocatable,       intent (in) :: vecs_H_R
       real(kind=cp), dimension(:,:,:), allocatable,       intent (in) :: vecs_H_R
-      type(SSym_Oper_Type), dimension(:), allocatable, intent(in out) :: setOpGen 
+      type(SSym_Oper_Type), dimension(:), allocatable, intent(in out) :: setOpGen
 
 
       !--- Local variables ---!
@@ -850,7 +850,7 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
       type(SSym_Oper_Type), dimension(:), allocatable,       intent(in out) :: setOpGen
       type(SuperSpaceGroup_Type), dimension(:), allocatable, intent(out)    :: ssg
       integer,                                               intent(out)    :: nss
-      
+
       !---Local variables
       integer :: i,j,k,Dd, ii,jj,kk
       integer                                      :: finalnumb
@@ -861,20 +861,20 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
       character(len=15)                            :: forma
       integer                                      :: orderG1, orderG2, orderG3
       type (rational),   dimension(:), allocatable :: ordVector
- 
+
       type(SuperSpaceGroup_Type)                   :: SSG_out
 
       write(*,"(/a/)") " => Entering subroutine SSGs_maker"
 
-  orderG1=vec_all_orderss(point_op(1)) 
-  orderG2=vec_all_orderss(point_op(2)) 
-  orderG3=vec_all_orderss(point_op(3)) 
+  orderG1=vec_all_orderss(point_op(1))
+  orderG2=vec_all_orderss(point_op(2))
+  orderG3=vec_all_orderss(point_op(3))
 
   initlnumb=ngen+1
 
   select case (ngen)
-  
-     case (1) 
+
+     case (1)
      print*, "case: 1 generator,", ngen
      nss=orderG1
      if(allocated(SSG)) deallocate(SSG)
@@ -883,11 +883,11 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
      do i=1, orderG1
         call orderVector(orderG1, ordVector)
         setOpGen(2)%Mat(4,5)    = ordVector(i) ! location of t4
-        
-        finalnumb=0  
-        Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable) 
+
+        finalnumb=0
+        Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable)
         if (Err_ssg) then
-           WRITE(*,*)" ------", Err_ssg_mess 
+           WRITE(*,*)" ------", Err_ssg_mess
            cycle
         endif
         !
@@ -896,7 +896,7 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
         !
         WRITE(*,*)"  "
      enddo
-     
+
 
 
      case (2)
@@ -905,17 +905,17 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
      if(allocated(SSG)) deallocate(SSG)
      allocate(SSG(nss))
      kk=0
-     do i=1, orderG1 
+     do i=1, orderG1
         call orderVector(orderG1, ordVector)
-        setOpGen(2)%Mat(4,5)    = ordVector(i)    
-        do j=1, orderG2  
+        setOpGen(2)%Mat(4,5)    = ordVector(i)
+        do j=1, orderG2
            call orderVector(orderG2, ordVector)
-           setOpGen(3)%Mat(4,5)    = ordVector(j) 
-     
-           finalnumb=0  
-           Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable) 
+           setOpGen(3)%Mat(4,5)    = ordVector(j)
+
+           finalnumb=0
+           Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable)
            if (Err_ssg) then
-              WRITE(*,*)" ------", Err_ssg_mess 
+              WRITE(*,*)" ------", Err_ssg_mess
               cycle
            endif
            !
@@ -925,15 +925,15 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
            WRITE(*,*)"  "
         enddo
      enddo
-     
-  
-     case (3) 
+
+
+     case (3)
      print*, "case: 3 generators,", ngen
      nss=orderG1*orderG2*orderG3
      if(allocated(SSG)) deallocate(SSG)
      allocate(SSG(nss))
      kk=0
-     do i=1, orderG1 
+     do i=1, orderG1
         call orderVector(orderG1, ordVector)
         if(nk==1) then
            setOpGen(2)%Mat(4,5)    = ordVector(i) ! case nk=1, location of t4
@@ -942,7 +942,7 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
         else
            write(*,*) "Error: automate for nk>2"
         endif
-        do j=1, orderG2  
+        do j=1, orderG2
            call orderVector(orderG2, ordVector)
            if(nk==1) then
               setOpGen(3)%Mat(4,5)    = ordVector(i) ! case nk=1, location of t4
@@ -951,8 +951,8 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
            else
               write(*,*) "Error: automate for nk>2"
            endif
-    
-           do k=1, orderG3  
+
+           do k=1, orderG3
               call orderVector(orderG3, ordVector)
               if(nk==1) then
                  setOpGen(4)%Mat(4,5)    = ordVector(i) ! case nk=1, location of t4
@@ -961,11 +961,11 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
               else
                  write(*,*) "Error: automate for nk>2"
               endif
-              
-              finalnumb=0  
-              Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable) 
+
+              finalnumb=0
+              Call Gen_SSGroup(initlnumb, setOpGen, SSG_out ,"xyz", genGroupTable)
               if (Err_ssg) then
-                 WRITE(*,*)" ------", Err_ssg_mess 
+                 WRITE(*,*)" ------", Err_ssg_mess
                  cycle
               endif
               !WRITE(*,*)" ------->  initial generators = ", ngen+1
@@ -988,8 +988,8 @@ Subroutine SSGs_maker(nk, point_op, ngen, vec_all_orderss,setOpGen,ssg,nss)
 
 
      case default
-        print*, "Error! 0 generators" 
-     
+        print*, "Error! 0 generators"
+
   end select
 
   write(*,"(/a/)") " => Exiting subroutine SSGs_maker"
@@ -1012,23 +1012,23 @@ Subroutine orderVector(ord, ordVec)
    o3=[ 0//3, 1//3, 2//3 ]
    o4=[ 0//4, 1//4, 2//4, 3//4 ]
    o6=[ 0//6, 1//6, 2//6, 3//6, 4//6, 5//6 ]
-  
+
    select case (ord)
-      
-   case (2) 
-      if(allocated(ordVec)) deallocate(ordVec) 
+
+   case (2)
+      if(allocated(ordVec)) deallocate(ordVec)
       allocate(ordVec(ord))
       ordVec=o2
    case (3)
-      if(allocated(ordVec)) deallocate(ordVec) 
+      if(allocated(ordVec)) deallocate(ordVec)
       allocate(ordVec(ord))
       ordVec=o3
-   case (4) 
-      if(allocated(ordVec)) deallocate(ordVec) 
+   case (4)
+      if(allocated(ordVec)) deallocate(ordVec)
       allocate(ordVec(ord))
       ordVec=o4
-   case (6) 
-      if(allocated(ordVec)) deallocate(ordVec) 
+   case (6)
+      if(allocated(ordVec)) deallocate(ordVec)
       allocate(ordVec(ord))
       ordVec=o6
    end select
