@@ -988,7 +988,7 @@
     !!----
     !!----  Calculates metric tensor of deformed cell from initial cell and deformation tensor
     !!----  Initial cell and F matrix must be defined with respect to same axial system
-<<<<<<< HEAD
+
     !!---- 
     !!----  26/02/2020, RJA  
     !!       
@@ -1011,21 +1011,6 @@
        
        return
         
-=======
-    !!----
-    !!----  26/02/2020, RJA
-    !!
-    Function Calc_Deformed_Metric(C,F) Result(G)
-       !---- Arguments ----!
-       real(kind=cp), dimension(3,3), intent(in) ::  C  ! CR_Orth_Cel for a chosen axial system for the starting state
-       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.
-       real(kind=cp), dimension(3,3)             ::  G  ! Metric tensor of deformed cell
-
-       G=matmul(F,C)
-       G=matmul(transpose(F),G)
-       G=matmul(transpose(C),G)
-
->>>>>>> 429ce563bee20c8ab89cfc80c2aea19204bfe79c
     End Function Calc_Deformed_Metric
 
 
