@@ -8,6 +8,7 @@ module API_Atom_TypeDef
        Atom_List_type, &
        Atoms_Cell_type, &
        Allocate_Atom_List, &
+       Deallocate_Atom_list, &
        Atoms_Cell_To_List, &
        Write_Atom_list, &
        Atom_type
@@ -160,7 +161,7 @@ contains
     !
     call get_atom_list_type_from_arg(args, a_p)
 
-    if(allocated(a_p%p%atom)) deallocate(a_p%p%atom)
+    call deallocate_atom_list(a_p%p)
     deallocate(a_p%p)
     !
     ierror = dict_create(retval)
@@ -207,7 +208,7 @@ contains
 
     allocate(a_p%p)
 
-    a_p%p = alist_p%p%atom(item)
+    a_p%p = alist_p%p%atom(item+1)
 
     a_p12    = transfer(a_p, a_p12)
     ierror = list_create(a_obj)
