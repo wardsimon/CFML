@@ -25,34 +25,32 @@ class TestSymmetryGroups(unittest.TestCase):
         self.assertEqual(self.group.space_group_symbol, "P 1")
         self.assertEqual(self.group.hall_symbol, "P 1")
         self.assertEqual(self.group.generalized_hall_symbol, "")
-        #self.group.crystal_system
-        #self.group.laue_class
-        #self.group.point_group
-        #self.group.extra_information
-        #self.group.space_group_setting
-        #self.group.space_group_lattice_type
-        #self.group.space_group_lattice_type_symbol
-        #self.group.number_of_lattice_points
-        #self.group.bravais
-        #self.group.centre
-        #self.group.centric
-        #self.group.inversion_centre
-        #self.group.number_of_symops
-        #self.group.multiplicity
-        #self.group.operators_minimum_number
-        #self.group.symmetry_operators
-        #self.group.symmetry_operators_as_text
-        #self.group.wyckoff_info
-        #self.group.asymetric_unit
-        #self.group.symmetry_operators[0].rotation_matrix
-        #self.group.symmetry_operators[0].translation_matrix
-        #self.group.wyckoff_info.num_orbit
-        #self.group.wyckoff_info.orbits[0].multiplicity
-        #self.group.wyckoff_info.orbits[0].site
-        #self.group.wyckoff_info.orbits[0].orbit_number
-        #self.group.wyckoff_info.orbits[0].str_orig
-        #self.group.wyckoff_info.orbits[0].str_orbit[0]     
-            
+        self.assertEqual(self.group.crystal_system, "Triclinic")
+        self.assertEqual(self.group.laue_class, "-1")
+        self.assertEqual(self.group.point_group, "1")
+        self.assertEqual(self.group.extra_information, "")
+        self.assertEqual(self.group.space_group_setting,  "Generated from Hall symbol")
+        self.assertEqual(self.group.space_group_lattice_type, "P")
+        self.assertEqual(self.group.space_group_lattice_type_symbol, "aP")
+        self.assertEqual(self.group.number_of_lattice_points, 1)
+        self.assertEqual(self.group.bravais, "  P: { 000 }")
+        self.assertEqual(self.group.centre, "Acentric")
+        self.assertEqual(self.group.centric, 1)
+        numpy.testing.assert_almost_equal(self.group.inversion_centre, numpy.array([0., 0., 0.]))
+        self.assertEqual(self.group.number_of_symops, 1)
+        self.assertEqual(self.group.multiplicity, 1)
+        self.assertEqual(self.group.operators_minimum_number, 1)
+        self.assertEqual(self.group.symmetry_operators_as_text, ["x,y,z"])
+        numpy.testing.assert_almost_equal(self.group.asymetric_unit, numpy.array([[0.,1.],[0.,1.],[0.,1.]]))
+        numpy.testing.assert_almost_equal(self.group.symmetry_operators[0].rotation_matrix, numpy.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]]))
+        numpy.testing.assert_almost_equal(self.group.symmetry_operators[0].translation_matrix, numpy.array([0., 0., 0.]))
+        numpy.testing.assert_almost_equal(self.group.wyckoff_info.num_orbit, 0)
+        self.assertEqual(self.group.wyckoff_info.orbits[0].multiplicity, 0)
+        self.assertEqual(self.group.wyckoff_info.orbits[0].site, "\x00"*6)
+        self.assertEqual(self.group.wyckoff_info.orbits[0].orbit_number, 0)
+        self.assertEqual(self.group.wyckoff_info.orbits[0].str_orig, "\x00"*40)
+        self.assertEqual(self.group.wyckoff_info.orbits[0].str_orbit[0], "\x00"*40)
+
 def suite():
     loader = unittest.TestLoader()
     s = unittest.TestSuite()
