@@ -990,16 +990,25 @@
     !!---- 
     !!----  26/02/2020, RJA  
     !!       
-    Function Calc_Deformed_Metric(C,F) Result(G)
+    Function Calc_Deformed_Metric(C,F) Result(G1)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in) ::  C  ! CR_Orth_Cel for a chosen axial system for the starting state
        real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.  
-       real(kind=cp), dimension(3,3)             ::  G  ! Metric tensor of deformed cell
+       real(kind=cp), dimension(3,3)             ::  G,G1,D  ! Metric tensor of deformed cell
 
        G=matmul(F,C)
        G=matmul(transpose(F),G)
        G=matmul(transpose(C),G)
-    
+       
+       !alternate
+       G1=matmul(F,C)
+       G1=matmul(transpose(G1),G1)
+       
+       !test
+       D=G1-G
+       
+       return
+        
     End Function Calc_Deformed_Metric
 
 
