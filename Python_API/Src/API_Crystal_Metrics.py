@@ -80,14 +80,14 @@ class Cell(CFML_api.FortranBindedClass):
         self._set_fortran_address(CFML_api.crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"])
 
     @property
-    def lattpar_refcode(self):
-        """ Code number for refinement in optimization procedures """
+    def lsq_lattpar(self):
+        """ Code number for refinement in optimization procedures, label in LSQ list """
     
         return CFML_api.crysfml_api.crystal_metrics_get_lcell(self.get_fortran_address())["lcell"]
 
     @property
-    def lattangle_refcode(self):
-        """ Code number for refinement in optimization procedures """
+    def lsq_lattangle(self):
+        """ Code number for refinement in optimization procedures, label in LSQ list """
     
         return CFML_api.crysfml_api.crystal_metrics_get_lang(self.get_fortran_address())["lang"]
     
