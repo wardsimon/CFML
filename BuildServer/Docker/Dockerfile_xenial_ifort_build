@@ -14,3 +14,4 @@ COPY ./ /app/
 WORKDIR /app
 
 CMD BuildServer/Unix/build.sh ifort && cp -a build_ifort /artifacts/
+#CMD apt-get install -y g++ && export FC=/opt/intel/bin/ifort && cd /hdf5 && ./configure --enable-fortran --prefix=/artifacts/hdf && make && make install
