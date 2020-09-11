@@ -119,4 +119,7 @@ if (PROG_EX)
    endmacro()
   
   add_subdirectory(Program_Examples/PowderPattern)
+  if(USE_HDF)
+    add_subdirectory(Program_Examples/ReadNeXuS)
+  endif()
 endif()
