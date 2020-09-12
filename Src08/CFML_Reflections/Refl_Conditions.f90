@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Reflections) RFL_010
+SubModule (CFML_Reflections) RFL_Refl_Conditions
+   implicit none
    Contains
 
    !!--++
@@ -1523,4 +1524,4 @@ SubModule (CFML_Reflections) RFL_010
 
    End Subroutine Write_Screw_Axis_Conditions
 
-End SubModule RFL_010
+End SubModule RFL_Refl_Conditions

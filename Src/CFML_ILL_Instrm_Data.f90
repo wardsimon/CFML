@@ -242,17 +242,9 @@ Module CFML_ILL_Instrm_Data
                                         invert => Invert_A
    use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
 
-!#ifdef USE_HDF
-
-!   use CFML_ILL_Instrm_Data_Nexus, only:fra1,Read_Numor_D19_NXS2,Read_Header_NXS,Get_Header_Numor_NXS,  &
-!                                    Read_Init_NXS,get_Header_ScanType_NXS,get_Header_Instr_Name_NXS,  &
-!                                    get_Header_SubT_NXS,  &
-!                                    Read_IntegerBloc_NXS,get_IntegerBloc_NXS,  &
-!                                    Read_FloatBloc_NXS,get_FloatBloc_NXS,&
-!                                    Read_DataBlocParam_NXS,get_DataBlocTime_NXS,get_DataBlocMoni_NXS,&
-!                                    get_DataBlocTotalCount_NXS,get_DataBlocAngle1_NXS,&
-!                                    get_DataBlocDataFull_NXS
-!#endif
+#ifdef USE_HDF
+   use HDF5
+#endif
 
    !---- Variables ----!
    Implicit none
@@ -5014,45 +5006,26 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D19
 
 
-    Subroutine Read_Numor_D19_NXS(filename,n,frames,succes)
+    Subroutine Read_Numor_D19_NXS(filename,numor,succes,counts)
         !---- Arguments ----!
-        character(len=*)               , intent(in)    :: filename
-        type(SXTAL_numor_type)         , intent(inout) :: n
-        integer, optional, dimension(:), intent(in)    :: frames
-        logical succes
-#ifdef USE_HDF
+        character(len=*)               , intent(in)                   :: filename
+        type(SXTAL_numor_type)         , intent(inout)                :: numor
+        logical                                                       :: succes
+        integer, optional, allocatable, dimension(:,:,:), intent(out) :: counts
 
+#ifdef USE_HDF
         !---- Local Variables ----!
-        !       character(len=80), dimension(:), allocatable :: filevar
-        integer, dimension(:), allocatable           :: temp_frames
-        integer                                      :: i, n_selected_frames
         character(len=512)   filenamenxs
         logical                                      :: info
-        integer size1,ki,kj
-        integer,  dimension(:), allocatable :: tabi
-        real   ,  dimension(:), allocatable :: tabr
-        integer   ,  dimension(:), allocatable :: tabAllCount
-        integer m1
-
-        !       real   ,  dimension(:), allocatable :: tabTime
-        !       real   ,  dimension(:), allocatable :: tabMoni
-        !       real   ,  dimension(:), allocatable :: tabSumDet
-        !       real   ,  dimension(:), allocatable :: tabAngle1
-        !        real      sum_frame
-        !       real   tini ,tfin
 
         succes = .false.
 
         ! The error flags are initialized.
         call init_err_illdata()
-!        call cpu_time(tini)
-
-        ! Flag used for inquiring the input file.
-        info=.false.
-        filenamenxs = filename // ".nxs"
-        ! write (*,*) ' Read_Numor_D19_NXS check file ',filenamenxs
 
         ! Check first that the input file exists.
+        info=.false.
+        filenamenxs = filename // ".nxs"
         inquire (file=filenamenxs,exist=info)
 
         ! If the input file does not exist, stop here.
@@ -5064,216 +5037,21 @@ Module CFML_ILL_Instrm_Data
             return
         end if
 
-         ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
-        if (trim(filename) /= trim(n%filename)) then
-            ! Intiliaze the numor.
-            call init_sxtal_numor(n)
-            n%header_size=42
-            n%nframes=0 ! need ?
+        ! Intiliaze the numor.
+        call init_sxtal_numor(numor)
+        ! If the numor to read is different from the one stored in the numor structure, reprocess the header.
+        if (trim(filename) /= trim(numor%filename)) then
+            numor%header_size=42
+            numor%nframes=0 ! need ?
         end if
 
         ! Init NXS file Redader
         ! inquire (file=filenamenxs,opened=info)
-        call Read_Init_NXS(filename)
-        call Read_Header_NXS()
+        !call Read_Init_NXS(filename)
+        !call Read_Header_NXS()
 
-        ! Intiliaze the numor.
-        call init_sxtal_numor(n)
-        call Get_Header_Numor_NXS(n%numor)
-        !DBG        write (*,*) ' Read_Numor_D19_NXS numor   ',n%numor
-
-        n%scantype= 'omega'
-        n%instrm='xxxx'
-        size1 = 4
-        call get_Header_Instr_Name_NXS(n%instrm,size1)
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  instrm ',n%instrm
-
-        n%title='tttttttttttttttttttttttttt'
-        size1 = 40
-        call get_Header_SubT_NXS(n%title,size1)
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  title  ',n%title
-
-        !    READ IntegerBloc
-        size1 = 31
-        if (allocated(tabi)) deallocate(tabi)
-        allocate(tabi(size1))
-
-        call Read_IntegerBloc_NXS()
-        call get_IntegerBloc_NXS(tabi,size1)
-        n%manip=tabi(4)              ! 1: 2Theta, 2: Omega, 3:Chi, 4: Phi
-        n%nbang=tabi(5)              ! Total number of angles moved during scan
-        n%nframes=tabi(7)            ! Measured Frames. In general equal to those prescripted
-        n% icalc=tabi(9)
-        n%nbdata=tabi(24)            ! Number of Points
-        n%icdesc(1:7)=tabi(25:31)
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  manip   ', n%manip
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  nbang  ', n%nbang
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  nframes  ', n%nframes
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  icalc  ', n% icalc
-        !DBG        write (*,*) 'Read_Numor_D19_NXS  nbdata  ', n%nbdata
-        deallocate(tabi)
-
-        !    READ FloatBloc
-        size1 = 50
-        if (allocated(tabr)) deallocate(tabr)
-        allocate(tabr(size1))
-        call Read_FloatBloc_NXS()
-        call get_FloatBloc_NXS(tabr,size1)
-
-        n%HMin=tabr(1:3)          ! HKL min
-        n%angles=tabr(4:8)        ! Phi, Chi, Omega, 2Theta, Psi
-        n%ub(1,:)=tabr(9:11)      !
-        n%ub(2,:)=tabr(12:14)     ! UB Matrix
-        n%ub(3,:)=tabr(15:17)     !
-        n%wave=tabr(18)           ! Wavelength
-        n%HMax=tabr(22:24)        ! HKL max
-        n%dh=tabr(25:27)          ! Delta HKL
-        n%dist=tabr(30)           ! distance
-        n%scans=tabr(36:38)       ! Scan start, Scan step, Scan width
-        n%preset=tabr(39)         ! Preset
-        n%cpl_fact=tabr(43)       ! Coupling factor
-        n%conditions=tabr(46:50)  ! Temp-s, Temp-r, Temp-sample. Voltmeter, Mag.Field
-
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%HMin  ',  n%HMin
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%angles ',  n%angles
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%ub(1,:) ',  n%ub(1,:)
-        !DBG     write (*,*) 'Read_Numor_D19_NXS  n%ub(2,:)  ',  n%ub(2,:)
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%ub(3,:)  ',  n%ub(3,:)
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%wave  ',  n%wave
-        !DBG      write (*,*) 'Read_Numor_D19_NXS  n%HMax  ',  n%HMax
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%dh ',  n%dh
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%dist',  n%dist
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%scans ',  n%scans
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%preset  ',  n%preset
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%cpl_fact  ',  n%cpl_fact
-        !DBG       write (*,*) 'Read_Numor_D19_NXS  n%conditions  ',  n%conditions
-
-        ! If the numor was only opened for reading the header, stops here.
-        if(Instrm_Info_only) return
-
-        ! Case where the user only wants a subset of frames to be included in the numor structure.
-        if (present(frames)) then
-            ! This temporary array will store only those of the selected frames that are in [1,nframes].
-            write (*,*) 'Read_Numor_D19_NXS ARRAY Subset TODOOOOOOOO '
-            allocate(temp_frames(n%nframes))
-            n_selected_frames = 0
-            do i = 1, size(frames)
-                if (frames(i) < 1 .or. frames(i) > n%nframes) cycle
-                n_selected_frames = n_selected_frames + 1
-                temp_frames(n_selected_frames) = frames(i)
-            end do
-
-            ! If none of the selected frame fall in [1,nframes], stops here.
-            if (n_selected_frames <= 0) then
-                err_illdata = .true.
-                err_illdata_mess = " Invalid frames selection."
-                return
-            end if
-
-            ! Sets the selected_frames field of the numor structure with the selected frames within [1,nframes].
-            allocate(n%selected_frames(n_selected_frames))
-            n%selected_frames(1:n_selected_frames) = temp_frames
-            deallocate(temp_frames)
-        ! Case where no frame selection was provided by the user. All the frames will be included in the numor structure.
-        else
-            !DBG          write (*,*) 'Read_Numor_D19_NXS ARRAY ALL FRAME  n%nframes ' ,n%nframes
-            allocate(n%selected_frames(n%nframes))
-            n%selected_frames = (/(i, i=1,n%nframes)/)
-            n_selected_frames = n%nframes
-        end if
-        !DBG       call cpu_time(tfin)
-        !DBG       write(*,*) " => CPU-time for Read_Numor_D19_NXS 07: ", (tfin-tini)
-        !DBG       write(*,*) 'Read_Numor_D19_NXS  count array ',n%nbdata
-        !DBG       write(*,*) 'Read_Numor_D19_NXS  count array ',n_selected_frames
-        ! Allocate the count array.
-        if (allocated(n%counts)) deallocate(n%counts)
-        allocate(n%counts(n%nbdata,n_selected_frames))
-        n%counts=0.0
-        !DBG      write(*,*) 'Read_Numor_D19_NXS  motor angles array ',n%nbang+3
-        ! Allocate the motor angles array.
-        if (allocated(n%tmc_ang)) deallocate(n%tmc_ang)
-        allocate(n%tmc_ang(n%nbang+3,n_selected_frames))
-        n%tmc_ang=0.0
-
-        !      size1 = n_selected_frames
-        !      if (allocated(tabTime)) deallocate(tabTime)
-        !      allocate(tabTime(size1))
-        !      if (allocated(tabMoni)) deallocate(tabMoni)
-        !      allocate(tabMoni(size1))
-        !      if (allocated(tabSumDet)) deallocate(tabSumDet)
-        !      allocate(tabSumDet(size1))
-        !      if (allocated(tabAngle1)) deallocate(tabAngle1)
-        !      allocate(tabAngle1(size1))
-        !      call cpu_time(tfin)
-        call Read_DataBlocParam_NXS()
-        !call get_DataBlocTime_NXS(n%tmc_ang(1,:) ,size1)
-        call get_DataBlocTime_NXS(n%tmc_ang(1,:),n_selected_frames)
-        ! debug
-        !     do i = 1, size1
-        !           n%tmc_ang(1,i) = tabTime(i)
-        !            write(*,*) 'For Time[',i,']= ',n%tmc_ang(1,i)
-        !     end do
-
-        !call get_DataBlocMoni_NXS(n%tmc_ang(2,:) ,size1)
-        call get_DataBlocMoni_NXS(n%tmc_ang(2,:),n_selected_frames)
-        ! debug
-        !     do i = 1, size1
-        !        n%tmc_ang(2,i) = tabMoni(i)
-        !         write(*,*) 'For Moni[',i,']= ',n%tmc_ang(2,i)
-        !     end do
-
-        !call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:) ,size1)
-        call get_DataBlocTotalCount_NXS(n%tmc_ang(3,:),n_selected_frames)
-        ! debug
-        !     do i = 1, size1
-        !        n%tmc_ang(3,i) = tabSumDet(i)
-        !         write(*,*) 'For TotalCount[',i,']= ',n%tmc_ang(3,i)
-        !     end do
-
-        !      call get_DataBlocAngle1_NXS(tabAngle1 ,size1)
-        !call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),size1)
-        call get_DataBlocAngle1_NXS(  n%tmc_ang(4,:),n_selected_frames)
-        ! debug
-        !      do i = 1, size1
-        !         write(*,*) 'For Angle1[',i,']= ',n%tmc_ang(4,i)
-        !      end do
-
-
-
-        !      call cpu_time(tfin)
-        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 09: ", (tfin-tini)
-
-        ! Allocate the count array.
-        if (allocated(n%counts)) deallocate(n%counts)
-        allocate(n%counts(n%nbdata,n_selected_frames))
-
-        if (allocated(tabAllCount)) deallocate(tabAllCount)
-        allocate(tabAllCount(n%nbdata*n_selected_frames))
-
-        !      call cpu_time(tfin)
-        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 10: ", (tfin-tini)
-        n%counts=0.0
-        size1 = n%nbdata*n_selected_frames
-        call get_DataBlocDataFull_NXS( tabAllCount,size1)
-        !      call cpu_time(tfin)
-        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 11: ", (tfin-tini)
-        do ki = 1, n_selected_frames
-            do kj = 1,  n%nbdata
-                m1 = kj + (ki-1)*n%nbdata
-                n%counts(kj,ki) = tabAllCount( m1  )
-            enddo
-        end do
-        !DBG
-        !     call cpu_time(tfin)
-        !      write(*,*) " => CPU-time for Read_Numor_D19_NXS 12 : ", (tfin-tini)
-        !      do ki = 1, 3
-        !        sum_frame = 0
-        !        do kj = 1,  n%nbdata
-        !          sum_frame = sum_frame + n%counts(kj,ki)
-        !        end do
-        !         write(*,*) 'Read_Numor_D19_NXS  SumFrame[',ki,']= ', sum_frame
-        !      end do
-
+        ! Read NeXuS content
+        call Read_Nexus_D19(filenamenxs,numor,counts)
         succes = .true.
 #endif
     End Subroutine Read_Numor_D19_NXS
@@ -5786,13 +5564,14 @@ Module CFML_ILL_Instrm_Data
     !!----
     !!---- Update: 29/04/2011
     !!
-    Subroutine Read_SXTAL_Numor(filename,instrument,num,inf,frames)
+    Subroutine Read_SXTAL_Numor(filename,instrument,num,inf,frames,counts)
        !---- Arguments ----!
-       character(len=*)               , intent(in)    :: filename
-       character(len=*)               , intent(in)    :: Instrument
-       type(SXTAL_Numor_Type)         , intent(in out):: Num
-       logical, optional              , intent(in)    :: inf
-       integer, optional, dimension(:), intent(in)    :: frames
+       character(len=*)               , intent(in)     :: filename
+       character(len=*)               , intent(in)     :: Instrument
+       type(SXTAL_Numor_Type)         , intent(in out) :: Num
+       logical, optional              , intent(in)     :: inf
+       integer, optional, dimension(:), intent(in)     :: frames
+       integer, optional, dimension(:,:,:), allocatable, intent(out) :: counts
 
        !---- Local variables ----!
        character(len=4)       :: instr
@@ -5837,13 +5616,16 @@ Module CFML_ILL_Instrm_Data
              call Read_Numor_D16(trim(filename),num)
 
           case ('D19','D19_HB')
-             call Read_Numor_D19_NXS(trim(filename),num,frames,nxs_succes)
+#ifdef USE_HDF
+             call Read_Numor_D19_NXS(trim(filename),num,nxs_succes,counts)
              if (.not.(nxs_succes)) then
                 write(*,"(a)") ' => Reading ASCII files'
                 call Read_Numor_D19(trim(filename),num,frames)
-             else
-                write(*,"(a)") ' => Reading NEXUS files'
              endif
+#else
+                write(*,"(a)") ' => Reading ASCII files'
+                call Read_Numor_D19(trim(filename),num,frames)
+#endif
           case default
              ERR_ILLData=.true.
              ERR_ILLData_Mess= " Not Implemented for the SXTAL Instrument name: "//trim(instrument)
@@ -7878,5 +7660,223 @@ Module CFML_ILL_Instrm_Data
 
         return
     End Subroutine Read_Calibration_File_D4
+
+    subroutine Read_Nexus_D19(filename,numor,counts)
+        !---- Arguments ----!
+        character(len=*),                       intent(in)  :: filename
+        type(SXTAL_NUMOR_type),                 intent(out) :: numor
+        integer, dimension(:,:,:), optional, allocatable, intent(out) :: counts
+
+#ifdef USE_HDF
+        !---- Local variables ----!
+        integer :: i,j,k,i_om,i_ti,i_mo,i_mc
+        integer :: hdferr
+        integer :: inum,nfrm,nrows,ncols
+        real :: wave,start,step,width,&
+                phi,chi,gamma,omega
+        real,    dimension(9)                  :: ub
+        integer, dimension(:),     allocatable :: axis
+        real,    dimension(:,:),   allocatable :: scan
+        integer, dimension(:,:,:), allocatable :: cnts
+
+        !---- Local variables with hdf5 types ----!
+        integer(SIZE_T), PARAMETER :: sdim = 20 ! maximum string length
+        integer(HID_T) :: file_id,inum_data_id,nfrm_data_id,wave_data_id,&
+                          scan_data_id,axis_data_id,cnts_data_id,&
+                          start_data_id,step_data_id,width_data_id,&
+                          ub_data_id,nrows_data_id,ncols_data_id,&
+                          phi_data_id,chi_data_id,gamma_data_id,&
+                          omega_data_id,name_data_id,memtype,filetype
+        integer(HID_T) :: axis_space_id,scan_space_id,cnts_space_id,name_space_id
+        integer(HSIZE_T), dimension(1) :: scalar,axis_dim,axis_maxdim,&
+                                          ub_dim,ub_maxdim,name_dim,name_maxdim
+        integer(HSIZE_T), dimension(2) :: scan_dims,scan_maxdims
+        integer(HSIZE_T), dimension(3) :: cnts_dims,cnts_maxdims
+
+        character(len=sdim), dimension(:), allocatable :: name_
+        integer(HSIZE_T), dimension(2) :: name_dims
+        integer(SIZE_T), dimension(:), allocatable :: str_len
+
+        !---- Initialize variables
+        ub_dim(1) = 9
+        ub_maxdim(1) = 9
+        if (allocated(cnts)) deallocate(cnts)
+
+        !---- Initialize fortran interface
+        call h5open_f(hdferr)
+
+        !---- Open NEXUS file
+        write(*,'(2A)') " => Opening Nexus file ",trim(filename)
+        write(*,'(A)')  "    Reading data..."
+        call h5fopen_f(trim(filename),H5F_ACC_RdoNLY_F,file_id,hdferr)
+
+        !---- Open datasets
+        call h5dopen_f(file_id,'entry0/run_number',inum_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/data_scan/actual_step',nfrm_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/wavelength',wave_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/ScanInfo/first_start_value',start_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/ScanInfo/first_step_value',step_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/ScanInfo/first_width_value',width_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/SingleCrystalSettings/orientation_matrix',ub_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/Det1/nrows',nrows_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/Det1/ncols',ncols_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/gamma/value',gamma_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/chi/value',chi_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/phi/value',phi_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/instrument/omega/value',omega_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/data_scan/scanned_variables/variables_names/axis',axis_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/data_scan/scanned_variables/variables_names/name',name_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/data_scan/scanned_variables/data',scan_data_id,hdferr)
+        call h5dopen_f(file_id,'entry0/data_scan/detector_data/data',cnts_data_id,hdferr)
+
+        !---- Get type of string datasets
+        call h5dget_type_f(name_data_id, filetype, hdferr)
+
+        !---- Get dimensions of datasets
+        call h5dget_space_f(axis_data_id,axis_space_id,hdferr)
+        call h5dget_space_f(name_data_id,name_space_id,hdferr)
+        call h5dget_space_f(scan_data_id,scan_space_id,hdferr)
+        call h5dget_space_f(cnts_data_id,cnts_space_id,hdferr)
+        call h5sget_simple_extent_dims_f(axis_space_id,axis_dim,axis_maxdim,hdferr)
+        call h5sget_simple_extent_dims_f(name_space_id,name_dim,name_maxdim,hdferr)
+        call h5sget_simple_extent_dims_f(scan_space_id,scan_dims,scan_maxdims,hdferr)
+        call h5sget_simple_extent_dims_f(cnts_space_id,cnts_dims,cnts_maxdims,hdferr)
+
+        !---- Assign memory to arrays
+        allocate(axis(axis_dim(1)))
+        allocate(name_(name_dim(1)))
+        allocate(scan(scan_dims(1),scan_dims(2)))
+        allocate(cnts(cnts_dims(1),cnts_dims(2),cnts_dims(3)))
+        allocate(str_len(name_dim(1)))
+        str_len(:) = sdim
+        name_dims(:) = (/ sdim, name_dim(1) /)
+
+        !---- Read datasets
+        call h5dread_f(inum_data_id,H5T_NATIVE_INTEGER,inum,scalar,hdferr)
+        call h5dread_f(nfrm_data_id,H5T_NATIVE_INTEGER,nfrm,scalar,hdferr)
+        call h5dread_f(wave_data_id,H5T_NATIVE_REAL,wave,scalar,hdferr)
+        call h5dread_f(start_data_id,H5T_NATIVE_REAL,start,scalar,hdferr)
+        call h5dread_f(step_data_id,H5T_NATIVE_REAL,step,scalar,hdferr)
+        call h5dread_f(width_data_id,H5T_NATIVE_REAL,width,scalar,hdferr)
+        call h5dread_f(ub_data_id,H5T_NATIVE_REAL,ub,ub_dim,hdferr)
+        call h5dread_f(gamma_data_id,H5T_NATIVE_REAL,gamma,scalar,hdferr)
+        call h5dread_f(chi_data_id,H5T_NATIVE_REAL,chi,scalar,hdferr)
+        call h5dread_f(phi_data_id,H5T_NATIVE_REAL,phi,scalar,hdferr)
+        call h5dread_f(omega_data_id,H5T_NATIVE_REAL,omega,scalar,hdferr)
+        call h5dread_f(nrows_data_id,H5T_NATIVE_INTEGER,nrows,scalar,hdferr)
+        call h5dread_f(ncols_data_id,H5T_NATIVE_INTEGER,ncols,scalar,hdferr)
+        call h5dread_f(axis_data_id,H5T_NATIVE_INTEGER,axis,axis_dim,hdferr)
+        call h5dread_f(scan_data_id,H5T_NATIVE_REAL,scan,scan_dims,hdferr)
+        call h5dread_f(cnts_data_id,H5T_NATIVE_INTEGER,cnts,cnts_dims,hdferr)
+
+        !---- Read keywords of the data scan
+        call h5dread_vl_f(name_data_id,filetype,name_,name_dims,str_len,hdferr,name_space_id)
+
+        !---- Find keywords
+        i_om = -1
+        i_ti = -1
+        i_mo = -1
+        i_mc = -1
+        do i = 1 , scan_dims(2)
+            select case(l_case(trim(name_(i))))
+                case("omega")
+                    i_om = i
+                case("acquisitionspy") ! time
+                    i_ti = i
+                case("monitor1")
+                    i_mo = i
+                case("multicalib") ! total counts
+                    i_mc = i
+            end select
+        end do
+        if (i_om == -1) then
+            err_ILLData = .true.
+            err_ILLData_mess = "Error reading numor. Omega not found in scanned variables"
+            return
+        end if
+
+        !---- Close datasets
+        call h5dclose_f(inum_data_id,hdferr)
+        call h5dclose_f(nfrm_data_id,hdferr)
+        call h5dclose_f(wave_data_id,hdferr)
+        call h5dclose_f(start_data_id,hdferr)
+        call h5dclose_f(step_data_id,hdferr)
+        call h5dclose_f(width_data_id,hdferr)
+        call h5dclose_f(ub_data_id,hdferr)
+        call h5dclose_f(nrows_data_id,hdferr)
+        call h5dclose_f(ncols_data_id,hdferr)
+        call h5dclose_f(axis_data_id,hdferr)
+        call h5dclose_f(name_data_id,hdferr)
+        call h5dclose_f(scan_data_id,hdferr)
+        call h5dclose_f(cnts_data_id,hdferr)
+        call h5dclose_f(gamma_data_id,hdferr)
+        call h5dclose_f(chi_data_id,hdferr)
+        call h5dclose_f(phi_data_id,hdferr)
+        call h5dclose_f(omega_data_id,hdferr)
+
+        !---- Close NEXUS file.
+        write(*,'(2A)') "    Closing Nexus file ",trim(filename)
+        call h5fclose_f(file_id,hdferr)
+
+        !---- Close FORTRAN interface.
+        call h5close_f(hdferr)
+
+        !---- Build the Numor object
+        !     Only omega scans can be processed for the moment.
+        !     Raise an error otherwise
+        write(*,'(A)') " => Building Numor..."
+        call Initialize_Numor(numor)
+
+        numor%numor     = inum
+        numor%instrm    = 'D19'
+        numor%scantype  = 'omega'
+        numor%manip     = 2
+        numor%nbang     = 1
+        numor%wave      = wave
+        numor%nframes   = nfrm
+        numor%nbdata    = nrows * ncols
+        numor%angles(1) = phi
+        numor%angles(2) = chi
+        numor%angles(3) = omega
+        numor%angles(4) = gamma
+        numor%scans(:)  = (/ start,step,width /)
+        numor%ub        = transpose(RESHAPE(ub,[3,3]))
+        allocate(numor%tmc_ang(numor%nbang+3,numor%nframes))
+        if (i_ti == -1) then
+            write(*,'(2a)')  " => WARNING: time (acquisitionspy) not found",&
+            " in scanned variables..."
+            numor%tmc_ang(1,:) = 0
+        else
+            numor%tmc_ang(1,:) = scan(:,i_ti)
+        end if
+        if (i_mo == -1) then
+            write(*,'(2a)')  " => WARNING: monitor (monitor1) not found",&
+            " in scanned variables..."
+            numor%tmc_ang(2,:) = 0
+        else
+            numor%tmc_ang(2,:) = scan(:,i_mo)
+        end if
+        if (i_mc == -1) then
+            write(*,'(2a)')  " => WARNING: total counts (multicalib)",&
+            " not found in scanned variables..."
+            numor%tmc_ang(3,:) = 0
+        else
+            numor%tmc_ang(3,:) = scan(:,i_mc)
+        end if
+        numor%tmc_ang(4,:) = scan(:,i_om) ! angle
+        if (PRESENT(counts)) then
+          allocate(counts(nrows,ncols,nfrm))
+          do k = 1 , nfrm
+              do j = 1 , ncols
+                  do i = 1 , nrows
+                      counts(i,j,k) = cnts(nrows-i+1,j,k) ! Flip
+                  end do
+              end do
+          end do
+        end if
+
+        deallocate(cnts)
+#endif
+    end subroutine Read_Nexus_D19
 
  End Module CFML_ILL_Instrm_Data

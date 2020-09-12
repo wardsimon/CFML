@@ -533,9 +533,9 @@
   Integer,          dimension(:),     allocatable  :: original
   Integer                                          :: fls, lls, otls, stls
 
-  Integer :: i_plane !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
+  Integer :: i_plane      !Plane in reciprocal space: 1: k = 0.   2: h = 0.   3: h = k.   4: h = -k
   Integer :: i_adapt = 1  !Adaptive quadrature always applied
-  Integer :: funct_num ! Function number: 1=streak, 3=powder pattern, 4=SADP
+  Integer :: funct_num    ! Function number: 1=streak, 3=powder pattern, 4=SADP
 
 !
 !**********************     REAL(kind=dp) variables
@@ -599,7 +599,7 @@
                          !    be taken from for the purposes of evaluating
                          !    diffraction symmetry.
   Real(kind=dp)  :: max_var     !    Maximum mean variation of intensities when a
-                         !    given symmetry operator was applied.
+                         !           given symmetry operator was applied.
   Real(kind=dp)  :: mltplcty    !    1/mltplcty is the fraction of reciprocal space
                          !    necessary to integrate over, as determined by
                          !    the diffraction point group symmetry.
@@ -611,7 +611,7 @@
   Real(kind=dp)  :: pv_u        !d-> Pseudo-Voigt u parameter.
   Real(kind=dp)  :: pv_v        !d-> Pseudo-Voigt v parameter.
   Real(kind=dp)  :: pv_w        !d-> Pseudo-Voigt w parameter.
-  Real(kind=sp)  :: pv_x, pv_dg, pv_dl   ! Pseudo-voigt x parameter and gaussian and lorentzian average volumetric sizes
+  Real(kind=sp)  :: pv_x, pv_dg, pv_dl    ! Pseudo-voigt x parameter and gaussian and lorentzian average volumetric sizes
   !Real(kind=sp)  :: pv_hg, pv_hl         ! gaussian and lorentzian FWHM
   Real(kind=dp)  :: RAD2DEG     !    Conversion factor for radians to degrees
   Real(kind=dp)  :: scaleint    !    Intensity scaling factor used in calculating
@@ -690,7 +690,7 @@
                                        ! probabilities 'l_alpha' entered by the user.
 
   Real(kind=dp), dimension(MAX_A,MAX_L):: hx_ky     !  Temporary storage of h*Rx + k*Ry, whilst
-                                             !  l*Rz is being computed along the streaks.
+                                                    !  l*Rz is being computed along the streaks.
 
   Real(kind=dp), dimension(MAX_A,MAX_L):: l_alpha   !d-> Array of layer transition probabilities. The order is (column,row)
 

@@ -1,7 +1,7 @@
   Module DataRed_Mod
     Use CFML_GlobalDeps
     Use CFML_gSpaceGroups
-    Use CFML_IOForm, only : Read_CFL_SpG,Read_CFL_Cell,Read_kinfo
+    Use CFML_IOForm, only : Read_CFL_SpG,Read_CFL_Cell,Read_CFL_KVectors
     Use CFML_Metrics
     Use CFML_Strings, only: File_Type, Reading_File,u_case
     Use CFML_Reflections
@@ -76,12 +76,12 @@
     contains
 
     Subroutine Read_DataRed_File(cfl,cond,kinfo,twins,SpG,Cell)
-      type(File_Type),       intent(in)  :: cfl
-      type(Conditions_Type), intent(out) :: cond
-      type(kvect_info_Type), intent(out) :: kinfo
-      type(Twin_Type),       intent(out) :: twins
-      class(SPG_Type),       intent(out) :: SpG
-      class(Cell_G_Type),    intent(out) :: Cell
+      type(File_Type),             intent(in)  :: cfl
+      type(Conditions_Type),       intent(out) :: cond
+      type(kvect_info_Type),       intent(out) :: kinfo
+      type(Twin_Type),             intent(out) :: twins
+      class(SPG_Type),allocatable, intent(out) :: SpG
+      class(Cell_G_Type),          intent(out) :: Cell
       !--- Local variables ---!
       integer :: i,j,k,n,ier,D
       character(len=:), allocatable :: keyw
@@ -98,7 +98,7 @@
       cond%spg_given=.true.
 
       D=3
-      call Read_kinfo(Cfl,kinfo)
+      call Read_CFL_KVectors(Cfl,kinfo)
       if(Err_CFML%Ierr /= 0) return
       if(kinfo%nk > 0) then
         cond%prop=.true.
@@ -307,6 +307,9 @@
             write(unit=iou,fmt="(a)")  " Data from JANA-format "
             write(unit=iou,fmt="(a)")  " Format of the reflections file => "//trim(forma)
             write(unit=iou,fmt="(a/)") " For reading the items: h k l m ... Int Sigma domain_code"
+         case(12)
+            write(unit=iou,fmt="(a)")  " Free-format for superspace "
+            write(unit=iou,fmt="(a/)") " For reading the items: h k l m ... Int Sigma domain_code"
        End Select
 
 
@@ -361,9 +364,9 @@
        if(cond%hkl_type /= 10) then
          if(cond%statistics) then
             write(unit=*,fmt="(a)")   &
-            " => Statistical errors are considered for sigmas of average intensisites (propagation error formula)"
+            " => Statistical errors are considered for sigmas of average intensities (propagation error formula)"
             write(unit=iou,fmt="(a)") &
-            " => Statistical errors are considered for sigmas of average intensisites (propagation error formula)"
+            " => Statistical errors are considered for sigmas of average intensities (propagation error formula)"
          else
             write(unit=*,fmt="(a)")   &
             " => Statistics is NOT considered for sigmas of average intensities: exp. variance weighted with 1/sigmas^2"

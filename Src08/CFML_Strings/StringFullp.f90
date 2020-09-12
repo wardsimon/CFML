@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Strings) FullPString
+Submodule (CFML_Strings) STR_FullPString
    !---- Parameters ----!
    implicit none
 
@@ -448,7 +448,8 @@ Submodule (CFML_Strings) FullPString
 
        !---- Output data line and print a mark at error location ----!
        Ln = max(Len_trim(aLine),1)
-       if (Ln <= 129) then
+       Ln = min(Ln,178)  !Prevent overflow of Err_CFML%txt that has a maximum of 180 characters
+       if (Ln <= 175) then
           Err_CFML%nl=2
           Write(unit=Err_CFML%txt(2),fmt="(tr1,a)") "'"//aLine(1:Ln)//"'"
           if (nC_L == 1) then
@@ -821,4 +822,4 @@ Submodule (CFML_Strings) FullPString
        return
     End Subroutine TreatNumerField
 
-End Submodule FullPString
+End Submodule STR_FullPString

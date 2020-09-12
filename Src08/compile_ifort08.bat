@@ -77,11 +77,11 @@ rem   Submodules CFML_Mess
         ifort /c Win_Write_ScrollMsg.f90             /nologo %OPT1% %OPT2% %OPT3% /module:..\mod
 
       ) else (
-        ifort /c Err_Message.f90                     /nologo %OPT1% %OPT2%  /module:..\mod
-        ifort /c Info_Message.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
-        ifort /c Print_Message.f90                   /nologo %OPT1% %OPT2%  /module:..\mod
-        ifort /c Wait_Message.f90                    /nologo %OPT1% %OPT2%  /module:..\mod
-        ifort /c Write_ScrollMsg.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Con_Err_Message.f90                 /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Con_Info_Message.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Con_Print_Message.f90               /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Con_Wait_Message.f90                /nologo %OPT1% %OPT2%  /module:..\mod
+        ifort /c Con_Write_ScrollMsg.f90             /nologo %OPT1% %OPT2%  /module:..\mod
       )
       move /y *.obj .. > nul
       cd ..

@@ -1,4 +1,5 @@
-SubModule (CFML_Profiles) PRF_031
+SubModule (CFML_Profiles) PRF_TCH_pVoigt
+  implicit none
    Contains
 
     !!----
@@ -104,4 +105,4 @@ SubModule (CFML_Profiles) PRF_031
        return
     End Subroutine TCH_pVoigt_Der
 
-End SubModule PRF_031
+End SubModule PRF_TCH_pVoigt

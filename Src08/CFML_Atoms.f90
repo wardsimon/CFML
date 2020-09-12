@@ -55,7 +55,7 @@
 
     !---- List of public procedures ----!
     public :: Allocate_Atom_List, Extend_Atom_List, Init_Atom_Type, Read_Bin_Atom_List, &
-              Write_Bin_atom_List, Write_Atom_List
+              Write_Bin_atom_List, Write_Atom_List, Allocate_Atoms_Cell
     public :: Equiv_Atm, Wrt_Lab, Check_Symmetry_Constraints
 
 
@@ -86,15 +86,17 @@
        real(kind=cp), dimension(3)   :: X       = 0.0_cp ! Fractional Coordinates
        real(kind=cp)                 :: U_iso   = 0.0_cp ! Biso, Uiso or Ueq (if ThType ="iso" normally U_iso = Biso)
        real(kind=cp)                 :: Occ     = 1.0_cp ! Occupancy factor
-       character(len=4)              :: UType   ="B"     ! Options: U, B, beta (U & beta are for anisotropic thermal factors)
+       character(len=4)              :: UType   ="B_IJ"  ! Options: U_ij, B_ij, beta (U & beta are for anisotropic thermal factors)
        character(len=3)              :: ThType  ="iso"   ! Options: iso, ani
        real(kind=cp), dimension(6)   :: U       = 0.0_cp ! Anisotropic thermal factors
        logical                       :: Magnetic=.false. ! Flag indication if the atom is magnetic or not.
        real(kind=cp)                 :: Mom     = 0.0_cp ! Maximum Module of Magnetic moment
        real(kind=cp), dimension(3)   :: Moment  = 0.0_cp ! Magnetic moment
-       integer, dimension(3)         :: Ind_ff  = 0      ! Index of form factor (Xray, b, Magff)
+       integer, dimension(3)         :: Ind_ff  = 0      ! Pointer of form factors (1:Xray or species, 2:b, 3:Magff) to the number of the species in calculations
        character(len=40)             :: AtmInfo = " "    ! Information string for different purposes
        character(len=5)              :: wyck    = " "    ! Wyckoff position label if known
+       real(kind=cp),dimension(5)    :: VarF    = 0.0_cp ! Free variables used for different purposes (1,2,3 reserved for occupations, not refinable)
+       logical                       :: active  =.true.  ! Control for different purposes
     End Type Atm_Type
 
     !!----
@@ -205,7 +207,7 @@
     !!----
     !!---- 13/06/2019
     !!
-    Type, public :: Atm_Cell_Type
+    Type, Public :: Atm_Cell_Type
        integer                                            :: nat            ! Total number of atoms
        character(len=20),       dimension(:), allocatable :: Lab            ! Labels for atoms (dimension Nat)
        real(kind=cp),         dimension(:,:), allocatable :: xyz            ! Fractional coordinates (3,nat)
@@ -222,30 +224,22 @@
     End Type Atm_Cell_Type
 
     !!---- Type, Public :: Atom_Equiv_Type
-    !!----    integer                                        :: mult
-    !!----    character(len=2)                               :: ChemSymb
-    !!----    character(len=10),allocatable, dimension(:)    :: Lab
-    !!----    real(kind=sp),    allocatable, dimension(:,:)  :: x
-    !!---- End Type Atom_Equiv_Type
     !!----
     !!----  Updated: January 2014
     !!
     Type, Public :: Atom_Equiv_Type
-       integer                                        :: mult
-       character(len=2)                               :: ChemSymb
+       integer                                        :: mult=0
+       character(len=2)                               :: ChemSymb=" "
        character(len=20),allocatable, dimension(:)    :: Lab
        real(kind=cp),    allocatable, dimension(:,:)  :: x
     End Type Atom_Equiv_Type
 
     !!---- Type, Public :: Atom_Equiv_List_Type
-    !!----    integer                                           :: nauas
-    !!----    type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
-    !!---- End Type Atom_Equiv_List_Type
     !!----
     !!----  Updated: January 2014
     !!
     Type, Public :: Atom_Equiv_List_Type
-       integer                                           :: nauas
+       integer                                           :: nauas=0
        type (Atom_Equiv_Type), allocatable, dimension(:) :: atm
     End Type Atom_Equiv_List_Type
 
@@ -290,6 +284,14 @@
           class(Atm_Type), intent(in out)   :: Atm
           integer,         intent(in)       :: d     ! Number of k-vectors
        End Subroutine Init_Atom_Type
+
+       Module Subroutine Allocate_Atoms_Cell(Nasu,Mul,Dmax,Ac)
+          !---- Arguments ----!
+          integer,              intent(in)     :: nasu
+          integer,              intent(in)     :: mul
+          real(kind=cp),        intent(in)     :: dmax
+          type (Atm_cell_type), intent(in out) :: Ac
+       End Subroutine Allocate_Atoms_Cell
 
        Module Subroutine Allocate_Atom_List(N, A,Type_Atm, d)
           !---- Arguments ----!

@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_003
+SubModule (CFML_Profiles) PRF_Gaussian
+  implicit none
    Contains
    !!----
    !!---- FUNCTION GAUSSIAN
@@ -91,4 +92,4 @@ SubModule (CFML_Profiles) PRF_003
       return
    End Subroutine Prof_Gaussian
 
-End SubModule PRF_003
+End SubModule PRF_Gaussian

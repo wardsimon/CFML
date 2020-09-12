@@ -3,7 +3,7 @@
 !!----
 !!----
 !!
-Submodule (CFML_Strings) StrTools
+Submodule (CFML_Strings) STR_StrTools
    !---- Parameters ----!
    implicit none
 
@@ -630,4 +630,4 @@ Submodule (CFML_Strings) StrTools
 
 
 
-End Submodule StrTools
+End Submodule STR_StrTools

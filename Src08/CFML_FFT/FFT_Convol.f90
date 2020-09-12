@@ -2,9 +2,8 @@
 !!----
 !!----
 SubModule (CFML_FFT) FFT_Convol
+  implicit none
   Contains
-
-
 
     !!----
     !!---- FUNCTION F_FFT

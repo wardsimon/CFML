@@ -59,7 +59,7 @@ Module CFML_IOForm
    Use CFML_gSpaceGroups,      only: SpG_Type, SuperSpaceGroup_Type, Kvect_Info_Type,   &
                                      Change_Setting_SpaceG, Set_SpaceGroup, Get_Multip_Pos,&
                                      Get_Orbit, Allocate_Kvector, Write_SpaceGroup_Info, &
-                                     Get_Mat_from_Symb, Get_Symb_From_Mat
+                                     Get_Mat_from_Symb, Get_Symb_From_Mat, Get_Dimension_SymmOp
 
    Use CFML_DiffPatt,          only: DiffPat_Type, DiffPat_E_Type
 
@@ -73,7 +73,7 @@ Module CFML_IOForm
 
    !---- Public subroutines ----!
 
-   public :: Read_Xtal_Structure, &
+   public :: Read_Xtal_Structure, Read_CFL_KVectors, Read_CFL_Cell, Read_CFL_SpG, &
              Write_Cif_Template, Write_SHX_Template, Write_MCIF_Template
 
    !--------------------!
@@ -222,7 +222,7 @@ Module CFML_IOForm
 
       Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type, i_ini, i_end)
          Type(File_Type),                 intent(in)     :: cfl
-         class(SpG_Type),                 intent(out)    :: SpG
+         class(SpG_Type), allocatable,    intent(out)    :: SpG
          character(len=*), optional,      intent(in)     :: xyz_type
          integer, optional,               intent(in)     :: i_ini, i_end
       End Subroutine Read_CFL_SpG
@@ -430,7 +430,7 @@ Module CFML_IOForm
       Module Subroutine Read_XTal_CFL(cfl, Cell, SpG, AtmList, Nphase, CFrame, Job_Info)
          type(File_Type),               intent(in)  :: cfl
          class(Cell_Type),              intent(out) :: Cell
-         class(SpG_Type),               intent(out) :: SpG
+         class(SpG_Type), allocatable,  intent(out) :: SpG
          Type(AtList_Type),             intent(out) :: Atmlist
          Integer,             optional, intent(in)  :: Nphase
          character(len=*),    optional, intent(in)  :: CFrame
@@ -448,7 +448,7 @@ Module CFML_IOForm
       Module Subroutine Read_XTal_MCIF(cif, Cell, Spg, AtmList, Kvec, Nphase)
          type(File_Type),                 intent(in)  :: cif
          class(Cell_Type),                intent(out) :: Cell
-         class(SpG_Type),                 intent(out) :: SpG
+         class(SpG_Type), allocatable,    intent(out) :: SpG
          Type(AtList_Type),               intent(out) :: Atmlist
          Type(Kvect_Info_Type), optional, intent(out) :: Kvec
          Integer,               optional, intent(in)  :: Nphase
@@ -647,12 +647,12 @@ Module CFML_IOForm
     !!
     Subroutine Read_Xtal_Structure(filenam, Cell, Spg, Atm, IPhase, FType)
        !---- Arguments ----!
-       character(len=*),          intent( in)     :: filenam    ! Name of the file
-       class (Cell_G_Type),       intent(out)     :: Cell       ! Cell object
-       class (SpG_Type),          intent(out)     :: SpG        ! Space Group object
-       type (Atlist_type),        intent(out)     :: Atm        ! Atom List object
-       integer,         optional, intent(in)      :: IPhase     ! Number of phase
-       type(File_Type), optional, intent(out)     :: FType      ! File type
+       character(len=*),              intent( in)     :: filenam    ! Name of the file
+       class (Cell_G_Type),           intent(out)     :: Cell       ! Cell object
+       class (SpG_Type), allocatable, intent(out)     :: SpG        ! Space Group object
+       type (Atlist_type),            intent(out)     :: Atm        ! Atom List object
+       integer,         optional,     intent(in)      :: IPhase     ! Number of phase
+       type(File_Type), optional,     intent(out)     :: FType      ! File type
 
        !---- Local Variables ----!
        character(len=6):: Ext
@@ -676,10 +676,12 @@ Module CFML_IOForm
 
        select case (trim(u_case(ext)))
           case ('CFL')
-             call Read_XTal_CFL(f, Cell, SpG, Atm)
+             call Read_XTal_CFL(f, Cell, SpG, Atm)  !SpG is allocated inside the subroutine
           case ('CIF')
+             allocate(SpG_Type :: SpG)
              call Read_XTal_CIF(f, Cell, SpG, Atm)
           case ('INS','RES')
+             allocate(SpG_Type :: SpG)
              call Read_XTal_SHX(f, Cell, SpG, Atm)
           case ('PCR')
           case ('MCIF')

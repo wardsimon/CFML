@@ -1,9 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen01
-
-  Contains
+SubModule (CFML_Random) Random_Beta_sub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_BETA
    !!----
@@ -84,4 +84,4 @@ SubModule (CFML_Random) RandomGen01
       return
    End Function Random_Beta
 
-End SubModule RandomGen01
+End SubModule Random_Beta_sub

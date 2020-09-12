@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_021
+SubModule (CFML_Profiles) PRF_Ikeda_Carpenter
+  implicit none
    Contains
    !!----
    !!---- IKEDA_CARPENTER
@@ -89,4 +90,4 @@ SubModule (CFML_Profiles) PRF_021
    End Subroutine Ikeda_Carpenter_Der
 
 
-End SubModule PRF_021
+End SubModule PRF_Ikeda_Carpenter

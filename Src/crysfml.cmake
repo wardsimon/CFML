@@ -35,7 +35,7 @@ add_library(${LIBRARY_NAME} STATIC ${SOURCES} ${CRYSFML_COMMON_OBJECTS})
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 # The directory where the crysfml specific module files will be stored.
-set(CRYSFML_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_modules)
+set(CRYSFML_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/crysfml_modules CACHE INTERNAL "")
 
 # Sets the path where to place the mod files for the crysfml library.
 set_target_properties(${LIBRARY_NAME} PROPERTIES Fortran_MODULE_DIRECTORY ${CRYSFML_MODULE_DIRECTORY})
@@ -46,8 +46,6 @@ include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 # HDF
 if(USE_HDF)
     include_directories(${HDF5_INCLUDE_DIR})
-    # target_link_libraries should be useless here
-    #target_link_libraries(${LIBRARY_NAME} ${HDF5_LIBRARIES})
 endif()
 
 #################################

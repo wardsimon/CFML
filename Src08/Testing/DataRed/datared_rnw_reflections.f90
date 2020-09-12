@@ -112,7 +112,7 @@
                Ob(nr)%hr=Ob(nr)%h
             end do
 
-        Case(11)       !Shelx-like HKLF5 input file (xi4,2f8.2,i4) for superspace
+        Case(11,12)       !Shelx-like HKLF5 input file (xi4,2f8.2,i4) for superspace, or free format superspace
 
              if(.not. cond%cell_given) then
               Err_CFML%Msg=" => UNIT CELL not GIVEN! Modify your input file."
@@ -124,12 +124,16 @@
               Err_CFML%Ierr=1
               return
             end if
-
             cond%forma="( i4,2f8.2,i4)"
             write(unit=cond%forma(2:2),fmt="(i1)") 3+kinfo%nk
+            if(cond%hkl_type == 12) cond%forma="*"  !Reading with this format does not work (this is the reason of the "if" within the loop)
             do
                nr=nr+1
-               read(unit=inp,fmt=trim(cond%forma),iostat=ier)  Ob(nr)%h, Ob(nr)%intens, Ob(nr)%sigma, Ob(nr)%idomain
+               if(cond%hkl_type == 11) then
+                 read(unit=inp,fmt=trim(cond%forma),iostat=ier)  Ob(nr)%h, Ob(nr)%intens, Ob(nr)%sigma, Ob(nr)%idomain
+               else
+                 read(unit=inp,fmt=*,iostat=ier)  Ob(nr)%h, Ob(nr)%intens, Ob(nr)%sigma, Ob(nr)%idomain
+               end if
                if(ier /= 0)  then
                 nr=nr-1
                 exit
@@ -538,7 +542,7 @@
       do i=1,nr
         j=ind(i)
         !Now calculate the integer indices
-        if(cond%hkl_type /= 11) then
+        if(cond%hkl_type /= 11 .and. cond%hkl_type /= 12) then
           if(cond%to_og) then !Transform the real indices to integers + og_kvect
              h1=Ob(j)%hr
              Ob(j)%h=nint(matmul(cond%transhkl,h1))
@@ -669,7 +673,7 @@
           line="List of read reflections"
           if(present(gen)) line="List of generated reflections"
         case default
-          if(cond%hkl_type == 11) then
+          if(cond%hkl_type == 11 .or. cond%hkl_type == 12) then
              line="List of read reflections with real reciprocal space indices"
              if(present(gen)) line="List of generated reflections with real reciprocal space indices"
           else
@@ -684,7 +688,7 @@
       write(unit=fm(5:5),fmt="(i1)") n
       write(unit=fm0(5:5),fmt="(i1)") n
       mr=0
-      if(cond%hkl_type == 11 .or. present(gen)) then
+      if(cond%hkl_type >= 11 .or. present(gen)) then
         Select Case(kinfo%nk)
           case(0)         !123456789012345678901234567890123456789
             line=" NumRef   h   k   l       Hr       Kr       Lr       Intens        Sigma    SinTL(1/2d)"

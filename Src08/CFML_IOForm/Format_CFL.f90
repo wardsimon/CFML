@@ -409,12 +409,12 @@ SubModule (CFML_IOForm) IO_CFL
    Module Subroutine Read_CFL_SpG(cfl, SpG, xyz_type, i_ini, i_end)
       !---- Arguments ----!
       Type(File_Type),                 intent(in)     :: cfl
-      class(SpG_Type),                 intent(out)    :: SpG
+      class(SpG_Type), allocatable,    intent(out)    :: SpG
       character(len=*), optional,      intent(in)     :: xyz_type
       integer,          optional,      intent(in)     :: i_ini, i_end
 
       !--- Local Variables ---!
-      integer                           :: i,j,ngen,nk,nq,iv,ier
+      integer                           :: i,j,ngen,nk,nq,iv,ier,d
       integer                           :: j_ini, j_end
       character(len=:),     allocatable :: line,uline,setting,strcode
       character(len=40), dimension(192) :: gen
@@ -470,34 +470,59 @@ SubModule (CFML_IOForm) IO_CFL
          line=adjustl(line(j+1:))
          select case(trim(uline))
             case("HALL","SPGR","SPACEG")
+               allocate(SpG_Type :: Spg)
                call Set_SpaceGroup(line, SpG)
                exit
 
             case("SHUB")
+               allocate(SpG_Type :: Spg)
                call Set_SpaceGroup(line,"SHUBN",SpG)
                exit
 
             case("SSG","SUPER","SSPG")
+               allocate(SuperSpaceGroup_Type :: Spg)
                call Set_SpaceGroup(line,"SUPER",SpG, strcode)
                exit
 
             case("GENLIST","GENERATORS","LIST")
+               j=index(line,";")
+               if(j == 0) then
+                 d=Get_Dimension_SymmOp(trim(line))
+               else
+                 d=Get_Dimension_SymmOp(trim(line(1:j-1)))
+               end if
+               if(d > 4) then
+                 allocate(SuperSpaceGroup_Type :: Spg)
+               else
+                 allocate(SpG_Type :: Spg)
+               end if
                call Set_SpaceGroup(line,SpG)
                exit
 
-            case("GEN","SYMM")
+            case("GEN","GENR","SYMM")
                ngen=ngen+1
                gen(ngen)=line
+
          end select
       end do
-      if (ngen > 0) call Set_SpaceGroup("  ",SpG,ngen,gen)
+
+      if (ngen > 0) then
+        d=Get_Dimension_SymmOp(trim(gen(1)))
+        if(d > 4) then
+          allocate(SuperSpaceGroup_Type :: Spg)
+        else
+          allocate(SpG_Type :: Spg)
+        end if
+        call Set_SpaceGroup("  ",SpG,ngen,gen)
+      end if
+
       if (Err_CFML%Ierr == 1) return
 
       if (change_setting) then
          if (strcode == "xyz")  then
             call Change_Setting_SpaceG(setting, SpG)
          else
-            call Change_Setting_SpaceG(setting, SpG,strcode)
+            call Change_Setting_SpaceG(setting, SpG, strcode)
          end if
       end if
       if (Err_CFML%Ierr == 1) return
@@ -781,7 +806,7 @@ SubModule (CFML_IOForm) IO_CFL
       !---- Arguments ----!
       type(File_Type),               intent(in)  :: cfl
       class(Cell_Type),              intent(out) :: Cell
-      class(SpG_Type),               intent(out) :: SpG
+      class(SpG_Type), allocatable,  intent(out) :: SpG
       Type(AtList_Type),             intent(out) :: Atmlist
       Integer,             optional, intent(in)  :: Nphase   ! Select the Phase to read
       character(len=*),    optional, intent(in)  :: CFrame
@@ -790,15 +815,9 @@ SubModule (CFML_IOForm) IO_CFL
       !---- Local variables ----!
       logical                          :: set_moment, set_matm_std
       character(len=132)               :: line
-      character(len= 40),dimension(192):: gen
-
       integer, dimension(MAX_PHASES)   :: ip
       integer                          :: i, j,nt_phases, iph, n_ini, n_end
-      integer                          :: ngen, nsym, k
-      integer                          :: nt_atm
-
-      real(kind=cp),dimension(6)       :: vet1,vet2
-      real(kind=cp),dimension(3)       :: vet
+      integer                          :: k
 
       real(kind=cp),dimension(:),allocatable:: xvet
 
@@ -870,6 +889,8 @@ SubModule (CFML_IOForm) IO_CFL
             if (l_case(line(2:4)) == '_cs')    set_matm_std=.true.
          end do
       end do
+
+      if(SpG%d == 4) set_matm_std=.false.
 
       if ((.not. set_moment) .and. (.not. set_matm_std)) then
          !> Type of Atoms: Atm_std

@@ -200,7 +200,7 @@
 
     character(len=256)                  :: generatorList
     character(len=180)                  :: setting
-    !character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)"
+    character(len=25)                   :: forma="(i5,tr2,a,   i4,a,i8)"
     character(len=25)                   :: mode
     character(len=5)                    :: aux
     type(Spg_Type)                      :: Grp
@@ -208,13 +208,14 @@
     !integer, dimension(:,:),allocatable :: table
     !integer, dimension(:,:),allocatable :: G
     !integer, dimension(:),  allocatable :: ord
-    integer :: i, j, L, nsg, indexg, num_group, ier !, ind
+    integer, dimension(:), allocatable  :: cosets
+    integer :: i, j, L, nsg, indexg, num_group, ier,lun !, ind
     real(kind=cp) :: start, fin
     logical :: set_given, sup_given, datb_given, full, shub_given
 
     !> Init
     call Set_Conditions_NumOp_EPS(4096) !Maximum admissible multiplicity
-
+    open(newunit=lun,file="groups.out",status="replace",action="write")
     do
        set_given=.false.; sup_given=.false.; datb_given=.false.; shub_given=.false.
        write(*,'(/,a,/)') " => Examples of input to the next question:"
@@ -314,6 +315,7 @@
           cycle
        else
           call Write_SpaceGroup_Info(Grp)
+          call Write_SpaceGroup_Info(Grp,lun)
        end if
 
        full=.false.
@@ -348,16 +350,31 @@
        if (nsg > 0) Then
           do L=1,nsg
              write(*,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
+             write(lun,"(/2(a,i3))") "  SUB-GROUP NUMBER #",L, " of index: ",Grp%multip/sGrp(L)%multip
              call Identify_Group(sGrp(L)) !.false.
              if (Err_CFML%Ierr /= 0) then
                 write(*,'(/,4x,"=> Error in the identification of the group: ",a)') trim(Err_CFML%Msg)
              end if
              call Write_SpaceGroup_Info(sGrp(L))
+             call Write_SpaceGroup_Info(sGrp(L),lun)
+             !> Write the coset decomposition of Grp with respect to the current subgroup
+             call Get_Cosets(Grp,sGrp(L),cosets)
+             nc=size(cosets)
+             if (nc > 0) then
+                !     12345678901234
+                forma="(a,i3,a,    a)"
+                write(forma(9:12),"(i4)") nc
+                write(lun,forma) "  Coset decomposition of  G: "//trim(Grp%Spg_symb)//&
+                                 "(",nc+1,") =  H("//trim(sGrp(L)%BNS_symb)//")  + ",("{"//&
+                                 trim(Grp%Symb_Op(cosets(j)))//"} H + ",j=1,nc-1), &
+                                 "{"//trim(Grp%Symb_Op(cosets(nc)))//"} H"
+             end if
           end do
        end if
 
        call CPU_TIME(fin)
        write(*,"(a,f12.3,a)") "CPU_TIME for this calculation: ",fin-start," seconds"
+       write(lun,"(a,f12.3,a)") "CPU_TIME for this calculation: ",fin-start," seconds"
     end do
 
 End Program Test_Groups

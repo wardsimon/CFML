@@ -20,20 +20,14 @@
     character(len=512)                  :: fname,cmdline
     integer                             :: nlong,narg
     real(kind=cp)                       :: start, fin
-
-    !type(Cell_G_Type)                   :: Cell
-    !type(Spg_Type)                      :: SpG
     type(AtList_Type)                   :: Atm
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     character(len=256)                  :: setting,ctr_code,forma,formb
     character(len=256),dimension(26)    :: tctr_code
     type(Cell_G_Type)                   :: Cell,Celln
-    !type(Spg_Type)                     :: Grp
+    class(Spg_Type), allocatable        :: Grp
     type(File_type)                     :: flist
-    type(SuperSpaceGroup_Type)          :: Grp
-    !type(rational),   dimension(:,:),allocatable :: Mat
-    !character(len=40),dimension(:,:),allocatable :: matrix
     integer :: i, j, L,k, d,Dd,nsg, ind, indexg, num_group, ier,mult,codini,len_cmdline
     real(kind=cp), dimension(:,:),allocatable :: orb,morb
     real(kind=cp), dimension(3)               :: codes=1.0
@@ -48,47 +42,19 @@
        read(unit=*,fmt='(a)') fname
        if (len_trim(fname) <=0 ) call CloseProgram()
        cmdline=trim(fname)
-
     else
        call GET_COMMAND_ARGUMENT(1, cmdline)
     end if
     nlong=len_trim(cmdline)
-
+    fname=cmdline
     !> Start
     call CPU_TIME(start)
 
     !> Type of Files
 
-    ext=get_extension(cmdline)
-    !call Read_Xtal_Structure(trim(cmdline), Cell, Spg, Atm)
-    !
-    !!> Print Information
-    !if (Err_CFML%Ierr == 0) then
-    !   !> Cell Info
-    !   call Write_Crystal_Cell(Cell)
-    !   write(unit=*,fmt='(a)') " "
-    !
-    !   !> SpaceGroup
-    !   call Write_SpaceGroup_Info(SpG)
-    !   write(unit=*,fmt='(a)') " "
-    !
-    !   !> Atoms
-    !   call Write_Atom_List(Atm)
-    !   write(unit=*,fmt='(a)') " "
-    !else
-    !   write(unit=*,fmt='(/,a)') " => ERROR: "//trim(Err_CFML%Msg)
-    !end if
 
-
-    !!!! TEST JRC
-    call Set_Eps_Math(0.0002_cp)
-
-    call Read_Xtal_Structure(fname,Cell,Grp,Atm)  !,"MAtm_std","CFL",file_list=flist) !,Iphase,Job_Info,file_list,CFrame)
+    call Read_Xtal_Structure(fname,Cell,Grp,Atm)
     if(Err_CFML%Ierr == 0) then
-       !write(*,"(/,a,/)")  " => Content of the CFL-file: "//flist%Fname
-       !do i=1,flist%nlines
-       !   write(*,"(i6,a)") i,"    "//flist%line(i)%Str
-       !end do
        call Write_Crystal_Cell(Cell)
        if(len_trim(Grp%setting) /= 0) then
          write(*,"(/,a)") " => Transformed Cell"
@@ -106,15 +72,21 @@
        i=index(fname,".")
        call Write_Cif_Template(fname(1:i)//"cif", Cell, Grp, Atm, 2, "Testing WriteCIF")
 
+       call Set_Eps_Math(0.0002_cp)
        if(Atm%natoms > 0) then
           !First Check symmetry constraints in magnetic moments and Fourier coefficients
           !call Check_Symmetry_Constraints(Grp,Atm)
           write(*,"(//a,i5)") "  Number of atoms:",Atm%natoms
-          call Write_Atom_List(Atm,SpG=Grp)
+          Select Type (Grp)
+            Type is (Spg_Type)
+               call Write_Atom_List(Atm)
+            Type is (SuperSpaceGroup_Type)
+               call Write_Atom_List(Atm,SpG=Grp)
+               formb="(a, i3,a,6f10.5,a)"
+               write(unit=formb(4:4),fmt="(i1)") Grp%nk
+          End Select
           !Calculate all atoms in the unit cell
           forma="(i5, f10.5,tr8, f10.5,i8)"
-          formb="(a, i3,a,6f10.5,a)"
-          write(unit=formb(4:4),fmt="(i1)") Grp%nk
           write(forma(5:5),"(i1)") Grp%d-1
           write(forma(16:16),"(i1)") Grp%d-1
           write(*,"(//a)") "  Orbits of atoms after applying constraints on moments:"
@@ -142,23 +114,28 @@
             do j=1,Mult
                 write(*,forma) j,orb(:,j),morb(:,j),ptr(j)
             end do
+
            Select Type(at => Atm%Atom(i))
+
              class is (MAtm_Std_Type)
                write(*,"(a)") " => Modulation amplitudes of atom: "//trim(Atm%Atom(i)%Lab)
                if(allocated(CodeT)) deallocate(CodeT)
                allocate(CodeT(6,at%n_mc))
                CodeT=1.0
-               call Get_TFourier_Ctr(At%x,At%Mcs(:,1:at%n_mc),codeT,Grp,codini,"M",ctr_code=tctr_code)
-               do j=1,At%n_mc
-                 write(*,formb) "     Mcs: [",Grp%Q_coeff(:,j),"]",At%Mcs(:,j),"    CtrCode: "//trim(tctr_code(j))
-               end do
-               if(allocated(CodeT)) deallocate(CodeT)
-               allocate(CodeT(6,at%n_dc))
-               CodeT=1.0
-               call Get_TFourier_Ctr(At%x,At%Dcs(:,1:at%n_dc),codeT,Grp,codini,"D",ctr_code=tctr_code)
-               do j=1,At%n_dc
-                 write(*,formb) "     Dcs: [",Grp%Q_coeff(:,j),"]",At%Dcs(:,j),"    CtrCode: "//trim(tctr_code(j))
-               end do
+               Select Type (Grp)
+                 Type is (SuperSpaceGroup_Type)
+                    call Get_TFourier_Ctr(At%x,At%Mcs(:,1:at%n_mc),codeT,Grp,codini,"M",ctr_code=tctr_code)
+                    do j=1,At%n_mc
+                      write(*,formb) "     Mcs: [",Grp%Q_coeff(:,j),"]",At%Mcs(:,j),"    CtrCode: "//trim(tctr_code(j))
+                    end do
+                    if(allocated(CodeT)) deallocate(CodeT)
+                    allocate(CodeT(6,at%n_dc))
+                    CodeT=1.0
+                    call Get_TFourier_Ctr(At%x,At%Dcs(:,1:at%n_dc),codeT,Grp,codini,"D",ctr_code=tctr_code)
+                    do j=1,At%n_dc
+                      write(*,formb) "     Dcs: [",Grp%Q_coeff(:,j),"]",At%Dcs(:,j),"    CtrCode: "//trim(tctr_code(j))
+                    end do
+              end select
            end select
           end do
        end if

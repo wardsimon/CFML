@@ -1,9 +1,10 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen02
+SubModule (CFML_Random) Random_Binomial
 
-  Contains
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_BINOMIAL1
    !!----
@@ -431,4 +432,4 @@ SubModule (CFML_Random) RandomGen02
       return
    End Function Random_Neg_Binomial
 
-End Submodule RandomGen02
+End Submodule Random_Binomial

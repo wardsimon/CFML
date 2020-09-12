@@ -212,7 +212,6 @@ SubModule (CFML_IOForm) IO_GEN
        character(len=len(str))              :: line
        character(len=4)                     :: dire
        character(len=132), dimension(1)     :: filevar
-       integer, dimension (6)               :: ivet
        integer                              :: nlong1,n,iv
        real(kind=cp), dimension (6)         :: vet1,vet2
 
@@ -525,7 +524,6 @@ SubModule (CFML_IOForm) IO_GEN
 
        !---- Local Variables ----!
        integer, parameter       :: NDIR=2
-       integer                  :: i
        integer, dimension(NDIR) :: ind
        character(len=len(str))  :: line
 
@@ -632,7 +630,7 @@ SubModule (CFML_IOForm) IO_GEN
        real(kind=cp),dimension(3  ),    intent(out)    :: orig
 
        !---- Local Variables ----!
-       integer                      :: iv, n,i,j
+       integer                      :: iv,n
        integer,       dimension(12) :: ivet
        real(kind=cp), dimension(12) :: vet
        character(len=len(str)), dimension(1) :: linec

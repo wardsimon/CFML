@@ -44,7 +44,6 @@ endif()
 set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
     CFML_EisPack.f90
-    CFML_ILL_Instrm_Data_Nexus.f90
     CFML_Atom_TypeDef.f90
     CFML_Bonds_Table.f90
     CFML_BVSpar.f90

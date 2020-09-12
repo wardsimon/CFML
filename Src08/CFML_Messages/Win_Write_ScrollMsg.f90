@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_Messages) ScrollMsg
+SubModule (CFML_Messages) Wmess_ScrollMsg
+  Implicit none
    Contains
    !!----
    !!---- CLOSE_SCROLL_WINDOW
@@ -58,4 +59,4 @@ SubModule (CFML_Messages) ScrollMsg
       return
    End Subroutine Write_Scroll_Text
 
-End SubModule ScrollMsg
+End SubModule Wmess_ScrollMsg

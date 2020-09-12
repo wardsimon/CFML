@@ -1,7 +1,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Maps) Mapping
+SubModule (CFML_Maps) Maps_Mapping
+   implicit none
    Contains
 
    !!----
@@ -1108,4 +1109,4 @@ SubModule (CFML_Maps) Mapping
 
    End Subroutine Search_Peaks
 
-End SubModule Mapping
+End SubModule Maps_Mapping

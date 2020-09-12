@@ -6,10 +6,12 @@ cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
 # By default the built is in CONSOLE mode and 32 bits. If 64 bits have to be used one should do -D ARCH32=OFF
 option(MINGW_HDF_TRICK "Help building with MinGW" OFF)
-option(USE_HDF "Build crysfml and wcrysfml library" OFF)
+option(USE_HDF "Build crysfml with HDF5 library" OFF)
 option(GUI "Build crysfml and wcrysfml library" OFF)
 option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
+option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)" OFF)
+option(PROG_EX "Build the Program Examples" ON)
 option(PYTHON_API "Build Python API" OFF)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
@@ -55,7 +57,7 @@ else()
     set(PYTHON_LIBRARY_PATH "" CACHE PATH "Python library path")
 endif()
 
-# Include and library paths for HDF5. 
+# Include and library paths for HDF5.
 # They must be set by the user.
 if(DEFINED HDF5_INCLUDE_PATH)
     set(HDF5_INCLUDE_PATH ${HDF5_INCLUDE_PATH} CACHE PATH "HDF5 include path")
@@ -98,17 +100,37 @@ endif()
 
 # Includes some modules and build the project.
 include(add_prefix)
-include(add_suffix)    
-if (NOT CRYSFML08)        
+include(add_suffix)
+if (NOT CRYSFML08)
     include(set_compiler_flags)
     set_compiler_flags()
     # The subdirectories of the project.
     add_subdirectory(Src)
 else()
     include(set_compiler_flags_08)
-    set_compiler_flags_08()    
+    set_compiler_flags_08()
     # The subdirectories of the project.
     add_subdirectory(Src08)
+endif()
+
+# Build the program example executables and use them as functional tests
+if (PROG_EX)
+  enable_testing()
+
+  macro(add_runtest _name _bindir)
+    add_test(
+      NAME ${_name}
+      COMMAND python3 ${CMAKE_SOURCE_DIR}/Tests/${_name}/test --binary-dir=${_bindir} --work-dir=${CMAKE_BINARY_DIR}/Tests/${_name} --verbose --log=${CMAKE_BINARY_DIR}/Tests/${_name}/runtest.stderr.log)
+     #if(NOT "${_labels}" STREQUAL "")
+     set_tests_properties(${_name} PROPERTIES
+       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Tests/${_name})
+     #endif()
+   endmacro()
+  
+  add_subdirectory(Program_Examples/PowderPattern)
+  if(USE_HDF)
+    add_subdirectory(Program_Examples/ReadNeXuS)
+  endif()
 endif()
 
 if (PYTHON_API)

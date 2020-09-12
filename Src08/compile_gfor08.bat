@@ -78,11 +78,11 @@ rem   Submodules CFML_Mess
         gfortran -c %OPTC%  -J..\mod Win_Write_ScrollMsg.f90           %OPT1% %OPT3%
 
       ) else (
-        gfortran -c %OPTC%  -J..\mod Err_Message.f90                   %OPT1%
-        gfortran -c %OPTC%  -J..\mod Info_Message.f90                  %OPT1%
-        gfortran -c %OPTC%  -J..\mod Print_Message.f90                 %OPT1%
-        gfortran -c %OPTC%  -J..\mod Wait_Message.f90                  %OPT1%
-        gfortran -c %OPTC%  -J..\mod Write_ScrollMsg.f90               %OPT1%
+        gfortran -c %OPTC%  -J..\mod Con_Err_Message.f90               %OPT1%
+        gfortran -c %OPTC%  -J..\mod Con_Info_Message.f90              %OPT1%
+        gfortran -c %OPTC%  -J..\mod Con_Print_Message.f90             %OPT1%
+        gfortran -c %OPTC%  -J..\mod Con_Wait_Message.f90              %OPT1%
+        gfortran -c %OPTC%  -J..\mod Con_Write_ScrollMsg.f90           %OPT1%
       )
       move /y *.o .. > nul
       cd ..

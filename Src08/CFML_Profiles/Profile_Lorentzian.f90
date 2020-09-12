@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_005
+SubModule (CFML_Profiles) PRF_Lorentzian
+  implicit none
    Contains
    !!----
    !!---- LORENTZIAN
@@ -88,4 +89,4 @@ SubModule (CFML_Profiles) PRF_005
       return
    End Subroutine Prof_Lorentzian
 
-End SubModule PRF_005
+End SubModule PRF_Lorentzian

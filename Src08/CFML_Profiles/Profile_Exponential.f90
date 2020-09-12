@@ -2,7 +2,8 @@
 !!----
 !!----
 !!
-SubModule (CFML_Profiles) PRF_012
+SubModule (CFML_Profiles) PRF_Exponential
+  implicit none
    Contains
    !!----
    !!---- EXPONENTIAL
@@ -60,4 +61,4 @@ SubModule (CFML_Profiles) PRF_012
       return
    End Subroutine Exponential_Der
 
-End SubModule PRF_012
+End SubModule PRF_Exponential

@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_Messages) Question
+SubModule (CFML_Messages) Wmess_Question
+  Implicit none
    Contains
    !!----
    !!---- QUESTION_MESSAGE
@@ -26,4 +27,4 @@ SubModule (CFML_Messages) Question
 
 
 
-End SubModule Question
+End SubModule Wmess_Question

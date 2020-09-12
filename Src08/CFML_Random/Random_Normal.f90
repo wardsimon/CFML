@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen06
-  Contains
+SubModule (CFML_Random) Random_Normal_sub
+  implicit none
+   Contains
    !!----
    !!---- RANDOM_NORMAL
    !!----
@@ -143,4 +144,4 @@ SubModule (CFML_Random) RandomGen06
       return
    End Subroutine Random_Mvnorm
 
-End Submodule RandomGen06
+End Submodule Random_Normal_sub

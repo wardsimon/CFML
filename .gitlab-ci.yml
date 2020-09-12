@@ -35,7 +35,7 @@ make:linux_gfortran:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_gfortran -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_setup .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_gfortran_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -iv${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/hdf5-1_12_0-gfortran:/hdf5 ci_crysfml_xenial_gfortran_build
   tags:
     - docker
     - sci
@@ -46,7 +46,7 @@ make:linux_ifort:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_setup .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_ifort_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_ifort_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0-ifort:/hdf5 ci_crysfml_xenial_ifort_build
   tags:
     - docker
     - sci
@@ -57,7 +57,7 @@ make:linux_gfortran_F2008:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_gfortran_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_setup_F2008 .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_gfortran_build_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_build_F2008 --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -iv${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build_f2008
+    - docker run -i -v${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build_f2008
   tags:
     - docker
     - sci
@@ -117,8 +117,10 @@ make:macos_ifort_F2008:
 make:windows_gfortran:
   stage: make
   script:
+    - set PATH=c:\Projects\fullprof\python37;C:\\Projects\\fullprof\\hdf5-gfortran\\bin;%PATH%
+    - set PATH=c:\Projects\fullprof\MinGW64\bin;%PATH%
     - set PATH=%PATH:C:\Program Files\Git\bin;=%
-    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include
+    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\lib
     - call "BuildServer\\Windows\\build.bat" gfortran
   tags:
@@ -129,7 +131,8 @@ make:windows_ifort:
   stage: make
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
+    - set PATH=c:\Projects\fullprof\python37\;C:\\Projects\\fullprof\\hdf5-ifort\\bin;%PATH%
+    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib
     - call "BuildServer\\Windows\\build.bat" ifort
@@ -152,7 +155,7 @@ make:windows_ifort_F2008:
   stage: make
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
+    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - call "BuildServer\\Windows\\build_F2008.bat" ifort
   tags:
     - sci
@@ -167,7 +170,7 @@ make_release:linux:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_ifort -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_ifort_setup .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_release_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_release_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof:/fullprof -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0:/hdf5 ci_crysfml_xenial_release_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof:/fullprof -v/users/ci/projects/fullprof/intel:/opt/intel -v/users/ci/projects/fullprof/hdf5-1_12_0-ifort:/hdf5 ci_crysfml_xenial_release_build
   artifacts:
     name: "CrysFML Linux"
     paths:
@@ -228,7 +231,8 @@ make_release:windows:
   stage: make_release
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
+    - set PATH=c:\Projects\fullprof\python37\;C:\\Projects\\fullprof\\hdf5-ifort\\bin;%PATH%
+    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib
     - set PYTHON_LIBRARY_PATH=C:\\Projects\\fullprof\\python37\\libs\\python37.lib
@@ -246,7 +250,7 @@ make_release:windows_F2008:
   stage: make_release
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2019.3.203\\windows\\compiler\\lib\\intel64_win";%LIB%
+    - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - call "BuildServer\\Windows\\build_release_F2008.bat"
   artifacts:
     name: "CrysFML08 Windows"

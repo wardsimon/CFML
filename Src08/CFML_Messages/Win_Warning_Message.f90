@@ -1,5 +1,6 @@
 !!----
-SubModule (CFML_Messages) Warning
+SubModule (CFML_Messages) Wmess_Warning
+  Implicit none
    Contains
 
    !!----
@@ -25,4 +26,4 @@ SubModule (CFML_Messages) Warning
       return
    End Subroutine Warning_Message
 
-End SubModule Warning
+End SubModule Wmess_Warning

@@ -1,8 +1,9 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Random) RandomGen07
-  Contains
+SubModule (CFML_Random) Random_Poisson_sub
+  implicit none
+   Contains
    !!--++
    !!--++ GG_F
    !!--++
@@ -159,4 +160,4 @@ SubModule (CFML_Random) RandomGen07
       return
    End Function Random_Poisson
 
-End SubModule RandomGen07
+End SubModule Random_Poisson_sub

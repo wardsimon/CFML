@@ -3,7 +3,8 @@
 !!----
 !!----
 !!----
-SubModule (CFML_Messages) Errors
+SubModule (CFML_Messages) Wmess_Errors
+  Implicit none
    Contains
 
    !!----
@@ -46,4 +47,4 @@ SubModule (CFML_Messages) Errors
    End Subroutine Error_Message
 
 
-End SubModule Errors
+End SubModule Wmess_Errors
