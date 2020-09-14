@@ -1,13 +1,11 @@
 #################################
 # Commad line arguments section
 #################################
-
 cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
 
 #################################
 # Project section
 #################################
-
 # The project is declared. It is a Fortran project.
 project(Python_API Fortran)
 set(LIBRARY_NAME crysfml_api)
@@ -55,6 +53,37 @@ target_link_libraries(${LIBRARY_NAME} crysfml_common)
 target_link_libraries(${LIBRARY_NAME} Python3_LIB)
 
 #################################
+# Documentation
+#################################
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+	set( DOXYGEN_OUTPUT_DIRECTORY doxygen )
+	set( DOXYGEN_COLLABORATION_GRAPH YES )
+	set( DOXYGEN_EXTRACT_ALL YES )
+	set( DOXYGEN_CLASS_DIAGRAMS YES )
+	set( DOXYGEN_HIDE_UNDOC_RELATIONS NO )
+	set( DOXYGEN_HAVE_DOT YES )
+	set( DOXYGEN_CLASS_GRAPH YES )
+	set( DOXYGEN_CALL_GRAPH YES )
+	set( DOXYGEN_CALLER_GRAPH YES )
+	set( DOXYGEN_COLLABORATION_GRAPH YES )
+	set( DOXYGEN_BUILTIN_STL_SUPPORT YES )
+	set( DOXYGEN_EXTRACT_PRIVATE YES )
+	set( DOXYGEN_EXTRACT_PACKAGE YES )
+	set( DOXYGEN_EXTRACT_STATIC YES )
+	set( DOXYGEN_EXTRACT_LOCALMETHODS YES )
+	set( DOXYGEN_UML_LOOK YES )
+	set( DOXYGEN_UML_LIMIT_NUM_FIELDS 50 )
+	set( DOXYGEN_TEMPLATE_RELATIONS YES )
+	set( DOXYGEN_DOT_GRAPH_MAX_NODES 100 )
+	set( DOXYGEN_MAX_DOT_GRAPH_DEPTH 0 )
+	set( DOXYGEN_DOT_TRANSPARENT YES )
+	doxygen_add_docs( doxygen ${CMAKE_CURRENT_SOURCE_DIR} )
+else (DOXYGEN_FOUND)
+  message("Doxygen is not installed - no documentation will be generated")
+endif (DOXYGEN_FOUND)
+
+#################################
 # Install section
 #################################
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
@@ -71,8 +100,13 @@ install(TARGETS ${LIBRARY_NAME} RUNTIME DESTINATION ${PYTHON_API_PREFIX}/CFML_ap
 else()
 install(TARGETS ${LIBRARY_NAME} LIBRARY DESTINATION ${PYTHON_API_PREFIX}/CFML_api)
 endif()
+
 # Installing example files
-install(DIRECTORY "../Examples" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
-install(DIRECTORY "../Examples/Data" DESTINATION ${PYTHON_API_PREFIX}/Examples FILES_MATCHING PATTERN "*.cfl" PATTERN "*.cif")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Examples" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Examples/Data" DESTINATION ${PYTHON_API_PREFIX}/Examples FILES_MATCHING PATTERN "*.cfl" PATTERN "*.cif")
+
 # Installing tests files
-install(DIRECTORY "../Tests" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Tests" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
+
+# Installing documentation files
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen/html" DESTINATION ${PYTHON_API_PREFIX}/Doc)
