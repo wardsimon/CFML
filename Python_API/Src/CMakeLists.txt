@@ -78,6 +78,7 @@ if (DOXYGEN_FOUND)
 	set( DOXYGEN_DOT_GRAPH_MAX_NODES 100 )
 	set( DOXYGEN_MAX_DOT_GRAPH_DEPTH 0 )
 	set( DOXYGEN_DOT_TRANSPARENT YES )
+	set( DOXYGEN_EXCLUDE_PATTERNS *.f90 )
 	doxygen_add_docs( doxygen ${CMAKE_CURRENT_SOURCE_DIR} )
 else (DOXYGEN_FOUND)
   message("Doxygen is not installed - no documentation will be generated")
@@ -109,4 +110,4 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Examples/Data" DESTINATION ${P
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../Tests" DESTINATION ${PYTHON_API_PREFIX} FILES_MATCHING PATTERN "*.py")
 
 # Installing documentation files
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen/html" DESTINATION ${PYTHON_API_PREFIX}/Doc)
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen/html" DESTINATION ${PYTHON_API_PREFIX}/Doc OPTIONAL)
