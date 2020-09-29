@@ -1,7 +1,7 @@
 #################################
 # Commad line arguments section
 #################################
-cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
 #################################
 # Project section
@@ -30,13 +30,20 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
-#find_package(Python3 REQUIRED)
-#include_directories(${Python3_INCLUDE_DIRS})
+#For a strange reason, find_package must be launched twice !
+if((NOT PYTHON_LIBRARY_PATH) OR (NOT PYTHON_INTERPRETER_PATH))
+  find_package(Python3 COMPONENTS Interpreter Development)
+  find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+endif()
 if(NOT PYTHON_LIBRARY_PATH)
-  #For a strange reason, find_package must be launched twice !
-  find_package(Python3 COMPONENTS Interpreter Development)
-  find_package(Python3 COMPONENTS Interpreter Development)
   set(PYTHON_LIBRARY_PATH ${Python3_LIBRARIES})
+else()
+  message(STATUS "Linking Python extension with provided PYTHON_LIBRARY_PATH variable: " ${PYTHON_LIBRARY_PATH})
+endif()
+if(NOT PYTHON_INTERPRETER_PATH)
+  set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
+else()
+  message(STATUS "using Python interpreter provided with PYTHON_INTERPRETER_PATH variable: " ${PYTHON_INTERPRETER_PATH})
 endif()
 
 if (UNIX)
@@ -51,6 +58,17 @@ endif()
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 target_link_libraries(${LIBRARY_NAME} crysfml_common)
 target_link_libraries(${LIBRARY_NAME} Python3_LIB)
+
+# Set library extension
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
+set(LIBRARY_FILENAME "crysfml_api.so")
+if(APPLE)
+    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".so")
+    set(LIBRARY_FILENAME "crysfml_api.so")
+elseif(WIN32)
+    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
+    set(LIBRARY_FILENAME "crysfml_api.pyd")
+endif()
 
 #################################
 # Documentation
@@ -84,16 +102,33 @@ else (DOXYGEN_FOUND)
   message("Doxygen is not installed - no documentation will be generated")
 endif (DOXYGEN_FOUND)
 
+
+#################################
+# Tests
+#################################
+# Add tests
+add_test(NAME "Python_API_Tests" COMMAND ${PYTHON_INTERPRETER_PATH} -m unittest discover ${CMAKE_CURRENT_BINARY_DIR}/../Tests)
+add_custom_target(Python_Files ALL
+        COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/../Tests
+        ${CMAKE_CURRENT_BINARY_DIR}/../Tests
+        
+        COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/../Tests/CFML_api
+        
+        COMMAND
+        ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_FILENAME}
+        ${CMAKE_CURRENT_BINARY_DIR}/../Tests/CFML_api
+        )
+
+
 #################################
 # Install section
 #################################
-set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
-if(APPLE)
-    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".so")
-elseif(WIN32)
-    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
-endif()
-
 # The rules for installing the library.
 install(DIRECTORY "" DESTINATION ${PYTHON_API_PREFIX}/CFML_api FILES_MATCHING PATTERN "*.py" PATTERN "Extensions" EXCLUDE)
 if(WIN32)

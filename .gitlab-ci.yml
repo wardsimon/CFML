@@ -203,6 +203,7 @@ make_release:macos:
     - export HDF5_INCLUDE_PATH="/Users/ci/Projects/fullprof/hdf5-ifort/include"
     - export HDF5_LIBRARY_PATH="/Users/ci/Projects/fullprof/hdf5-ifort/lib"
     - export PYTHON_LIBRARY_PATH="/Users/ci/Projects/fullprof/libpython3.7.dylib"
+    - export TEST_TRICK_COMMAND="install_name_tool -change /Library/Frameworks/Python.framework/Versions/3.7/Python /usr/local/Cellar/python\@3.8/3.8.3/Frameworks/Python.framework/Versions/3.8/Python Python_API/Tests/CFML_api/crysfml_api.so"
     - BuildServer/Unix/build_release.sh
   artifacts:
     name: "CrysFML macOS"
@@ -236,6 +237,7 @@ make_release:windows:
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib
     - set PYTHON_LIBRARY_PATH=C:\\Projects\\fullprof\\python37\\libs\\python37.lib
+    - set PYTHON_INTERPRETER_PATH=C:\\Projects\fullprof\\python37\\python3.exe
     - call "BuildServer\\Windows\\build_release.bat"
   artifacts:
     name: "CrysFML Windows"
