@@ -1,5 +1,5 @@
 compiler=$1
-echo "Building CrysFML with ${compiler##/*}"
+echo "Building CrysFML with ${compiler*##/}"
 
 rm -Rf build_release
 mkdir build_release
