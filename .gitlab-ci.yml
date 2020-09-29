@@ -99,7 +99,7 @@ make:macos_ifort:
 make:macos_gfortran_F2008:
   stage: make
   script:
-    - BuildServer/Unix/build_F2008.sh gfortran
+    - BuildServer/Unix/build_F2008.sh /usr/local/Cellar/gcc/9.3.0_1/bin/gfortran
   tags:
     - sci
     - osx-10.13
