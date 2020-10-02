@@ -12,7 +12,9 @@ module API_Atom_TypeDef
        Atoms_Cell_To_List, &
        Write_Atom_list, &
        Atom_type
-  
+
+  use CFML_IO_Formats, only: &
+       Read_Atom
 
   implicit none
 
@@ -224,6 +226,7 @@ contains
 
   end function atom_typedef_get_item
 
+  
   function atom_typedef_get_natoms(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
@@ -299,6 +302,62 @@ contains
   !----------------------------------------------------------------------------------
   ! type(Atom_type)
   !----------------------------------------------------------------------------------
+  function atom_typedef_atom_from_string(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+    integer     :: ii
+    
+    type(Atom_type_p) :: a_p
+    type(object)      :: str_obj
+    character(len=:), allocatable :: str
+    integer      :: a_p12(12)
+    type(list)   :: a_obj
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "atom_from_string expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    call get_atom_type_from_arg(args, a_p, 0)
+
+    !Get string
+    ierror = args%getitem(str_obj, 1)
+    ierror = cast_nonstrict(str, str_obj)
+
+    write(*,*) str
+    
+    call Read_atom(str, a_p%p)
+
+    a_p12    = transfer(a_p, a_p12)
+    ierror = list_create(a_obj)
+    do ii=1,12
+       ierror = a_obj%append(a_p12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("Atom", a_obj)
+
+    r = retval%get_c_ptr()
+    call args%destroy
+    
+
+  end function atom_typedef_atom_from_string
+
+  
   function atom_typedef_del_atom(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr

@@ -90,6 +90,7 @@ module API_init
        atom_typedef_del_atom_list, &
        atom_typedef_get_item, &
        atom_typedef_get_natoms, &
+       atom_typedef_atom_from_string, &
        atom_typedef_del_atom, &
        atom_typedef_get_Lab, &
        atom_typedef_get_ChemSymb, &
@@ -165,7 +166,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(108)
+    call method_table%init(109)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -382,7 +383,7 @@ CONTAINS
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
     !--------------------------
-    ! Atom Typedef (42)
+    ! Atom Typedef (43)
     !--------------------------
     call method_table%add_method("atom_typedef_del_atom_list", &                  ! method name
          "Delete an atom list", &  !doc-string
@@ -403,6 +404,11 @@ CONTAINS
          "Return the atom list description", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_write_atom_list))  ! address of Fortran function to add
+
+    call method_table%add_method("atom_typedef_atom_from_string", &                  ! method name
+         "Create an atom from a string", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_atom_from_string))  ! address of Fortran function to add
     
     call method_table%add_method("atom_typedef_del_atom", &                  ! method name
          "Delete an atom", &  !doc-string
