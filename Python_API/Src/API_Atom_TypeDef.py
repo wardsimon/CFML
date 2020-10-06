@@ -30,8 +30,7 @@ class Atom(CFML_api.FortranBindedClass):
 
     def from_string(self, string):
         dict = CFML_api.crysfml_api.atom_typedef_atom_from_string(self.get_fortran_address(),string)
-        atom = CFML_api.API_Atom_TypeDef.Atom.from_fortran_address(dict["Atom"])
-        return atom
+        self._set_fortran_address(dict["Atom"])
     
     @property
     def label(self):

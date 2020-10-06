@@ -391,10 +391,9 @@ contains
     ierror = args%getitem(str_obj, 1)
     ierror = cast_nonstrict(str, str_obj)
 
-    write(*,*) str
-    
+    allocate(a_p%p)
     call Read_atom(str, a_p%p)
-
+    
     a_p12    = transfer(a_p, a_p12)
     ierror = list_create(a_obj)
     do ii=1,12
