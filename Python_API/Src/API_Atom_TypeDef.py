@@ -307,15 +307,11 @@ class Atom(CFML_api.FortranBindedClass):
     def xyz(self, xyz):
         """
         Setter for the position
-        Requires a numpy array
+        Requires a numpy array or a list (length=3) as input
         """
-        string = self.__generate_string_()
-        CFML_api.crysfml_api.atom_typedef_del_atom(self.get_fortran_address())
-        self._set_fortran_address(CFML_api.crysfml_api.atom_typedef_read_atom(string))
-        try:
-            self.__atom_list[self.__key] = self.get_fortran_address()
-        except AttributeError:
-            pass
+        # Label Element x y z b_iso multiplicity
+        string = 'ATOM %s %s %s %s %s %s %s' %(self.label, self.chemical_symbol, str(xyz[0]), str(xyz[1]), str(xyz[2]), self.biso, self.site_multiplicity)
+        self.from_string(string)
 
 class AtomList(CFML_api.FortranBindedClass):
     """ Class for the list of Atoms type(Atom_list_type) in CFML. 
