@@ -54,8 +54,11 @@ contains
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)
        ierror = cast(alist_p12(ii), t)
+       call t%destroy
     enddo
     alist_p = transfer(alist_p12, alist_p)
+    call arg_obj%destroy
+    call arg_list%destroy
 
   end subroutine get_atom_list_type_from_arg
 
@@ -81,8 +84,11 @@ contains
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)
        ierror = cast(atom_p12(ii), t)
+       call t%destroy
     enddo
     atom_p = transfer(atom_p12, atom_p)
+    call arg_obj%destroy
+    call arg_list%destroy
 
   end subroutine get_atom_type_from_arg
 
@@ -207,9 +213,7 @@ contains
 
     ierror = args%getitem(item_obj, 1)
     ierror = cast_nonstrict(item, item_obj)
-
     allocate(a_p%p)
-
     a_p%p = alist_p%p%atom(item+1)
 
     a_p12    = transfer(a_p, a_p12)
@@ -223,6 +227,8 @@ contains
 
     r = retval%get_c_ptr()
     call args%destroy
+    call item_obj%destroy
+    call a_obj%destroy
 
   end function atom_typedef_get_item
 
