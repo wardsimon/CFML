@@ -369,7 +369,7 @@ contains
     
     type(Atom_type_p) :: a_p
     type(object)      :: str_obj
-    character(len=:), allocatable :: str
+    character(len=:), allocatable :: string
     integer      :: a_p12(12)
     type(list)   :: a_obj
 
@@ -389,10 +389,10 @@ contains
 
     !Get string
     ierror = args%getitem(str_obj, 1)
-    ierror = cast_nonstrict(str, str_obj)
+    ierror = cast_nonstrict(string, str_obj)
 
     allocate(a_p%p)
-    call Read_atom(str, a_p%p)
+    call Read_atom(string, a_p%p)
     
     a_p12    = transfer(a_p, a_p12)
     ierror = list_create(a_obj)
