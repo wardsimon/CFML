@@ -142,6 +142,53 @@ contains
 !!$
 !!$  end function atom_typedef_set_atomlist
 
+
+  function atom_typedef_set_item(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(object) :: index_obj
+    integer :: index_int
+
+    type(Atom_list_type_p) :: a_l_p
+    type(Atom_type_p) :: a_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 3) then
+       call raise_exception(TypeError, "set_item expects exactly 3 argument")
+       call args%destroy
+       return
+    endif
+
+    !
+    call get_atom_list_type_from_arg(args, a_l_p, 0)
+    call get_atom_type_from_arg(args, a_p, 1)
+    ierror = args%getitem(index_obj, 2)
+    ierror = cast_nonstrict(index_int, index_obj)
+
+    !
+    a_l_p%p%atom(index_int) = a_p%p
+
+    !
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call index_obj%destroy
+
+  end function atom_typedef_set_item
+
+
   function atom_typedef_del_atom_list(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr

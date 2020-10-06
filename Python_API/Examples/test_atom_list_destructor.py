@@ -11,4 +11,6 @@ atom_list = cif_file.atom_list
 while True:
     atom_list.natoms
     atom1 = atom_list[0]
-    
+    atom2 = atom_list[1]
+    atom_list[0]=atom2
+    atom_list[1]=atom1

@@ -303,7 +303,20 @@ class Atom(CFML_api.FortranBindedClass):
         Label in the LSQ list of the magnetic moment along x,y,
         """
         return CFML_api.crysfml_api.atom_typedef_get_Lm_xyz(self.get_fortran_address())["Lm_xyz"]
-
+    
+    @xyz.setter
+    def xyz(self, xyz):
+        """
+        Setter for the position
+        Requires a numpy array
+        """
+        string = self.__generate_string_()
+        CFML_api.crysfml_api.atom_typedef_del_atom(self.get_fortran_address())
+        self._set_fortran_address(CFML_api.crysfml_api.atom_typedef_read_atom(string))
+        try:
+            self.__atom_list[self.__key] = self.get_fortran_address()
+        except AttributeError:
+            pass
 
 class AtomList(CFML_api.FortranBindedClass):
     """ Class for the list of Atoms type(Atom_list_type) in CFML. 
@@ -325,7 +338,13 @@ class AtomList(CFML_api.FortranBindedClass):
         atom = CFML_api.API_Atom_TypeDef.Atom.from_fortran_address(dict["Atom"])
         return atom
         
-    #def __setitem__(self,key,atom):
+    def __setitem__(self,key,atom):               
+        # Destroy old atom
+        dict = CFML_api.crysfml_api.atom_typedef_get_item(self.get_fortran_address(),key+1)
+        CFML_api.crysfml_api.atom_typedef_del_atom(dict["Atom"])
+            
+        # Put new atom in Fortran list
+        CFML_api.crysfml_api.atom_typedef_set_item(self.get_fortran_address(), atom.get_fortran_address(), key+1)
 
     @property
     def natoms(self):

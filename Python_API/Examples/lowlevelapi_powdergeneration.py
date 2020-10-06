@@ -14,10 +14,14 @@ cell = cif_file.cell
 space_group = cif_file.space_group
 atom_list = cif_file.atom_list
 
-atom = atom_list[0]
-
 cell.print_description()
 space_group.print_description()
+atom_list.print_description()
+
+atom1 = atom_list[0]
+atom2 = atom_list[1]
+atom_list[0]=atom2
+atom_list[1]=atom1
 atom_list.print_description()
 
 powder_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
