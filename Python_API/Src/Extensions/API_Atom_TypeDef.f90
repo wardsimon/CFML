@@ -14,7 +14,7 @@ module API_Atom_TypeDef
        Atom_type
 
   use CFML_IO_Formats, only: &
-       Read_Atom
+       Read_Atom, Read_Cif_Atom
 
   implicit none
 
@@ -92,55 +92,66 @@ contains
 
   end subroutine get_atom_type_from_arg
 
-!!$  ! @brief Allocate an atom list for N atoms
-!!$  ! @todo Do we need to bind that function ??
-!!$  function atom_typedef_set_atomlist(self_ptr, args_ptr) result(r) bind(c)
-!!$
-!!$    type(c_ptr), value :: self_ptr
-!!$    type(c_ptr), value :: args_ptr
-!!$    type(c_ptr) :: r
-!!$    
-!!$    type(tuple) :: args
-!!$    type(dict)  :: retval
-!!$    integer     :: num_args
-!!$    integer     :: ierror
-!!$    integer     :: i,ii
-!!$    type(list)  :: index_obj
-!!$
-!!$    type(object)                         :: natom_obj
-!!$    integer                              :: natom
-!!$    type(Atom_list_type_p)               :: alist_p
-!!$    integer                              :: alist_p12(12)
-!!$       
-!!$    r = C_NULL_PTR      
-!!$    call unsafe_cast_from_c_ptr(args, args_ptr)
-!!$    
-!!$    ierror = args%len(num_args)
-!!$    
-!!$    if (num_args /=1 ) then
-!!$       call raise_exception(TypeError, "set_atomlist expects exactly 1 argument")
-!!$       call args%destroy
-!!$       return
-!!$    endif
-!!$     
-!!$    ierror = args%getitem(natom_obj, 0)        
-!!$    ierror = cast_nonstrict(natom, natom_obj)
-!!$    
-!!$       
-!!$    allocate(alist_p%p)
-!!$    call Allocate_Atom_List(natom, alist_p%p) 
-!!$    
-!!$    alist_p12 = transfer(alist_p,alist_p12)
-!!$    ierror = list_create(index_obj)
-!!$    do ii=1,12
-!!$       ierror = index_obj%append(alist_p12(ii))
-!!$    end do
-!!$
-!!$    ierror = dict_create(retval)
-!!$    ierror = retval%setitem("address", index_obj)
-!!$    r = retval%get_c_ptr()
-!!$
-!!$  end function atom_typedef_set_atomlist
+  ! @brief Create an atom list from an array of CIF lines
+  function atom_typedef_atomlist_from_CIF_string_array(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+    integer     :: i,ii
+    type(list)  :: a_obj
+
+    type(object)                         :: nline_obj
+    integer                              :: nline, natom, n_ini
+    type(Atom_list_type_p)               :: alist_p
+    integer                              :: alist_p12(12)
+
+    character(len=256), dimension(:), pointer :: stringarray_p
+    type(object)                            :: stringarray_obj
+    type(ndarray)                           :: stringarray_nd
+    
+    r = C_NULL_PTR      
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    
+    ierror = args%len(num_args)
+    
+    if (num_args /=2 ) then
+       call raise_exception(TypeError, "atomlist_from_CIF_string_array expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ierror = args%getitem(stringarray_obj, 0)        
+    ierror = cast(stringarray_nd, stringarray_obj)
+    ierror = stringarray_nd%get_data(stringarray_p)
+    
+    ierror = args%getitem(nline_obj, 1)        
+    ierror = cast_nonstrict(nline, nline_obj)
+   
+    allocate(alist_p%p)
+    n_ini = 1
+    call Read_Cif_Atom(stringarray_p, n_ini, nline+1, natom, alist_p%p)
+    
+    alist_p12 = transfer(alist_p,alist_p12)
+    ierror = list_create(a_obj)
+    do ii=1,12
+       ierror = a_obj%append(alist_p12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("Atom", a_obj)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call a_obj%destroy
+    call nline_obj%destroy
+
+  end function atom_typedef_atomlist_from_CIF_string_array
 
 
   function atom_typedef_set_item(self_ptr, args_ptr) result(r) bind(c)

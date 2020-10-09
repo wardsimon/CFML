@@ -337,6 +337,13 @@ class AtomList(CFML_api.FortranBindedClass):
     print_description
         Print the list of atoms
     """
+    def __init__(self, string_array=None):
+        CFML_api.FortranBindedClass.__init__(self)
+        if string_array:
+            nline = len(string_array)
+            dict = CFML_api.crysfml_api.atom_typedef_atomlist_from_CIF_string_array(string_array, nline)
+            self._set_fortran_address(dict["Atom"])
+              
     def __del__(self):
         CFML_api.crysfml_api.atom_typedef_del_atom_list(self.get_fortran_address())
     
@@ -352,7 +359,7 @@ class AtomList(CFML_api.FortranBindedClass):
             
         # Put new atom in Fortran list
         CFML_api.crysfml_api.atom_typedef_set_item(self.get_fortran_address(), atom.get_fortran_address(), key+1)
-
+    
     @property
     def natoms(self):
         """

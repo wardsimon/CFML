@@ -88,6 +88,7 @@ module API_init
 
   use API_Atom_TypeDef, only: &
        atom_typedef_del_atom_list, &
+       atom_typedef_atomlist_from_CIF_string_array, &
        atom_typedef_get_item, &
        atom_typedef_get_natoms, &
        atom_typedef_atom_from_string, &
@@ -167,7 +168,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(110)
+    call method_table%init(111)
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
@@ -384,13 +385,18 @@ CONTAINS
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
     !--------------------------
-    ! Atom Typedef (44)
+    ! Atom Typedef (45)
     !--------------------------
     call method_table%add_method("atom_typedef_del_atom_list", &                  ! method name
          "Delete an atom list", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_del_atom_list))  ! address of Fortran function to add
-
+    
+    call method_table%add_method("atom_typedef_atomlist_from_CIF_string_array", & ! method name
+         "Create an atom list from an array of CIF lines", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(atom_typedef_atomlist_from_CIF_string_array))  ! address of Fortran function to add
+    
     call method_table%add_method("atom_typedef_set_item", &                  ! method name
          "Set an item in the atom list", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
