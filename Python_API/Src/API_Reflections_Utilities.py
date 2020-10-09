@@ -17,7 +17,7 @@ import CFML_api.FortranBindedClass
 
 class ReflectionList(CFML_api.FortranBindedClass):
     def __init__(self, cell, spg, lfriedel, value1, value2):
-
+        CFML_api.FortranBindedClass.__init__(self)
         self._set_fortran_address(
             CFML_api.crysfml_api.reflections_utilities_hkl_uni_reflist(
                 cell.get_fortran_address(), spg.get_fortran_address(),

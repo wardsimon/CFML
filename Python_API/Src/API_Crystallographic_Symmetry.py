@@ -42,11 +42,14 @@ class SpaceGroup(CFML_api.FortranBindedClass):
         group_id : int
             Space group number
         """
+        CFML_api.FortranBindedClass.__init__(self)
         if group_id is not None:
             self._set_fortran_address(CFML_api.crysfml_api.crystallographic_symmetry_set_spacegroup(group_id)["address"])
 
     def __del__(self):
-        CFML_api.crysfml_api.crystallographic_symmetry_del_spacegroup(self.get_fortran_address())
+        address = self.get_fortran_address()
+        if address:
+            CFML_api.crysfml_api.crystallographic_symmetry_del_spacegroup(address)
 
     def print_description(self):
         """ Prints the lattice cell description """

@@ -32,7 +32,9 @@ class Atom(CFML_api.FortranBindedClass):
             self.from_string(string)
         
     def __del__(self):
-        CFML_api.crysfml_api.atom_typedef_del_atom(self.get_fortran_address())
+        address = self.get_fortran_address()
+        if address:
+            CFML_api.crysfml_api.atom_typedef_del_atom(address)
 
     def from_string(self, string):
         dict = CFML_api.crysfml_api.atom_typedef_atom_from_string(string)

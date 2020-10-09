@@ -42,13 +42,15 @@ class Cell(CFML_api.FortranBindedClass):
         lattangle : ndarray(dtype='float32', ndim=1)
             Array containing the lattice angles (alpha, beta, gamma)
         """
-        
+        CFML_api.FortranBindedClass.__init__(self)
         if lattpar is not None and lattangle is not None:
             self._set_fortran_address(
                 CFML_api.crysfml_api.crystal_metrics_set_crystal_cell(lattpar,lattangle)["address"])
     
     def __del__(self):
-        CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(self.get_fortran_address())
+        address = self.get_fortran_address()
+        if address:
+            CFML_api.crysfml_api.crystal_metrics_del_crystal_cell(address)
 
     def print_description(self):
         """ Prints the lattice cell description """

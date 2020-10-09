@@ -19,7 +19,7 @@ class FortranBindedClass():
     @classmethod    
     def from_fortran_address(cls, address):
         instance = cls()
-        instance.__address = address
+        instance._set_fortran_address(address)
         return instance
     
     def set_parent(self, parent):
@@ -29,4 +29,7 @@ class FortranBindedClass():
         self.__address = address
 
     def get_fortran_address(self):
-        return self.__address.copy()
+        if self.__address:
+            return self.__address.copy()
+        else:
+            return None
