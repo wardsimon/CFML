@@ -39,7 +39,7 @@ print("========\nModified 1st atom")
 atom_list.print_description()
 
 # Create atom from string
-atom2 = CFML_api.Atom('ATOM C C 0.0 0.0 0.0 0.2 0.5')
+atom2 = CFML_api.Atom('ATOM C C 0.2(0.1) 0.4(0.3) 0.5(0.4) 0.2 0.5(0.1)  3  4 #info')
 print("========\nAtom created from string")
 print(atom2)
 
