@@ -39,6 +39,7 @@ print("========\nModified 1st atom")
 atom_list.print_description()
 
 # Create atom from string
+# ATOM   label    Chem/Scatt    x(s_x)   y(s_y)   z(s_z)   B_iso(s_b)    Occ(s_o)   mom  charge # String_with_info
 atom2 = CFML_api.Atom('ATOM C C 0.2(0.1) 0.4(0.3) 0.5(0.4) 0.2 0.5(0.1)  3  4 #info')
 print("========\nAtom created from string")
 print(atom2)
