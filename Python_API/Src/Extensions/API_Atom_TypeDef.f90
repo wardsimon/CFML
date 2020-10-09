@@ -405,7 +405,7 @@ contains
 
     r = retval%get_c_ptr()
     call args%destroy
-    
+    call a_obj%destroy
 
   end function atom_typedef_atom_from_string
 
@@ -713,6 +713,7 @@ contains
     ierror = retval%setitem("X", X)
     r = retval%get_c_ptr()
     call args%destroy
+    call X%destroy
     
   end function atom_typedef_get_X
   
