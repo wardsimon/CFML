@@ -27,5 +27,3 @@ class ReflectionList(CFML_api.FortranBindedClass):
         CFML_api.crysfml_api.structure_factors_structure_factors(
             atom_list.get_fortran_address(), space_group.get_fortran_address(),
             self.get_fortran_address())
-        CFML_api.crysfml_api.structure_factors_write_structure_factors(self.get_fortran_address())
-
