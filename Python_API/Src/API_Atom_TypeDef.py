@@ -25,12 +25,22 @@ class Atom(CFML_api.FortranBindedClass):
     Methods
     -------
     """
+    
+    def __init__(self, string=None):
+        CFML_api.FortranBindedClass.__init__(self)
+        if string:
+            self.from_string(string)
+        
     def __del__(self):
         CFML_api.crysfml_api.atom_typedef_del_atom(self.get_fortran_address())
 
     def from_string(self, string):
-        dict = CFML_api.crysfml_api.atom_typedef_atom_from_string(self.get_fortran_address(),string)
+        dict = CFML_api.crysfml_api.atom_typedef_atom_from_string(string)
         self._set_fortran_address(dict["Atom"])
+        
+    def __str__(self):
+        xyz = self.xyz
+        return 'ATOM %s %s %s %s %s %s %s'%(self.label, self.chemical_symbol, str(xyz[0]), str(xyz[1]), str(xyz[2]), self.biso, self.site_multiplicity)
     
     @property
     def label(self):

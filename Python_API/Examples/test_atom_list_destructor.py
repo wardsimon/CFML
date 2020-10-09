@@ -12,5 +12,9 @@ while True:
     atom_list.natoms
     atom1 = atom_list[0]
     atom2 = atom_list[1]
+    atom1.xyz
     atom_list[0]=atom2
     atom_list[1]=atom1
+    atom = CFML_api.Atom('ATOM C C 0.0 0.0 0.0 0.2 0.5')
+    atom_new = CFML_api.Atom('ATOM C C 0.0 0.0 0.0 0.2 0.5')
+    atom_list[0] = atom_new

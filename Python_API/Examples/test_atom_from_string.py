@@ -24,3 +24,9 @@ atom_list.print_description()
 atom.xyz=np.asarray([0.2, 0.3, 0.4])
 atom_list[0] = atom
 atom_list.print_description()
+
+atom2 = CFML_api.Atom('ATOM C C 0.0 0.0 0.0 0.2 0.5')
+print(atom2)
+
+atom_list[3] = atom2
+atom_list.print_description()

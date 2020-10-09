@@ -379,16 +379,14 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 2) then
-       call raise_exception(TypeError, "atom_from_string expects exactly 2 arguments")
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "atom_from_string expects exactly 1 arguments")
        call args%destroy
        return
     endif
 
-    call get_atom_type_from_arg(args, a_p, 0)
-
     !Get string
-    ierror = args%getitem(str_obj, 1)
+    ierror = args%getitem(str_obj, 0)
     ierror = cast_nonstrict(string, str_obj)
 
     allocate(a_p%p)
