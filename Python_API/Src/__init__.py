@@ -16,7 +16,7 @@
 try:
     import CFML_api.crysfml_api
 except ImportError as e:
-    raise ImportError(str(e) + "\n\n=> Fortran binding could not be found. Is it properly compiled ?")
+    raise ImportError(str(e) + "\n\n=> Fortran binding could not be found. It may not be properly compiled, or it may be linked with another Python interpreter")
 
 from CFML_api.FortranBindedClass import FortranBindedClass
 from CFML_api.API_Atom_TypeDef import AtomList
