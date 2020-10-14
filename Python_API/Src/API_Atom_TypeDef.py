@@ -340,9 +340,8 @@ class AtomList(CFML_api.FortranBindedClass):
     def __init__(self, string_array=None):
         CFML_api.FortranBindedClass.__init__(self)
         if string_array:
-            nline = len(string_array)
-            dict = CFML_api.crysfml_api.atom_typedef_atomlist_from_CIF_string_array(string_array, nline)
-            self._set_fortran_address(dict["Atom"])
+            dict = CFML_api.crysfml_api.atom_typedef_atomlist_from_CIF_string_array(string_array)
+            self._set_fortran_address(dict["AtomList"])
               
     def __del__(self):
         CFML_api.crysfml_api.atom_typedef_del_atom_list(self.get_fortran_address())

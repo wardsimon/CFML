@@ -7,13 +7,20 @@ import numpy as np
 
 import CFML_api
 
-filename = "../Examples/Data/SrTiO3.cif"
-cif_file = CFML_api.CIFFile(filename )
-
-cell = cif_file.cell
-space_group = cif_file.space_group
-atom_list = cif_file.atom_list
-print("========\nInitial atom list")
+# Create list from string
+print("========\nCreate atom_list from string")
+dat = [
+'loop_                     ',
+'_atom_site_label          ',
+'_atom_site_fract_x        ',
+'_atom_site_fract_y        ',
+'_atom_site_fract_z        ',
+'_atom_site_U_iso_or_equiv ',
+'Sr 0.00000 0.00000 0.25000 0.00608',
+'Ti 0.50000 0.00000 0.00000 0.00507',
+'O1 0.00000 0.50000 0.25000 0.01646',
+'O2 0.75000 0.25000 0.00000 0.02026']
+atom_list = CFML_api.AtomList(dat)
 atom_list.print_description()
 
 # Switch atoms

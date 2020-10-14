@@ -103,53 +103,77 @@ contains
     type(dict)  :: retval
     integer     :: num_args
     integer     :: ierror
-    integer     :: i,ii
-    type(list)  :: a_obj
 
-    type(object)                         :: nline_obj
+    integer     :: max_line_length
+    integer     :: ii
+    type(list)  :: a_obj
+    type(object):: item_obj
+    character(len=:), allocatable :: item
+
     integer                              :: nline, natom, n_ini
     type(Atom_list_type_p)               :: alist_p
     integer                              :: alist_p12(12)
 
-    character(len=256), dimension(:), pointer :: stringarray_p
+    character(len=:), dimension(:), allocatable :: stringarray
     type(object)                            :: stringarray_obj
-    type(ndarray)                           :: stringarray_nd
+    type(list)                           :: stringarray_list
     
     r = C_NULL_PTR      
     call unsafe_cast_from_c_ptr(args, args_ptr)
-    
     ierror = args%len(num_args)
-    
-    if (num_args /=2 ) then
-       call raise_exception(TypeError, "atomlist_from_CIF_string_array expects exactly 2 arguments")
+    if (num_args /=1 ) then
+       call raise_exception(TypeError, "atomlist_from_CIF_string_array expects exactly 1 argument")
        call args%destroy
        return
     endif
 
-    ierror = args%getitem(stringarray_obj, 0)        
-    ierror = cast(stringarray_nd, stringarray_obj)
-    ierror = stringarray_nd%get_data(stringarray_p)
-    
-    ierror = args%getitem(nline_obj, 1)        
-    ierror = cast_nonstrict(nline, nline_obj)
-   
+    ierror = args%getitem(stringarray_obj, 0)
+    ierror = cast(stringarray_list, stringarray_obj)
+    ierror = stringarray_list%len(nline)
+
+    ! Compute max line length
+    max_line_length = 0
+    do ii=1,nline
+        ierror = stringarray_list%getitem(item_obj, ii-1)
+        ierror = cast(item, item_obj)
+        if (len(item) > max_line_length) then
+            max_line_length = len(item)
+        endif
+        call item_obj%destroy
+    enddo
+    allocate(character(max_line_length) :: stringarray(nline))
+
+    ! Fill stringarray
+    do ii=1,nline
+        ierror = stringarray_list%getitem(item_obj, ii-1)
+        ierror = cast(item, item_obj)
+        stringarray(ii) = item
+        call item_obj%destroy
+    enddo
+
+    ! Create atom list from stringarray
     allocate(alist_p%p)
     n_ini = 1
-    call Read_Cif_Atom(stringarray_p, n_ini, nline+1, natom, alist_p%p)
-    
+    call Read_Cif_Atom(stringarray, n_ini, nline+1, natom, alist_p%p)
+
+    !
     alist_p12 = transfer(alist_p,alist_p12)
     ierror = list_create(a_obj)
     do ii=1,12
        ierror = a_obj%append(alist_p12(ii))
     end do
 
+    !
     ierror = dict_create(retval)
-    ierror = retval%setitem("Atom", a_obj)
+    ierror = retval%setitem("AtomList", a_obj)
     r = retval%get_c_ptr()
 
+    !
     call args%destroy
     call a_obj%destroy
-    call nline_obj%destroy
+    deallocate(stringarray)
+    call stringarray_obj%destroy
+    call stringarray_list%destroy
 
   end function atom_typedef_atomlist_from_CIF_string_array
 
