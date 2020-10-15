@@ -15,6 +15,7 @@ add_library(${LIBRARY_NAME} SHARED
   Extensions/API_Crystallographic_Symmetry.f90
   Extensions/API_Crystal_Metrics.f90
   Extensions/API_Diffraction_Patterns.f90
+  Extensions/API_Error_Messages.f90
   Extensions/API_IO_Formats.f90
   Extensions/API_Reflections_Utilities.f90
   Extensions/API_Structure_Factors.f90

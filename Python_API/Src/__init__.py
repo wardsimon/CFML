@@ -28,5 +28,6 @@ from CFML_api.API_IO_Formats import CIFFile
 from CFML_api.API_Reflections_Utilities import ReflectionList
 from CFML_api.PowderPatternSimulation import PowderPatternSimulationConditions
 from CFML_api.PowderPatternSimulation import PowderPatternSimulationSource
+from CFML_api.API_Error_Messages import ErrorMessages
 
 API_version = 0.2

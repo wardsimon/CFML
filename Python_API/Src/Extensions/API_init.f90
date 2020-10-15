@@ -17,6 +17,8 @@ module API_init
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
   
+  use API_Error_Messages, only: error_messages
+
   use API_Crystallographic_Symmetry,only: &
        crystallographic_symmetry_set_spacegroup, &
        crystallographic_symmetry_del_spacegroup, &
@@ -168,7 +170,16 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(111)
+    call method_table%init(112)
+
+    !--------------------------
+    ! Error Messages (1)
+    !--------------------------
+    call method_table%add_method("error_messages", &                  ! method name
+         "gets CrysFML error messages", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(error_messages))  ! address of Fortran function to add
+
     !--------------------------
     ! Diffraction Patterns (3)
     !--------------------------
