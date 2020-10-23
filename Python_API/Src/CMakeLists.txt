@@ -31,20 +31,23 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
-#For a strange reason, find_package must be launched twice !
-if((NOT PYTHON_LIBRARY_PATH) OR (NOT PYTHON_INTERPRETER_PATH))
-  find_package(Python3 COMPONENTS Interpreter Development)
-  find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-endif()
-if(NOT PYTHON_LIBRARY_PATH)
-  set(PYTHON_LIBRARY_PATH ${Python3_LIBRARIES})
-else()
-  message(STATUS "Linking Python extension with provided PYTHON_LIBRARY_PATH variable: " ${PYTHON_LIBRARY_PATH})
-endif()
-if(NOT PYTHON_INTERPRETER_PATH)
-  set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
+set(COMPATIBLE_VERSIONS 3.8 3.7 3.6 3.5)
+if (NOT PYTHON_INTERPRETER_PATH)
+  set(Python_ADDITIONAL_VERSIONS ${COMPATIBLE_VERSIONS})
+  find_package(PythonInterp REQUIRED)
+  set(PYTHON_INTERPRETER_PATH ${PYTHON_EXECUTABLE})
+  message(STATUS ${PYTHON_INTERPRETER_PATH})
 else()
   message(STATUS "using Python interpreter provided with PYTHON_INTERPRETER_PATH variable: " ${PYTHON_INTERPRETER_PATH})
+endif()
+
+if (NOT PYTHON_LIBRARY_PATH)
+  set(Python_ADDITIONAL_VERSIONS ${COMPATIBLE_VERSIONS})
+  find_package(PythonLibs REQUIRED)
+  set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY})
+  message(STATUS ${PYTHON_LIBRARY_PATH})
+else()
+  message(STATUS "Linking Python extension with provided PYTHON_LIBRARY_PATH variable: " ${PYTHON_LIBRARY_PATH})
 endif()
 
 if (UNIX)
@@ -125,6 +128,7 @@ add_custom_target(Python_Files ALL
         ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_FILENAME}
         ${CMAKE_CURRENT_BINARY_DIR}/../Tests/CFML_api
         )
+add_dependencies(Python_Files ${LIBRARY_NAME})
 
 
 #################################
