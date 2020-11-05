@@ -141,8 +141,48 @@ module API_init
 
   use API_Diffraction_Patterns, only: &
        diffraction_patterns_compute_powder_pattern, &
+       diffraction_patterns_del_powder_pattern, &
+       diffraction_patterns_get_title, &
+       diffraction_patterns_get_diff_kind, &
+       diffraction_patterns_get_scat_var, &
+       diffraction_patterns_get_xax_text, &
+       diffraction_patterns_get_yax_text, &
+       diffraction_patterns_get_instr, &
+       diffraction_patterns_get_filename, &
+       diffraction_patterns_get_filepath, &
+       diffraction_patterns_get_xmin, &
+       diffraction_patterns_get_xmax, &
+       diffraction_patterns_get_ymin, &
+       diffraction_patterns_get_ymax, &
+       diffraction_patterns_get_scal, &
+       diffraction_patterns_get_monitor, &
+       diffraction_patterns_get_norm_mon, &
+       diffraction_patterns_get_col_time, &
+       diffraction_patterns_get_step, &
+       diffraction_patterns_get_zerop, &
+       diffraction_patterns_get_Tsamp, &
+       diffraction_patterns_get_Tset, &
+       diffraction_patterns_get_npts, &
+       diffraction_patterns_get_ct_step, &
+       diffraction_patterns_get_gy, &
+       diffraction_patterns_get_gycalc, &
+       diffraction_patterns_get_gbgr, &
+       diffraction_patterns_get_gsigma, &
+       diffraction_patterns_get_sig_var, &
+       diffraction_patterns_get_al_x, &
+       diffraction_patterns_get_al_y, &
+       diffraction_patterns_get_al_ycalc, &
+       diffraction_patterns_get_al_bgr, &
+       diffraction_patterns_get_al_sigma, &
+       diffraction_patterns_get_al_istat, &
+       diffraction_patterns_get_conv, &
        diffraction_patterns_get_x, &
-       diffraction_patterns_get_y
+       diffraction_patterns_get_y, &
+       diffraction_patterns_get_sigma, &
+       diffraction_patterns_get_istat, &
+       diffraction_patterns_get_ycalc, &
+       diffraction_patterns_get_bgr, &
+       diffraction_patterns_get_nd
   
   implicit none
 
@@ -170,7 +210,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(112)
+    call method_table%init(152)
 
     !--------------------------
     ! Error Messages (1)
@@ -181,22 +221,222 @@ CONTAINS
          c_funloc(error_messages))  ! address of Fortran function to add
 
     !--------------------------
-    ! Diffraction Patterns (3)
+    ! Diffraction Patterns (43)
     !--------------------------
     call method_table%add_method("diffraction_patterns_compute_powder_pattern", &                  ! method name
          "compute the powder diffraction pattern from some experimental conditions and a set of reflections", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(diffraction_patterns_compute_powder_pattern))  ! address of Fortran function to add
 
+    call method_table%add_method("diffraction_patterns_del_powder_pattern", &                  ! method name
+         "diffraction pattern deallocation", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_del_powder_pattern))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_title", &                  ! method name
+         "title getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_title))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_diff_kind", &                  ! method name
+         "diff_kind getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_diff_kind))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_scat_var", &                  ! method name
+         "scat_var getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_scat_var))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_xax_text", &                  ! method name
+         "xax_text getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_xax_text))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_yax_text", &                  ! method name
+         "yax_text getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_yax_text))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_instr", &                  ! method name
+         "instr getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_instr))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_filename", &                  ! method name
+         "filename getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_filename))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_filepath", &                  ! method name
+         "filepath getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_filepath))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_xmin", &                  ! method name
+         "xmin getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_xmin))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_xmax", &                  ! method name
+         "xmax getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_xmax))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_ymin", &                  ! method name
+         "ymin getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_ymin))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_ymax", &                  ! method name
+         "ymax getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_ymax))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_scal", &                  ! method name
+         "scal getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_scal))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_monitor", &                  ! method name
+         "monitor getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_monitor))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_norm_mon", &                  ! method name
+         "norm_mon getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_norm_mon))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_col_time", &                  ! method name
+         "col_time getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_col_time))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_step", &                  ! method name
+         "step getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_step))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_zerop", &                  ! method name
+         "zerop getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_zerop))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_Tsamp", &                  ! method name
+         "Tsamp getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_Tsamp))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_Tset", &                  ! method name
+         "Tset getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_Tset))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_npts", &                  ! method name
+         "npts getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_npts))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_ct_step", &                  ! method name
+         "ct_step getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_ct_step))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_gy", &                  ! method name
+         "gy getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_gy))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_gycalc", &                  ! method name
+         "gycalc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_gycalc))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_gbgr", &                  ! method name
+         "gbgr getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_gbgr))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_gsigma", &                  ! method name
+         "gsigma getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_gsigma))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_sig_var", &                  ! method name
+         "sig_var getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_sig_var))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_x", &                  ! method name
+         "al_x getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_x))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_y", &                  ! method name
+         "al_y getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_y))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_ycalc", &                  ! method name
+         "al_ycalc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_ycalc))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_bgr", &                  ! method name
+         "al_bgr getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_bgr))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_sigma", &                  ! method name
+         "al_sigma getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_sigma))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_al_istat", &                  ! method name
+         "al_istat getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_al_istat))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_conv", &                  ! method name
+         "conv getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_conv))  ! address of Fortran function to add
+
     call method_table%add_method("diffraction_patterns_get_x", &                  ! method name
-         "Get x array", &  !doc-string
+         "x getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(diffraction_patterns_get_x))  ! address of Fortran function to add
 
     call method_table%add_method("diffraction_patterns_get_y", &                  ! method name
-         "Get y array", &  !doc-string
+         "y getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(diffraction_patterns_get_y))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_sigma", &                  ! method name
+         "sigma getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_sigma))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_istat", &                  ! method name
+         "istat getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_istat))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_ycalc", &                  ! method name
+         "ycalc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_ycalc))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_bgr", &                  ! method name
+         "bgr getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_bgr))  ! address of Fortran function to add
+
+    call method_table%add_method("diffraction_patterns_get_nd", &                  ! method name
+         "nd getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(diffraction_patterns_get_nd))  ! address of Fortran function to add
 
     !--------------------------
     ! Crystallographic Symmetry (37)
