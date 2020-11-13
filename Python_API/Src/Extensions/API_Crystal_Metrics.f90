@@ -127,6 +127,8 @@ contains
     call args%destroy
     call index_obj%destroy
 
+    call args%destroy
+
   end function crystal_metrics_set_crystal_cell
 
   ! @brief Print the description of the cell to standard output
@@ -197,6 +199,8 @@ contains
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
 
+    call args%destroy
+
   end function crystal_metrics_write_crystal_cell
 
   
@@ -233,6 +237,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_cell
 
 
@@ -269,6 +275,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_ang
 
   function crystal_metrics_get_lcell(self_ptr, args_ptr) result(r) bind(c)
@@ -306,6 +314,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_lcell
   
   function crystal_metrics_get_lang(self_ptr, args_ptr) result(r) bind(c)
@@ -343,6 +353,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_lang
   
   function crystal_metrics_get_cell_std(self_ptr, args_ptr) result(r) bind(c)
@@ -380,6 +392,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_cell_std
   
   function crystal_metrics_get_ang_std(self_ptr, args_ptr) result(r) bind(c)
@@ -417,6 +431,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_ang_std
   
   function crystal_metrics_get_rcell(self_ptr, args_ptr) result(r) bind(c)
@@ -453,6 +469,8 @@ contains
     ierror = retval%setitem("rcell", rcell)
     
     r = retval%get_c_ptr()
+
+    call args%destroy
     
   end function crystal_metrics_get_rcell
   
@@ -491,6 +509,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_rang
   
   function crystal_metrics_get_GD(self_ptr, args_ptr) result(r) bind(c)
@@ -528,6 +548,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_GD
   
   function crystal_metrics_get_GR(self_ptr, args_ptr) result(r) bind(c)
@@ -565,6 +587,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_GR
   
   function crystal_metrics_get_Cr_Orth_Cel(self_ptr, args_ptr) result(r) bind(c)
@@ -602,6 +626,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_Cr_Orth_Cel
   
   function crystal_metrics_get_Orth_Cr_Cel(self_ptr, args_ptr) result(r) bind(c)
@@ -639,6 +665,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_Orth_Cr_Cel
   
   function crystal_metrics_get_BL_M(self_ptr, args_ptr) result(r) bind(c)
@@ -676,6 +704,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_BL_M
   
   function crystal_metrics_get_BL_Minv(self_ptr, args_ptr) result(r) bind(c)
@@ -713,6 +743,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_BL_Minv
   
   function crystal_metrics_get_cellvol(self_ptr, args_ptr) result(r) bind(c)
@@ -746,6 +778,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_cellvol
   
   function crystal_metrics_get_rcellvol(self_ptr, args_ptr) result(r) bind(c)
@@ -778,6 +812,8 @@ contains
     ierror = retval%setitem("rcellvol", cell_p%p%rcellvol)
     
     r = retval%get_c_ptr()
+
+    call args%destroy
     
   end function crystal_metrics_get_rcellvol
   
@@ -812,6 +848,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_stdvol
   
   function crystal_metrics_get_CartType(self_ptr, args_ptr) result(r) bind(c)
@@ -845,6 +883,8 @@ contains
     
     r = retval%get_c_ptr()
     
+    call args%destroy
+
   end function crystal_metrics_get_CartType
   
   

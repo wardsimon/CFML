@@ -171,14 +171,13 @@ contains
 
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
-    type(c_ptr) :: r
-    type(c_ptr) :: c_spgr
-    type(tuple) :: args
-    type(dict) :: retval
-    integer :: num_args
-    integer :: ii
-    integer :: ierror
-    integer :: ci_spgr
+    type(c_ptr)        :: r
+    type(tuple)        :: args
+    type(dict)         :: retval
+    integer            :: num_args
+    integer            :: ii
+    integer            :: ierror
+
     !
     type(object)       :: spgr_obj
     type(list)         :: index_obj
