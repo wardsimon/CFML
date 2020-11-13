@@ -137,7 +137,8 @@ module API_init
        atom_typedef_write_atom_list
 
   use API_Reflections_Utilities, only: &
-       reflections_utilities_hkl_uni_reflist
+       reflections_utilities_hkl_uni_reflist, &
+       reflections_utilities_del_reflection_list
 
   use API_Diffraction_Patterns, only: &
        diffraction_patterns_compute_powder_pattern, &
@@ -210,7 +211,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(152)
+    call method_table%init(153)
 
     !--------------------------
     ! Error Messages (1)
@@ -868,12 +869,18 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_get_Lm_xyz))  ! address of Fortran function to add
     !--------------------------
-    ! Reflection Utilities (1)
+    ! Reflection Utilities (2)
     !--------------------------
     call method_table%add_method("reflections_utilities_hkl_uni_reflist", &                  ! method name
          "Return the list of reflections", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(reflections_utilities_hkl_uni_reflist))  ! address of Fortran function to add
+
+    call method_table%add_method("reflections_utilities_del_reflection_list", &                  ! method name
+         "Reflection list deallocation", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflections_utilities_del_reflection_list))  ! address of Fortran function to add
+
 
     !--------------------------
     ! Structure Factors (2)
