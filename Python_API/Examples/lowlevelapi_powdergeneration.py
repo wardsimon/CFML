@@ -26,5 +26,5 @@ reflection_list.compute_structure_factors(space_group, atom_list)
 
 diffraction_pattern = CFML_api.DiffractionPattern(powder_pattern_simulation_conditions, reflection_list, cell.reciprocal_cell_vol)
 
-plt.plot(diffraction_pattern.x, diffraction_pattern.y)
+plt.plot(diffraction_pattern.x, diffraction_pattern.ycalc)
 plt.show()
