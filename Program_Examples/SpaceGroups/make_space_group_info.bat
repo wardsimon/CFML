@@ -26,15 +26,14 @@ rem ****---- Absoft Compiler ----****
 rem
 rem ****---- Lahey Compiler ----****
 :LF95
-   lf95 -c space_group_info.f90    -info  -o1 -chk -mod ".;C:\crysFML\lahey\libC"
-   lf95 *.obj -out space_group_info  -o1 -lib C:\crysFML\lahey\libC\crysFML  -chk
+   lf95 -c space_group_info.f90    -info  -o1 -chk -mod ".;%CRYSFML%\lahey\libC"
+   lf95 *.obj -out space_group_info  -o1 -lib %CRYSFML%\lahey\libC\crysFML  -chk
    goto END
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c space_group_info.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /exe:space_group_info *.obj C:\CrysFML\ifort\LibC\crysfml.lib
-   rem link /subsystem:console /out:space_group_info.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   ifort /c space_group_info.f90 /O2 /nologo /I%CRYSFML%\ifort64\LibC
+   ifort /exe:space_group_info *.obj %CRYSFML%\ifort64\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

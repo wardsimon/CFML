@@ -35,16 +35,16 @@ rem ****---- Lahey Compiler ----****
 rem
 rem ****---- Intel Compiler ----****
 :IFORT
-   ifort /c Sup_Exc.f90 /O2 /nologo /IC:\CrysFML\ifort\LibC
-   ifort /c Phase_Diagram.f90   /O2 /nologo /IC:\CrysFML\ifort\LibC
+   ifort /c Sup_Exc.f90 /O2 /nologo /I%CRYSFML%\ifort64\LibC
+   ifort /c Phase_Diagram.f90   /O2 /nologo /I%CRYSFML%\ifort64\LibC
    rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\ifort\LibC\crysfml.lib
-   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\ifort\LibC\crysfml.lib
+   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj %CRYSFML%\ifort64\LibC\crysfml.lib
    goto END
 :IFORTD
-   ifort /c Sup_Exc.f90 /debug:full /check /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
-   ifort /c Phase_Diagram.f90   /debug:full /check /traceback /nologo /IC:\CrysFML\ifort_debug\LibC
+   ifort /c Sup_Exc.f90 /debug:full /check /traceback /nologo /I%CRYSFML%\ifort64_debug\LibC
+   ifort /c Phase_Diagram.f90   /debug:full /check /traceback /nologo /I%CRYSFML%\ifort64_debug\LibC
    rem ifort /exe:Phase_Diagram *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
-   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj C:\CrysFML\ifort_debug\LibC\crysfml.lib
+   link /subsystem:console /stack:64000000 /out:Phase_Diagram.exe *.obj %CRYSFML%\ifort64_debug\LibC\crysfml.lib
    goto END
 rem
 rem **---- G95 Compiler ----**

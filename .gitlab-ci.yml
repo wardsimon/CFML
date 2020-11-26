@@ -35,7 +35,7 @@ make:linux_gfortran:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_gfortran -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_setup .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_gfortran_build -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_build --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -iv${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build
+    - docker run -i -v${PWD}:/artifacts/ -v/users/ci/projects/fullprof/hdf5-1_12_0-gfortran:/hdf5 ci_crysfml_xenial_gfortran_build
   tags:
     - docker
     - sci
@@ -57,7 +57,7 @@ make:linux_gfortran_F2008:
   script:
     - docker build --force-rm -t ci_crysfml_xenial_gfortran_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_setup_F2008 .
     - docker build --force-rm --no-cache -t ci_crysfml_xenial_gfortran_build_f2008 -f ${CI_PROJECT_DIR}/BuildServer/Docker/Dockerfile_xenial_gfortran_build_F2008 --build-arg CI_COMMIT_SHORT_SHA=${CI_COMMIT_SHORT_SHA} --build-arg CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME} .
-    - docker run -iv${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build_f2008
+    - docker run -i -v${PWD}:/artifacts/ ci_crysfml_xenial_gfortran_build_f2008
   tags:
     - docker
     - sci
@@ -99,7 +99,7 @@ make:macos_ifort:
 make:macos_gfortran_F2008:
   stage: make
   script:
-    - BuildServer/Unix/build_F2008.sh gfortran
+    - BuildServer/Unix/build_F2008.sh /usr/local/Cellar/gcc/9.3.0_1/bin/gfortran
   tags:
     - sci
     - osx-10.13
@@ -117,10 +117,10 @@ make:macos_ifort_F2008:
 make:windows_gfortran:
   stage: make
   script:
-    - set PATH=c:\Projects\fullprof\python37;%PATH%
+    - set PATH=c:\Projects\fullprof\python37;C:\\Projects\\fullprof\\hdf5-gfortran\\bin;%PATH%
     - set PATH=c:\Projects\fullprof\MinGW64\bin;%PATH%
     - set PATH=%PATH:C:\Program Files\Git\bin;=%
-    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include
+    - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-gfortran\\lib
     - call "BuildServer\\Windows\\build.bat" gfortran
   tags:
@@ -131,7 +131,7 @@ make:windows_ifort:
   stage: make
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set PATH=c:\Projects\fullprof\python37\;%PATH%
+    - set PATH=c:\Projects\fullprof\python37\;C:\\Projects\\fullprof\\hdf5-ifort\\bin;%PATH%
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib
@@ -228,7 +228,7 @@ make_release:windows:
   stage: make_release
   script:
     - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-    - set PATH=c:\Projects\fullprof\python37;%PATH%
+    - set PATH=c:\Projects\fullprof\python37\;C:\\Projects\\fullprof\\hdf5-ifort\\bin;%PATH%
     - set LIB="C:\\Program Files (x86)\\IntelSWTools\\compilers_and_libraries_2020.2.254\\windows\\compiler\\lib\\intel64_win";%LIB%
     - set HDF5_INCLUDE_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\include\\shared
     - set HDF5_LIBRARY_PATH=C:\\Projects\\fullprof\\hdf5-ifort\\lib

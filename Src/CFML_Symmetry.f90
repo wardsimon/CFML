@@ -2507,7 +2507,7 @@
     !!----
     !!----    Determines the Hall symbol. In general this routine try to obtain
     !!----    the Hall symbol from generators so you need call Get_So_from_Gener
-    !!----    before and call Set_Spgr_Info.It doesn't work for arbitrary settings.
+    !!----    before and call Set_Spgr_Info. It doesn't work for arbitrary settings.
     !!----    If one wants to use arbitrary settings the subroutine Get_GenSymb_from_Gener
     !!----
     !!---- Update: February - 2005
