@@ -53,12 +53,15 @@
 !!----    ...   2019: Bug fixes, addition of new thermal-pressure EoS types (RJA)
 !!----    ...   2020: Jan: E%LinearDir to label linear EoS (RJA)
 !!----    ...   2020: March: Addition of extra oscillators for thermal pressure, addition of scales block to eos%params (RJA)
+!!----    ...   2020: Sept: Moved enquiry routines for groups into this module (RJA)
+!!----    ...   2020: Sept: Moved calculation and management routines for eos of cells into this module (RJA)
+    
     
    Module CFML_EoS
    !---- Use Modules ----!
-   Use CFML_GlobalDeps,       only: cp, pi
-   Use CFML_Math_General,     only: Debye,ERR_MathGen,ERR_MathGen_Mess,Second_Derivative,splint
-   Use CFML_Crystal_Metrics,  only: Crystal_Cell_Type,Get_Cryst_Family,Volume_Sigma_from_Cell
+   Use CFML_GlobalDeps,       only: cp, pi,to_rad
+   Use CFML_Math_General,     only: Debye,ERR_MathGen,ERR_MathGen_Mess,First_Derivative,Second_Derivative,splint,Diagonalize_SH
+   Use CFML_Crystal_Metrics,  only: Crystal_Cell_Type,Get_Cryst_Family,Volume_Sigma_from_Cell,Strain_Tensor_type,Fix_tensor,Set_Crystal_Cell,Orient_Eigenvectors,Calc_Paxes_Angles,Init_Strain_Tensor
    Use CFML_String_Utilities
 
    !---- Definitions ----!
@@ -67,17 +70,19 @@
    private
 
    !---- Public procedures ----!
-   public :: Alpha_Cal, Dkdt_Cal, Get_Cv, Get_Cp, Get_DebyeT, Get_GPT, Get_Grun_th, Get_Grun_PT, Get_K, Get_Kp, Get_Pressure, Get_Pressure_Esd, &
-             Get_Pressure_X, Get_Property_X, Get_Temperature,  Get_Transition_Pressure, &
-             Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_Volume_S, K_Cal, Kp_Cal,   &
-             Kpp_Cal, Pressure_F, Strain, Strain_EOS, Transition_phase, Linear_allowed, Thermal_Pressure_Eos, Pthermal, VscaleMGD
+   public :: Alpha_Cal, Dkdt_Cal, Get_Alpha_Cell,  Get_Cp, Get_Cv, Get_DebyeT, Get_GPT, Get_Grun_th, Get_Grun_PT, Get_K, Get_Kp, Get_N_Groups, Get_Max_Group, &
+             Get_Mod_Axis, Get_Mod_Cell, Get_Modp_axis, Get_Modp_Cell, Get_press_Axis, Get_Press_Cell, Get_Pressure, Get_Pressure_Esd, &
+             Get_Pressure_X, Get_Property_X, Get_Props_General, Get_Props_Third, Get_Temperature,  Get_Transition_Pressure, &
+             Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_volume_Axis, Get_Volume_Cell, Get_Volume_S, K_Cal, Kp_Cal,   &
+             Kpp_Cal, Pressure_F, Principal_Eos, Set_Xdatatypes, Strain, Strain_EOS, Transition_phase, Linear_allowed, Thermal_Pressure_Eos, Pthermal, VscaleMGD, Xtypes_of_scale
 
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, Calc_Conlev, Check_scales, Copy_Eos_Data_List, Deallocate_EoS_Data_List, Deallocate_EoS_List,    &
              Deriv_Partial_P, Deriv_Partial_P_Numeric, Deriv_Partial_P_Scales, EoS_Cal, EoS_Cal_Esd, EosCal_text, EosParams_Check, FfCal_Dat, FfCal_Dat_Esd,&
-             FfCal_EoS, Init_EoS_Cross, Init_EoS_Data_Type, Init_EoS_Groupscales, Init_EoS_Osc, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
-             Init_EoS_Type, Init_Err_EoS, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
-             Set_Eos_Names, Set_Eos_Use, set_eos_implied_values, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
-             Write_Eoscal, Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS,  Def_Crystal_System
+             FfCal_EoS,  Get_Angle_Deriv, Get_Params_Cell, Get_Tensor_Eos, Init_Eos_angles, Init_Eos_Cell_Type, Init_EoS_Cross, Init_EoS_Data_Type, &
+             Init_EoS_Groupscales, Init_EoS_Osc, Init_Eos_Shear, Init_Eos_Thermal, Init_EoS_Transition,     &
+             Init_EoS_Type, Init_Err_EoS, Loaded_Cell, Physical_check, Read_EoS_DataFile, Read_EoS_File, Read_Multiple_EoS_File,    &
+             Set_Cell_Types, Set_Eos_Names, Set_Eos_Use, set_eos_implied_values, set_groupscales_used, Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File,       &
+             Write_Eoscal, Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS, Write_Info_Eos_Cell_Type, Def_Crystal_System
 
 
    !--------------------!
@@ -86,6 +91,7 @@
    integer, public, parameter :: NCOL_DATA_MAX=22   ! Defines the maximum number of columns allowed in input data files
 
    integer, public, parameter :: N_EOSPAR=59        ! Specify the maximum number of Eos parameters allowed in Eos_type data type
+   integer, public, parameter :: N_ANGPOLY=3          ! Dimension of polynomial for angles
 
    integer, public, parameter :: N_PRESS_MODELS=7   ! Number of possible pressure models
    integer, public, parameter :: N_THERM_MODELS=8  ! Number of possible Thermal models
@@ -93,6 +99,7 @@
    integer, public, parameter :: N_SHEAR_MODELS=1   ! Number of possible Shear models
    integer, public, parameter :: N_CROSS_MODELS=2   ! Number of possible Cross-term models
    integer, public, parameter :: N_OSC_MODELS=2     ! Number of possible extra oscillator model types.
+   integer, public, parameter :: N_ANGLE_MODELS=1   ! Number of possible angle polynomial models
    integer, public, parameter :: N_DATA_TYPES=2     ! Number of possible data types in addition to V (Kt,Ks etc)
 
 
@@ -153,6 +160,10 @@
    character(len=*), public, parameter, dimension(4:21) :: DATA_NAMES=(/     &    !Names of data variables in ic_dat in EoS_Data_List_Type
                     'T    ','SIGT ','P    ','SIGP ','V    ','SIGV ','A    ','SIGA ','B    ','SIGB ','C    ','SIGC ', &
                     'ALPHA','SIGAL','BETA ','SIGBE','GAMMA','SIGGA'/)
+   
+   character(len=*), public, parameter, dimension(1:7) :: celllabel =  (/'a    ','b    ','c    ','alpha','beta ','gamma','Vol  '/)   !labels for unit-cell parameters
+   
+   character(len=*), public, parameter, dimension(0:6) :: axislabel =  (/'V   ','a   ','b   ','c   ','d100','d010','d001'/)  !labels for axis eos
    !---------------!
    !---- TYPES ----!
    !---------------!
@@ -200,6 +211,7 @@
       integer                                   :: ITran=0               ! Index for phase transition model, =0 for none
       integer                                   :: IShear=0              ! Index for shear model, =0 for none
       integer                                   :: ICross=0              ! Index for P-T cross-terms model, =0 for none or Pth
+      integer                                   :: IAngle=0              ! Index for angle polynomial and not eos
       integer,dimension(2)                      :: IOsc=0                ! Index for extra oscillator models
       integer, dimension(N_EOSPAR)              :: Iuse=0                ! Flags for parameters allowed for a given EoS =0 (not), =1 (refineable), =2 (implied non-zero)
       real(kind=cp)                             :: PRef=0.0              ! Pressure of Reference
@@ -221,6 +233,7 @@
       real(kind=cp)                             :: AlphaFactor=1.0E5_cp  ! Scale factor to multiply values of alpha (not parameters) for output
       real(kind=cp),dimension(N_EOSPAR)         :: Lastshift=0.0         ! Shift applied in last LS cycle to parameters
       real(kind=cp),dimension(N_EOSPAR,N_EOSPAR):: VCV=0.0               ! Var-Covar matrix from refinement
+      real(kind=cp),dimension(3,0:3,N_ANGPOLY)  :: angpoly               ! Polynomial coefficients for unit-cell angles
       Type(PVT_Table)                           :: Table                 ! A pvt table, used instead of eos parameters when imodel=-1
    End Type EoS_Type
 
@@ -241,15 +254,25 @@
    !!---- New 14/02/2020. Specific list of eos and pointers for full description of a unit cell. RJA
    !!
    Type, public :: EoS_Cell_Type
-      integer                                     :: N=0        ! Max index of used EoS  in List - depends on crystal system: 6 for triclinic or mono, 3 for rest
+      integer                                     :: N=0        ! Max index of used EoS  in List - depends on crystal system: 
       character(len=30)                           :: system     ! Crystal system name, including setting info (e.g. b-unique for mono)
-      type(EoS_Type),dimension(0:6)               :: EoS        ! EoS Parameters for V,a,b,c,d100,d010,d001
+      type(EoS_Type),dimension(0:6)               :: EoS        ! EoS Parameters for V,a,b,c,d100,d010,d001       
+      character(len=1)                            :: unique_label     ! A,B, or C to indicate unqiue axis. Only used in monoclinic
+      integer                                     :: unique     ! integer to indicate unique axis
+      logical,dimension(3)                        :: obtuse     ! .true. if cell angle is obtuse. Only used in monoclinic and triclinic
       type(Eos_type)                              :: eosc       ! The common factors to all EoS in an EoS
-      integer,dimension(0:6)                      :: loaded = 0 ! 0 when absent, 1 when eos present, 2 set by symmetry, 3 when possible to calc (set by set_cell_types)
+      type(Eos_type)                              :: eosang     ! The unit cell angle information, if stored as polynomials      
+      integer,dimension(0:6)                      :: loaded = 0 ! 0 when absent, 1 when eos present, 2 set by symmetry, 3 when possible to calc, 4 monoclinic d_unique (set by set_cell_types)
       character(len=1),dimension(0:6,3)           :: cout = ' ' ! output array for reporting PV, VT and PVT types of EoS
+      character(len=30)                           :: inputlist  ! List of allowed eos that can be selected, given the cell symmetry. Useful for i/o prompts
    End Type EoS_Cell_Type
 
-
+   !>Axis_type
+   Type, public :: Axis_type
+       real, dimension(3)           :: v            ! UVW or hkl 
+       character(len=1)             :: atype        ! axis type, H=hkl, U=UVW
+       integer                      :: Ieos         ! >0 if a primary axis. 0 = volume,  -1 error, if -2 axis vector in array axis
+   End Type Axis_type
    !!----
    !!----  TYPE :: EOS_DATA_TYPE
    !!--..
@@ -317,7 +340,7 @@ Contains
       !---- Local Variables ----!
       integer                        :: j
       real(kind=cp), dimension(-2:2) :: v  ! array for calc v values
-      real(kind=cp)                  :: alpha, del, tt, delmin, tlimit, tr, alphaest,vol,factor !, vlimit
+      real(kind=cp)                  :: alpha, del, tt, delmin, tlimit, tr, alphaest,vol 
 
       !> Init
       alpha=0.0_cp
@@ -339,12 +362,8 @@ Contains
           vol=get_volume(p,t,eospar)
           alpha=get_grun_v(vol,eospar)*get_cv(p,t,eospar)/k_cal(vol,t,eospar,p=p)/vol     
           
-          !scaling to allow for units of K
-          factor=1.0_cp
-          if (index(U_case(eospar%pscale_name),'GPA') > 0)  factor=1.0E-9
-          if (index(U_case(eospar%pscale_name),'KBAR') > 0) factor=1.0E-8
-          if (VscaleMGD(eospar)) factor=factor*1.0E6     !test for cm3/mol or equivalent in eos%vscale_name
-          alpha=alpha*factor
+          !scaling 
+          alpha=alpha*EPThermal_factor(eospar)
           return
       endif
       
@@ -542,6 +561,47 @@ Contains
 
       return
    End Function EthEinstein
+   
+   
+   !!--++
+   !!--++ FUNCTION EPTHERMAL_FACTOR
+   !!--++
+   !!--++ PRIVATE
+   !!--++
+   !!--++  Calculate Scale factor for E(thermal) to P(thermal) on basis of units for P and V
+   !!--++  Scale should be used to multiply the Pthermal calculated from eos parameters
+   !!--++
+   !!--++ Date: 03/09/2020
+   !!
+   Function EPthermal_factor(EosPar) Result(scale)
+      !---- Arguments ----!
+      type(Eos_Type), intent(in) :: EoSPar  ! Eos Parameters
+      !---- Local Variables ----!
+      real(kind=cp) :: scale
+      character(len=len(eospar%vscale_name)) :: vname
+      
+      !>init
+      scale=1.0_cp
+    
+      !>if the thermal energy was from EthDebye or EthEinstein, it is in J/mol pth
+      !>Then if V in m3/mol  Pth=Eth/V is in J/m3=Pa    
+      
+      !>Pressure scales
+      if (index(U_case(eospar%pscale_name),'GPA') > 0)  scale=1.0E-9
+      if (index(U_case(eospar%pscale_name),'KBAR') > 0) scale=1.0E-8
+      
+      !>Volume
+      vname=adjustl(U_case(eospar%vscale_name))
+      if(len_trim(vname) == 0)return
+
+      !>test for cm3/mol or equivalent
+      if (index(vname,'CM') > 0 .and. index(vname,'3') > 0 .and. index(vname,'MOL') > 0)scale=scale*1.0E+6   
+      
+      
+      return
+   End Function EPthermal_factor
+   
+   
    !!----
    !!---- FUNCTION GET_Cp
    !!----
@@ -615,7 +675,7 @@ Contains
       integer       :: i,jo
       real(kind=cp) :: Cv           !Heat capacity in J/mol/K if V is molar
       real(kind=cp),dimension(0:2) :: Cvpart
-      real(kind=cp) :: v,k,factor,thetaD,gammaV,x            
+      real(kind=cp) :: v,k,thetaD,gammaV,x            
 
       !> init 
       jo=-1     !calculate all: 
@@ -628,7 +688,7 @@ Contains
 
       
       v=get_volume(p,t,eos)
-      factor=1.0        !scale factor to account for units of input params
+
       
       select case(eos%itherm)
       case(7)                     !MGD 
@@ -650,10 +710,10 @@ Contains
           k=k_cal(v,t,eos,p=p)
           cv=Alpha_Cal(P,T,eos)*k/Get_Grun_V(v,eos) * v      
           !scaling when getting Cv from other params 
-          if (index(U_case(eos%pscale_name),'GPA') > 0)  factor=1.0E9
-          if (index(U_case(eos%pscale_name),'KBAR') > 0) factor=1.0E8
-          if (VscaleMGD(eos)) factor=factor*1.0E-6     !test for cm3/mol or equivalent in eos%vscale_name
-          cv=cv*factor  
+         ! if (index(U_case(eos%pscale_name),'GPA') > 0)  factor=1.0E9
+         ! if (index(U_case(eos%pscale_name),'KBAR') > 0) factor=1.0E8
+         ! if (VscaleMGD(eos)) factor=factor*1.0E-6     !test for cm3/mol or equivalent in eos%vscale_name
+          cv=cv/EPthermal_factor(eos)  
           return        ! this approach not compatible with mode calculations
       end select
              
@@ -754,6 +814,209 @@ Contains
       endif
       return
    End Function Get_DebyeT
+   !!---- FUNCTION GET_DMDT_AXIS
+   !!----
+   !!---- Returns the value of temperature derivative of the modulus of principal axis (ieos) in unit cell in cell_eos at P,T
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !! 
+     Function Get_DmDt_Axis(P,T,cell_eos,ieos) result(dmdt)
+!
+! Call this Function directly when the calling routine  knows that the direction is a principal axis 
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+     
+    !---- Local Variables ----!    
+    real(kind=cp)   :: dmdt !returned modulus derivative
+    
+    !init
+    dmdt=0._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                dmdt=dKdT_Cal(p,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                dmdt=dKdT_Cal(p,t,cell_eos%eos(1))
+            case(3)
+                dmdt=get_dmdt_third(p,T,cell_eos,ieos)   
+            case(4)
+                dmdt=dKdt_cal(p,t,cell_eos%eos(cell_eos%unique))
+        end select
+        
+        return
+                  
+    End Function Get_DmDt_Axis 
+    
+   !!----
+   !!---- FUNCTION GET_DMDT_CELL
+   !!----
+   !!---- Returns the value of temperature derivative of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!             
+    Function Get_DmDt_Cell(P,T,cell_eos,axis) result(dmdt)
+
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+     
+    !---- Local Variables ----!    
+    real(kind=cp)   :: dmdt !returned modulus  derivative
+    
+    !init
+    dmdt=0.0_cp
+
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            dmdt=get_dmdt_axis(p,t,cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            dmdt=get_dmdt_general(p,T,cell_eos,axis)
+                  
+    end select
+       
+    return
+   End Function Get_DmDt_Cell
+   !!----
+   !!---- FUNCTION GET_DMDT_GENERAL
+   !!----
+   !!---- Returns the value of temperature derivative of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- 
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!            
+    Function Get_DmDt_General(P,T,cell_eos,axis) result(dMdT)
+    
+
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+     
+    !---- Local Variables ----!   
+    real(kind=cp)   :: dMdT
+    integer         :: i
+    real(kind=cp)   :: tstep,tcal
+    !for spline
+    integer,parameter                 :: nstep=21   !must be odd
+    integer                           :: imid
+
+    real(kind=cp),dimension(nstep):: x,y,d2y,dy
+
+   
+    tstep=20.
+    tcal=t-int(nstep/2)*tstep
+      do i=1,nstep
+          x(i)=tcal
+          y(i)=get_mod_general(P,Tcal,cell_eos,axis)
+          tcal=tcal+tstep
+      enddo
+      call Second_Derivative(x, y, nstep, d2y)
+      call First_Derivative(x, y, nstep, d2y, dy)
+      
+      imid=int(nstep/2) + 1
+      dMdT=dy(imid)
+    
+    return
+    End Function Get_DmDt_General
+   !!----
+   !!---- FUNCTION GET_DMDT_THIRD
+   !!----
+   !!---- Returns the value of temperature derivative of modulus of a principal axis ieos in unit cell in cell_eos at P,T
+   !!---- when it can be calculated from others
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!     
+    Function Get_DmDt_Third(P,T,cell_eos,ieos) result(modp)
+    
+    !---- Arguments ----!
+    type(eos_cell_type),intent(in) :: cell_eos
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the modulus of the axis (1,2,3) or V (0) to be calculated
+     
+    !---- Local Variables ----!    
+    real(kind=cp)               :: modp    
+    real(kind=cp)               :: Kp,M1p,M2p,M3p,Mangp,vf
+    integer                     :: i
+    
+    !init
+    modp=0._cp
+    
+    !safety check: if mono or triclinic, should only be called if angle poly used
+    if(U_case(cell_eos%system(1:4)) == 'TRIC' .or. U_case(cell_eos%system(1:3)) == 'MONO')then
+        if(cell_eos%eosang%iangle == 0)then
+            err_eos=.true.
+            err_eos_mess='Get_DmDt_Third called for mono or triclinic, without angle poly set'
+        endif
+    endif
+    
+    select case(U_case(cell_eos%system(1:4)))
+    
+    case('TRIC','MONO','ORTH')
+        if(U_case(cell_eos%system(1:4)) == 'ORTHO')then
+            Mangp=0._cp
+        else
+            vf=Get_Angle_Volfactor(P,T,cell_eos)
+            Mangp=(Get_Angle_Volfactor_Deriv(P,T,cell_eos,'P')*Get_Angle_Volfactor_Deriv(P,T,cell_eos,'T')/vf - Get_Angle_Volfactor_Deriv2(P,T,cell_eos,'PT'))/vf
+        endif
+        
+        select case(ieos)
+        case(0)
+             M1p= dKdT_cal(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+             M2p= dKdT_cal(P,T,cell_eos%eos(2))/Get_K(P,T,cell_eos%eos(2))**2.0_cp
+             M3p= dKdT_cal(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+             modp=get_mod_third(P,T,cell_eos,0)**2.0_cp*(M1p+M2p+M3p-Mangp)
+        case default
+            modp= dKdT_cal(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp 
+            do i=1,3
+                if(i == ieos)cycle
+                modp = modp - dKdT_cal(P,T,cell_eos%eos(i))/Get_K(P,T,cell_eos%eos(i))**2.0_cp
+            enddo   
+            modp=modp+Mangp
+            modp = get_mod_third(P,T,cell_eos,ieos)**2.0_cp * modp
+        end select   
+        
+        
+        
+    case('TRIG','HEXA','TETR')
+
+        select case(ieos)
+        case(0)     ! calc V from a and c
+            M1p= dKdT_cal(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+            M3p= dKdT_cal(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,0)**2.0_cp*(2.0*M1p+M3p)
+        case(1)     ! a from V and c
+            Kp=  dKdT_cal(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp
+            M3p= dKdT_cal(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,1)**2.0_cp*(Kp-M3p)/2.0
+        case(3)     ! c from a and V
+            Kp= dKdT_cal(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp
+            M1p= dKdT_cal(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,3)**2.0_cp*(Kp-2.0*M1p)
+        end select
+        
+    case('CUBI','ISOT')
+        select case(ieos)
+        case(0)     ! calc volume from a 
+            modp=dKdT_cal(P,T,cell_eos%eos(1))/3.0_cp
+        case(1,2,3)     ! a,b, or c from V 
+            modp=dKdT_cal(P,T,cell_eos%eos(0))*3.0_cp 
+        end select
+    end select
+
+    
+    return
+    End Function Get_DmDt_Third  
  
 
    !!----
@@ -1200,6 +1463,662 @@ Contains
 
       return
    End Function Get_Kpp0_T
+   !!
+    !! Subroutine Get_Max_Group
+    !!
+    Function Get_Max_Group(gdat) Result(N) 
+
+       !---- Arguments ----!    
+       type(EoS_Data_List_Type)  :: gdat            
+       integer                   :: n
+    
+       !---- Local Variables ----!
+       integer                   :: i
+       logical, dimension(gdat%n) :: igroup      ! igroup(i) .true. if group present
+    
+    
+       !> does not count group 0
+       call get_groups(gdat,igroup)
+    
+       n=0
+       do i=1,gdat%n
+          if (igroup(i))n=i
+       end do
+    
+       return  
+    End Function Get_Max_Group   
+    
+      !!---- FUNCTION GET_MOD_AXIS
+   !!----
+   !!---- Returns the value of modulus of principal axis (ieos) in unit cell in cell_eos at P,T
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!       
+    Function Get_Mod_Axis(P,T,cell_eos,ieos) result(mod)
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: mod !returned modulus
+    
+    !init
+    mod=0._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                mod=get_k(p,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                mod=get_k(p,t,cell_eos%eos(1))
+            case(3)
+                mod=get_mod_third(p,T,cell_eos,ieos)   
+            case(4)
+                mod=get_k(p,t,cell_eos%eos(cell_eos%unique))
+        end select
+        
+        return
+                  
+    End Function Get_Mod_Axis   
+    
+   !!----
+   !!---- FUNCTION GET_MOD_CELL
+   !!----
+   !!---- Returns the value of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!        
+   Function Get_Mod_Cell(P,T,cell_eos,axis) result(mod)
+!
+! Call this Function when the calling routine does not know if the direction is a principal axis or not
+! If a principal direction is requested, only axis%ieos is required
+! axis%v and axis%atype only used if axis%ieos=-2
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: mod !returned modulus
+    
+    !init
+    mod=0.0_cp
+    
+
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            mod=get_mod_axis(p,t,cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            mod=get_mod_general(p,T,cell_eos,axis)
+                  
+    end select
+       
+    return
+   End Function Get_Mod_Cell
+   !!----
+   !!---- FUNCTION GET_MOD_GENERAL
+   !!----
+   !!---- Returns the value of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- 
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!            
+    Function Get_Mod_General(P,T,cell_eos,axis) result(Mod)
+
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!       
+    integer         :: i
+    real(kind=cp)   :: mod
+    real(kind=cp)   :: k,kmax,pstep,pcal,vm,vp
+    !for spline
+    integer,parameter                 :: nstep=11   !must be odd
+    integer                           :: imid
+
+    real(kind=cp),dimension(nstep):: x,y,d2y,dy
+
+    !find largest linear modulus of axes
+    kmax=tiny(0._cp)
+    do i=1,3
+        k=get_mod_axis(P,T,cell_eos,i)
+        if(k > kmax)kmax=k
+    enddo
+    
+    !now do pstep as kmax/1000.  Seems good compromise from tests - also depends on nstep
+    pstep=kmax/500.
+    !approximate modulus
+    vm=get_Volume_cell(P-0.5_cp,T,cell_eos,axis)
+    vp=get_Volume_cell(P+0.5_cp,T,cell_eos,axis)
+    K=(vm+vp)/2.0_cp/(vm-vp)
+    pstep=K/500._cp  !should give delv of ca 1%
+    
+    
+    pcal=p-int(nstep/2)*pstep
+      do i=1,nstep
+          x(i)=pcal
+          y(i)=get_Volume_cell(Pcal,T,cell_eos,axis)
+          pcal=pcal+pstep
+      enddo
+      call Second_Derivative(x, y, nstep, d2y)
+      call First_Derivative(x, y, nstep, d2y, dy)
+      
+      imid=int(nstep/2) + 1
+      Mod=-1.0*y(imid)/dy(imid)
+
+    return
+    End Function  Get_Mod_General
+    
+   !!----
+   !!---- FUNCTION GET_MOD_THIRD
+   !!----
+   !!---- Returns the value of modulus of a principal axis ieos in unit cell in cell_eos at P,T
+   !!---- when it can be calculated from others
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!  
+    Function Get_Mod_Third(P,T,cell_eos,ieos) result(mod)
+    
+    !---- Arguments ----!
+    type(eos_cell_type),intent(in) :: cell_eos   
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the modulus of the axis (1,2,3) or V (0) to be calculated    
+    
+    !---- Local Variables ----!       
+    integer     :: i
+    real(kind=cp)       :: mod,beta_ang
+    
+    !init
+    mod=0._cp
+    
+    
+    !safety check: if mono or triclinic, should only be called if angle poly used
+    if(U_case(cell_eos%system(1:4)) == 'TRIC' .or. U_case(cell_eos%system(1:3)) == 'MONO')then
+        if(cell_eos%eosang%iangle == 0)then
+            err_eos=.true.
+            err_eos_mess='Get_Mod_Third called for mono or triclinic, without angle poly set'
+        endif
+    endif
+    
+    
+    select case(U_case(cell_eos%system(1:4)))
+    case('TRIC','MONO','ORTH')
+        beta_ang=Get_Angle_Volfactor_Deriv(P,T,cell_eos,'P')/Get_Angle_Volfactor(P,T,cell_eos)  !1/A dA/dP
+        select case(ieos)
+        case(0)
+            mod=  1.0_cp/(1.0_cp/Get_K(P,T,cell_eos%eos(1))+1.0_cp/Get_K(P,T,cell_eos%eos(2))+1.0_cp/Get_K(P,T,cell_eos%eos(3))- beta_ang)
+        case default
+            mod=  1.0_cp/Get_K(P,T,cell_eos%eos(0))
+            do i=1,3
+                if(i == ieos)cycle
+                mod= mod - 1.0_cp/Get_K(P,T,cell_eos%eos(i))
+            enddo   
+            mod=mod+beta_ang
+            mod=1.0_cp/mod
+        end select     
+            
+    case('TRIG','HEXA','TETR')
+
+        select case(ieos)
+        case(0)     ! calc V from a and c
+            mod= 1.0_cp/(2.0_cp/Get_K(P,T,cell_eos%eos(1))+1.0_cp/Get_K(P,T,cell_eos%eos(3)))
+        case(1)     ! a from V and c
+            mod= 2.0_cp/(1.0_cp/Get_K(P,T,cell_eos%eos(0))-1.0_cp/Get_K(P,T,cell_eos%eos(3)))
+        case(3)     ! c from a and V
+            mod= 1.0_cp/(1.0_cp/Get_K(P,T,cell_eos%eos(0))-2.0_cp/Get_K(P,T,cell_eos%eos(1)))   
+        end select
+    
+    
+    case('CUBI','ISOT')
+        select case(ieos)
+        case(0)     ! calc volume from a 
+            mod= Get_K(P,T,cell_eos%eos(1))/3.0_cp
+        case(1,2,3)     ! a,b, or c from V 
+            mod= Get_K(P,T,cell_eos%eos(0))*3.0_cp
+        end select
+        
+    end select
+
+    return
+    End Function Get_Mod_Third   
+   !!---- FUNCTION GET_MODP_AXIS
+   !!----
+   !!---- Returns the value of pressure derivative of the modulus of principal axis (ieos) in unit cell in cell_eos at P,T
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!       
+    
+    Function Get_Modp_Axis(P,T,cell_eos,ieos) result(modp)
+    
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: modp !returned modulus derivative
+    
+    !init
+    modp=0._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                modp=get_kp(p,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                modp=get_kp(p,t,cell_eos%eos(1))
+            case(3)
+                modp=get_modp_third(p,T,cell_eos,ieos)   
+            case(4)
+                modp=get_kp(p,t,cell_eos%eos(cell_eos%unique))
+        end select
+        
+        return
+                  
+    End Function Get_Modp_Axis
+   !!----
+   !!---- FUNCTION GET_MODP_CELL
+   !!----
+   !!---- Returns the value of pressure derivative of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!         
+   Function Get_Modp_Cell(P,T,cell_eos,axis) result(modp)
+
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: modp !returned modulus  derivative
+    
+    !init
+    modp=0.0_cp
+    
+
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            modp=get_modp_axis(p,t,cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            modp=get_modp_general(p,T,cell_eos,axis)
+                  
+    end select
+       
+    return
+   End Function Get_Modp_Cell
+   !!----
+   !!---- FUNCTION GET_MODP_GENERAL
+   !!----
+   !!---- Returns the value of pressure derivative of modulus of any axis in unit cell in cell_eos at P,T
+   !!---- 
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!               
+    Function Get_Modp_General(P,T,cell_eos,axis) result(Mp)
+    
+
+    
+    !---- Arguments ----!    
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+     
+    !---- Local Variables ----!      
+    real(kind=cp)   :: mp
+    integer         :: i
+    real(kind=cp)   :: k,kmax,pstep,pcal,m
+    !for spline
+    integer,parameter                 :: nstep=11   !must be odd
+    integer                           :: imid
+
+    real(kind=cp),dimension(nstep):: x,y,d2y,dy
+
+    !find largest linear modulus of axes
+    kmax=tiny(0._cp)
+    do i=1,3
+        k=get_mod_axis(P,T,cell_eos,i)
+        if(k > kmax)kmax=k
+    enddo
+    
+    ! Seems good compromise from tests - also depends on nstep
+    pstep=kmax/500.
+    pcal=p-int(nstep/2)*pstep
+     
+      do i=1,nstep
+          x(i)=pcal
+          y(i)=get_mod_general(Pcal,T,cell_eos,axis)
+          pcal=pcal+pstep
+      enddo
+      call Second_Derivative(x, y, nstep, d2y)
+      call First_Derivative(x, y, nstep, d2y, dy)
+      imid=int(nstep/2) + 1
+      Mp=dy(imid)
+    
+    return
+    End Function Get_Modp_General  
+   !!----
+   !!---- FUNCTION GET_MODP_THIRD
+   !!----
+   !!---- Returns the value of pressure derivative of modulus of a principal axis ieos in unit cell in cell_eos at P,T
+   !!---- when it can be calculated from others
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!  
+    Function Get_Modp_Third(P,T,cell_eos,ieos) result(modp)
+    
+    !---- Arguments ----!
+    type(eos_cell_type),intent(in) :: cell_eos
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the modulus of the axis (1,2,3) or V (0) to be calculated
+    
+    !---- Local Variables ----!       
+    real(kind=cp)               :: modp
+    real(kind=cp)               :: Kp,M1p,M2p,M3p,Mangp,Vf
+    integer                     :: i
+    
+
+    
+    !init
+    modp=0._cp
+    
+    !safety check: if mono or triclinic, should only be called if angle poly used
+    if(U_case(cell_eos%system(1:4)) == 'TRIC' .or. U_case(cell_eos%system(1:3)) == 'MONO')then
+        if(cell_eos%eosang%iangle == 0)then
+            err_eos=.true.
+            err_eos_mess='Get_Modp_Third called for mono or triclinic, without angle poly set'
+        endif
+    endif
+    
+    select case(U_case(cell_eos%system(1:4)))
+    case('TRIC','MONO','ORTH')
+        if(U_case(cell_eos%system(1:4)) == 'ORTHO')then
+            Mangp=0._cp
+        else
+            vf=Get_Angle_Volfactor(P,T,cell_eos)
+            Mangp=(Get_Angle_Volfactor_Deriv(P,T,cell_eos,'P')**2.0_cp/vf - Get_Angle_Volfactor_Deriv2(P,T,cell_eos,'P'))/vf
+        endif
+        
+        select case(ieos)
+        case(0)
+             M1p= get_Kp(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+             M2p= get_Kp(P,T,cell_eos%eos(2))/Get_K(P,T,cell_eos%eos(2))**2.0_cp
+             M3p= get_Kp(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+             modp=get_mod_third(P,T,cell_eos,0)**2.0_cp*(M1p+M2p+M3p-Mangp)
+        case default
+            modp= get_Kp(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp 
+            do i=1,3
+                if(i == ieos)cycle
+                modp = modp - get_Kp(P,T,cell_eos%eos(i))/Get_K(P,T,cell_eos%eos(i))**2.0_cp
+            enddo 
+            modp=modp+Mangp
+            modp = get_mod_third(P,T,cell_eos,ieos)**2.0_cp * modp
+        end select   
+        
+    case('TRIG','HEXA','TETR')
+
+        select case(ieos)
+        case(0)     ! calc V from a and c
+            M1p= get_Kp(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+            M3p= get_Kp(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,0)**2.0_cp*(2.0*M1p+M3p)
+        case(1)     ! a from V and c
+            Kp= get_Kp(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp
+            M3p= get_Kp(P,T,cell_eos%eos(3))/Get_K(P,T,cell_eos%eos(3))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,1)**2.0_cp*(Kp-M3p)/2.0
+        case(3)     ! c from a and V
+            Kp= get_Kp(P,T,cell_eos%eos(0))/Get_K(P,T,cell_eos%eos(0))**2.0_cp
+            M1p= get_Kp(P,T,cell_eos%eos(1))/Get_K(P,T,cell_eos%eos(1))**2.0_cp
+            modp=get_mod_third(P,T,cell_eos,3)**2.0_cp*(Kp-2.0*M1p)
+        end select
+        
+        
+    case('CUBI','ISOT')
+        select case(ieos)
+        case(0)     ! calc volume from a 
+            modp=get_Kp(P,T,cell_eos%eos(1))/3.0_cp
+        case(1,2,3)     ! a,b, or c from V 
+            modp=get_Kp(P,T,cell_eos%eos(0))*3.0_cp  
+        end select
+    end select
+
+    
+    return
+    End Function Get_Modp_Third     
+    !!
+    !! Integer Function Get_N_Groups
+    !!
+    !! returns the number of groups in a data list
+    Function Get_N_Groups(gdat) Result(N)
+
+       !---- Arguments ----!
+       type (EoS_Data_List_Type)   :: gdat  ! the data list
+       integer :: n
+       
+       !---- Local Variables ----!
+       integer :: i
+       logical, dimension(gdat%n) :: igroup      ! igroup(i) .true. if group present
+    
+    
+       !> does not count group 0
+       call get_groups(gdat,igroup)
+    
+       n=0
+       do i=1,gdat%n
+          if (igroup(i))n=n+1
+       end do
+    
+       return  
+    End Function Get_N_Groups  
+   !!----
+   !!---- FUNCTION GET_PRESS_AXIS
+   !!----
+   !!---- Returns the value of pressure at input length or volume of principal axis ioes in unit cell in cell_eos
+   !!----
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_Press_Axis(a,T,cell_eos,ieos)  result(p)
+      !---- Arguments ----!
+      type(eos_cell_type),intent(in) :: cell_eos  !the eos for the cell axes
+      real(kind=cp),intent(in)    :: a,T      ! a is volume or linear value, as appropriate
+      integer,intent(in)          :: ieos     ! the axis (1,2,3) or V (0) to be calculated 
+
+      !---- Local Variables ----!    
+      real(kind=cp)           :: p
+    
+        !>init
+        p=0._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                p=get_pressure(a,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                p=get_pressure(a,t,cell_eos%eos(1))
+            case(3)
+                p=get_press_third(a,T,cell_eos,ieos) 
+            case(4)
+                p=get_pressure(p,t,cell_eos%eos(cell_eos%unique))
+        end select
+                
+        return
+    End Function Get_Press_Axis
+    
+   !!----
+   !!---- FUNCTION GET_PRESS_CELL
+   !!----
+   !!---- Returns the value of pressure at input length or volume of axis in unit cell in cell_eos
+   !!----
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_Press_Cell(a,T,cell_eos,axis)  result(p)
+
+      !---- Arguments ----!
+      real(kind=cp),intent(in)    :: a,t      !a is in length not length cubed
+      type(eos_cell_type),intent(in) :: cell_eos !the eos for the cell axes
+      type(axis_type),intent(in)     :: axis  ! The direction. if a cell axis then only axis%ieos is required
+
+      !---- Local Variables ----!  
+      real(kind=cp) :: p
+
+    
+        !init
+        p=0._cp
+        select case(axis%ieos)      !invalid numbers just return
+        
+            case(0:6)   !principal direction for which eos exists, or can be calculated
+                P=get_press_axis(a,t,cell_eos,axis%ieos)
+                    
+            case(-2)   !general direction 
+                P=get_press_general(a,T,cell_eos,axis) 
+ 
+        end select
+         
+        return
+    
+    End Function Get_Press_Cell
+    
+   !!----
+   !!---- FUNCTION GET_PRESS_GENERAL
+   !!----
+   !!---- Returns the value of pressure at input length of a general direction (axis) in unit cell in cell_eos
+   !!----
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_Press_General(a,T,cell_eos,axis)  result(p)
+  
+      !---- Arguments ----!
+      real(kind=cp),intent(in)    :: a,t      !a is in length not length cubed
+      type(eos_cell_type),intent(in) :: cell_eos
+      type(axis_type),intent(in)     :: axis
+   
+      !---- Local Variables ----!  
+      real(kind=cp) :: p
+      real(kind=cp)   :: del,delprev,step,tol,acalc
+      integer     :: ic
+    
+        !init
+        p=0._cp
+    
+    
+            !> Init
+            del=0.1                        
+            delprev=del
+            step=-1.0_cp*del  
+            tol=0.0005_cp*a/get_mod_general(P,T,cell_eos,axis) !tolerance in V scaled by M to give 0.0005 error in P
+
+    
+            ic=0    
+            do 
+                ic=ic+1
+                if(ic .gt. 1000)return
+        
+                ! calc the ratio at the current p
+                acalc=get_Volume_general(P,T,cell_eos,axis)
+                del=acalc-a
+
+        
+        
+                if(ic > 1)then                      ! need to get two calcs before adjusting step size and dirn            
+                    if(abs(del) .lt. tol)exit
+        
+                    if(del*delprev < 0._cp)then     ! over-stepped: reverse with half the step size
+                        step=-0.5_cp*step                   
+                    else                            ! same signs
+                        if(abs(del) > abs(delprev))then ! going the wrong direction
+                            step=-1.0_cp*step
+                        endif        
+                    endif
+                    if(abs(step) < 0.000001)exit  ! step in p got too small
+                endif
+                delprev=del
+                p=p+step
+            enddo
+
+        return
+    End Function Get_Press_General
+   !!----
+   !!---- FUNCTION GET_PRESS_THIRD
+   !!----
+   !!---- Returns the value of pressure at input length of a principal axis (ieos) in unit cell in cell_eos
+   !!----   when it must be calculated from other eos 
+   !!----
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_Press_Third(v,T,cell_eos,ieos,pguess) result(p)
+      !---- Arguments ----!
+      type(eos_cell_type),intent(in) :: cell_eos
+      real(kind=cp),intent(in)    :: v,T      ! v is volume or linear value, as appropriate
+      integer,intent(in)          :: ieos     ! the axis (1,2,3) or V (0) to be calculated 
+      real(kind=cp),intent(in),optional   :: pguess   !initial guess to P
+    
+      !---- Local Variables ----!      
+      real(kind=cp)           :: p
+      real(kind=cp)           :: del,delprev,step,tol,vcalc
+      integer     :: ic
+    
+        !init
+        p=0._cp
+        if(present(pguess))p=pguess 
+        call init_err_eos
+
+        !> Ini
+        del=0.1                        
+        delprev=del
+        step=-1.0_cp*del
+
+    
+        tol=0.0005_cp*v/get_mod_third(P,T,cell_eos,ieos)   !tolerance in V scaled by M to give 0.0005 error in P
+
+    
+        ic=0    
+        do 
+            ic=ic+1
+            if(ic .gt. 1000)return
+        
+            ! calc the ratio at the current p
+            vcalc=get_volume_third(P,T,cell_eos,ieos)     
+            del=vcalc-v
+
+        
+        
+            if(ic > 1)then                      ! need to get two calcs before adjusting step size and dirn            
+                if(abs(del) .lt. tol)return
+        
+                if(del*delprev < 0._cp)then     ! over-stepped: reverse with half the step size
+                    step=-0.5_cp*step                   
+                else                            ! same signs
+                    if(abs(del) > abs(delprev))then ! going the wrong direction
+                        step=-1.0_cp*step
+                    endif        
+                endif
+                if(abs(step) < 0.000001)return  ! step in p got too small
+            endif
+            delprev=del
+            p=p+step
+        enddo
+        return
+    
+    End Function Get_Press_Third        
+
 
    !!----
    !!---- FUNCTION GET_PRESSURE
@@ -1255,7 +2174,8 @@ Contains
       kp=Get_Kp0_T(T,eospar)
       if (eospar%linear) kp=kp/3.0_cp
       kpp=Get_Kpp0_T(T,eospar)
-
+      if (eospar%linear) kpp=kpp/3.0_cp
+      
       !> Start increment loop to get transition factor
       do
          !> Thermal case
@@ -1598,6 +2518,38 @@ Contains
 
       return
    End Function Get_Property_X
+   !!----
+   !!---- SUBROUTINE GET_PROPS_GENERAL
+   !!----
+   !!---- Returns elastic properties input P,T for a general direction axis in cell_eos
+   !!---- Use Eos_Cal when the eos for an axis is known
+   !!----     
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!----        
+    Subroutine Get_Props_General(P,T,cell_eos,axis,Parvals)
+  
+    !---- Arguments ----!    
+    real(kind=cp),intent(in)        :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!   
+    real(kind=cp),intent(out),dimension(6) :: parvals
+
+
+    !init
+    parvals=0._cp
+
+    parvals(1)=get_Volume_general(P,T,cell_eos,axis)      ! length
+    parvals(2)=get_mod_general(P,T,cell_eos,axis)         !M
+    parvals(3)=get_modp_general(P,T,cell_eos,axis)        !Kp
+    parvals(5)=get_dMdT_general(P,T,cell_eos,axis)          !dK/dT
+    parvals(6)=get_alpha_general(P,T,cell_eos,axis)        !alpha
+    
+    return
+    End Subroutine Get_Props_General 
+   
+
 
    !!--++
    !!--++ FUNCTION GET_PROPS_PTVTABLE
@@ -1765,6 +2717,40 @@ Contains
 
       return
    End Function Get_Props_PTVTable
+   !!----
+   !!---- SUBROUTINE GET_PROPS_GENERAL
+   !!----
+   !!---- Returns elastic properties input P,T for principal axis ieos in cell_eos 
+   !!---- when it can calculated from other eos
+   !!---- Use Eos_Cal when the eos for an axis is known
+   !!----  
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!---- 
+    Subroutine Get_Props_Third(P,T,cell_eos,ieos,Parvals)
+    
+    !---- Arguments ----!
+    type(eos_cell_type),intent(in) :: cell_eos
+      
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the axis (1,2,3) or V (0) to be calculated
+    real(kind=cp),intent(out),dimension(6) :: parvals
+    
+    !---- Local Variables ----!   
+    real(kind=cp),dimension(2,6) :: vals
+
+    
+    !init
+    parvals=0._cp
+    
+    
+    parvals(1)=get_volume_third(P,T,cell_eos,ieos)          !V
+    parvals(2)=get_mod_third(P,T,cell_eos,ieos)          !K
+    parvals(3)=get_modp_third(P,T,cell_eos,ieos)     !Kp
+    parvals(5)=get_dMdT_third(P,T,cell_eos,ieos)         !dK/dT
+    parvals(6)=get_alpha_third(P,T,cell_eos,ieos)        !alpha
+    
+    return
+    End Subroutine Get_Props_Third
 
    !!----
    !!---- FUNCTION GET_TEMPERATURE
@@ -2259,7 +3245,77 @@ Contains
 
       return
    End Function Get_Transition_Temperature
+   !!----
+   !!---- FUNCTION GET_V0_AXIS
+   !!----
+   !!---- Returns the value of volume or length of principal axis (ieos) in unit cell in cell_eos at Pref,Tref
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_V0_Axis(cell_eos,ieos) result(L)
+!
+! Call this Function directly when the calling routine  knows that the direction is a principal axis 
+  
+    !---- Arguments ----!     
+    type(eos_cell_type),intent(inout)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: L !returned length or volume
+    
+    !init
+    l=10._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                L=get_volume(cell_eos%eosc%pref,cell_eos%eosc%tref,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                L=get_volume(cell_eos%eosc%pref,cell_eos%eosc%tref,cell_eos%eos(1))
+            case(3)
+                L=get_volume_third(cell_eos%eosc%pref,cell_eos%eosc%tref,cell_eos,ieos)   
+                
+        end select
+        
+        return
+        
+                
+    End Function Get_V0_Axis  
+   !!----
+   !!---- FUNCTION GET_V0_CELL
+   !!----
+   !!---- Returns the value of volume or length of any axis in unit cell in cell_eos at Pref,Tref
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_V0_Cell(cell_eos,axis) result(L)
 
+    !---- Arguments ----!    
+    type(eos_cell_type),intent(inout)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: L !returned length or volume
+    
+    !init
+    l=10._cp
+    
+
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            L=get_v0_axis(cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            L=get_volume_general(cell_eos%eosc%pref,cell_eos%eosc%tref,cell_eos,axis)
+                  
+    end select
+       
+    return
+    End Function Get_V0_Cell 
    !!--++
    !!--++ FUNCTION Get_V0_T
    !!--++
@@ -2571,6 +3627,121 @@ Contains
       return
    End Function Get_Volume
    !!----
+   !!---- FUNCTION GET_VOLUME_AXIS
+   !!----
+   !!---- Returns the value of volume or length of principal axis (ieos) in unit cell in cell_eos at P,T
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+   Function Get_Volume_Axis(P,T,cell_eos,ieos) result(L)
+  
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+    
+    !---- Local Variables ----!   
+    real(kind=cp)   :: L !returned length or volume
+    
+    !init
+    l=10._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                L=get_volume(p,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                L=get_volume(p,t,cell_eos%eos(1))
+            case(3)
+                L=get_volume_third(p,T,cell_eos,ieos)   
+            case(4)     ! only in mono  ...the d-sapcing of the unique axis
+                L=get_volume(p,t,cell_eos%eos(cell_eos%unique))  
+        end select
+        
+        return    
+                
+   End Function Get_Volume_Axis      
+     
+   !!----
+   !!---- FUNCTION GET_VOLUME_CELL
+   !!----
+   !!---- Returns the value of volume or length of any axis in unit cell in cell_eos at P,T
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+   
+   Function Get_Volume_Cell(P,T,cell_eos,axis) result(L)
+  
+    !---- Arguments ----! 
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+     
+    !---- Local Variables ----!      
+    real(kind=cp)   :: L !returned length or volume
+    
+    !init
+    l=10._cp
+    
+
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            L=get_volume_axis(p,t,cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            L=get_volume_general(p,T,cell_eos,axis)
+                  
+    end select
+       
+    return
+    End Function Get_Volume_Cell
+    
+      
+   !!----
+   !!---- FUNCTION GET_VOLUME_GENERAL
+   !!----
+   !!---- Returns the value of volume or length of any axis in unit cell in cell_eos at P,T
+   !!---- 
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!        
+    Function Get_Volume_General(p,T,cell_eos,axis) result(L)
+
+
+  
+    !---- Arguments ----!    
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)     :: axis   
+    real(kind=cp)   :: L !returned length 
+    
+    !---- Local Variables ----!   
+    type(crystal_cell_type) :: cell
+    integer         :: ierr
+    
+    
+        !get the unit cell, metric tensors
+        call get_params_cell(P,T,cell_eos,Cell)
+    
+        !calculate the distance
+        select case(U_case(axis%atype))
+            case('U')
+                    L= dot_product(axis%v,matmul(cell%gd,axis%v))
+                    L=sqrt(abs(L))
+            case('H')
+                    L= 1.0_cp/dot_product(axis%v,matmul(cell%gr,axis%v))
+                    L=sqrt(abs(L))        
+            case default
+            L=10.0_cp
+        end select        
+    
+        return
+    End Function Get_Volume_General
+   !!----
    !!---- FUNCTION GET_VOLUME_K
    !!----
    !!---- Returns the value of Volume for a given K  at T without using pressure
@@ -2753,7 +3924,85 @@ Contains
 
       return
    End Function Get_Volume_S
+   !!----
+   !!---- FUNCTION GET_VOLUME_THIRD
+   !!----
+   !!---- Returns the value of volume or length of a principal axis ieos in unit cell in cell_eos at P,T
+   !!---- when it can be calculated from others
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!       
+    Function Get_Volume_Third(P,T,cell_eos,ieos) result(L)
+    
+    !---- Arguments ----!  
+    type(eos_cell_type),intent(in) :: cell_eos
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the axis (1,2,3) or V (0) to be calculated 
+    real(kind=cp)   :: l !returned length or volume 
+    
+    !---- Local Variables ----!    
+    integer     ::i
+    real(kind=cp)      :: vfactor
+    real(kind=cp)       :: cosang, aprod
+    !init
+    l=10._cp
+    
+    !safety check: if mono or triclinic, should only be called if angle poly used
+    if(U_case(cell_eos%system(1:4)) == 'TRIC' .or. U_case(cell_eos%system(1:3)) == 'MONO')then
+        if(cell_eos%eosang%iangle == 0)then
+            err_eos=.true.
+            err_eos_mess='Get_Volume_Third called for mono or triclinic, without angle poly set'
+        endif
+    endif
+    
+    
+    ! Factor for unit cell volume V = a.b.c.vfactor
+    vfactor=1.0
+    if(U_case(cell_eos%system(1:4)) == 'TRIG' .or. U_case(cell_eos%system(1:3)) == 'HEX ')vfactor=sqrt(3.0_cp)/2.0_cp
+    
+    call init_err_eos
+    select case(U_case(cell_eos%system(1:4)))
+    
+        
+    case('ORTH','MONO','TRIC')
+        vfactor=Get_Angle_Volfactor(P,T,cell_eos)
+               
+        select case(ieos)
+        case(0)
+            l=Get_Volume(P,T,cell_eos%eos(1))*Get_Volume(P,T,cell_eos%eos(2))*Get_Volume(P,T,cell_eos%eos(3))*vfactor
+        case default
+            l=Get_Volume(P,T,cell_eos%eos(0))/vfactor
+            do i=1,3
+                if(i == ieos)cycle
+                l=l/Get_Volume(P,T,cell_eos%eos(i))
+            enddo           
+        end select     
+        
+    case('TRIG','HEXA','TETR')
 
+        select case(ieos)
+        case(0)     ! calc volumes from a and c
+            l=Get_Volume(P,T,cell_eos%eos(1))**2.0_cp*Get_Volume(P,T,cell_eos%eos(3))*vfactor
+        case(1)     ! a from V and c
+            l=sqrt(Get_Volume(P,T,cell_eos%eos(0))/vfactor/Get_Volume(P,T,cell_eos%eos(3)))
+        case(3)     ! c from a and V
+            l=Get_Volume(P,T,cell_eos%eos(0))/vfactor/Get_Volume(P,T,cell_eos%eos(1))**2.0_cp    
+        end select
+     
+    case('CUBI','ISOT')
+        select case(ieos)
+        case(0)     ! calc volume from a 
+            l=Get_Volume(P,T,cell_eos%eos(1))**3.0_cp
+        case(1,2,3)     ! a,b, or c from V 
+            l=Get_Volume(P,T,cell_eos%eos(0))**(1.0_cp/3.0_cp)  
+        end select
+     
+        
+    end select
+
+    
+    return
+    End Function Get_Volume_Third   
    !!----
    !!---- FUNCTION K_CAL
    !!----
@@ -3549,7 +4798,55 @@ Contains
 
       return
    End Function Pressure_F
+   !!--++
+   !!--++ FUNCTION PRINCIPAL_EOS
+   !!--++
+   !!--++  For use with eos_cell_type: Converts request for recip axis to real axis, if allowed
+   !!--++
+   !!--++ Date: 09/09/2020
+   !!
+   
+    Function principal_eos(cell_eos,i) result(ieos)
+    
+      !---- Arguments ----!
+      type(eos_cell_type),intent(in) :: cell_eos !eos for cells
+      integer,intent(in)             :: i   !proposed axis number
+      integer             :: ieos     
 
+      
+      
+      
+      select case(i)
+      case(:-3,-1,7:)
+          ieos=-1                   !error
+      case(-2,0:3)                    ! general dir, V a b c
+          ieos=i
+      case(4:6)
+          select case(U_case(cell_eos%system(1:4)))
+              
+          case('ISOT','CUBI','TETR','ORTH')
+              ieos=i-3
+          case('HEXA','TRIG')       !onl d(001) is equivalent to an axis in length
+              if(i == 6)then
+                  ieos=3
+              else
+                  ieos=-2
+              endif
+          case('MONO')
+              if(i-3 == cell_eos%unique)then
+                  ieos=cell_eos%unique     
+              else
+                  ieos=-2
+              endif
+          case('TRIC')
+              ieos=i
+          end select
+          
+      end select
+          
+     end function principal_eos    
+
+   
    !!--++
    !!--++ FUNCTION PTHERMAL
    !!--++
@@ -3569,7 +4866,7 @@ Contains
       !---- Local Variables ----!
       integer       :: i,jo
       real(kind=cp) :: pth,thtref,exp0,eta0,vlocal,eth,eth0
-      real(kind=cp) :: gammaV, thetaD,factor,thetaE
+      real(kind=cp) :: gammaV, thetaD,thetaE
       real(kind=cp),dimension(0:2) :: pthp  !contributions to pth
       real(kind=cp),dimension(n_eospar) :: ev
 
@@ -3584,12 +4881,14 @@ Contains
       pth=0._cp
 
       select case (eospar%itherm)
-         case (6) ! Thermal pressure from Holland and Powell 2011
+      case (6) ! Thermal pressure from Holland and Powell 2011
+            
             thtref=ev(11)/eospar%tref         ! T_einstein/Tref
             exp0=exp(thtref)                  ! exp(T_Ein/Tref)
             eta0= thtref*thtref*exp0/(exp0-1.0_cp)**2.0_cp  ! eta at Tref
 
             pthp(0) = ev(10)*ev(2)*ev(11)/eta0*( 1.0_cp/(exp(ev(11)/t)-1.0_cp) -1.0_cp/(exp0 -1.0_cp))
+            !no scaling required because pth is scaled by Ko
 
          case (7) ! MGD in the form of Kroll et al (2012)
             thetaD=get_DebyeT(V,EosPar)                 ! Both get_Debye and get_grun expect 'a' value if linear
@@ -3632,13 +4931,7 @@ Contains
          !Then if V in m3/mol  Eth/V is in J/m3=Pa
          select case(eospar%itherm)
          case(7,8)
-            factor=1.0
-            if (index(U_case(eospar%pscale_name),'GPA') > 0)  factor=1.0E-9
-            if (index(U_case(eospar%pscale_name),'KBAR') > 0) factor=1.0E-8
-
-            if (VscaleMGD(eospar)) factor=factor*1.0E+6     !test for cm3/mol or equivalent in eos%vscale_name
-
-            pthp=pthp*factor
+            pthp=pthp*EPthermal_factor(EosPar)
          end select
 
          !Now return requested part of pth:
@@ -3653,6 +4946,39 @@ Contains
 
       return
    End Function Pthermal
+
+    !!
+    !! Subroutine Set_Xdatatypes
+    !!
+    !!  returns array result xdatatypes(i)=1 if datatype i is present in dataset gdat
+    !!  if used=.true. then only = 1 if at least one datum of the type is used
+    
+    Function Set_Xdatatypes(gdat,Used) result(xdatatypes)
+       
+       !---- Arguments ----!
+       type (EoS_Data_List_Type)   :: gdat  ! the data list
+       logical                     :: used  ! .true. to request
+       integer,       dimension(0:N_DATA_TYPES)   :: xdatatypes
+
+       !---- Local Variables ----!
+       integer      :: i
+       
+       !> Init
+       xdatatypes=0
+    
+       if (used)then
+          do i=1,gdat%n
+             if (gdat%eosd(i)%iuse == 1)xdatatypes(gdat%eosd(i)%xtype) = 1
+          end do        
+       
+       else        ! all data, used or not
+          do i=1,gdat%n
+             xdatatypes(gdat%eosd(i)%xtype) = 1
+          end do
+       end if
+
+       return
+    End Function Set_Xdatatypes
 
    !!----
    !!---- FUNCTION STRAIN
@@ -4096,6 +5422,36 @@ Contains
       return
    End Function VscaleMGD
 
+   function xtypes_of_scale(g,gdat) result(xtypes)
+       
+    !returns the xtype corresponding to a scale factor in params(51:59)
+    !if no xtype because scale-factor not associated with a group, returns value -1
+    !because 0 means V
+    
+       !---- Arguments ----!    
+       type(eos_type),intent(inout) :: g    ! eos with parameters
+       type (EoS_Data_List_Type)   :: gdat  ! the data list
+
+       !---- Local Variables ----!       
+       integer,dimension(9)        :: xtypes
+       integer      :: i,j
+       
+       !>default
+       xtypes=-1
+       
+       do i=1,9
+           do j=1,gdat%n
+               if(gdat%eosd(j)%igrp(1) == i)then
+                   xtypes(i)=gdat%eosd(j)%xtype
+                   exit
+               endif
+           enddo
+       enddo    
+       
+       
+       return
+    end function xtypes_of_scale
+   
 
    Subroutine Copy_Eos_Data_List(Dat1,Dat2)
     !---- Arguments ----!
@@ -4159,7 +5515,7 @@ Contains
    !!--++ if no system specified, tries to determine system if all cell parameters
    !!--++ provided
    !!--++
-   !!--++ Update: 17/07/2015
+   !!--++ Update: 17/07/2015: again 30/10/2020 to add a-unique to monolcinic
    !!
    Subroutine Def_Crystal_System(dat)
       !---- Arguments ----!
@@ -4167,7 +5523,7 @@ Contains
 
       !---- Local Variables ----!
       character(len=40)       :: Family, SystemC, system
-      character(len=1)        :: Symbol
+      character(len=1)        :: Symbol,U
       integer                 :: i,ndat
       type(Crystal_Cell_Type) :: ncell
 
@@ -4181,20 +5537,31 @@ Contains
       if (len_trim(system) > 0) then
          system=adjustl(system)
          select case (u_case(system(1:4)))
-            case ('MONO')
-               if (index(u_case(system),' C ') /= 0) then
-                  !> alpha = beta = 90º
-                  dat%eosd(1:ndat)%ang(1)=90.0
+         case ('MONO')
+               i=index(system,'-un')
+               U='B'        !default is b-unique
+               if(i > 0)U=U_case(system(i-1:i-1))
+               select case(U)
+               case('A')
+                  !> beta = gamma = 90º
                   dat%eosd(1:ndat)%ang(2)=90.0
-                  dat%eosd(1:ndat)%siga(1)=0.0
+                  dat%eosd(1:ndat)%ang(3)=90.0
                   dat%eosd(1:ndat)%siga(2)=0.0
-               else
+                  dat%eosd(1:ndat)%siga(3)=0.0
+               case('B')
                   !> alpha = gamma = 90º
                   dat%eosd(1:ndat)%ang(1)=90.0
                   dat%eosd(1:ndat)%ang(3)=90.0
                   dat%eosd(1:ndat)%siga(1)=0.0
                   dat%eosd(1:ndat)%siga(3)=0.0
-               end if
+               case('C')
+                  !> alpha = beta = 90º
+                  dat%eosd(1:ndat)%ang(1)=90.0
+                  dat%eosd(1:ndat)%ang(2)=90.0
+                  dat%eosd(1:ndat)%siga(1)=0.0
+                  dat%eosd(1:ndat)%siga(2)=0.0
+               end select
+
 
             case ('ORTH')
                !> Angles =90º
@@ -4929,11 +6296,15 @@ Contains
           err_eos=.true.
           err_eos_mess=' Invalid number for type of PT cross-terms model'
       endif
+      if(eospar%iangle < 0 .and. eospar%iangle > N_ANGLE_MODELS)then
+          err_eos=.true.
+          err_eos_mess=' Invalid number for type of angle polynomial'
+      endif
 
 
 
       !> Check that v0 is positive
-      if (eospar%params(1) < tiny(0.0)) then
+      if (eospar%params(1) < tiny(0.0) .and. eospar%iangle == 0) then
          eospar%params(1)=1.0_cp
          err_eos=.true.
          if (eospar%linear) then
@@ -5243,7 +6614,518 @@ Contains
 
       return
    End Subroutine FfCal_EoS
+   !!----
+   !!---- FUNCTION GET_ALPHA_AXIS
+   !!----
+   !!---- Returns the value of alpha of principal axis (ieos) in unit cell in cell_eos at P,T
+   !!---- Call this Function directly when the calling routine  knows that the direction is a principal axis 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!    
+    Function Get_Alpha_Axis(P,T,cell_eos,ieos) result(Alpha)
+   
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    integer,intent(in)                 :: ieos      !axis indicator, as in axis_type%ieos  
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: Alpha !returned thermal expansion
+    
+    !init
+    Alpha=0._cp
+    
+        select case(cell_eos%loaded(ieos))
+        
+            case(1)
+                Alpha=alpha_cal(p,t,cell_eos%eos(ieos))     
+            case(2) ! sym equiv. Always uses eos(1) for a-axis          
+                Alpha=alpha_cal(p,t,cell_eos%eos(1))
+            case(3)
+                Alpha=get_alpha_third(p,T,cell_eos,ieos)   
+            case(4)
+                alpha=alpha_cal(p,t,cell_eos%eos(cell_eos%unique))
+        end select
+        
+        return
+                  
+    End Function Get_alpha_Axis     
+    
+   !!----
+   !!---- FUNCTION GET_ALPHA_CELL
+   !!----
+   !!---- Returns the value of alpha of any axis in unit cell in cell_eos at P,T
+   !!---- Call this Function when the calling routine does not know if the direction is a principal axis or not
+   !!---- If a principal direction is requested, only axis%ieos is required
+   !!---- axis%v and axis%atype only used if axis%ieos=-2
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!     
+   Function Get_Alpha_Cell(P,T,cell_eos,axis) result(alpha)
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!       
+    real(kind=cp)   :: alpha !returned thermal expansion
+    
+    !init
+    alpha=0.0_cp
+    
 
+    select case(axis%ieos)      !invalid numbers just return
+        
+        case(0:6)   !principal direction for which eos exists, or can be calculated
+            alpha=get_alpha_axis(p,t,cell_eos,axis%ieos)  
+          
+        case(-2)   !general direction 
+            Alpha=get_alpha_general(p,T,cell_eos,axis)
+                  
+    end select
+       
+    return
+   End Function Get_Alpha_Cell
+
+   !!----
+   !!---- FUNCTION GET_ALPHA_GENERAL
+   !!----
+   !!---- Returns the value of alpha of any axis in unit cell in cell_eos at P,T
+   !!---- 
+   !!---- PRIVATE
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!       
+    Function Get_Alpha_General(P,T,cell_eos,axis) result(alpha)
+    
+
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(axis_type),intent(in)      :: axis   
+    
+    !---- Local Variables ----!   
+    integer         :: i
+    real(kind=cp)   :: tstep,tcal
+    real(kind=cp)   :: alpha
+    
+    !for spline
+    integer,parameter                 :: nstep=21   !must be odd
+    integer                           :: imid
+
+    real(kind=cp),dimension(nstep):: x,y,d2y,dy   
+   
+    tstep=20.
+    tcal=t-int(nstep/2)*tstep
+      do i=1,nstep
+          x(i)=tcal
+          y(i)=get_Volume_general(P,Tcal,cell_eos,axis)
+          tcal=tcal+tstep
+      enddo
+      call Second_Derivative(x, y, nstep, d2y)
+      call First_Derivative(x, y, nstep, d2y, dy)
+      
+      imid=int(nstep/2) + 1
+      alpha=dy(imid)/y(imid)
+    
+    
+    
+    return
+    End Function Get_Alpha_General
+    
+   !!----
+   !!---- FUNCTION GET_ALPHA_THIRD
+   !!----
+   !!---- Returns the value of alpha of a principal axis ieos in unit cell in cell_eos at P,T
+   !!---- when it can be calculated from others
+   !!---- 
+   !!---- Added to cfml_eos_mod: 09/09/2020
+   !!       
+    Function Get_Alpha_Third(P,T,cell_eos,ieos) result(alpha)
+    
+    !---- Arguments ----!
+    type(eos_cell_type),intent(in) :: cell_eos
+    real(kind=cp),intent(in)    :: p,T
+    integer,intent(in)          :: ieos     ! the alpha of the axis (1,2,3) or V (0) to be calculated 
+    
+    !---- Local Variables ----!       
+      integer         :: i
+      real(kind=cp)   :: alpha,alpha_ang
+    
+        !init
+        alpha=0._cp
+    
+    !safety check: if mono or triclinic, should only be called if angle poly used
+    if(U_case(cell_eos%system(1:4)) == 'TRIC' .or. U_case(cell_eos%system(1:3)) == 'MONO')then
+        if(cell_eos%eosang%iangle == 0)then
+            err_eos=.true.
+            err_eos_mess='Get_Alpha_Third called for mono or triclinic, without angle poly set'
+        endif
+    endif
+    
+        select case(U_case(cell_eos%system(1:4)))
+        case('TRIC','MONO','ORTH')
+            
+            alpha_ang=Get_Angle_Volfactor_Deriv(P,T,cell_eos,'T')/Get_Angle_Volfactor(P,T,cell_eos)  !1/A dA/dT
+            select case(ieos)
+            case(0)
+                alpha=Alpha_Cal(P,T,cell_eos%eos(1))+ Alpha_Cal(P,T,cell_eos%eos(2)) + Alpha_Cal(P,T,cell_eos%eos(3)) + alpha_ang
+            case default
+                alpha=Alpha_Cal(P,T,cell_eos%eos(0))
+                do i=1,3
+                    if(i == ieos)cycle
+                    alpha=alpha- Alpha_Cal(P,T,cell_eos%eos(i))
+                enddo 
+                alpha=alpha-alpha_ang
+            end select     
+        
+        
+        case('TRIG','HEXA','TETR')
+
+            select case(ieos)
+            case(0)     ! calc volumes from a and c
+                alpha= 2.0_cp*Alpha_Cal(P,T,cell_eos%eos(1))+Alpha_Cal(P,T,cell_eos%eos(3))
+            case(1)     ! a from V and c
+                alpha= (Alpha_Cal(P,T,cell_eos%eos(0))-Alpha_Cal(P,T,cell_eos%eos(3)))/2.0_cp
+            case(3)     ! c from a and V
+                alpha=  Alpha_Cal(P,T,cell_eos%eos(0))-2.0_cp*Alpha_Cal(P,T,cell_eos%eos(1))
+            end select
+        
+        case('CUBI','ISOT')
+            select case(ieos)
+            case(0)     ! calc volume from a 
+                alpha=Alpha_Cal(P,T,cell_eos%eos(1))*3.0_cp
+            case(1,2,3)     ! a,b, or c from V 
+                alpha=Alpha_Cal(P,T,cell_eos%eos(0))/3.0_cp  
+            end select       
+        end select
+
+    
+        return
+    End Function Get_Alpha_Third
+    
+    function get_angle_deriv(P,T,cell_eos,ia,realang,dx) result(da)
+    !---- Arguments ----!
+    real(kind=cp),intent(in)        :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos     ! The cell eos 
+    integer,intent(in)              :: ia           ! The angle number 
+    logical,intent(in)              :: realang  !.true. for real angle, .false. for recip
+    character(len=1),intent(in)     :: dx ! either T or P
+    
+    !---- Local Variables ----!   
+    real(kind=cp) :: da ! the resulting angle derivative w.r.t. variable dx
+    
+    !init
+    da=0._cp
+    
+    !check that ia is valid and calculations required because da /= 0
+    select case(U_case(cell_eos%system(1:4)))
+    case('MONO')
+        if(ia /=cell_eos%unique)return
+    case('TRIC')
+        if(ia < 1 .and. ia > 3)return
+    case default
+        return   
+    end select
+    
+    !>calculate: outer loop over angles
+
+    if(realang .and. cell_eos%eosang%iangle > 0)then        
+        ! polynomial model for angles
+        da=get_angle_poly_deriv(p,t,cell_eos%eosang,ia,dx)
+    else
+        !all other cases
+        da=get_angle_eos_deriv(p,t,cell_eos,ia,realang,dx)
+    endif
+    
+    return
+    
+    end function get_angle_deriv
+    
+    
+
+  
+   Function get_angle_eos_deriv(Pin,Tin,cell_eos,ia,realang,xl) result(d)
+
+           
+
+
+    !---- Arguments ----!
+      real(kind=cp),intent(in)    :: pin,tin
+      type(eos_cell_type),intent(in)  :: cell_eos
+      integer,intent(in)        :: ia            ! The angle number 
+      character(len=1),intent(in)     :: xl ! either T or P
+      logical,intent(in)            :: realang  !.true. for real angle, .false. for recip
+      
+      !---- Local Variables ----!
+      integer           :: i
+      real(kind=cp)     :: d        !the derivative d(angle_i)/dx in radians per x
+      real(kind=cp)     :: p,t
+       !for spline
+      integer,parameter                 :: nstep=11   !must be odd
+      integer                           :: imid
+      real(kind=cp),dimension(nstep):: x,y,d2y,dy 
+      type(crystal_cell_type) :: c
+      
+      !init
+      d=0._cp
+      imid=int(nstep/2) + 1
+      
+      do i=1,nstep
+          
+          if(U_case(xl) == 'P')then
+              T=Tin
+              P=Pin+(i-imid)*0.1_cp       !step P in 0.1
+              x(i)=P
+          else
+              T=tin+(i-imid)*10.0_cp
+              P=Pin
+              x(i)=T
+          endif          
+          call get_params_cell(P,T,cell_eos,c)
+          if(realang)then
+              y(i)=c%ang(ia)
+          else  
+              y(i)=c%rang(ia)
+          endif
+      enddo
+      call Second_Derivative(x, y, nstep, d2y)
+      call First_Derivative(x, y, nstep, d2y, dy)
+ 
+      d=dy(imid)*to_rad
+    
+      
+    End Function get_angle_eos_deriv      
+    
+    Function Get_Angle_Poly(P,T,e,ia) result(ang)
+    !---- Arguments ----!
+      real(kind=cp),intent(in)    :: p,t
+      type(eos_type),intent(in) :: e
+      integer,intent(in)        :: ia            ! The angle number 
+
+
+      !---- Local Variables ----!
+      integer           :: i
+      real(kind=cp)     :: ang,dt
+      
+      if(e%angpoly(ia,0,1) < tiny(0._cp))then
+        ang=90.0_cp
+        return
+      else
+          ang=e%angpoly(ia,0,1)
+      endif
+      
+      
+      dt=t-e%tref
+      do i=1,N_angpoly
+          ang=ang+e%angpoly(ia,1,i)*p**i
+          ang=ang+e%angpoly(ia,2,i)*dt**i
+      enddo
+      ang=ang+e%angpoly(ia,3,1)*p*dt
+      ang=ang+e%angpoly(ia,3,2)*p*p*dt
+      ang=ang+e%angpoly(ia,3,3)*p*dt*dt
+      
+      if(ang < 0._cp .or. ang > 180._cp)then
+          err_eos=.true.
+          err_eos_mess='Angle polynomial predicted cell angle <0 or >180: reset to 90deg'
+          ang=90._cp
+          endif
+
+      return
+    End Function Get_Angle_Poly
+    
+    
+    Function Get_Angle_Poly_Deriv(P,T,e,ia,x) result(d)
+
+    !---- Arguments ----!
+      real(kind=cp),intent(in)    :: p,t
+      type(eos_type),intent(in) :: e
+      integer,intent(in)        :: ia            ! The angle number 
+      character(len=1),intent(in)     :: x ! either T or P
+
+      !---- Local Variables ----!
+      integer           :: i
+      real(kind=cp)     :: d        !the derivative d(angle_i)/dx in radians per x
+      real(kind=cp)     :: dt !T-Tref
+      
+      !>init
+      d=0._cp
+      dt=t-e%tref
+           
+      select case(U_case(x))
+      case('P') 
+        do i=1,N_angpoly
+          d=d+e%angpoly(ia,1,i)*i*p**(i-1)
+        enddo
+        d=d+e%angpoly(ia,3,1)*dt
+        d=d+e%angpoly(ia,3,2)*2.0_cp*p*dt
+        d=d+e%angpoly(ia,3,3)*dt*dt
+
+      case('T')
+        do i=1,N_angpoly
+          d=d+e%angpoly(ia,2,i)*i*dt**(i-1)
+        enddo
+        d=d+e%angpoly(ia,3,1)*p
+        d=d+e%angpoly(ia,3,2)*p*p
+        d=d+e%angpoly(ia,3,3)*2.0_cp*p*dt          
+  
+
+      end select
+      d=d*to_rad
+
+      
+    end Function Get_Angle_Poly_Deriv    
+    Function Get_Angle_Volfactor(P,T,e) result(vf)
+    
+    !---- Arguments ----!  
+    type(eos_cell_type),intent(in) :: e
+    real(kind=cp),intent(in)    :: p,T
+
+    real(kind=cp)   :: vf !returned volume  factor
+    real(kind=cp)   :: aprod, cosang    
+    integer     :: i
+    
+    select case(U_case(e%system(1:4)))
+        case default
+        vf=1.0_cp
+        
+    case('MONO')
+        i=2     !default b-unique
+        if(e%unique > 0 .and. e%unique < 4)i=e%unique
+        vf=sind(get_angle_poly(P,T,e%eosang,i))
+        
+    case('TRIC')
+        aprod=2._cp
+        vf=1.0_cp
+        do i=1,3
+            cosang=cosd(get_angle_poly(P,T,e%eosang,i) )
+            vf=vf-cosang**2._cp 
+            aprod=aprod*cosang
+        enddo
+        vf=vf+aprod
+        if(vf > tiny(0._cp))then
+            vf=sqrt(vf)
+        else
+            vf=1.0_cp
+        endif
+    end select
+    return
+    End Function Get_Angle_Volfactor
+    
+    Function Get_Angle_Volfactor_Deriv(P,T,e,x) result(d)
+    
+    !---- Arguments ----!  
+    type(eos_cell_type),intent(in) :: e
+    real(kind=cp),intent(in)    :: p,T
+    character(len=1)        :: x        !P or T
+
+    real(kind=cp)   :: d !returned volume  factor derivative
+    real(kind=cp)   ::  pi,ti,del
+    real(kind=cp),dimension(-2:2) :: a
+    integer     :: ia,j
+    
+    select case(U_case(e%system(1:4)))
+        case default
+        d=0._cp
+        
+    case('MONO')    !calculates cos(beta). d(beta)/dx
+        ia=2     !default b-unique
+        if(e%unique > 0 .and. e%unique < 4)ia=e%unique
+        
+            if(U_case(x) =='P')then
+                Ti=T
+                del=0.1
+                do j=-2,2,1
+                    pi=p+real(j)*del
+                    a(j)=get_angle_poly(Pi,Ti,e%eosang,ia)
+                enddo
+            else
+                Pi=P
+                del=10._cp
+                do j=-2,2,1
+                    Ti=T+real(j)*del
+                    a(j)=get_angle_poly(Pi,Ti,e%eosang,ia)
+                enddo
+            endif
+            
+          d=(a(-2)+8.0_cp*(a(1)-a(-1))-a(2))/(12.0_cp*del)     ! Derivative to second order approximation
+          d=cosd(get_angle_poly(Pi,Ti,e%eosang,ia))*d*to_rad
+        
+        
+    case('TRIC')
+        !calculate Volfactor as function of x, then direct deriv
+        if(U_case(x) =='P')then
+            Ti=T
+            del=0.1
+            do j=-2,2,1
+                pi=p+real(j)*del
+                a(j)=get_angle_volfactor(Pi,Ti,e)
+            enddo
+        else
+            Pi=P
+            del=10._cp
+            do j=-2,2,1
+                Ti=T+real(j)*del
+                a(j)=get_angle_volfactor(Pi,Ti,e)
+            enddo
+        endif
+            
+        d=(a(-2)+8.0_cp*(a(1)-a(-1))-a(2))/(12.0_cp*del)     ! Derivative to second order approximation
+        
+
+    end select
+    return
+    End Function Get_Angle_Volfactor_Deriv
+    
+       Function Get_Angle_Volfactor_Deriv2(P,T,e,x) result(d)
+    
+    !---- Arguments ----!  
+    type(eos_cell_type),intent(in) :: e
+    real(kind=cp),intent(in)    :: p,T
+    character(len=*)        :: x        !P or T or PT
+
+    real(kind=cp)   :: d !returned volume  factor 2nd derivative
+    real(kind=cp)   ::  pi,ti,del
+    real(kind=cp),dimension(-2:2) :: a
+    integer     :: ia,j
+    
+
+        
+    d=0._cp
+    if(index(U_case(e%system),'TRIC') == 0 .and. index(U_case(e%system),'MONO') == 0)return    
+    
+        !calculate Volfactor as function of x, then direct 2nd deriv
+        if(index(U_case(x),'P') > 0 .and. index(U_case(x),'T') > 0)then
+            !cross derivative
+            del=40._cp
+            do j=-2,2,1
+                ti=t+real(j)*del
+                a(j)=get_angle_volfactor_deriv(P,Ti,e,'P')
+            enddo
+               
+        
+        elseif(index(U_case(x),'P') > 0 .and. index(U_case(x),'T') == 0)then
+            Ti=T
+            del=0.4
+            do j=-2,2,1
+                pi=p+real(j)*del
+                a(j)=get_angle_volfactor_deriv(Pi,Ti,e,'P')
+            enddo
+        else
+            Pi=P
+            del=40._cp
+            do j=-2,2,1
+                Ti=T+real(j)*del
+                a(j)=get_angle_volfactor_deriv(Pi,Ti,e,'T')
+            enddo
+        endif
+         d=(a(-2)+8.0_cp*(a(1)-a(-1))-a(2))/(12.0_cp*del)     ! Derivative to second order approximation    
+
+
+    return
+       End Function Get_Angle_Volfactor_Deriv2
+    
+       
    !!--++
    !!--++ SUBROUTINE GET_APL
    !!--++
@@ -5305,8 +7187,123 @@ Contains
 
 
         return
-    End Subroutine Get_APL
+   End Subroutine Get_APL
+   
+   
+ 
+    !!
+    !! Subroutine Get_Groups
+    !!
+    Subroutine Get_Groups(gdat,Igroup)
+      
+       !---- Arguments ----! 
+       type(EoS_Data_List_Type)  :: gdat   
+       logical, dimension(gdat%n) :: igroup      ! igroup(i) .true. if group present
+       
+       !---- Local Variables ----!
+       integer :: i
+    
+       !> Init
+       igroup=.false.
+    
+       do i=1,gdat%n
+          if (gdat%eosd(i)%Igrp(1) > 0)igroup(gdat%eosd(i)%Igrp(1))=.true.
+       end do
+    
+       return
+    End Subroutine Get_Groups
+    
+    
+    
+   Subroutine Get_Params_Cell(P,T,cell_eos,cell,cartype)
+    
+    !returns full cell parameters in crystal_cell_type for input P and T
+    
+      
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,t
+    type(eos_cell_type),intent(in)  :: cell_eos
 
+    type(crystal_cell_type),intent(out) :: cell  !cell params, metric tensor at this P,T
+    character(len=2),optional :: cartype    ! orientation
+
+    
+    !locals
+    integer                     :: i,j,k
+    real(kind=cp)               :: v,arg
+    real(kind=cp),dimension(3)  :: abc,ang
+    logical                     :: ok
+    character(len=2)            :: ctype
+    !init
+    abc=10._cp
+    ctype='  '
+    if(present(cartype))ctype=U_case(cartype)
+
+    !check if all needed eos are loaded
+
+    call loaded_cell(cell_eos)
+    if(warn_eos)return           
+
+            
+        
+        
+    !Get cell edges
+    do i=1,3                       
+        call init_err_eos()
+
+        abc(i)=get_Volume_axis(P,T,cell_eos,i)
+        if(Err_EoS)return
+    enddo
+    
+    !get the angles
+    ang=90._cp
+    select case(U_case(cell_eos%system(1:4)))
+    case('TRIG','HEXA')
+        ang(3)=120._cp
+    case('MONO')    
+        if(cell_eos%eosang%iangle == 0)then
+            v=get_Volume_axis(P,T,cell_eos,0)
+            i=cell_eos%unique
+            arg=V/product(abc)
+            if(arg > 0.999999_cp)then
+                ang(i)=90._cp
+            else
+                ang(i)=asind(arg)
+                if(cell_eos%obtuse(i))ang(i)=180.0_cp-ang(i)
+            endif
+        else
+            ang(cell_eos%unique)=get_angle_poly(p,t,cell_eos%eosang,cell_eos%unique)
+        endif
+        
+        
+    case('TRIC')  
+        if(cell_eos%eosang%iangle == 0)then
+            !all eos for V,abc, and d's present
+            v=get_volume(p,t,cell_eos%eos(0))
+            do i=1,3
+                j=mod(i,3)+1
+                k=mod(j,3)+1
+                arg=V/abc(j)/abc(k)/get_volume(p,t,cell_eos%eos(i+3))               
+                if(arg > 0.999999_cp)then
+                    ang(i)=90._cp
+                else
+                    ang(i)=asind(arg)
+                    if(cell_eos%obtuse(i))ang(i)=180.0_cp-ang(i)
+                endif
+            enddo
+        else
+            do i=1,3
+                ang(i)=get_angle_poly(p,t,cell_eos%eosang,i)
+            enddo
+        endif 
+        
+    end select
+    
+    !Set the metric tensor
+    call Set_Crystal_Cell (abc, Ang, Cell,cartype=ctype) 
+    
+    return
+    End Subroutine Get_Params_Cell
    !!--++
    !!--++ SUBROUTINE GET_TAIT
    !!--++
@@ -5358,6 +7355,243 @@ Contains
 
       return
    End Subroutine Get_Tait
+   
+   !!----
+   !!---- FUNCTION GET_TENSOR_EOS
+   !!----
+   !!---- Returns the value of alpha or beta tensor calculated from eos of cell and its eigen vectors etc
+   !!---- 22/10/2020
+   !!        
+    Subroutine get_tensor_eos(P,T,cell_eos,x,dx)
+    
+
+    
+    
+    !---- Arguments ----!
+    real(kind=cp),intent(in)    :: p,T
+    type(eos_cell_type),intent(in)  :: cell_eos
+    type(Strain_Tensor_Type),intent(inout) :: x !only 'in' is cartype, this routine loads system and property and paxis angles
+    character(len=1),intent(in)     :: dx    ! ='T' for alpha or 'P' for beta
+    
+    
+    !---- Local Variables ----!  
+    integer     :: i
+    real(kind=cp)       :: dr,cotbs,cotgs
+    real(kind=cp),dimension(3)  :: d,da ! for derivatives 1/a. da/dP and dangle/dP 
+    type(axis_type)      :: axis   
+    type(crystal_cell_type) :: c  !cell params, metric tensor at this P,T
+    character(len=2)        :: cartype  !local copy
+    character(len=2)        ::dtype  !local copy of P or T
+    
+    !Init
+    cartype=x%cartype
+    call init_strain_tensor(x)
+    x%cartype=U_case(cartype)
+    x%system=cell_eos%system
+    dtype='P'
+    if(U_case(dx) == 'T')dtype='T'
+    
+    
+    !Calculate cell edge compressibilities
+    do i = 1,3
+        axis%ieos=i
+        if(dtype == 'P')then
+            d(i)=-1.0_cp/Get_Mod_Cell(P,T,cell_eos,axis)        !d(1) is 1/a . da/dP: the negative of the compressibility
+        else
+            d(i)=Get_alpha_cell(P,T,cell_eos,axis)
+        endif
+    enddo
+    
+   
+    
+    
+    !now do triclinic or monoclinic
+    if(index(U_case(x%system),'TRIC') > 0 .or. index(U_case(x%system),'MONO') > 0)then
+        !> First calculate the cell params and recip cell at this point
+        call get_params_cell(P,T,cell_eos,c)
+        do i=1,3
+            da(i)=get_angle_deriv(P,T,cell_eos,i,.true.,dtype)
+        enddo
+        
+        select case(x%cartype)
+        case('BC')   !cartype=2: Redfern & Carpenter Y // b and Z //c*
+            dr=get_angle_deriv(P,T,cell_eos,2,.false.,dtype)   !d(beta*)/dP;  needed if beta changing but is 90.0
+            !tensor coeffs if beta*=90
+            x%ep(1,1)=d(1) +da(3)/tand(c%ang(3))
+            x%ep(2,2)=d(2)
+            x%ep(3,3)=d(3) +da(1)/tand(c%ang(1))
+            x%ep(1,3)=0.5_cp*dr
+            x%ep(2,3)=0.5_cp*((d(3)-d(2))/tand(c%ang(1))/sind(c%rang(2)) - da(1)/sind(c%rang(2)))
+            x%ep(1,2)=0.5_cp*((d(1)-d(2))/tand(c%ang(3)) - da(3))
+            
+            if(abs(c%rang(2)-90.0) > 0.01)then
+                !add in terms when beta* /=90
+                cotbs=1.0_cp/tand(c%rang(2))        !cot(beta*)
+                x%ep(3,3)=x%ep(3,3) + dr*cotbs
+                x%ep(2,3)=x%ep(2,3) + 0.5_cp*cotbs*((d(1)-d(2))/tand(c%ang(3))     -da(3))
+                x%ep(1,3)=x%ep(1,3) + 0.5_cp*cotbs*(d(1)-d(3) -da(1)*cosd(c%ang(1)) + da(3)/tand(c%ang(3)))
+            endif            
+        case('BA')  !cartype=3: Brown and Angel, Equations from Tribaudino et al (2011)
+            dr=get_angle_deriv(P,T,cell_eos,2,.false.,dtype)   !d(be*)/dP;  needed if beta changing but is 90.0
+            !tensor coeffs if beta*=90
+            x%ep(1,1)=d(1) +da(3)/tand(c%ang(3))
+            x%ep(2,2)=d(2) 
+            x%ep(3,3)=d(3) + da(1)/tand(c%ang(1))
+            x%ep(1,2)=0.5_cp*((d(1)-d(2))/tand(c%ang(3))/sind(c%rang(2)) - da(3)/sind(c%rang(2)))
+            x%ep(1,3)=0.5_cp*dr
+            x%ep(2,3)=0.5_cp*((d(3)-d(2))/tand(c%ang(1)) - da(1))
+            if(abs(c%rang(2)-90.0) > 0.01)then
+                !add in terms when beta* /=90
+                cotbs=1.0_cp/tand(c%rang(2))        !cot(beta*)
+                x%ep(1,1)=x%ep(1,1) + dr*cotbs
+                x%ep(1,2)=x%ep(1,2) + 0.5_cp*cotbs*((d(3)-d(2))/tand(c%ang(1))     -da(1))
+                x%ep(1,3)=x%ep(1,3) + 0.5_cp*cotbs*(d(3)-d(1) -da(3)*cosd(c%ang(3)) + da(1)/tand(c%ang(1)))
+            endif
+            
+        case('CB')      ! cartype=4: Neumann (1861) Equations from Pauffler and Weber (1999)
+            dr=get_angle_deriv(P,T,cell_eos,3,.false.,dtype)   !d(ga*)/dP;  needed if gamma changing but is 90.0
+            !tensor coeffs if gamma*=90
+            x%ep(1,1)=d(1) +da(2)/tand(c%ang(2))
+            x%ep(2,2)=d(2) +da(1)/tand(c%ang(1))
+            x%ep(3,3)=d(3)
+            x%ep(1,2)=0.5_cp*dr
+            x%ep(1,3)=0.5_cp*(d(1)-d(3))/tand(c%ang(2)) - 0.5_cp*da(2)
+            x%ep(2,3)=0.5_cp*((d(2)-d(3))/tand(c%ang(1))/sind(c%rang(3)) - da(1)/sind(c%rang(3)))
+            if(abs(c%rang(3)-90.0) > 0.01)then
+                !add in terms when gamma* /=90
+                cotgs=1.0_cp/tand(c%rang(3))        !cot(gamma*)
+                x%ep(2,2)=x%ep(2,2) + dr*cotgs
+                x%ep(1,2)=x%ep(1,2) + 0.5_cp*cotgs*(d(1)-d(2) -da(1)*cosd(c%ang(1)) + da(2)/tand(c%ang(2)))
+                x%ep(2,3)=x%ep(2,3) + 0.5_cp*cotgs*((d(1)-d(3))/tand(c%ang(2))     -da(2))
+            endif
+            
+        case default ! CA cartype=1:  This is Z //C X//A*: IRE convention  
+                     ! Invalid orientation code defaults to this one
+                     ! These equations derived by RJA, October 2020       
+            dr=get_angle_deriv(P,T,cell_eos,3,.false.,dtype)  !d(ga*)/dP;  needed if gamma changing but is 90.0
+            !tensor coeffs if gamma*=90
+            x%ep(2,2)=d(2) +da(1)/tand(c%ang(1))
+            x%ep(1,1)=d(1) +da(2)/tand(c%ang(2))
+            x%ep(3,3)=d(3)
+            x%ep(1,2)=0.5_cp*dr
+            x%ep(2,3)=0.5_cp*((d(2)-d(3))/tand(c%ang(1)) - da(1)) 
+            x%ep(1,3)=0.5_cp*((d(1)-d(3))/tand(c%ang(2))/sind(c%rang(3)) - da(2)/sind(c%rang(3)))
+            if(abs(c%rang(3)-90.0) > 0.01)then
+                !add in terms when gamma* /=90
+                cotgs=1.0_cp/tand(c%rang(3))        !cot(gamma*)
+                x%ep(1,1)=x%ep(1,1) + dr*cotgs
+                x%ep(1,2)=x%ep(1,2) + 0.5_cp*cotgs*(d(2)-d(1) -da(2)*cosd(c%ang(2)) + da(1)/tand(c%ang(1)))
+                x%ep(1,3)=x%ep(1,3) + 0.5_cp*cotgs*((d(2)-d(3))/tand(c%ang(1))     -da(1))
+            endif
+           
+            
+        
+        end select
+        !finish
+        x%ep(2,1)=x%ep(1,2)
+        x%ep(3,1)=x%ep(1,3)
+        x%ep(3,2)=x%ep(2,3)
+        if(dtype == 'P')then
+            x%ep=-1000.0_cp*x%ep       ! because compressibilities are negative of 1/a da/dP etc
+            if(len_trim(cell_eos%eosc%Pscale_name) > 0)then
+                x%property='Compressibility in units of inverse '//trim(cell_eos%eosc%Pscale_name)//' x 10^3'
+            else
+                x%property='Compressibility in units of inverse pressure units x 10^3'
+            endif
+            
+        else
+            x%property='Thermal expansion x 10^5'
+            x%ep=100000.0_cp*x%ep 
+        endif
+        
+        call fix_tensor(x%ep,x%system)   ! make strain conform to crystal system, and thus eliminate round-off error
+
+        !>for monoclinic or triclinic calculate Eigenvalues and vectors from tensor of properties x%ep
+        call Diagonalize_SH (X%Ep, 3, X%evalp, X%Evec)        
+        call orient_eigenvectors(X%evalp,X%evec)       !sort the eigen vectors so that #1 is close to +X etc
+        call calc_Paxes_angles(x,c,3)
+         
+        
+    else        !higher symmetries
+         do i=1,3
+             x%ep(i,i)=d(i)
+         enddo
+        if(dtype == 'P')then
+            x%ep=-1000.0_cp*x%ep       ! because compressibilities are negative of 1/a da/dP etc
+            if(len_trim(cell_eos%eosc%Pscale_name) > 0)then
+                x%property='Compressibility in units of inverse '//trim(cell_eos%eosc%Pscale_name)//' x 10^3'
+            else
+                x%property='Compressibility in units of inverse pressure units x 10^3'
+            endif
+        else
+            x%property='Thermal expansion x 10^5'
+            x%ep=100000.0_cp*x%ep 
+        endif
+        call fix_tensor(x%ep,x%system)   ! make strain conform to crystal system, and thus eliminate round-off error
+    endif
+  
+    return
+    End Subroutine get_tensor_eos
+    
+
+      
+   !!----
+   !!---- SUBROUTINE INIT_EOS_Angles
+   !!----
+   !!---- Initialize the EoS Type for Angles polynomial
+   !!----
+   !!---- Date: 07/10/2020
+   !!
+   Subroutine Init_EoS_Angles(Eospar)
+      !---- Arguments ----!
+      type (EoS_Type), intent(in out) :: Eospar
+
+      !---- Variables ----!
+      integer  :: n
+
+      !> Check for valid model number. If not valid, set zero
+      if (eospar%iangle < 0 .or. eospar%iangle > N_ANGLE_MODELS)eospar%iangle=0
+
+      Eospar%AngPoly  = 0.0_cp
+      Eospar%angpoly(1:3,0,1)=90._cp      
+
+ 
+
+      return
+   End Subroutine Init_EoS_Angles
+
+
+   !!----
+   !!---- SUBROUTINE INIT_EOS_CELL_TYPE
+   !!----
+   !!---- Subroutine to initialise eos_cell_type and set to default orthorhombic
+   !!---- 
+   !!---- Added to cfml: 09/09/2020
+   !!           
+   
+    Subroutine Init_Eos_Cell_Type(cell_eos)
+      !---- Arguments ----!
+      type(eos_cell_type),intent(inout) :: cell_eos
+    
+      !---- Local Variables ----!
+      integer i
+    
+      !> clear eos
+      do i=0,6
+            call Init_EoS_Type(cell_eos%eos(i))
+      enddo  
+
+      !>reset to default orthorhombic
+      cell_eos%n=3
+      cell_eos%system='ORTHORHOMBIC'
+      cell_eos%obtuse = .true.
+      cell_eos%unique_label=' '
+      cell_eos%unique=0
+      call Init_EoS_Type(cell_eos%eosang)
+      call set_cell_types(cell_eos)      ! sets the cout array PV VT etc    
+    
+      return
+    end subroutine Init_Eos_Cell_Type
 
    !!----
    !!---- SUBROUTINE INIT_EOS_CROSS
@@ -5765,7 +7999,9 @@ Contains
       Eospar%Title   =' '
       Eospar%IModel  =0
       Eospar%IOrder  =3
-
+      Eospar%IAngle  =0
+      
+      
       eospar%ParName=' '
       eospar%comment=' '
       eospar%doc=' '
@@ -5797,7 +8033,7 @@ Contains
 
       Eospar%IRef     = 0
       Eospar%factor   = 1.0_cp
-      Eospar%LastShift= 0.0_cp
+      Eospar%LastShift= 0.0_cp   
       Eospar%VCV      = 0.0_cp
 
       !> Test for optional argument for thermal
@@ -5834,6 +8070,8 @@ Contains
       
       call Init_EoS_Groupscales(Eospar)
       
+      call Init_EoS_Angles(Eospar)
+      
 
       return
    End Subroutine Init_EoS_Type
@@ -5855,6 +8093,101 @@ Contains
       return
    End Subroutine Init_Err_EoS
 
+   !!----
+   !!---- SUBROUTINE LOADED_CELL
+   !!----
+   !!---- Subroutine to check whether required eos are available for cell calculations
+   !!---- If not, issues a warning
+   !!---- Date: 09/09/2020
+   !!           
+
+    subroutine Loaded_Cell(cell_eos)
+
+      !---- Arguments ----!
+      type(eos_cell_type),intent(in) :: cell_eos 
+    
+      !---- Variables ----!
+      integer     :: i,isum
+
+      !>Init
+      Warn_EOS=.true. 
+    
+      select case(U_case(cell_eos%system(1:4)))
+        
+        case('CUBI','ISOT')
+            if(cell_eos%loaded(0) == 0)then
+                Warn_EOS_Mess='No eos loaded for cubic system, so no calculations possible'
+                return
+            endif
+        case('ORTH','TRIG','HEXA','TETR')
+                !check for all eos present in some form
+                do i = 0,3
+                    if(cell_eos%loaded(i) > 0)cycle
+                    if(index(U_case(cell_eos%system(1:4)),'ORTH') == 1)then
+                        Warn_EOS_Mess='Orthorhombic crystal system, but not enough EoS loaded to do calculations' 
+                    else
+                        Warn_EOS_Mess='Uniaxial crystal system, but not enough EoS loaded to do calculations'
+                    endif
+                
+                    return  
+                enddo   
+        case('MONO')
+                !check for all eos present in some form
+                isum=0
+                do i = 0,3
+                    if(cell_eos%loaded(i) > 0)isum=isum+1
+                enddo
+                if(isum < 4)then        !This takes care of angle poly because if present and 3 eos, the 4th is set as calculated
+                    Warn_EOS_Mess='Monoclinic crystal system, but not enough EoS loaded to do calculations'
+                    return
+                endif               
+                !check for unique flag
+                if(cell_eos%unique == 0)then
+                        Warn_EOS_Mess='Monoclinic crystal system, but unique axis not defined'
+                        return
+                endif
+                if(cell_eos%eosang%iangle > 0)then
+                    isum=0
+                    do i = 0,3
+                        if(cell_eos%loaded(i) == 1)isum=isum+1
+                    enddo
+                    if(isum == 4)then
+                            Warn_EOS_Mess='More than required EoS are loaded with angles: either delete angle polynomial or 1 EoS'
+                            return
+                    endif                   
+                endif
+                
+        case('TRIC')
+                if(cell_eos%eosang%iangle == 0)then
+                    !require all
+                    if(sum(cell_eos%loaded(0:6)) < 7)then
+                        Warn_EOS_Mess='Triclinic crystal system, but not enough EoS loaded to do calculations'
+                        return
+                    endif 
+                else
+                    isum=0
+                    do i = 0,3
+                        if(cell_eos%loaded(i) == 1)isum=isum+1
+                    enddo
+                    if(isum == 4)then
+                            Warn_EOS_Mess='More than required EoS are loaded with angles: either delete angle polynomial or 1 EoS'
+                            return
+                    elseif(isum < 3)then
+                            Warn_EOS_Mess='Triclinic crystal system, but not enough EoS loaded to do calculations'
+                            return
+                    endif                   
+                endif
+                
+        case default
+                Warn_EOS_Mess='Unrecognised Crystal System'
+                return
+      end select  
+    
+      Warn_EOS=.false.
+        
+      return
+    end subroutine loaded_cell   
+   
    !!--++
    !!--++ SUBROUTINE MURN_PTVTABLE
    !!--++
@@ -6681,7 +9014,7 @@ Contains
    !!--++ SUBROUTINE READ_EOS_IN
    !!--++
    !!--++ PRIVATE
-   !!--++ General routine to read Eos from a file
+   !!--++ General routine to read one Eos from a file
    !!--++
    !!--++ Date: 12/10/2015
    !!--++
@@ -6692,10 +9025,11 @@ Contains
       type(Eos_type),               intent(out)  :: eos
 
       !---- Local Variables ----!
-      integer       :: nl, imax,ierr,idoc,nlines,i,c,j
+      integer       :: nl, imax,ierr,idoc,nlines,i,c,j,jc,kc
       character(len=255)                            :: text
       character(len=10)                             :: forma
-      real                                          :: val
+      real(kind=cp)                                 :: val
+      real(kind=cp),dimension(N_ANGPOLY)            :: tpoly
 
       !> initialisation
       call init_eos_type(eos)
@@ -6795,12 +9129,22 @@ Contains
             if (ierr /=0) Err_EoS_Mess="Error reading the reference density"
             if(eos%density0 < 0.00005)eos%density0=0.0_cp                   ! test against min value allowed by format
 
+         else if(index(text,'ANGLES') /= 0)then
+            read(text(c:),'(i5)',iostat=ierr)eos%iangle
+            if (ierr /=0) Err_EoS_Mess="Error reading the Angle Model number"  
+             
+         !> Parameter values: one at a time    
          else if(index(text,'PARAM') /= 0)then
             if (index(U_case(text(c:)),'INF')> 0)then
                read(text(c:),'(i2)',iostat=ierr)i
                val=huge(0._cp)
             else
                read(text(c:),'(i2,f12.6)',iostat=ierr)i,val
+               if(i > 50 .and. i < 60)then  !read scale factor name
+                   jc=index(U_case(text),',')+1
+                   kc=index(U_case(text),')')-1
+                   if(jc > 1 .and. kc > jc)eos%comment(i)=trim(adjustl(text(jc:kc)))
+               endif              
             end if
             if (ierr /=0) Err_EoS_Mess="Error reading the EoS Parameters"
 
@@ -6829,6 +9173,12 @@ Contains
          err_eos=.true.
          return
       end if
+      
+      if(eos%iangle > 0 .and. eos%imodel+eos%itherm+eos%itran+eos%icross+eos%ishear /=0)then
+         Err_EoS_Mess="EoS file contains both angle and eos models: not allowed"
+         err_eos=.true.
+         return
+      end if          
 
       !> Do stuff to allow for old files made prior to Nov 2016 not having icross:
       if (eos%icross == 0 .and. abs(eos%params(8)) > 0.000001_cp) eos%icross=1
@@ -6860,8 +9210,22 @@ Contains
               eos%vcv(1:imax,4)=0._cp
               warn_eos=.true.
               Warn_Eos_Mess=trim(Warn_Eos_Mess)//"EoS file in old format for APL EoS: check parameter values carefully"
-       endif
+      endif
 
+      !> Move angle polynomial values from params(1:30) and clear params(1:30)
+      if(eos%iangle > 0)then
+          do i=1,3
+              j=10*i-9        ! j=1,11,21
+              eos%angpoly(i,0,1)=eos%params(j)
+              eos%angpoly(i,1,1:3)=eos%params(j+1:j+3)      !P terms
+              eos%angpoly(i,2,1:3)=eos%params(j+4:j+6)      !T terms
+              eos%angpoly(i,3,1:3)=eos%params(j+7:j+9)      !PT terms
+          enddo    
+          eos%params(1:30)=0._cp    
+      endif
+      
+      
+      
 
       !> Now finish setting the other eos components
       call set_eos_names(eos)
@@ -6962,6 +9326,178 @@ Contains
       return
    End Subroutine Read_Multiple_Eos_File
 
+   !!----
+   !!---- SUBROUTINE SET_CELL_TYPES
+   !!----
+   !!---- Subroutine to set info, eosc and flags inside eos_cell_type
+   !!----
+   !!---- Date: 25/09/2020
+   !!        
+   Subroutine Set_Cell_Types(cell_eos)
+      !---- Arguments ----!
+      type(eos_cell_type),intent(inout) :: cell_eos
+    
+
+    
+    integer i
+    
+    cell_eos%cout='N'
+    cell_eos%loaded=0        ! clear and reset
+
+    select case(U_case(cell_eos%system(1:4)))
+    case('TRIC')
+        if(cell_eos%eosang%iangle >  0)then
+            cell_eos%n=3
+            cell_eos%inputlist='(a,b,c,V,Ang)'        
+        else
+            cell_eos%n=6
+            cell_eos%inputlist='(a,b,c,d100,d010,d001,V)'
+        endif
+    case('MONO')
+        cell_eos%n=3
+        cell_eos%inputlist='(a,b,c,V)'
+        if(cell_eos%eosang%iangle >  0)cell_eos%inputlist='(a,b,c,V,Ang)'        
+    
+    case('ISOT') 
+        cell_eos%n= 0
+        cell_eos%inputlist='V'
+    case default  
+        cell_eos%n=3
+        cell_eos%inputlist='(a,b,c,V)'
+    end select
+    
+    !> set all eos%system to cell_eos%system
+    if(len_trim(cell_eos%system) > 0)then
+        cell_eos%eos(0:6)%system=cell_eos%system
+        cell_eos%eosang%system=cell_eos%system
+    endif
+    
+    
+    !>initial testing of eos to see if present
+    do i=0,cell_eos%n
+            if(cell_eos%eos(i)%imodel /= 0 .or.  cell_eos%eos(i)%itherm /= 0)cell_eos%loaded(i)=1
+    enddo           
+  
+    
+    !>now check to see if we can calculate missing
+    call init_err_eos
+    select case(U_case(cell_eos%system(1:4)))
+    case('TRIC')
+        !requires all 7 eos or only 3 of 4 if angle poly
+        if(cell_eos%eosang%iangle > 0)then        !angle poly
+            !angle poly should be loaded: only need 3 of 4 eos Vabc
+             if(sum(cell_eos%loaded(0:3)) == 3)then
+                do i=0,3
+                    if(cell_eos%loaded(i) == 0)then
+                        cell_eos%loaded(i)=3
+                        exit
+                    endif
+                enddo  
+             endif
+        endif        
+
+        
+    case('MONO')
+        !Set the unique axis flags 
+        if(index('ABC',U_case(cell_eos%unique_label)) > 0)then
+            cell_eos%unique=index('ABC',U_case(cell_eos%unique_label))
+        else
+            i=index(cell_eos%system,'-')-1
+            if(i > 0)cell_eos%unique=index('ABC',U_case(cell_eos%system(i:i)))
+        endif
+        ! no symmetry equivs, so loaded is either 1 or 0, until here. V,a,b,c are all required unless angle poly set
+        if(cell_eos%eosang%iangle > 0)then        !angle poly
+            !angle poly should be loaded: only need 3 of 4 eos Vabc
+             if(sum(cell_eos%loaded(0:3)) == 3)then
+                do i=0,3
+                    if(cell_eos%loaded(i) == 0)then
+                        cell_eos%loaded(i)=3
+                        exit
+                    endif
+                enddo  
+             endif
+        endif
+    case('ORTH')
+        ! no symmetry equivs, so loaded is either 1 or 0, until here
+        if(sum(cell_eos%loaded(0:3)) == 3)then
+            do i=0,3
+                if(cell_eos%loaded(i) == 0)then
+                    cell_eos%loaded(i)=3
+                    exit
+                endif
+            enddo  
+        endif
+        
+        
+        
+    case('TETR','TRIG','HEXA')
+        if(cell_eos%loaded(1) == 0 .and. cell_eos%loaded(2) == 1)then     ! move b to a 
+            cell_eos%eos(1)=cell_eos%eos(2)
+            cell_eos%loaded(1)=1
+        endif
+        
+        if(cell_eos%loaded(1) == 1)then                          ! make b = a
+            cell_eos%loaded(2)=2
+            cell_eos%eos(2)=cell_eos%eos(1)
+        endif
+        if(cell_eos%loaded(0) == 0 .and. cell_eos%loaded(1) == 1 .and. cell_eos%loaded(3) == 1)cell_eos%loaded(0)=3   !V from a and c        
+        if(cell_eos%loaded(1) == 0 .and. cell_eos%loaded(0) == 1 .and. cell_eos%loaded(3) == 1)cell_eos%loaded(1)=3   ! a from V and c
+        if(cell_eos%loaded(3) == 0 .and. cell_eos%loaded(0) == 1 .and. cell_eos%loaded(1) == 1)cell_eos%loaded(3)=3   ! C from a and V
+        
+    case('CUBI','ISOT') ! 
+        !> first move b or c loaded to a
+        if(cell_eos%loaded(2) == 1)then
+            cell_eos%eos(1)=cell_eos%eos(2)
+            cell_eos%loaded(1)=1
+        elseif(cell_eos%loaded(3) == 1)then
+            cell_eos%eos(1)=cell_eos%eos(3)
+            cell_eos%loaded(1)=1           
+        endif
+        
+        !now set dependencies
+        
+        if(cell_eos%loaded(0) == 1)then              ! V loaded
+            cell_eos%loaded(1:3)=3                   ! calc a,b,c from V
+        elseif(cell_eos%loaded(1) == 1)then          ! a loaded
+            cell_eos%loaded(0)=3             
+            cell_eos%loaded(2:3)=2
+            cell_eos%eos(2)=cell_eos%eos(1)
+            cell_eos%eos(3)=cell_eos%eos(1)
+        endif
+                    
+
+    end select
+    
+    !> Update flags and eosc
+      call init_eos_type(cell_eos%eosc)      ! clears eosc
+      do i=0,cell_eos%n
+          if(cell_eos%loaded(i) == 1)then
+              cell_eos%eosc=cell_eos%eos(i)
+              exit
+          endif
+      enddo
+      cell_eos%eosc%imodel=1                 ! dummies for i/o control
+      cell_eos%eosc%itherm=1
+      do i=0,cell_eos%n
+            if(cell_eos%loaded(i) == 1)then
+                if(cell_eos%eos(i)%imodel /= 0)then
+                    cell_eos%cout(i,1)='Y'
+                else
+                    cell_eos%eosc%imodel=0
+                endif
+                
+                if(cell_eos%eos(i)%itherm /= 0)then
+                    cell_eos%cout(i,2)='Y'
+                else
+                    cell_eos%eosc%itherm=0
+                endif
+                if(cell_eos%cout(i,1) == 'Y' .and. cell_eos%cout(i,2) == 'Y')cell_eos%cout(i,3)='Y'      
+            endif
+      enddo    
+ 
+    return
+   End Subroutine Set_Cell_Types
+   
    !!--++
    !!--++ SUBROUTINE SET_CROSS_NAMES
    !!--++
@@ -7247,7 +9783,7 @@ Contains
          case (4)             ! Holland-Powell thermal expansion, in Kroll form
             if (eospar%imodel ==0) eospar%iuse(3)=2     ! require Kprime_zero but not stable in refinement if no P data (added 27/01/2014 RJA)
             eospar%iuse(10)=1    ! alpha at Tref
-            eospar%iuse(11)=2    ! Einstein T should be reported but cannot be refined
+            eospar%iuse(11)=1    ! Einstein T set refineable 2 Sept 2020
             eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref
             eospar%iuse(19)=2    ! Grunesien q power law parameter
             eospar%TRef_fixed   = .false.
@@ -7266,7 +9802,7 @@ Contains
             if (eospar%imodel==0) eospar%iuse(2:4)=2   ! K, Kp refinement is not stable without a pressure model
             eospar%iuse(8:9)=0     ! No dK/dT parameter:
             eospar%iuse(10)=1    ! alpha at Tref
-            eospar%iuse(11)=1    ! Einstein T should be reported but cannot be refined
+            eospar%iuse(11)=1    ! Einstein T should be reported 
             eospar%iuse(18)=2    ! Grunesien parameter at Pref,Tref
             eospar%iuse(19)=3    ! Grunesien q power law parameter
             eospar%TRef_fixed   = .false.
@@ -7444,7 +9980,47 @@ Contains
 
       return
    End Subroutine set_eos_implied_values
+   
+   
+   
+    subroutine Set_GroupScales_used(g,gdat)
+       
+    !sets the use flags for the g%params(51:59) on the basis of the groups in gdat
+    ! if there is at least one data with iuse=1 in group sets g%iuse=1
+    ! if all data in group are set not to be used, then g%iuse=2
+    
+       !---- Arguments ----!    
+       type(eos_type),intent(inout) :: g    ! eos with parameters
+       type (EoS_Data_List_Type)   :: gdat  ! the data list
+       logical, dimension(9) :: igroup      ! igroup(i) .true. if group present
 
+       !---- Local Variables ----!
+       integer      :: i,j
+    
+       !> get which groups are present in gdat
+       igroup=.false.
+       do i=1,gdat%n
+          if (gdat%eosd(i)%Igrp(1) > 0)igroup(gdat%eosd(i)%Igrp(1))=.true.
+       end do
+    
+       !now set them as settable not refineable
+       g%iuse(50:59)=0
+       do i=1,9
+           if(igroup(i))then
+               g%iuse(50+i) = 2
+               do j=1,gdat%n
+                 if (gdat%eosd(j)%Igrp(1) == i .and. gdat%eosd(j)%iuse == 1)then 
+                    g%iuse(50+i) = 1
+                    exit
+                 endif
+               enddo
+            endif   
+       enddo  
+     
+       if(sum(g%iuse(51:59)) == 1)g%iuse(51) = 2
+       
+       return
+    end subroutine Set_GroupScales_used
    !!--++
    !!--++ SUBROUTINE SET_OSC_NAMES
    !!--++
@@ -7897,6 +10473,10 @@ Contains
 
       return
    End Subroutine Vec_to_EoS
+   
+   
+
+   
 
    !!----
    !!---- SUBROUTINE WRITE_DATA_CONLEV
@@ -8047,8 +10627,9 @@ Contains
       !---- Variables ----!
       character(len=12)            :: stext
       character(len=1024)           :: text
-      integer                      :: ierr,i,j
+      integer                      :: ierr,i,j,k
       real(kind=cp)                :: valp
+      real(kind=cp),dimension(10)  :: p
 
       !>
       !> assume that unit is connected and open.
@@ -8085,7 +10666,7 @@ Contains
       text=',  ('//trim(eos%model)//')'
       if (eos%imodel == 0) text=',  (none)'
       write(unit=lun,fmt='(a,i3,a)',iostat=ierr) 'Model =',eos%imodel,trim(text)
-      write(unit=lun,fmt='(a,i3)',iostat=ierr) 'Order =',eos%iorder
+      write(unit=lun,fmt='(a,i3)',iostat=ierr) 'Order =',eos%iorder          
 
       text=',  ('//trim(eos%tmodel)//')'
       if (eos%itherm == 0)text=',  (none)'
@@ -8103,52 +10684,75 @@ Contains
       if (eos%ishear == 0)text=',  (none)'
       write(unit=lun,fmt='(a,i3,a,a,a)',iostat=ierr) 'Shear =',eos%ishear,trim(text)
       
-      do i=1,2
-          text=',  ('//trim(eos%oscmodel(i))//')'
-          if (eos%iosc(i) == 0)text=',  (none)'
-          write(unit=lun,fmt='(a,i1,a,i3,a)',iostat=ierr) 'Osc',i+1,' =',eos%iosc(i),trim(text)
-      enddo
-      
-      
+      write(unit=lun,fmt='(a,i3)',iostat=ierr) 'Angles =',eos%iangle
 
-      if (eos%linear)then
-         write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Linear'
-          if(len_trim(eos%LinearDir) == 0)then
-                   write(unit=lun,fmt='(a)') 'Direction = Unknown'
-               else
-                   write(unit=lun,fmt='(a,a)') 'Direction =',trim(adjustl(eos%LinearDir))
-        endif
-
-      else
-         write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Volume'
-      end if
       write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Pref =',eos%pref
       write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Tref =',eos%tref
       write(unit=lun,fmt='(a,a)',iostat=ierr) 'Pscale =',trim(eos%pscale_name)
       write(unit=lun,fmt='(a,a)',iostat=ierr) 'Vscale =',trim(eos%vscale_name)
-      write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Stoich =',eos%stoich
-      if (eos%density0 > tiny(0.)) then
-         write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Density0 =',eos%density0
-      end if
 
-      write(unit=lun,fmt='(a)',iostat=ierr) ' '
+     
+        do i=1,2
+            text=',  ('//trim(eos%oscmodel(i))//')'
+            if (eos%iosc(i) == 0)text=',  (none)'
+            write(unit=lun,fmt='(a,i1,a,i3,a)',iostat=ierr) 'Osc',i+1,' =',eos%iosc(i),trim(text)
+        enddo
+      
+        if (eos%linear)then
+            write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Linear'
+            if(len_trim(eos%LinearDir) == 0)then
+                    write(unit=lun,fmt='(a)') 'Direction = Unknown'
+            else
+                    write(unit=lun,fmt='(a,a)') 'Direction =',trim(adjustl(eos%LinearDir))
+            endif
+        elseif(eos%iangle == 0)then
+            write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Volume'
+        else
+            write(unit=lun,fmt='(a)',iostat=ierr) 'Type = Angles'
+        end if
 
+        write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Stoich =',eos%stoich
+        if (eos%density0 > tiny(0.)) then
+            write(unit=lun,fmt='(a,f10.5)',iostat=ierr) 'Density0 =',eos%density0
+        end if
+
+        write(unit=lun,fmt='(a)',iostat=ierr) ' '
+
+      
+      
       !> Eos parameters
-      do i=1,n_eospar
-         valp=eos%params(i)*eos%factor(i)
-         if(abs(valp) < 1.0E7_cp)then
-            text=rformat(valp,precision(valp)+2)
-         else
-            write(text,'(''    Inf'')')
-         end if
+      if(eos%iangle == 0)then      
+          !> Normal Eos parameters
+          do i=1,n_eospar
+             valp=eos%params(i)*eos%factor(i)
+             if(abs(valp) < 1.0E7_cp)then
+                text=rformat(valp,precision(valp)+2)
+             else
+                write(text,'(''    Inf'')')
+             end if
 
-         if (eos%iuse(i) == 0) then
-            write(unit=lun,fmt='(a,i2,a12,5a)')'Param =',i,text(1:12)
-         else
-            write(unit=lun,fmt='(a,i2,a12,5a)')'Param =',i,text(1:12),'     (',eos%parname(i),',  ',&
-                 trim(eos%comment(i)),')'
-         end if
-      end do
+             if (eos%iuse(i) == 0) then
+                write(unit=lun,fmt='(a,i2,a12,5a)')'Param =',i,text(1:12)
+             else
+                write(unit=lun,fmt='(a,i2,a12,5a)')'Param =',i,text(1:12),'     (',eos%parname(i),',  ',&
+                     trim(eos%comment(i)),')'
+             end if
+          end do
+      else
+          !> angle polynomial to be written into space for params(1:30)
+          do i=1,3      ! loop over angles
+              p(1)=eos%angpoly(i,0,1)
+              p(2:4)=eos%angpoly(i,1,1:3)      !P terms
+              p(5:7)=eos%angpoly(i,2,1:3)      !T terms
+              p(8:10)=eos%angpoly(i,3,1:3)      !PT terms
+              do k=1,10
+                  j=10*(i-1)+k
+                  text=rformat(p(k),precision(p(k))+2)
+                  write(unit=lun,fmt='(a,i2,a12)')'Param =',j,text(1:12)
+              enddo
+          enddo  
+          
+      endif          
 
       !> VCV: stored as scaled values for precision
       write(unit=lun,fmt='(a)',iostat=ierr) ' '
@@ -8182,10 +10786,11 @@ Contains
    !!----
    !!----   Change: 06/10/2015 to make write_eoscal_header private, and change name from write_eoscal_file
    !!----   Change: 12/12/2017 created eoscal_text so that errors and values are printed when error state
-   !!----   Change: 19/12/2018 added error flag to return to calling program, if warning or error on at least one calc
+   !!----   Change: 19/12/2018 added error flag to return to calling program, if warning or error on at least one calc   
+   !!----   Change: 9/2020 added handling of calculated directions in unit cell
    !!---- Date: 17/07/2015
    !!
-   Subroutine Write_Eoscal(Pmin,Pmax,Pstep,Tmin,Tmax,Tstep,Tscale_In,Eos,Lun,Nprint,eoscal_err)
+   Subroutine Write_Eoscal(Pmin,Pmax,Pstep,Tmin,Tmax,Tstep,Tscale_In,Eos,Lun,Nprint,eoscal_err,cell_eos,axis)
       !---- Arguments ----!
       real(kind=cp),    intent(in)  ::  pmin, pmax, pstep   !P to calculate properties
       real(kind=cp),    intent(in)  ::  tmin,tmax,tstep     !T to calculate properties
@@ -8195,6 +10800,8 @@ Contains
       integer,          intent(in)  :: lun                  ! logical unit for printing
       integer,          intent(out) :: nprint               ! Number of data printed
       logical,          intent(out) :: eoscal_err           ! error flag
+      type(axis_type),optional,intent(in out)     :: axis
+      type(EoS_Cell_Type),optional,intent(in out) :: cell_eos
 
       !---- Local variable ----!
       real(kind=cp)           :: p,t      ! The p and T of each calculation
@@ -8202,17 +10809,22 @@ Contains
       character(len=255)      :: text     ! local text variable
       character(len=1)        :: tscale   ! local name of tscale
       logical                 :: loop_p   ! loop indicator .true. for inner loop of calcs over P
-      !integer,dimension(19)   :: ip=(/6,6,9,8,6,5,  5, 9, 7, 7,    5,  9, 7,7,6,6,6,6,6/) ! format for output
-      !integer                 :: i
-
-      !real(kind=cp),dimension(6) :: parvals(7)
-      !real(kind=cp),dimension(6) :: esd
-      !real(kind=cp),dimension(19):: parout,esdout
-      !real(kind=cp)              :: v0,agt,fp,fs
+      integer                 :: cellcase ! indicator for type of eos or cell_eos
 
       !> init
       nprint=0    ! output counter
       eoscal_err=.false.
+      
+      cellcase=0
+      if(present(axis) .and. present(cell_eos))then
+        cell_eos%eosc%linear = .true.       !safety for using write_eoscal_header
+        if(axis%ieos == -2)then
+            cellcase = 1        !general drection
+        else
+            cellcase = 3        !third-axis from others     
+        endif
+      endif
+   
 
       !> Tscale for output: C or K
       if (len_trim(tscale_in) == 0)then
@@ -8223,8 +10835,12 @@ Contains
       end if
 
       !> Write file header
-      call write_eoscal_header(eos,lun,tscale)
-
+      if(cellcase ==0)then
+          call write_eoscal_header(eos,lun,tscale)
+      else
+          call write_eoscal_cell_header(axis,lun,tscale)
+      endif
+      
       !> copy Pstep/Tstep
       tst=tstep
       pst=pstep
@@ -8256,21 +10872,33 @@ Contains
          end if
 
          inner: do
-             call init_err_eos
-             call physical_check(eos,Pin=p,Tin=T)
-             if (err_eos) then
-                text=trim(rformat(p,6))//'  '//trim(rformat(t,6))//' :   '//trim(err_eos_mess)
-                write(lun,'(a)')trim(text)
-                eoscal_err=.true.
+             if(cellcase == 0)then
+                 call init_err_eos
+                 call physical_check(eos,Pin=p,Tin=T)
+                 if (err_eos) then
+                    text=trim(rformat(p,6))//'  '//trim(rformat(t,6))//' :   '//trim(err_eos_mess)
+                    write(lun,'(a)')trim(text)
+                    eoscal_err=.true.
+                 else
+                    call eoscal_text(p,t,Tscale_In,Eos,text)
+                    write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error in calcs with valid eos
+                    if (err_eos)then
+                        write(lun,'(a)')'   *****WARNING:   '//trim(err_eos_mess)
+                        eoscal_err=.true.
+                    endif
+
+                 endif
              else
-                call eoscal_text(p,t,Tscale_In,Eos,text)
-                write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error in calcs with valid eos
+                 call init_err_eos
+
+                call eoscal_text_direction(P,T,Tscale_in,cell_eos,axis,text)
+                    write(lun,'(a)')trim(text)      ! This way we get to see the calculated values even if error in calcs with valid eos
                 if (err_eos)then
                     write(lun,'(a)')'   *****WARNING:   '//trim(err_eos_mess)
                     eoscal_err=.true.
-                endif
+                endif                         
 
-             endif
+            endif     
             nprint=nprint+1
 
             !> Now increment inner loop variable and test for completion
@@ -8455,6 +11083,83 @@ Contains
       return
    End Subroutine Eoscal_text
 
+   !!----
+   !!---- SUBROUTINE EOSCAL_TEXT_DIRECTION
+   !!----
+   !!----   Subroutine to write the calculated parameters of calculated direction to file at one PT point
+   !!----   NO  header info is printed here.
+   !!----
+   !!----   Normally called from Write_eoscal
+   !!----
+   !!----   written 09/2020
+   !!
+   Subroutine Eoscal_Text_Direction(P,T,Tscale_In,cell_eos,axis,text)
+      !---- Arguments ----!
+      real(kind=cp),    intent(in)  ::  p                   !P to calculate properties
+      real(kind=cp),    intent(in)  ::  t                   !T to calculate properties
+      character(len=*), intent(in)  ::  tscale_in           ! Name of the Tscale for output, either C or K
+      type(axis_type),  intent(in)     :: axis              ! The direction
+      type(EoS_Cell_Type),intent(in) :: cell_eos            ! The eos for all the cell
+      character(len=255),intent(out):: text                 ! character string with results
+
+      !---- Local variable ----!
+      character(len=1)        :: tscale   ! local name of tscale
+      integer,parameter     :: nout=8
+      integer,dimension(nout)   :: ip=(/6,6,8,8,6,6,7,7/) ! format for output
+      integer                 :: i
+
+      real(kind=cp),dimension(6) :: parvals
+      real(kind=cp),dimension(nout):: parout
+      real(kind=cp)              :: v0
+
+
+      !> Tscale for output: C or K
+      if (len_trim(tscale_in) == 0)then
+         tscale='K'
+      else
+         tscale=U_case(tscale_in)
+         if (tscale /= 'K' .and. tscale /='C')tscale='K'
+      end if
+
+
+        call init_err_eos()
+        parout=0.0_cp
+
+        !> Now do the calculations at P,T
+        if(axis%ieos == -2)then
+            call get_props_general(P,T,cell_eos,axis,Parvals)
+            V0=get_Volume_general(0.0_cp,T,cell_eos,axis)
+        else    
+            Call get_props_third(P,T,cell_eos,axis%ieos,Parvals)
+            V0=get_volume_third(0.0_cp,T,cell_eos,axis%ieos)
+        endif
+            
+
+
+            !> build ouput value array
+            parout(1)=p
+            parout(2)=t
+            if (tscale =='C')parout(2)=parout(2)-273.16
+            parout(3)=parvals(1)*cell_eos%eosc%factor(1)      ! v
+            parout(4)=parvals(1)/v0                 ! v/V0 at this T
+
+            parout(5)=parvals(2)*cell_eos%eosc%factor(2)   !K or M
+            parout(6)=parvals(3)*cell_eos%eosc%factor(3)   !Kp or Mp
+            parout(7)=parvals(5)*cell_eos%eosc%factor(5)   !dK/dT or dM/dT
+            parout(8)=parvals(6)*cell_eos%eosc%factor(10)   !alpha
+            
+            !> output this datum: dynamic formatting to text string
+
+            !>init
+            text=''
+
+            !> No esd's
+            do i=1,nout
+               text=trim(text)//'  '//trim(rformat(parout(i),ip(i)))
+            end do
+
+      return
+   End Subroutine Eoscal_text_direction
 
 
    !!--++
@@ -8542,7 +11247,122 @@ Contains
 
       return
    End Subroutine Write_Eoscal_Header
+   !!--++
+   !!--++ SUBROUTINE WRITE_EOSCAL_CELL_HEADER
+   !!--++
+   !!--++ PUBLIC
+   !!--++ Subroutine that print information on iout unit for calculated directions without own eos
+   !!--++
+   !!--++ Date: 15/09/2020
+   !!
+   Subroutine Write_Eoscal_Cell_Header(axis,Lun,Tscale_In)
+      !---- Arguments ----!
+      type(axis_type),intent(in out)     :: axis
+      integer,       intent(in)   :: lun         ! logical unit for printing
+      character(len=*),intent(in) :: tscale_in   ! Scale for Temp
 
+      !---- Local Variables ----!
+      character(len=1)     :: tscale
+      character(len=255)   :: head     ! local text variable for column headers
+
+      !> alpha scale
+      write(lun,'(//)')
+
+      write(lun,'("  Note that values of alpha are multiplied by a factor of 10^5")')
+
+      
+  
+
+      !> tscale for output: C or K
+      if (len_trim(tscale_in) == 0) then
+         tscale='K'
+      else
+         tscale=U_case(tscale_in)
+         if (tscale /= 'K' .and. tscale /='C')tscale='K'
+      end if
+
+      !> create column header
+      if(axis%ieos == 0) then
+         write(head,'("   Press   Temp",a1,"   Volume    V/V0T       K    Kprime    dK/dT    alpha")' ) Tscale
+      else     
+         write(head,'("   Press   Temp",a1,"   Length    L/L0T       M    Mprime    dM/dT    alpha")' ) Tscale
+      end if
+
+      !> Write header
+      write(lun,'(/a)')trim(head)
+
+      return
+   End Subroutine Write_Eoscal_Cell_Header
+
+   Subroutine Write_Info_Angle_Poly(e,iang,iout)
+      !---- Arguments ----!
+      type(eos_type),intent(in) :: e            ! eos type with angles polynomial
+      integer,optional,intent(in)        :: iang            ! The angle number to print, If missing prints all
+      integer, optional, intent(in) :: iout    ! Logical unit
+
+      !---- Local Variables ----!
+      integer           :: lun,i,ia,angflag     
+      character(len=180):: ltext 
+      character(len=20) :: stext,sign,var
+      
+      !>check for angle to print
+      angflag=0
+      if(present(iang))then
+              if(iang < 1 .or. iang > 3)return        !illegal angl number
+              angflag=iang
+      endif
+        
+              
+      !> Unit to print the information
+      lun=6
+      if (present(iout)) lun=iout  
+      
+      if(e%iangle == 0)return              !no polynomial
+
+      do ia=1,3
+          if(angflag > 0 .and. ia /= angflag)cycle 
+          ltext='     '//celllabel(ia+3)//'='//trim(rformat(e%angpoly(ia,0,1),7))
+      
+          if(e%iangle == 1)then         !polynomial
+            do i=1,N_ANGPOLY            ! P terms
+                if(abs(e%angpoly(ia,1,i)) > tiny(0._cp))then
+                        sign='+'
+                        if(e%angpoly(ia,1,i) < 0._cp)sign=' '     !rformat sets sign if <0
+                        var='P'
+                        if(i > 1)write(unit=var,fmt='("P^",i1)')i
+                        ltext=trim(ltext)//' '//trim(sign)//trim(adjustl(rformat(e%angpoly(ia,1,i),8)))//trim(var)
+                endif
+            enddo
+
+
+            do i=1,N_ANGPOLY
+                if(abs(e%angpoly(ia,2,i)) > tiny(0._cp))then
+                        sign='+'
+                        if(e%angpoly(ia,2,i) < 0._cp)sign=' '     !rformat sets sign if <0
+                        var='T'
+                        if(i > 1)write(unit=var,fmt='("T^",i1)')i
+                        ltext=trim(ltext)//' '//trim(sign)//trim(adjustl(rformat(e%angpoly(ia,2,i),8)))//trim(var)
+                endif
+            enddo
+
+            do i=1,N_ANGPOLY
+                if(abs(e%angpoly(ia,3,i)) > tiny(0._cp))then
+                        sign='+'
+                        if(e%angpoly(ia,3,i) < 0._cp)sign=' '     !rformat sets sign if <0
+                        var='PT'
+                        if(i == 2)var='P^2T'
+                        if(i == 3)var='PT^2'
+                        ltext=trim(ltext)//' '//trim(sign)//trim(adjustl(rformat(e%angpoly(ia,3,i),8)))//trim(var)
+                endif
+            enddo
+          endif      
+
+          !>Write out the out the info
+          write(unit=lun,fmt='(a)')trim(ltext)
+      enddo
+      
+      return
+   End Subroutine Write_Info_Angle_Poly
    !!----
    !!---- SUBROUTINE Write_Info_Conlev
    !!----
@@ -8624,13 +11444,17 @@ Contains
                else
                    write(unit=lun,fmt='(a,a)') 'Direction: ',trim(adjustl(eospar%LinearDir))
                endif
-     else
+     elseif(eospar%iangle == 0)then
                write(unit=lun,fmt='(a)') '    Class: Volume'
+     else
+               write(unit=lun,fmt='(a)') '    Class: Angles'
      end if
 
       
-      if (eospar%imodel /= 0) then
+      if (eospar%imodel /= 0 .or. eospar%iangle /= 0) then
          if (len_trim(eospar%Pscale_name) > 0)write(unit=lun,fmt='(a)') '   Pscale: '//trim(eospar%Pscale_name)
+      endif
+      if (eospar%imodel /= 0) then
          if (len_trim(eospar%Vscale_name) > 0)write(unit=lun,fmt='(a)') '   Vscale: '//trim(eospar%Vscale_name)
          write(unit=lun,fmt='(a,t27,f8.3)') '   Stoichiometry: ',eospar%stoich
 
@@ -8685,13 +11509,122 @@ Contains
       !> Shear
       if (eospar%ishear > 0) call write_info_eos_shear(eospar,lun)
       
+      !> Group scales
       if(sum(eospar%iuse(51:59)) > 0) call write_info_eos_groupscales(eospar,lun)
 
+      !> Angle polynomial
+      if (eospar%iangle > 0) call Write_Info_Angle_Poly(eospar,iout=lun)
+      
       !> End
       write(unit=lun,fmt='(a)') ' '
 
       return
    End Subroutine Write_Info_Eos
+   !!----
+   !!---- SUBROUTINE WRITE_INFO_EOS_CELL
+   !!----
+   !!---- Subroutine that prints information about the list of eos in cell_eos on iout unit
+   !!----
+   !!---- Date: 09/09/2020
+   !! 
+    Subroutine Write_Info_Eos_Cell_Type(cell_eos,iout)
+      !---- Arguments ----!
+      type(eos_cell_type),intent(inout) :: cell_eos     !must be inout to allow the flags to be changed
+      integer, optional, intent(in) :: iout    ! Logical unit
+
+      !---- Local Variables ----!
+      character(len=110) :: ltext
+      integer           :: i,lun      
+
+      !> Unit to print the information
+      lun=6
+      if (present(iout)) lun=iout
+
+      !>Update all the flags and pointers
+      call set_cell_types(cell_eos) 
+      
+      
+      write(ltext,'(110(''_''))')
+      write(unit=lun,fmt='(a)')ltext
+      write(unit=lun,fmt='(a)')'     The crystal system is '//trim(cell_eos%system)
+      
+!>Angle information
+      
+     select case(U_case(cell_eos%system(1:4)))
+        case('MONO')
+            if(cell_eos%unique < 1 .or. cell_eos%unique > 3)then
+                write(unit=lun,fmt='(''     Monoclinic unique axis has not been set'')')
+            else 
+                if(cell_eos%eosang%iangle > 0)then
+                    write(unit=lun,fmt='(''     Monoclinic angle defined by polynomial:'')')
+                    call write_info_angle_poly(cell_eos%eosang,cell_eos%unique,lun)
+                else
+                    write(unit=lun,fmt='(''     Monoclinic angle defined eos of cell edges and volume:'')') 
+                    if(cell_eos%obtuse(cell_eos%unique))then
+                        write(unit=lun,fmt='(''     Monoclinic angle '',a,'' is set obtuse (>90deg)'')')celllabel(cell_eos%unique+3)
+                    else
+                        write(unit=lun,fmt='(''     Monoclinic angle '',a,'' is set acute (<90deg)'')')celllabel(cell_eos%unique+3)
+                    endif
+                endif
+            endif
+        case('TRIC')
+            if(cell_eos%eosang%iangle > 0)then
+                write(unit=lun,fmt='(''     Triclinic angles defined by polynomials:'')')
+                do i=1,3
+                    call write_info_angle_poly(cell_eos%eosang,i,lun)
+                enddo
+            else
+                write(unit=lun,fmt='(''     Triclinic angles defined by eos of cell edges, volume, and d-spacings:'')')
+                do i=1,3
+                    if(cell_eos%obtuse(i))then
+                        write(unit=lun,fmt='(''     Triclinic angle '',a,'' is set obtuse (>90deg)'')')celllabel(i+3)
+                    else
+                        write(unit=lun,fmt='(''     Triclinic angle '',a,'' is set acute  (<90deg)'')')celllabel(i+3)
+                    endif
+                enddo  
+            endif
+            
+        case default
+            if(cell_eos%eosang%iangle> 0)then
+                write(unit=lun,fmt='(''     Polynomials for angles have been loaded but the crystal system has fixed angles'')')
+                write(unit=lun,fmt='(''     The angle polynomials will be ignored unless you change the system to triclinic or monoclinic'')')
+            endif
+            
+      end select
+      
+      
+      write(unit=lun,fmt='(a)')ltext
+      
+      
+
+    
+      write(unit=lun,fmt='(a)')'  The loaded EoS are:                                         PV    VT    PVT  PSCALE      VSCALE'
+      do i=0,cell_eos%n
+            select case(cell_eos%loaded(i))
+            case default
+                write(unit=lun,fmt='(2x,a4,a)')axislabel(i),':  No eos loaded'
+            case(1)
+                write(unit=lun,fmt='(2x,a4,a,a,3x,3(5x,a1),t80,a,t91,a)')axislabel(i),': ',cell_eos%eos(i)%title(1:47) &
+            ,cell_eos%cout(i,1:3),trim(cell_eos%eos(i)%Pscale_name),trim(' '//cell_eos%eos(i)%Vscale_name) 
+             case(2)
+                write(unit=lun,fmt='(2x,a4,a)')axislabel(i),':  No eos loaded but set by symmetry'
+            case(3)
+                write(unit=lun,fmt='(2x, a4,a)')axislabel(i),':  No eos loaded but will be calculated from others'
+            case(4)
+                write(unit=lun,fmt='(2x,a4,a)')axislabel(i),':  Monoclinic unique axis'
+            end select
+        enddo
+
+      write(unit=lun,fmt='(a)')ltext
+      
+      
+      
+      
+      write(unit=lun,fmt='(a)') ' '
+  
+ 
+      return
+    End Subroutine Write_Info_Eos_Cell_Type 
 
    !!--++
    !!--++ SUBROUTINE WRITE_INFO_EOS_CROSS
