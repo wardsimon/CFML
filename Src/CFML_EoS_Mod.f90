@@ -60,7 +60,7 @@
    Module CFML_EoS
    !---- Use Modules ----!
    Use CFML_GlobalDeps,       only: cp, pi,to_rad
-   Use CFML_Math_General,     only: Debye,ERR_MathGen,ERR_MathGen_Mess,First_Derivative,Second_Derivative,splint,Diagonalize_SH,tand,cosd,sind
+   Use CFML_Math_General,     only: Debye,ERR_MathGen,ERR_MathGen_Mess,First_Derivative,Second_Derivative,splint,Diagonalize_SH,tand,cosd,sind,asind
    Use CFML_Crystal_Metrics,  only: Crystal_Cell_Type,Get_Cryst_Family,Volume_Sigma_from_Cell,Strain_Tensor_type,Fix_tensor,Set_Crystal_Cell,Orient_Eigenvectors,Calc_Paxes_Angles,Init_Strain_Tensor
    Use CFML_String_Utilities
 
