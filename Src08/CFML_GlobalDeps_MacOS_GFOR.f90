@@ -6,17 +6,17 @@
 !!---- in military applications.
 !!----
 !!---- Copyright (C) 1999-2020
-!!----  
+!!----
 !!---- Institutions:
 !!----    Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----    Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----    Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Authors: 
+!!---- Authors:
 !!----    Juan Rodriguez-Carvajal (ILL)
 !!----    Javier Gonzalez-Platas  (ULL)
 !!----
-!!---- Contributors: 
+!!---- Contributors:
 !!----    Laurent Chapon     (ILL)
 !!----    Marc Janoschek     (Los Alamos National Laboratory, USA)
 !!----    Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
@@ -24,23 +24,23 @@
 !!----    Eric Pellegrini    (ILL)
 !!----    Ross J. Angel      (University of Pavia)
 !!----
-!!---- This library is free software; you can redistribute it and/or  modify      
-!!---- it  under  the  terms  of  the  GNU  Lesser General Public License as 
-!!---- published by the Free Software Foundation; either version  3.0 of the 
+!!---- This library is free software; you can redistribute it and/or  modify
+!!---- it  under  the  terms  of  the  GNU  Lesser General Public License as
+!!---- published by the Free Software Foundation; either version  3.0 of the
 !!---- License, or (at your option) any later version.
 !!----
 !!---- This library is distributed in the hope  that it will  be useful, but
-!!---- WITHOUT   ANY   WARRANTY;   without   even  the implied  warranty  of 
+!!---- WITHOUT   ANY   WARRANTY;   without   even  the implied  warranty  of
 !!---- MERCHANTABILITY  or  FITNESS  FOR  A PARTICULAR PURPOSE.  See the GNU
 !!---- Lesser General Public License for more details.
 !!----
 !!---- You  should  have  received  a  copy of the GNU Lesser General Public
-!!---- License along with this library; if not, see 
+!!---- License along with this library; if not, see
 !!---- <http://www.gnu.org/licenses/>.
 !!----
 !!---- MODULE: CFML_GlobalDeps (Windows version)
 !!----   INFO:Precision for CrysFML library and Operating System information
-!!----        All the global variables defined in this module are implicitly 
+!!----        All the global variables defined in this module are implicitly
 !!----        public.
 !!----
 !!----
@@ -137,7 +137,6 @@ Module CFML_GlobalDeps
             inquire(file=trim(linea)//'.' , exist=info)
       end select
 
-      return
    End Function Directory_Exists
 
    !!----
@@ -153,7 +152,6 @@ Module CFML_GlobalDeps
       Err_CFML%nl=0
       Err_CFML%Txt=" "
 
-      return
    End Subroutine Clear_Error
 
    !!----
@@ -168,7 +166,6 @@ Module CFML_GlobalDeps
 
       CFML_DEBUG=state
 
-      return
    End Subroutine Set_CFML_DEBUG
 
 End Module CFML_GlobalDeps

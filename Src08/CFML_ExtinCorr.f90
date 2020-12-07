@@ -117,7 +117,6 @@ Module CFML_ExtinCorr
 
        ag = 0.58_cp + (0.48_cp + 0.24_cp * cos2t) * cos2t
 
-       return
     End Function AG_theta
 
     !!----
@@ -132,7 +131,6 @@ Module CFML_ExtinCorr
 
        al = 0.025_cp + 0.285_cp * cos2t
 
-       return
     End Function AL_theta
 
     !!----
@@ -147,7 +145,6 @@ Module CFML_ExtinCorr
 
        bg = 0.02_cp - 0.025_cp * cos2t
 
-       return
     End Function BG_theta
 
     !!----
@@ -165,7 +162,6 @@ Module CFML_ExtinCorr
           bl =  -0.45_cp * cos2t
        end if
 
-       return
     End Function BL_theta
 
  End Module CFML_ExtinCorr

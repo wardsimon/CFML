@@ -6,17 +6,17 @@
 !!---- in military applications.
 !!----
 !!---- Copyright (C) 1999-2020
-!!----  
+!!----
 !!---- Institutions:
 !!----    Institut Laue-Langevin (ILL), Grenoble, FRANCE
 !!----    Universidad de La Laguna (ULL), Tenerife, SPAIN
 !!----    Laboratoire Leon Brillouin(LLB), Saclay, FRANCE
 !!----
-!!---- Authors: 
+!!---- Authors:
 !!----    Juan Rodriguez-Carvajal (ILL)
 !!----    Javier Gonzalez-Platas  (ULL)
 !!----
-!!---- Contributors: 
+!!---- Contributors:
 !!----    Laurent Chapon     (ILL)
 !!----    Marc Janoschek     (Los Alamos National Laboratory, USA)
 !!----    Oksana Zaharko     (Paul Scherrer Institute, Switzerland)
@@ -24,18 +24,18 @@
 !!----    Eric Pellegrini    (ILL)
 !!----    Ross J. Angel      (University of Pavia)
 !!----
-!!---- This library is free software; you can redistribute it and/or  modify      
-!!---- it  under  the  terms  of  the  GNU  Lesser General Public License as 
-!!---- published by the Free Software Foundation; either version  3.0 of the 
+!!---- This library is free software; you can redistribute it and/or  modify
+!!---- it  under  the  terms  of  the  GNU  Lesser General Public License as
+!!---- published by the Free Software Foundation; either version  3.0 of the
 !!---- License, or (at your option) any later version.
 !!----
 !!---- This library is distributed in the hope  that it will  be useful, but
-!!---- WITHOUT   ANY   WARRANTY;   without   even  the implied  warranty  of 
+!!---- WITHOUT   ANY   WARRANTY;   without   even  the implied  warranty  of
 !!---- MERCHANTABILITY  or  FITNESS  FOR  A PARTICULAR PURPOSE.  See the GNU
 !!---- Lesser General Public License for more details.
 !!----
 !!---- You  should  have  received  a  copy of the GNU Lesser General Public
-!!---- License along with this library; if not, see 
+!!---- License along with this library; if not, see
 !!---- <http://www.gnu.org/licenses/>.
 !!----
 !!---- MODULE: CFML_Maths
@@ -45,7 +45,8 @@
 !!
  Module CFML_Maths
     !---- Use Modules ----!
-    Use CFML_GlobalDeps, only: CP, DP, Err_CFML, Clear_Error, PI, TO_RAD, TO_DEG
+
+    Use CFML_GlobalDeps, only: CP, SP, DP, Err_CFML, Clear_Error, PI, TO_RAD, TO_DEG, EPS, DEPS
 
     !---- Variables ----!
     implicit none
@@ -479,13 +480,6 @@
           real(kind=cp), dimension(3), intent(in) :: Vec1,Vec2,Vec3
           real(kind=cp)                           :: det
        End Function Determ_V_R
-       
-       Elemental Module Function RTan(Y,X, Deg) Result(Ang)
-          !---- Arguments ----!
-          real(kind=cp),              intent(in)   :: x,y
-          character(len=*), optional, intent(in)   :: deg
-          real(kind=cp)                            :: ang
-       End Function RTan   
 
        Pure Module Subroutine Diagonalize_EigenvSort(d,v,n,io)
           !---- Arguments ----!
@@ -1409,7 +1403,6 @@
 
        v=epss
 
-       return
     End Function Get_Eps_Math
 
     !!----
@@ -1429,7 +1422,6 @@
           epss=EPS_RTI
        end if
 
-       return
     End Subroutine Set_Eps_Math
 
 End Module CFML_Maths

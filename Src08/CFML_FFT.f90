@@ -316,7 +316,7 @@ Module CFML_FFT
 
  Contains
     !!--++
-    !!--++ SUBROUTINE FFTRADIX
+    !!--++ Subroutine Fftradix
     !!--++
     !!--++    (PRIVATE)
     !!--++
@@ -324,219 +324,217 @@ Module CFML_FFT
     !!
     Subroutine Fftradix(Array, Ntotal, Npass, Nspan, Inv, Stat)
        !--- formal parameters
-       INTEGER,                        INTENT(IN)           :: ntotal, npass, nspan
-       COMPLEX(fftkind), DIMENSION(:), INTENT(IN OUT)       :: array
-       LOGICAL,                        INTENT(IN)           :: inv
-       INTEGER,                        INTENT(OUT), OPTIONAL:: stat
+       integer,                        intent(in)           :: ntotal, npass, nspan
+       complex(fftkind), dimension(:), intent(in out)       :: array
+       logical,                        intent(in)           :: inv
+       integer,                        intent(out), optional:: stat
 
        !--- local arrays
-       INTEGER,          DIMENSION(BIT_SIZE(0))     :: factor
-       COMPLEX(fftkind), DIMENSION(:), ALLOCATABLE  :: ctmp
-       REAL(fftkind),    DIMENSION(:), ALLOCATABLE  :: sine, cosine
-       INTEGER,          DIMENSION(:), ALLOCATABLE  :: perm
+       integer,          dimension(bit_size(0))     :: factor
+       complex(fftkind), dimension(:), allocatable  :: ctmp
+       real(fftkind),    dimension(:), allocatable  :: sine, cosine
+       integer,          dimension(:), allocatable  :: perm
 
        !--- local scalars
-       INTEGER         :: ii, kspan, ispan
-       INTEGER         :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
-       INTEGER         :: maxfactor, nfactor, nperm
-       REAL(fftkind)   :: s60, c72, s72, pi2
-       REAL(fftkind)   :: radf
-       REAL(fftkind)   :: c1, c2, c3, cd, ak
-       REAL(fftkind)   :: s1, s2, s3, sd
-       COMPLEX(fftkind):: cc, cj, ck, cjp, cjm, ckp, ckm
+       integer         :: ii, kspan, ispan
+       integer         :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
+       integer         :: maxfactor, nfactor, nperm
+       real(fftkind)   :: s60, c72, s72, pi2
+       real(fftkind)   :: radf
+       real(fftkind)   :: c1, c2, c3, cd, ak
+       real(fftkind)   :: s1, s2, s3, sd
+       complex(fftkind):: cc, cj, ck, cjp, cjm, ckp, ckm
 
-       IF (npass <= 1) RETURN
+       if (npass <= 1) return
        c72 = cos72
-       IF (inv) THEN
+       if (inv) then
           s72 = sin72
           s60 = sin60
           pi2 = pi
-       ELSE
+       else
           s72 = -sin72
           s60 = -sin60
           pi2 = -pi
-       END IF
+       end if
        nt = ntotal
        ns = nspan
        kspan = ns
        nn = nt - 1
        jc = ns / npass
        radf = pi2 * jc
-       pi2 = pi2 * 2.0_fftkind !-- use 2 PI from here on
-       CALL factorize()
-       maxfactor = MAXVAL(factor (:nfactor))
-       IF (nfactor - ISHFT(kt, 1) > 0) THEN
-          nperm = MAX(nfactor + 1, PRODUCT(factor(kt+1: nfactor-kt)) - 1)
-       ELSE
+       pi2 = pi2 * 2.0_fftkind !-- use 2 pi from here on
+       call factorize()
+       maxfactor = maxval(factor (:nfactor))
+       if (nfactor - ishft(kt, 1) > 0) then
+          nperm = max(nfactor + 1, product(factor(kt+1: nfactor-kt)) - 1)
+       else
           nperm = nfactor + 1
-       END IF
-       IF (PRESENT(stat)) THEN
-          ALLOCATE(ctmp(maxfactor), sine(maxfactor), cosine(maxfactor), STAT=stat)
-          IF (stat /= 0) RETURN
-          CALL transform()
-          DEALLOCATE(sine, cosine, STAT=stat)
-          IF (stat /= 0) RETURN
-          ALLOCATE(perm(nperm), STAT=stat)
-          IF (stat /= 0) RETURN
-          CALL permute()
-          DEALLOCATE(perm, ctmp, STAT=stat)
-          IF (stat /= 0) RETURN
-       ELSE
-          ALLOCATE(ctmp(maxfactor), sine(maxfactor), cosine(maxfactor))
-          CALL transform()
-          DEALLOCATE(sine, cosine)
-          ALLOCATE(perm(nperm))
-          CALL permute()
-          DEALLOCATE(perm, ctmp)
-       END IF
-       RETURN
+       end if
+       if (present(stat)) then
+          allocate(ctmp(maxfactor), sine(maxfactor), cosine(maxfactor), stat=stat)
+          if (stat /= 0) return
+          call transform()
+          deallocate(sine, cosine, stat=stat)
+          if (stat /= 0) return
+          allocate(perm(nperm), stat=stat)
+          if (stat /= 0) return
+          call permute()
+          deallocate(perm, ctmp, stat=stat)
+          if (stat /= 0) return
+       else
+          allocate(ctmp(maxfactor), sine(maxfactor), cosine(maxfactor))
+          call transform()
+          deallocate(sine, cosine)
+          allocate(perm(nperm))
+          call permute()
+          deallocate(perm, ctmp)
+       end if
 
-    Contains
+    contains
 
        !!--++
-       !!--++ SUBROUTINE FACTORIZE
+       !!--++ subroutine factorize
        !!--++
-       !!--++    (PRIVATE)
+       !!--++    (private)
        !!--++
-       !!--++ Update: February - 2005
+       !!--++ update: february - 2005
        !!
-       SUBROUTINE factorize()
+       Subroutine factorize()
 
           nfactor = 0
           k = npass
-          DO WHILE (MOD(k, 16) == 0)
+          do while (mod(k, 16) == 0)
              nfactor = nfactor + 1
              factor (nfactor) = 4
              k = k / 16
-          END DO
+          end do
 
           j = 3
           jj = 9
-          DO
-             DO WHILE (MOD(k, jj) == 0)
+          do
+             do while (mod(k, jj) == 0)
                 nfactor=nfactor + 1
                 factor (nfactor) = j
                 k = k / jj
-             END DO
+             end do
              j = j + 2
              jj = j * j
-             IF (jj > k) EXIT
-          END DO
+             if (jj > k) exit
+          end do
 
-          IF (k <= 4) THEN
+          if (k <= 4) then
              kt = nfactor
              factor (nfactor + 1) = k
-             IF (k /= 1) nfactor = nfactor + 1
-          ELSE
-             IF (k - ISHFT(k / 4, 2) == 0) THEN
+             if (k /= 1) nfactor = nfactor + 1
+          else
+             if (k - ishft(k / 4, 2) == 0) then
                 nfactor = nfactor + 1
                 factor (nfactor) = 2
                 k = k / 4
-             END IF
+             end if
              kt = nfactor
              j = 2
-             DO
-                IF (MOD(k, j) == 0) THEN
+             do
+                if (mod(k, j) == 0) then
                    nfactor = nfactor + 1
                    factor (nfactor) = j
                    k = k / j
-                END IF
-                j = ISHFT((j + 1)/2, 1) + 1
-                IF (j > k) EXIT
-             END DO
-          END IF
+                end if
+                j = ishft((j + 1)/2, 1) + 1
+                if (j > k) exit
+             end do
+          end if
 
-          IF (kt > 0) THEN
+          if (kt > 0) then
              j = kt
-             DO
+             do
                 nfactor = nfactor + 1
                 factor (nfactor) = factor (j)
                 j = j - 1
-                IF (j==0) EXIT
-             END DO
-          END IF
+                if (j==0) exit
+             end do
+          end if
 
-          RETURN
-       END SUBROUTINE factorize
+       End Subroutine factorize
 
        !!--++
-       !!--++ SUBROUTINE TRANSFORM
+       !!--++ subroutine transform
        !!--++
        !!--++    compute fourier transform
-       !!--++    (PRIVATE)
+       !!--++    (private)
        !!--++
-       !!--++ Update: February - 2005
+       !!--++ update: february - 2005
        !!
-       SUBROUTINE transform()
+       Subroutine transform()
 
           ii = 0
           jf = 0
-          DO
+          do
              sd = radf / kspan
-             cd = SIN(sd)
+             cd = sin(sd)
              cd = 2.0_fftkind * cd * cd
-             sd = SIN(sd + sd)
+             sd = sin(sd + sd)
              kk = 1
              ii = ii + 1
-             SELECT CASE (factor (ii))
-                CASE (2)
+             select case (factor (ii))
+                case (2)
                    !-- transform for factor of 2 (including rotation factor)
                    kspan = kspan / 2
                    k1 = kspan + 2
-                   DO
-                      DO
+                   do
+                      do
                          k2 = kk + kspan
                          ck = array(k2)
                          array(k2) = array(kk) - ck
                          array(kk) = array(kk) + ck
                          kk = k2 + kspan
-                         IF (kk > nn) EXIT
-                      END DO
+                         if (kk > nn) exit
+                      end do
                       kk = kk - nn
-                      IF (kk > jc) EXIT
-                   END DO
+                      if (kk > jc) exit
+                   end do
 
-                   IF (kk > kspan) RETURN
-                   DO
+                   if (kk > kspan) return
+                   do
                       c1 = 1.0_fftkind - cd
                       s1 = sd
-                      DO
-                         DO
-                            DO
+                      do
+                         do
+                            do
                                k2 = kk + kspan
                                ck = array(kk) - array(k2)
                                array(kk) = array(kk) + array(k2)
-                               array(k2) = ck * CMPLX(c1, s1, kind=fftkind)
+                               array(k2) = ck * cmplx(c1, s1, kind=fftkind)
                                kk = k2 + kspan
-                               IF (kk >= nt) EXIT
-                            END DO
+                               if (kk >= nt) exit
+                            end do
                             k2 = kk - nt
                             c1 = -c1
                             kk = k1 - k2
-                            IF (kk <= k2) EXIT
-                         END DO
+                            if (kk <= k2) exit
+                         end do
                          ak = c1 - (cd * c1 + sd * s1)
                          s1 = sd * c1 - cd * s1 + s1
                          c1 = 2.0_fftkind - (ak * ak + s1 * s1)
                          s1 = s1 * c1
                          c1 = c1 * ak
                          kk = kk + jc
-                         IF (kk >= k2) EXIT
-                      END DO
+                         if (kk >= k2) exit
+                      end do
 
                       k1 = k1 + 1 + 1
                       kk = (k1 - kspan) / 2 + jc
-                      IF (kk > jc + jc) EXIT
-                   END DO
+                      if (kk > jc + jc) exit
+                   end do
 
-                CASE (4) !-- transform for factor of 4
+                case (4) !-- transform for factor of 4
                    ispan = kspan
                    kspan = kspan / 4
-                   DO
+                   do
                       c1 = 1.0_fftkind
                       s1 = 0.0_fftkind
-                      DO
-                         DO
+                      do
+                         do
                             k1 = kk + kspan
                             k2 = k1 + kspan
                             k3 = k2 + kspan
@@ -546,26 +544,26 @@ Module CFML_FFT
                             cjm = array(k1) - array(k3)
                             array(kk) = ckp + cjp
                             cjp = ckp - cjp
-                            IF (inv) THEN
-                               ckp = ckm + CMPLX(-AIMAG(cjm), REAL(cjm), kind=fftkind)
-                               ckm = ckm + CMPLX(AIMAG(cjm), -REAL(cjm), kind=fftkind)
-                            ELSE
-                               ckp = ckm + CMPLX(AIMAG(cjm), -REAL(cjm), kind=fftkind)
-                               ckm = ckm + CMPLX(-AIMAG(cjm), REAL(cjm), kind=fftkind)
-                            END IF
+                            if (inv) then
+                               ckp = ckm + cmplx(-aimag(cjm), real(cjm), kind=fftkind)
+                               ckm = ckm + cmplx(aimag(cjm), -real(cjm), kind=fftkind)
+                            else
+                               ckp = ckm + cmplx(aimag(cjm), -real(cjm), kind=fftkind)
+                               ckm = ckm + cmplx(-aimag(cjm), real(cjm), kind=fftkind)
+                            end if
                             !-- avoid useless multiplies
-                            IF (s1 == 0.0_fftkind) THEN
+                            if (s1 == 0.0_fftkind) then
                                array(k1) = ckp
                                array(k2) = cjp
                                array(k3) = ckm
-                            ELSE
-                               array(k1) = ckp * CMPLX(c1, s1, kind=fftkind)
-                               array(k2) = cjp * CMPLX(c2, s2, kind=fftkind)
-                               array(k3) = ckm * CMPLX(c3, s3, kind=fftkind)
-                            END IF
+                            else
+                               array(k1) = ckp * cmplx(c1, s1, kind=fftkind)
+                               array(k2) = cjp * cmplx(c2, s2, kind=fftkind)
+                               array(k3) = ckm * cmplx(c3, s3, kind=fftkind)
+                            end if
                             kk = k3 + kspan
-                            IF (kk > nt) EXIT
-                         END DO
+                            if (kk > nt) exit
+                         end do
                          c2 = c1 - (cd * c1 + sd * s1)
                          s1 = sd * c1 - cd * s1 + s1
                          c1 = 2.0_fftkind - (c2 * c2 + s1 * s1)
@@ -577,22 +575,22 @@ Module CFML_FFT
                          c3 = c2 * c1 - s2 * s1
                          s3 = c2 * s1 + s2 * c1
                          kk = kk - nt + jc
-                         IF (kk > kspan) EXIT
-                      END DO
+                         if (kk > kspan) exit
+                      end do
                       kk = kk - kspan + 1
-                      IF (kk > jc) EXIT
-                   END DO
-                   IF (kspan == jc) RETURN
+                      if (kk > jc) exit
+                   end do
+                   if (kspan == jc) return
 
-                CASE default
+                case default
                    !-- transform for odd factors
                    k = factor (ii)
                    ispan = kspan
                    kspan = kspan / k
-                   SELECT CASE (k)
-                      CASE (3) !-- transform for factor of 3 (optional code)
-                         DO
-                            DO
+                   select case (k)
+                      case (3) !-- transform for factor of 3 (optional code)
+                         do
+                            do
                                k1 = kk + kspan
                                k2 = k1 + kspan
                                ck = array(kk)
@@ -600,20 +598,20 @@ Module CFML_FFT
                                array(kk) = ck + cj
                                ck = ck - 0.5_fftkind * cj
                                cj = (array(k1) - array(k2)) * s60
-                               array(k1) = ck + CMPLX(-AIMAG(cj), REAL(cj), kind=fftkind)
-                               array(k2) = ck + CMPLX(AIMAG(cj), -REAL(cj), kind=fftkind)
+                               array(k1) = ck + cmplx(-aimag(cj), real(cj), kind=fftkind)
+                               array(k2) = ck + cmplx(aimag(cj), -real(cj), kind=fftkind)
                                kk = k2 + kspan
-                               IF (kk >= nn) EXIT
-                            END DO
+                               if (kk >= nn) exit
+                            end do
                             kk = kk - nn
-                            IF (kk > kspan) EXIT
-                         END DO
+                            if (kk > kspan) exit
+                         end do
 
-                      CASE (5) !-- transform for factor of 5 (optional code)
+                      case (5) !-- transform for factor of 5 (optional code)
                          c2 = c72 * c72 - s72 * s72
                          s2 = 2.0_fftkind * c72 * s72
-                         DO
-                            DO
+                         do
+                            do
                                k1 = kk + kspan
                                k2 = k1 + kspan
                                k3 = k2 + kspan
@@ -626,48 +624,48 @@ Module CFML_FFT
                                array(kk) = cc + ckp + cjp
                                ck = ckp * c72 + cjp * c2 + cc
                                cj = ckm * s72 + cjm * s2
-                               array(k1) = ck + CMPLX(-AIMAG(cj), REAL(cj), kind=fftkind)
-                               array(k4) = ck + CMPLX(AIMAG(cj), -REAL(cj), kind=fftkind)
+                               array(k1) = ck + cmplx(-aimag(cj), real(cj), kind=fftkind)
+                               array(k4) = ck + cmplx(aimag(cj), -real(cj), kind=fftkind)
                                ck = ckp * c2 + cjp * c72 + cc
                                cj = ckm * s2 - cjm * s72
-                               array(k2) = ck + CMPLX(-AIMAG(cj), REAL(cj), kind=fftkind)
-                               array(k3) = ck + CMPLX(AIMAG(cj), -REAL(cj), kind=fftkind)
+                               array(k2) = ck + cmplx(-aimag(cj), real(cj), kind=fftkind)
+                               array(k3) = ck + cmplx(aimag(cj), -real(cj), kind=fftkind)
                                kk = k4 + kspan
-                               IF (kk >= nn) EXIT
-                            END DO
+                               if (kk >= nn) exit
+                            end do
                             kk = kk - nn
-                            IF (kk > kspan) EXIT
-                         END DO
+                            if (kk > kspan) exit
+                         end do
 
-                      CASE default
-                         IF (k /= jf) THEN
+                      case default
+                         if (k /= jf) then
                             jf = k
                             s1 = pi2 / k
-                            c1 = COS(s1)
-                            s1 = SIN(s1)
+                            c1 = cos(s1)
+                            s1 = sin(s1)
                             cosine (jf) = 1.0_fftkind
                             sine (jf) = 0.0_fftkind
                             j = 1
-                            DO
+                            do
                                cosine (j) = cosine (k) * c1 + sine (k) * s1
                                sine (j) = cosine (k) * s1 - sine (k) * c1
                                k = k-1
                                cosine (k) = cosine (j)
                                sine (k) = -sine (j)
                                j = j + 1
-                               IF (j >= k) EXIT
-                            END DO
-                         END IF
+                               if (j >= k) exit
+                            end do
+                         end if
 
-                         DO
-                            DO
+                         do
+                            do
                                k1 = kk
                                k2 = kk + ispan
                                cc = array(kk)
                                ck = cc
                                j = 1
                                k1 = k1 + kspan
-                               DO
+                               do
                                   k2 = k2 - kspan
                                   j = j + 1
                                   ctmp(j) = array(k1) + array(k2)
@@ -675,348 +673,346 @@ Module CFML_FFT
                                   j = j + 1
                                   ctmp(j) = array(k1) - array(k2)
                                   k1 = k1 + kspan
-                                  IF (k1 >= k2) EXIT
-                               END DO
+                                  if (k1 >= k2) exit
+                               end do
                                array(kk) = ck
                                k1 = kk
                                k2 = kk + ispan
                                j = 1
-                               DO
+                               do
                                   k1 = k1 + kspan
                                   k2 = k2 - kspan
                                   jj = j
                                   ck = cc
                                   cj = (0.0_fftkind, 0.0_fftkind)
                                   k = 1
-                                  DO
+                                  do
                                      k = k + 1
                                      ck = ck + ctmp(k) * cosine (jj)
                                      k = k + 1
                                      cj = cj + ctmp(k) * sine (jj)
                                      jj = jj + j
-                                     IF (jj > jf) jj = jj - jf
-                                     IF (k >= jf) EXIT
-                                  END DO
+                                     if (jj > jf) jj = jj - jf
+                                     if (k >= jf) exit
+                                  end do
                                   k = jf - j
-                                  array(k1) = ck + CMPLX(-AIMAG(cj), REAL(cj), kind=fftkind)
-                                  array(k2) = ck + CMPLX(AIMAG(cj), -REAL(cj), kind=fftkind)
+                                  array(k1) = ck + cmplx(-aimag(cj), real(cj), kind=fftkind)
+                                  array(k2) = ck + cmplx(aimag(cj), -real(cj), kind=fftkind)
                                   j = j + 1
-                                  IF (j >= k) EXIT
-                               END DO
+                                  if (j >= k) exit
+                               end do
                                kk = kk + ispan
-                               IF (kk > nn) EXIT
-                            END DO
+                               if (kk > nn) exit
+                            end do
                             kk = kk - nn
-                            IF (kk > kspan) EXIT
-                         END DO
-                   END SELECT !k
+                            if (kk > kspan) exit
+                         end do
+                   end select !k
 
                    !--  multiply by rotation factor (except for factors of 2 and 4)
-                   IF (ii == nfactor) RETURN
+                   if (ii == nfactor) return
                    kk = jc + 1
-                   DO
+                   do
                       c2 = 1.0_fftkind - cd
                       s1 = sd
-                      DO
+                      do
                          c1 = c2
                          s2 = s1
                          kk = kk + kspan
-                         DO
-                            DO
-                               array(kk) = CMPLX(c2, s2, kind=fftkind) * array(kk)
+                         do
+                            do
+                               array(kk) = cmplx(c2, s2, kind=fftkind) * array(kk)
                                kk = kk + ispan
-                               IF (kk > nt) EXIT
-                            END DO
+                               if (kk > nt) exit
+                            end do
                             ak = s1 * s2
                             s2 = s1 * c2 + c1 * s2
                             c2 = c1 * c2 - ak
                             kk = kk - nt + kspan
-                            IF (kk > ispan) EXIT
-                         END DO
+                            if (kk > ispan) exit
+                         end do
                          c2 = c1 - (cd * c1 + sd * s1)
                          s1 = s1 + sd * c1 - cd * s1
                          c1 = 2.0_fftkind - (c2 * c2 + s1 * s1)
                          s1 = s1 * c1
                          c2 = c2 * c1
                          kk = kk - ispan + jc
-                         IF (kk > kspan) EXIT
-                      END DO
+                         if (kk > kspan) exit
+                      end do
                       kk = kk - kspan + jc + 1
-                      IF (kk > jc + jc) EXIT
-                   END DO
-             END SELECT ! Factor
-          END DO
+                      if (kk > jc + jc) exit
+                   end do
+             end select ! factor
+          end do
 
-          RETURN
-       END SUBROUTINE transform
+       End Subroutine transform
 
        !!--++
-       !!--++ SUBROUTINE PERMUTE
+       !!--++ subroutine permute
        !!--++
        !!--++    permute the results to normal order---done in two stages
        !!--++    permutation for square factors of n
        !!--++
-       !!--++    (PRIVATE)
+       !!--++    (private)
        !!--++
-       !!--++ Update: February - 2005
+       !!--++ update: february - 2005
        !!
-       SUBROUTINE permute()
+       Subroutine permute()
 
           perm (1) = ns
-          IF (kt > 0) THEN
+          if (kt > 0) then
              k = kt + kt + 1
-             IF (nfactor < k) k = k - 1
+             if (nfactor < k) k = k - 1
              j = 1
              perm (k + 1) = jc
-             DO
+             do
                 perm (j + 1) = perm (j) / factor (j)
                 perm (k) = perm (k + 1) * factor (j)
                 j = j + 1
                 k = k - 1
-                IF (j >= k) EXIT
-             END DO
+                if (j >= k) exit
+             end do
              k3 = perm (k + 1)
              kspan = perm (2)
              kk = jc + 1
              k2 = kspan + 1
              j = 1
-             IF (npass /= ntotal) THEN
-                permute_multi: DO
-                   DO
-                      DO
+             if (npass /= ntotal) then
+                permute_multi: do
+                   do
+                      do
                          k = kk + jc
-                         DO
+                         do
                             !-- swap array(kk) <> array(k2)
                             ck = array(kk)
                             array(kk) = array(k2)
                             array(k2) = ck
                             kk = kk + 1
                             k2 = k2 + 1
-                            IF (kk >= k) EXIT
-                         END DO
+                            if (kk >= k) exit
+                         end do
                          kk = kk + ns - jc
                          k2 = k2 + ns - jc
-                         IF (kk >= nt) EXIT
-                      END DO
+                         if (kk >= nt) exit
+                      end do
                       kk = kk - nt + jc
                       k2 = k2 - nt + kspan
-                      IF (k2 >= ns) EXIT
-                   END DO
+                      if (k2 >= ns) exit
+                   end do
 
-                   DO
-                      DO
+                   do
+                      do
                          k2 = k2 - perm (j)
                          j = j + 1
                          k2 = perm (j + 1) + k2
-                         IF (k2 <= perm (j)) EXIT
-                      END DO
+                         if (k2 <= perm (j)) exit
+                      end do
                       j = 1
 
-                      DO
-                         IF (kk < k2) CYCLE permute_multi
+                      do
+                         if (kk < k2) cycle permute_multi
                          kk = kk + jc
                          k2 = k2 + kspan
-                         IF (k2 >= ns) EXIT
-                      END DO
-                      IF (kk >= ns) EXIT
-                   END DO
+                         if (k2 >= ns) exit
+                      end do
+                      if (kk >= ns) exit
+                   end do
 
-                   EXIT
-                END DO permute_multi
-             ELSE
-                permute_single: DO
-                   DO
+                   exit
+                end do permute_multi
+             else
+                permute_single: do
+                   do
                       !-- swap array(kk) <> array(k2)
                       ck = array(kk)
                       array(kk) = array(k2)
                       array(k2) = ck
                       kk = kk + 1
                       k2 = k2 + kspan
-                      IF (k2 >= ns) EXIT
-                   END DO
+                      if (k2 >= ns) exit
+                   end do
 
-                   DO
-                      DO
+                   do
+                      do
                          k2 = k2 - perm (j)
                          j = j + 1
                          k2 = perm (j + 1) + k2
-                         IF (k2 <= perm (j)) EXIT
-                      END DO
+                         if (k2 <= perm (j)) exit
+                      end do
                       j = 1
-                      DO
-                         IF (kk < k2) CYCLE permute_single
+                      do
+                         if (kk < k2) cycle permute_single
                          kk = kk + 1
                          k2 = k2 + kspan
-                         IF (k2 >= ns) EXIT
-                      END DO
-                      IF (kk >= ns) EXIT
-                   END DO
-                   EXIT
-                END DO permute_single
-             END IF
+                         if (k2 >= ns) exit
+                      end do
+                      if (kk >= ns) exit
+                   end do
+                   exit
+                end do permute_single
+             end if
              jc = k3
-          END IF
+          end if
 
-          IF (ISHFT(kt, 1) + 1 >= nfactor) RETURN
+          if (ishft(kt, 1) + 1 >= nfactor) return
           ispan = perm (kt + 1)
 
           !-- permutation for square-free factors of n
           j = nfactor - kt
           factor (j + 1) = 1
-          DO
+          do
              factor(j) = factor(j) * factor(j+1)
              j = j - 1
-             IF (j == kt) EXIT
-          END DO
+             if (j == kt) exit
+          end do
           kt = kt + 1
           nn = factor(kt) - 1
           j = 0
           jj = 0
-          DO
+          do
              k = kt + 1
              k2 = factor(kt)
              kk = factor(k)
              j = j + 1
-             IF (j > nn) EXIT !-- exit infinite loop
+             if (j > nn) exit !-- exit infinite loop
              jj = jj + kk
-             DO WHILE (jj >= k2)
+             do while (jj >= k2)
                 jj = jj - k2
                 k2 = kk
                 k = k + 1
                 kk = factor(k)
                 jj = jj + kk
-             END DO
+             end do
              perm (j) = jj
-          END DO
+          end do
 
           !--  determine the permutation cycles of length greater than 1
           j = 0
-          DO
-             DO
+          do
+             do
                 j = j + 1
                 kk = perm(j)
-                IF (kk >= 0) EXIT
-             END DO
-             IF (kk /= j) THEN
-                DO
+                if (kk >= 0) exit
+             end do
+             if (kk /= j) then
+                do
                    k = kk
                    kk = perm (k)
                    perm (k) = -kk
-                   IF (kk == j) EXIT
-                END DO
+                   if (kk == j) exit
+                end do
                 k3 = kk
-             ELSE
+             else
                 perm (j) = -j
-                IF (j == nn) EXIT !-- exit infinite loop
-             END IF
-          END DO
+                if (j == nn) exit !-- exit infinite loop
+             end if
+          end do
 
           !--  reorder a and b, following the permutation cycles
-          DO
+          do
              j = k3 + 1
              nt = nt - ispan
              ii = nt - 1 + 1
-             IF (nt < 0) EXIT !-- exit infinite loop
-             DO
-                DO
+             if (nt < 0) exit !-- exit infinite loop
+             do
+                do
                    j = j-1
-                   IF (perm(j) >= 0) EXIT
-                END DO
+                   if (perm(j) >= 0) exit
+                end do
                 jj = jc
 
-                DO
+                do
                    kspan = jj
-                   IF (jj > maxfactor) kspan = maxfactor
+                   if (jj > maxfactor) kspan = maxfactor
                    jj = jj - kspan
                    k = perm(j)
                    kk = jc * k + ii + jj
                    k1 = kk + kspan
                    k2 = 0
-                   DO
+                   do
                       k2 = k2 + 1
                       ctmp(k2) = array(k1)
                       k1 = k1 - 1
-                      IF (k1 == kk) EXIT
-                   END DO
-                   DO
+                      if (k1 == kk) exit
+                   end do
+                   do
                       k1 = kk + kspan
                       k2 = k1 - jc * (k + perm(k))
                       k = -perm(k)
-                      DO
+                      do
                          array(k1) = array(k2)
                          k1 = k1 - 1
                          k2 = k2 - 1
-                         IF (k1 == kk) EXIT
-                      END DO
+                         if (k1 == kk) exit
+                      end do
                       kk = k2
-                      IF (k == j) EXIT
-                   END DO
+                      if (k == j) exit
+                   end do
                    k1 = kk + kspan
                    k2 = 0
-                   DO
+                   do
                       k2 = k2 + 1
                       array(k1) = ctmp(k2)
                       k1 = k1 - 1
-                      IF (k1 == kk) EXIT
-                   END DO
-                   IF (jj == 0) EXIT
-                END DO
-                IF (j == 1) EXIT
-             END DO
-          END DO
+                      if (k1 == kk) exit
+                   end do
+                   if (jj == 0) exit
+                end do
+                if (j == 1) exit
+             end do
+          end do
 
-          RETURN
-       END SUBROUTINE permute
+       End Subroutine permute
 
-    End Subroutine Fftradix
+    End Subroutine fftradix
 
     !!----
-    !!---- CONVOL
+    !!---- convol
     !!----
-    !!--<<   Convolution of the user-provided centred (x=0) peak functions F and G.
+    !!--<<   convolution of the user-provided centred (x=0) peak functions f and g.
     !!----
-    !!----   The characteristic parameters of the functions F and G are provided in vectors PF and PG.
-    !!----   The intent-in Points_Interval_Type variable "Interval" gives the number of points and the
+    !!----   the characteristic parameters of the functions f and g are provided in vectors pf and pg.
+    !!----   the intent-in points_interval_type variable "interval" gives the number of points and the
     !!----   limits of the interval
-    !!----         Number of points:  Interval%np
-    !!----     Range of calculation: [ Interval%low, Interval%high ]
-    !!----                    step : (Interval%high-Interval%low)/(Interval%np-1)
-    !!----   The convolution function is normalized to unit area .
+    !!----         number of points:  interval%np
+    !!----     range of calculation: [ interval%low, interval%high ]
+    !!----                    step : (interval%high-interval%low)/(interval%np-1)
+    !!----   the convolution function is normalized to unit area .
     !!----
-    !!----   Example of use:
-    !!----      h = convol(Pseudo_Voigt,P_PV, hat, P_hat, my_interval)
+    !!----   example of use:
+    !!----      h = convol(pseudo_voigt,p_pv, hat, p_hat, my_interval)
     !!----
     !!----   generates my_interval%np values  h(i), i=1,my_interval%np corresponding
-    !!-->>   to the convolution of a pseudo-Voigt function with a hat function
+    !!-->>   to the convolution of a pseudo-voigt function with a hat function
     !!----
     !!---- 14/04/2019
     !!
-    Pure Function Convol(F, Pf, G, Pg, Interval) Result(Conv)
-       !---- Arguments ----!
+    pure function convol(f, pf, g, pg, interval) result(conv)
+       !---- arguments ----!
        real(kind=cp),dimension(:),          intent(in) :: pf
        real(kind=cp),dimension(:),          intent(in) :: pg
-       type(Points_Interval_Type),          intent(in) :: interval
+       type(points_interval_type),          intent(in) :: interval
        real(kind=cp), dimension(interval%np)           :: conv
 
-       Interface F_Function
-          Pure function f(x,parf)  result (vf)
-             use CFML_GlobalDeps, only: cp
+       interface f_function
+          pure function f(x,parf)  result (vf)
+             use cfml_globaldeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parf
              real(kind=cp)                          :: vf
-          End Function F
-       End Interface F_Function
+          end function f
+       end interface f_function
 
-       Interface G_Function
-          Pure Function G(X,Parg)  Result (Vg)
-             use CFML_GlobalDeps, only: cp
+       interface g_function
+          pure function g(x,parg)  result (vg)
+             use cfml_globaldeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parg
              real(kind=cp)                          :: vg
-          End Function G
-       End Interface G_Function
+          end function g
+       end interface g_function
 
-       !---- Local variables ----!
+       !---- local variables ----!
        integer                                  :: i, n, nd2
        real(kind=cp)                            :: step,xvar, value, area
        complex(kind=cp), dimension(interval%np) :: fx,gx,convo
@@ -1042,15 +1038,15 @@ Module CFML_FFT
           gx(i) =  cmplx(value)
        end do
 
-       call Sfft(fx)
-       call Sfft(gx)
+       call sfft(fx)
+       call sfft(gx)
 
        convo = fx * gx
 
-       call Sfft(convo,"INV")
+       call sfft(convo,"inv")
 
        !> correct for a displacement of 1 step
-       !> To recalculate the array for the same input points
+       !> to recalculate the array for the same input points
        !> one has to interpolate between succesive values
 
        conv(1) = real(convo(1),kind=cp)
@@ -1061,65 +1057,64 @@ Module CFML_FFT
        area=sum(conv)*step
        conv=conv/area
 
-       return
-    End Function Convol
+    end function convol
 
     !!----
-    !!---- CONVOL_PEAKS
+    !!---- convol_peaks
     !!----
-    !!----   Convolution of the user-provided centred (x=0) peak functions f and g.
+    !!----   convolution of the user-provided centred (x=0) peak functions f and g.
     !!----
-    !!----   The characteristic parameters of the functions f and g are provided in vectors pf and pg.
-    !!----   The first component should be the value of the parameter related to the FWHM.
-    !!----   The parameter wd controls the range of the calculation in terms
-    !!----   of the FWHM of peaks. The definition interval [a,b] of the peaks
-    !!----   is calculated as: a=-b, with b=wd*FWHM=wd*pf(1).
-    !!----   The number of points to calculate the convolution is "np".
-    !!----   Internally, the actual number of points "n". Corresponding to
+    !!----   the characteristic parameters of the functions f and g are provided in vectors pf and pg.
+    !!----   the first component should be the value of the parameter related to the fwhm.
+    !!----   the parameter wd controls the range of the calculation in terms
+    !!----   of the fwhm of peaks. the definition interval [a,b] of the peaks
+    !!----   is calculated as: a=-b, with b=wd*fwhm=wd*pf(1).
+    !!----   the number of points to calculate the convolution is "np".
+    !!----   internally, the actual number of points "n". corresponding to
     !!----   and increased value of np up to the nearest higher power of 2.
-    !!----   The convolution function is normalized to unit area .
-    !!----   The internal step is:  step=(b-a)/(n-1)
-    !!----   Example of use:
-    !!----      h = convol_peaks (Pseudo_Voigt,P_PV, hat, P_hat, 15.0, 150)
+    !!----   the convolution function is normalized to unit area .
+    !!----   the internal step is:  step=(b-a)/(n-1)
+    !!----   example of use:
+    !!----      h = convol_peaks (pseudo_voigt,p_pv, hat, p_hat, 15.0, 150)
     !!----   generates 150 values  h(i), i=1,150 corresponding to the convolution
-    !!----   of a pseudo-Voigt function with a hat function
+    !!----   of a pseudo-voigt function with a hat function
     !!----
     !!---- 14/04/2019
     !!
-    Pure Function Convol_Peaks(F,Pf,G,Pg,Wd,Np) Result(Conv)
-       !---- Arguments ----!
-       real(kind=cp),dimension(:),          intent(in) :: pf !Parameters of the function f (starting with FWHM)
-       real(kind=cp),dimension(:),          intent(in) :: pg !Parameters of the function g (starting with FWHM)
-       real(kind=cp),                       intent(in) :: wd !Number of times a FWHM of the f-function to calculate range
-       integer,                             intent(in) :: np !Number of points (it is increased internally up to the closest power of 2)
+    pure function convol_peaks(f,pf,g,pg,wd,np) result(conv)
+       !---- arguments ----!
+       real(kind=cp),dimension(:),          intent(in) :: pf !parameters of the function f (starting with fwhm)
+       real(kind=cp),dimension(:),          intent(in) :: pg !parameters of the function g (starting with fwhm)
+       real(kind=cp),                       intent(in) :: wd !number of times a fwhm of the f-function to calculate range
+       integer,                             intent(in) :: np !number of points (it is increased internally up to the closest power of 2)
        real(kind=cp), dimension(np)                    :: conv
 
-       Interface F_Function
-          Pure Function F(X,Parf)  Result (Vf)
-             use CFML_GlobalDeps, only: cp
+       interface f_function
+          pure function f(x,parf)  result (vf)
+             use cfml_globaldeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parf
              real(kind=cp)                          :: vf
-          End Function F
-       End Interface F_Function
+          end function f
+       end interface f_function
 
-       Interface G_Function
-          Pure Function G(X,Parg) Result (Vg)
-             use CFML_GlobalDeps, only: cp
+       interface g_function
+          pure function g(x,parg) result (vg)
+             use cfml_globaldeps, only: cp
              real(kind=cp),              intent(in) :: x
              real(kind=cp), dimension(:),intent(in) :: parg
              real(kind=cp)                          :: vg
-          End Function G
-       End Interface G_Function
+          end function g
+       end interface g_function
 
-       !---- Local variables ----!
+       !---- local variables ----!
        integer                                     :: i,j, n, nd2, m
        real(kind=cp)                               :: step, xvar, value, area, a,b, nstep
        logical                                     :: is_powerof2
        complex(kind=cp), dimension(:), allocatable :: fx,gx,convo
        real(kind=cp), dimension(:), allocatable    :: xv
 
-       ! m will be the effective number of points used in FFT
+       ! m will be the effective number of points used in fft
        do i=1,20
           m=2**i
           if (m >= np) exit
@@ -1164,15 +1159,15 @@ Module CFML_FFT
           gx(i) =  cmplx(value)
        end do
 
-       call Sfft(fx)     !Forward FFT
-       call Sfft(gx)
+       call sfft(fx)     !forward fft
+       call sfft(gx)
 
        convo = fx * gx
 
-       call Sfft(convo,"INV")  !Backward FFT
+       call sfft(convo,"inv")  !backward fft
 
        !correct for a displacement of 1 step
-       !To recalculate the array for the same input points
+       !to recalculate the array for the same input points
        !one has to interpolate between succesive values
 
        fx(1) = convo(1)
@@ -1182,9 +1177,9 @@ Module CFML_FFT
        area=sum(real(fx,kind=cp))*step
        fx=fx/area
 
-       ! Calculate an interpolated array for the number of points supplied by the user
+       ! calculate an interpolated array for the number of points supplied by the user
        if (.not. is_powerof2) then
-          nstep = (b-a)/real(np-1,kind=cp) !New step
+          nstep = (b-a)/real(np-1,kind=cp) !new step
           n=1
           conv(np) = real(fx(m),kind=cp)
 
@@ -1203,7 +1198,6 @@ Module CFML_FFT
           conv=real(fx,kind=cp)
        end if
 
-       return
-    End Function Convol_Peaks
+    end function convol_peaks
 
- End Module CFML_FFT
+ end module cfml_fft
