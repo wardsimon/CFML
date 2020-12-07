@@ -1,5 +1,5 @@
 # Build crysfml library.
-include(crysfml_common.cmake)
+include(crysfml08_common.cmake)
 
 if(USE_HDF)
    add_definitions(-DUSE_HDF)
@@ -8,5 +8,5 @@ endif()
 
 # If GUI option is True, build also wcrysfml library.
 if(GUI)
-    include(wcrysfml.cmake)
+    include(wcrysfml08.cmake)
 endif()
