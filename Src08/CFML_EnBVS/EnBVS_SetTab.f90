@@ -57,7 +57,6 @@
           call init_atom_type(A%atom(i),0)
        end do
 
-       return
     End Subroutine Allocate_Atoms_Conf_List
 
     !!----

@@ -43,7 +43,6 @@ SubModule (CFML_Messages) Wmess_Errors
          End If
       end if
 
-      return
    End Subroutine Error_Message
 
 

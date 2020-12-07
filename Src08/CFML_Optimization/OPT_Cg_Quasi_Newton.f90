@@ -540,7 +540,6 @@
           exit
        end do do_20
 
-       return
     End Subroutine Cg_Quasi_Newton
 
  End submodule OPT_Cg_Quasi_Newton

@@ -104,7 +104,6 @@ SubModule (CFML_gSpaceGroups) SPG_Identify_Group
          write(unit=*,fmt="(a)") " => "//trim(err_CFML%msg)
       end if
 
-      return
    End Subroutine Identify_Shubnikov_Group
 
 End Submodule SPG_Identify_Group

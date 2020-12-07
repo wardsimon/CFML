@@ -15,7 +15,6 @@ SubModule (CFML_Scattering_Tables) TAB_DelSC_Routines
 
       if (allocated(chem_info)) deallocate(chem_info)
 
-      return
    End Subroutine Remove_Chem_Info
 
    !!----
@@ -28,7 +27,6 @@ SubModule (CFML_Scattering_Tables) TAB_DelSC_Routines
 
       if (allocated(Anomalous_ScFac)) deallocate(Anomalous_ScFac)
 
-      return
    End Subroutine Remove_Delta_Fp_Fpp
 
    !!----
@@ -44,7 +42,6 @@ SubModule (CFML_Scattering_Tables) TAB_DelSC_Routines
       if (allocated(Magnetic_j4))   deallocate(Magnetic_j4)
       if (allocated(Magnetic_j6))   deallocate(Magnetic_j6)
 
-      return
    End Subroutine Remove_Magnetic_form
 
    !!----
@@ -57,7 +54,6 @@ SubModule (CFML_Scattering_Tables) TAB_DelSC_Routines
 
       if (allocated(Xray_Form)) deallocate(Xray_Form)
 
-      return
    End Subroutine Remove_Xray_form
 
 End SubModule TAB_DelSC_Routines

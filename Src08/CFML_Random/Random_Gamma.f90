@@ -22,7 +22,6 @@ SubModule (CFML_Random) Random_chi2_gamma
       fn_val=random_gamma(half*ndf, first)
       fn_val = two * fn_val
 
-      return
    End Function Random_ChiSQ
 
    !!----
@@ -51,7 +50,6 @@ SubModule (CFML_Random) Random_chi2_gamma
 
       fn_val = -log(r)
 
-      return
    End Function Random_Exponential
 
    !!----
@@ -91,7 +89,6 @@ SubModule (CFML_Random) Random_chi2_gamma
          fn_val= random_exponential()
       end if
 
-      return
    End Function Random_Gamma
 
    !!----
@@ -146,7 +143,6 @@ SubModule (CFML_Random) Random_chi2_gamma
       end do
       fn_val = x
 
-      return
    End Function Random_Gamma1
 
    !!----
@@ -219,7 +215,6 @@ SubModule (CFML_Random) Random_chi2_gamma
 
       fn_val = x
 
-      return
    End Function Random_Gamma2
 
    !!----
@@ -244,7 +239,6 @@ SubModule (CFML_Random) Random_chi2_gamma
       fn_val=random_exponential()
       fn_val = fn_val** (one/a)
 
-      return
    End Function Random_Weibull
 
 End SubModule Random_chi2_gamma

@@ -273,7 +273,6 @@
           end if
        end if
 
-       return
     End Subroutine Set_SimAnn_Cond
 
     !!----

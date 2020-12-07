@@ -268,7 +268,7 @@ SubModule (CFML_Scattering_Tables) TAB_SetSC_Routines
                          chem_info_type("D ","Deuterium   ",  1,  2.00797, 0.320, 1.33, 14.1, (/-1, 1, 0, 0, 0/)  ,  &
                                                           (/ 2.08, 0.00, 0.00, 0.00, 0.00/),0.6671, 0.0000,  0.00000    ) /)
       !  Symb , Name, Z , AtWe  , RCov , RWaals, VAtm, Oxid(5), Rion(5), b=SctF, SedInc, Sea
-      return
+
    End Subroutine Set_Chem_Info
 
    !!----
@@ -481,7 +481,7 @@ SubModule (CFML_Scattering_Tables) TAB_SetSC_Routines
                                                   (/  26.801,  21.942,  16.317,   4.908,   7.931/)  )
       Anomalous_ScFac(98)=Anomalous_Sc_Type("ze", (/   0.000,   0.000,   0.000,   0.000,   0.000/), &
                                                   (/   0.000,   0.000,   0.000,   0.000,   0.000/)  )
-      return
+
    End Subroutine Set_Delta_Fp_Fpp
 
    !!----
@@ -977,7 +977,7 @@ SubModule (CFML_Scattering_Tables) TAB_SetSC_Routines
       Magnetic_j6( 38) = Magnetic_Form_Type("AM7 ",(/ 0.1292, 6.082,-0.4689, 3.879, 0.3234, 1.393, 0.0042/))
       Magnetic_j6( 39) = Magnetic_Form_Type("PR3 ",(/-0.0224, 7.9931,-0.1202, 3.9406, 0.1299, 0.8938, 0.0051/))
 
-      return
+
    End Subroutine Set_Magnetic_Form
 
    !!----
@@ -1472,6 +1472,6 @@ SubModule (CFML_Scattering_Tables) TAB_SetSC_Routines
                                                     (/  0.000000,   0.000000,   0.000000,   0.000000/), 0.0000000) , &
                          xray_form_type("d   ",  1, (/  0.493002,   0.322912,   0.140191,   0.040810/), &
                                                     (/ 10.510900,  26.125700,   3.142360,  57.799698/),  0.003038) /)
-      return
+
    End  Subroutine Set_Xray_Form
 End SubModule TAB_SetSC_Routines

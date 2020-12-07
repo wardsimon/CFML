@@ -46,8 +46,7 @@
        Use CFML_GlobalDeps,    only: cp
        Use CFML_Messages,      only: Error_message
        use CFML_Strings,       only: File_Type,u_case
-       Use CFML_Maths,         only: Zbelong, epss, inverse_matrix
-       Use CFML_Trigonometry,  only: rtan, asind, sind, cosd
+       Use CFML_Maths,         only: Zbelong, epss, inverse_matrix, rtan
        Use CFML_Metrics,       only: Cell_G_Type, Rot_Gibbs_Matrix
        Use CFML_gSpaceGroups,  only: SpG_type
        Use CFML_Reflections,   only: h_absent, mh_absent

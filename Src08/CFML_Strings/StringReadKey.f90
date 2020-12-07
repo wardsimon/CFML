@@ -58,7 +58,6 @@
           exit
        end do
 
-       return
     End Subroutine Read_Key_Str
 
     !!----
@@ -135,7 +134,6 @@
           end if
        end if
 
-       return
     End Subroutine Read_Key_StrVal
 
     !!----
@@ -194,7 +192,6 @@
           exit
        end do
 
-       return
     End Subroutine Read_Key_Value
 
     !!----
@@ -248,7 +245,6 @@
           exit
        end do
 
-       return
     End Subroutine Read_Key_ValueSTD
 
  End Submodule STR_Read_Key

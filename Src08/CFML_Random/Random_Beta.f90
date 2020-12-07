@@ -81,7 +81,6 @@ SubModule (CFML_Random) Random_Beta_sub
 
       if (swap) fn_val = one - fn_val
 
-      return
    End Function Random_Beta
 
 End SubModule Random_Beta_sub

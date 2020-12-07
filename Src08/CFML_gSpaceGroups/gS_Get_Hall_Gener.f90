@@ -19,14 +19,14 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       character(len=*),                            intent(in)  :: Hall      ! Hall symbol
       character(len=*), dimension(:), allocatable, intent(out) :: Gen       ! String generators
       integer,                                     intent(out) :: Ngen      ! Number of genertaors
-      logical, optional,                           intent(in)  :: R_Shift    ! .True. to give the shift vector in free format
+      logical, optional,                           intent(in)  :: R_Shift   ! .True. to give the shift vector in free format
 
       !---- Local Variables ----!
       character(len=11), parameter :: L ="PABCIRSTFHX"  !adding the symbol H used in ref. (2), putting X for unknown lattice
       character(len=13), parameter :: T ="ABCNUVWD12345"
       character(len=6),  parameter :: A ="XYZ^"//'"*'
       character(len=6),  parameter :: N ="123406"
-      character(len=13), parameter :: AT='abcnuvwdABCIS'
+      character(len=13), parameter :: AT="abcnuvwdABCIS"
 
       integer, dimension(3,3), parameter  :: X_1   = reshape([ 1, 0, 0,  0, 1, 0,  0, 0, 1],[3,3])
       integer, dimension(3,3), parameter  :: Y_1   = reshape([ 1, 0, 0,  0, 1, 0,  0, 0, 1],[3,3])
@@ -67,7 +67,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
       integer, dimension(PMAX)       :: Ni       ! rotation symbol for each operator
       integer, dimension(PMAX)       :: Ai       ! axis symbol for each operator
-      integer, dimension(3,PMAX)     :: Ti       ! traslation for each symbol
+      integer, dimension(3,PMAX)     :: Ti       ! translation for each symbol
       logical, dimension(PMAX)       :: Tr       ! time reversal
 
       character(len=20)              :: str
@@ -135,7 +135,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       end if
 
       !>
-      !> Lattice traslational (L)
+      !> Lattice Centring (L) and centro-symmetry at origin
       !>
       centro=.false.
       ilat=0
@@ -148,13 +148,13 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       ilat=index(L,u_case(str(1:1)))
       if (ilat == 0) then
          err_CFML%IErr=1
-         err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown lattice traslational symmetry!"
+         err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown lattice translational symmetry!"
          return
       end if
       str=adjustl(str(2:))  !Removing the lattice symbol for the Hall-symbol
 
       !>
-      !> Anti-traslational operators
+      !> Anti-translations operators
       !>
       a_latt=0
       car=" "
@@ -167,39 +167,78 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                 n2=index(AT,car(i:i))
                 if (n2 == 0) then
                    err_CFML%IErr=1
-                   err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown anti-lattice traslational symmetry!"
+                   err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Unknown translation symbol for 1' or -1'!"
                    return
                 end if
              end do
+
              select case (trim(car))
-                case ("a")
+                case ("a")                  !1
                    a_latt=[6,0,0]
-                case ("b")
+                case ("b")                  !2
                    a_latt=[0,6,0]
-                case ("c")
+                case ("c")                  !3
                    a_latt=[0,0,6]
-                case ("ab","ba")
-                   a_latt=[6,6,0]
-                case ("ac","ca")
-                   a_latt=[6,0,6]
-                case ("bc","cb")
-                   a_latt=[0,6,6]
-                case ("n","abc","acb","bca","bac","cab","cba")
+                case ("n","abc","acb","bca","bac","cab","cba")  !4
                    a_latt=[6,6,6]
-                case ("u")
+                case ("u")               !5
                    a_latt=[3,0,0]
-                case ("v")
+                case ("v")               !6
                    a_latt=[0,3,0]
-                case ("w")
+                case ("w")               !7
                    a_latt=[0,0,3]
-                case ("uv","vu")
-                   a_latt=[3,3,0]
-                case ("uw","wu")
-                   a_latt=[3,0,3]
-                case ("vw","wv")
-                   a_latt=[0,3,3]
-                case ("d","uvw","uwv","vuw","vwu","wuv","wvu")
+                case ("d","uvw","uwv","vuw","vwu","wuv","wvu") !8
                    a_latt=[3,3,3]
+                case ("ab","ba")         !9
+                   a_latt=[6,6,0]
+                case ("ac","ca")         !10
+                   a_latt=[6,0,6]
+                case ("bc","cb")         !11
+                   a_latt=[0,6,6]
+                case ("uv","vu")         !12
+                   a_latt=[3,3,0]
+                case ("uw","wu")         !13
+                   a_latt=[3,0,3]
+                case ("vw","wv")         !14
+                   a_latt=[0,3,3]
+                case ("ad","da")         !15
+                   a_latt=[9,3,3]
+                case ("bd","db")         !16
+                   a_latt=[3,9,3]
+                case ("cd","dc")         !17
+                   a_latt=[3,3,9]
+                case ("nd","dn")         !18
+                   a_latt=[9,9,9]
+                case ("au","ua")         !19
+                   a_latt=[9,0,0]
+                case ("bu","ub")         !20
+                   a_latt=[3,6,0]
+                case ("cu","uc")         !21
+                   a_latt=[3,0,6]
+                case ("av","va")         !22
+                   a_latt=[6,3,0]
+                case ("bv","vb")         !23
+                   a_latt=[0,9,0]
+                case ("cv","vc")         !24
+                   a_latt=[0,3,6]
+                case ("aw","wa")         !25
+                   a_latt=[6,0,3]
+                case ("bw","wb")         !26
+                   a_latt=[0,6,3]
+                case ("cw","wc")         !27
+                   a_latt=[0,0,9]
+                case ("avw","vaw","vwa","wav","wva","awv") !28
+                   a_latt=[6,3,3]
+                case ("ubw","uwb","buw","bwu","wub","wbu") !29
+                   a_latt=[3,6,3]
+                case ("uvc","ucv","cuv","cvu","vuc","vcu") !30
+                   a_latt=[3,3,6]
+                case ("nu","un")       !31
+                   a_latt=[9,6,6]
+                case ("nv","vn")       !32
+                   a_latt=[6,9,6]
+                case ("nw","wn")       !33
+                   a_latt=[6,6,9]
                 case ("A")
                    a_latt=[0,6,6]
                 case ("B")
@@ -242,8 +281,8 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
       do i=1, iv
          if (pout) then
-            print*,' '
-            print*,'  ---> Operator description: ',i, trim(dire(i))
+            write(*,"(a)") ' '
+            write(*,"(a,i5,a)")'  ---> Operator description: ',i, " "//trim(dire(i))
          end if
 
          !> Ni (Rotation)
@@ -262,7 +301,15 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          Ni(i)=j
          dire(i)=adjustl(dire(i)(2:))  !Direction axis + Translation symbol
 
-         if (pout) print*,'  ---> Rotation order: ', signo*Ni(i)
+         if (pout) write(*,"(a,i5)")'  ---> Rotation order: ', signo*Ni(i)
+
+         !> Time reversal
+         Tr(i)=.false.
+         j=index(dire(i),"'")
+         if ( j > 0) then  !the time reversal operator commutes with all symbols
+          Tr(i)=.true.
+          dire(i) = dire(i)(1:j-1)//dire(i)(j+1:) !Remove the primed symbol
+         end if
 
          !> Ai (axis)
          axis=0
@@ -331,22 +378,24 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          end if
 
          !> Axis could be 0 only if order the last operator is 1
-         if (axis==0 .and. Ni(i) /= 1) then
+         if (axis == 0 .and. Ni(i) /= 1) then
             err_CFML%IErr=1
             err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: The axis symbol (A) in Hall is wrong!"
             return
          end if
          Ai(i)=axis
 
-         if (pout) print*,'  ---> Axis: ',Ai(i)
+         if (pout) write(*,"(a,i5)")'  ---> Axis: ',Ai(i)
 
          !> Symbol T
          v_trans=0
+         !     1234567890123
+         ! T ="ABCNUVWD12345"
          do
             if (len_trim(dire(i))==0) exit
 
             j=index(T,dire(i)(1:1))
-            if (j==0) exit
+            if (j == 0) exit
             select case (j)
                case (1) ! a
                   v_trans=v_trans+[6,0,0]
@@ -367,6 +416,28 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
                case (9) ! 1
                   select case (Ni(i))
+                     case (2) ! 1/2
+                        select case (Ai(i))
+                           case (1)
+                              v_trans=v_trans+[6,0,0]
+                           case (2)
+                              v_trans=v_trans+[0,6,0]
+                           case (3)
+                              v_trans=v_trans+[0,0,6]
+                           case (4)
+                              v_trans=v_trans+[6,6,0]
+                           case (5)
+                              v_trans=v_trans+[6,0,6]
+                           case (6)
+                              v_trans=v_trans+[0,6,6]
+                           case (7)
+                              v_trans=v_trans+[6,-6,0]
+                           case (8)
+                              v_trans=v_trans+[6,0,-6]
+                           case (9)
+                              v_trans=v_trans+[0,6,-6]
+                        end select
+
                      case (3) ! 1/3
                         select case (Ai(i))
                            case (1)
@@ -375,6 +446,20 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,4,0]
                            case (3)
                               v_trans=v_trans+[0,0,4]
+                           case (4)
+                              v_trans=v_trans+[4,4,0]
+                           case (5)
+                              v_trans=v_trans+[4,0,4]
+                           case (6)
+                              v_trans=v_trans+[0,4,4]
+                           case (7)
+                              v_trans=v_trans+[4,-4,0]
+                           case (8)
+                              v_trans=v_trans+[4,0,-4]
+                           case (9)
+                              v_trans=v_trans+[0,4,-4]
+                           case (10)
+                              v_trans=v_trans+[4,4,4]
                         end select
 
                      case (4) ! 1/4
@@ -385,6 +470,20 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,3,0]
                            case (3)
                               v_trans=v_trans+[0,0,3]
+                           case (4)
+                              v_trans=v_trans+[3,3,0]
+                           case (5)
+                              v_trans=v_trans+[3,0,3]
+                           case (6)
+                              v_trans=v_trans+[0,3,3]
+                           case (7)
+                              v_trans=v_trans+[3,-3,0]
+                           case (8)
+                              v_trans=v_trans+[3,0,-3]
+                           case (9)
+                              v_trans=v_trans+[0,3,-3]
+                           case (10)
+                              v_trans=v_trans+[3,3,3]
                         end select
 
                      case (6) ! 1/6
@@ -395,6 +494,18 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,2,0]
                            case (3)
                               v_trans=v_trans+[0,0,2]
+                           case (4)
+                              v_trans=v_trans+[2,2,0]
+                           case (5)
+                              v_trans=v_trans+[2,0,2]
+                           case (6)
+                              v_trans=v_trans+[0,2,2]
+                           case (7)
+                              v_trans=v_trans+[2,-2,0]
+                           case (8)
+                              v_trans=v_trans+[2,0,-2]
+                           case (9)
+                              v_trans=v_trans+[0,2,-2]
                         end select
                   end select
 
@@ -408,9 +519,45 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,8,0]
                            case (3)
                               v_trans=v_trans+[0,0,8]
+                           case (4)
+                              v_trans=v_trans+[8,8,0]
+                           case (5)
+                              v_trans=v_trans+[8,0,8]
+                           case (6)
+                              v_trans=v_trans+[0,8,8]
+                           case (7)
+                              v_trans=v_trans+[8,-8,0]
+                           case (8)
+                              v_trans=v_trans+[8,0,-8]
+                           case (9)
+                              v_trans=v_trans+[0,8,-8]
+                           case (10)
+                              v_trans=v_trans+[8,8,8]
                         end select
 
-                     case (6) ! 2/6
+                     case (4) ! 2/4 = 1/2
+                        select case (Ai(i))
+                           case (1)
+                              v_trans=v_trans+[6,0,0]
+                           case (2)
+                              v_trans=v_trans+[0,6,0]
+                           case (3)
+                              v_trans=v_trans+[0,0,6]
+                           case (4)
+                              v_trans=v_trans+[6,6,0]
+                           case (5)
+                              v_trans=v_trans+[6,0,6]
+                           case (6)
+                              v_trans=v_trans+[0,6,6]
+                           case (7)
+                              v_trans=v_trans+[6,-6,0]
+                           case (8)
+                              v_trans=v_trans+[6,0,-6]
+                           case (9)
+                              v_trans=v_trans+[0,6,-6]
+                        end select
+
+                     case (6) ! 2/6 =1/3
                         select case (Ai(i))
                            case (1)
                               v_trans=v_trans+[4,0,0]
@@ -418,6 +565,18 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,4,0]
                            case (3)
                               v_trans=v_trans+[0,0,4]
+                           case (4)
+                              v_trans=v_trans+[4,4,0]
+                           case (5)
+                              v_trans=v_trans+[4,0,4]
+                           case (6)
+                              v_trans=v_trans+[0,4,4]
+                           case (7)
+                              v_trans=v_trans+[4,-4,0]
+                           case (8)
+                              v_trans=v_trans+[4,0,-4]
+                           case (9)
+                              v_trans=v_trans+[0,4,-4]
                         end select
                   end select
 
@@ -431,12 +590,51 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,9,0]
                            case (3)
                               v_trans=v_trans+[0,0,9]
+                           case (4)
+                              v_trans=v_trans+[9,9,0]
+                           case (5)
+                              v_trans=v_trans+[9,0,9]
+                           case (6)
+                              v_trans=v_trans+[0,9,9]
+                           case (7)
+                              v_trans=v_trans+[9,-9,0]
+                           case (8)
+                              v_trans=v_trans+[9,0,-9]
+                           case (9)
+                              v_trans=v_trans+[0,9,-9]
+                           case (10)
+                              v_trans=v_trans+[9,9,9]
                         end select
+
+                     case (6) ! 3/6 =1/2
+                        select case (Ai(i))
+                           case (1)
+                              v_trans=v_trans+[6,0,0]
+                           case (2)
+                              v_trans=v_trans+[0,6,0]
+                           case (3)
+                              v_trans=v_trans+[0,0,6]
+                           case (4)
+                              v_trans=v_trans+[6,6,0]
+                           case (5)
+                              v_trans=v_trans+[6,0,6]
+                           case (6)
+                              v_trans=v_trans+[0,6,6]
+                           case (7)
+                              v_trans=v_trans+[6,-6,0]
+                           case (8)
+                              v_trans=v_trans+[6,0,-6]
+                           case (9)
+                              v_trans=v_trans+[0,6,-6]
+                           case (10)
+                              v_trans=v_trans+[6,6,6]
+                        end select
+
                   end select
 
                case (12)! 4
                   select case (Ni(i))
-                     case (6) ! 4/6
+                     case (6) ! 4/6 = 2/3
                         select case (Ai(i))
                            case (1)
                               v_trans=v_trans+[8,0,0]
@@ -444,6 +642,20 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,8,0]
                            case (3)
                               v_trans=v_trans+[0,0,8]
+                           case (4)
+                              v_trans=v_trans+[8,8,0]
+                           case (5)
+                              v_trans=v_trans+[8,0,8]
+                           case (6)
+                              v_trans=v_trans+[0,8,8]
+                           case (7)
+                              v_trans=v_trans+[8,-8,0]
+                           case (8)
+                              v_trans=v_trans+[8,0,-8]
+                           case (9)
+                              v_trans=v_trans+[0,8,-8]
+                           case (10)
+                              v_trans=v_trans+[8,8,8]
                         end select
                   end select
 
@@ -457,31 +669,27 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                               v_trans=v_trans+[0,10,0]
                            case (3)
                               v_trans=v_trans+[0,0,10]
+                           case (4)
+                              v_trans=v_trans+[10,10,0]
+                           case (5)
+                              v_trans=v_trans+[10,0,10]
+                           case (6)
+                              v_trans=v_trans+[0,10,10]
+                           case (7)
+                              v_trans=v_trans+[10,-10,0]
+                           case (8)
+                              v_trans=v_trans+[10,0,-10]
+                           case (9)
+                              v_trans=v_trans+[0,10,-10]
                         end select
                   end select
+
             end select
             dire(i)=adjustl(dire(i)(2:))
          end do
          Ti(:,i)=v_trans
 
-         if (pout) print*,'  --->Traslation: ',Ti(:,i)
-
-         !> Time reversal
-         Tr(i)=.false.
-         if (len_trim(dire(i)) > 0) then
-            if (dire(i)(1:1) /="'") then
-               err_CFML%IErr=1
-               err_CFML%Msg="Get_Generators_from_Hall@GSPACEGROUPS: Check the MHall symbol!"
-               return
-            end if
-            Tr(i)=.true.
-
-            if (pout) then
-               if (tr(i)) then
-                  print*,'  ---> Primed operator'
-               end if
-            end if
-         end if
+         if (pout) write(*,"(a,3i4)")'  ---> Translation: ',Ti(:,i)
 
          !> Save the signo in rotation
          Ni(i)=Ni(i)*signo
@@ -489,7 +697,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
       !> In the original paper it was not commented but it is possible to
       !> define a shift using the last operator with rotation order -1
-      !> and given additional traslation
+      !> and given additional translation
       !if (Ni(iv)== -1 .and. (.not. tr(iv))) then
       !   shift=.true.
       !   ishift=mod(-Ti(:,iv) + 24, 12)
@@ -497,7 +705,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       !
       !   iv=iv-1
       !end if
-      !if (pout) print*,'  ---> Shift: ', rational_string(sh)
+      !if (pout) write(*,"(a)")'  ---> Shift: '//rational_string(sh)
 
       !> Allocate Gen
       nt=iv
@@ -531,11 +739,6 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
             case (1)
                select case (Ai(i))
                   case (0)
-                     !if (.not. tr(i)) then
-                     !   err_CFML%IErr=1
-                     !   err_CFML%Msg="Get_Generators_from_MHall@GSPACEGROUPS: Check symbol!"
-                     !   return
-                     !end if
                      sn=sign(1,Ni(i))*identidad
                   case (1)
                      sn(1:3,1:3)=signo*X_1
@@ -660,7 +863,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          gen(ngen)=Get_Symb_from_Op(op)
       end if
 
-      !> Anti-traslation
+      !> Anti-translation
       if (any(a_latt > 0)) then
          sn=identidad
          sn(4,4)=1
@@ -770,13 +973,13 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       end if
 
       if (pout) then
-         print*,' '
-         print*,'  ---> List of Possible Generators <---'
-         print*,'---------------------------------------'
+         write(*,"(a)")' '
+         write(*,"(a)")'  ---> List of Possible Generators <---'
+         write(*,"(a)")'---------------------------------------'
          do i=1,ngen
-            print*,'  ---> Generator: '//trim(gen(i))
+            write(*,"(a)")'  ---> Generator: '//trim(gen(i))
          end do
-         print*,' '
+         write(*,"(a)")' '
       end if
 
    End Subroutine Get_Generators_from_Hall
@@ -801,12 +1004,12 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          character(len=1):: Prime =" "
       End Type H_Oper
 
-      integer,               parameter :: MAX_DIV   =12  ! Multiplo of 3 and 4
+      integer,               parameter :: MAX_DIV   =12  ! Multiple of 3 and 4
 
 
 
       integer,               parameter :: MAX_H_OPER=10  ! Max. number of operators to select
-      integer,               parameter :: MAX_NC    =3   ! Max number of iterations on Traslation part
+      integer,               parameter :: MAX_NC    =3   ! Max number of iterations on Translation part
 
       integer, dimension(3), parameter :: TR_A=[MAX_DIV/2, 0, 0]
       integer, dimension(3), parameter :: TR_B=[0, MAX_DIV/2, 0]
@@ -899,7 +1102,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
             c_axis="*"
          end if
 
-         !> traslation
+         !> Translation
          tr=Op%Mat(1:3,4)
          rtr=tr
          itr=nint(rtr*real(MAX_DIV))
@@ -965,8 +1168,8 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                   end if
 
                case (4)
-                  !> 41 is equivalent to traslation u, v, w or d
-                  !> 43 is equivalent to traslation au, vw or cw
+                  !> 41 is equivalent to translation u, v, w or d
+                  !> 43 is equivalent to translation au, vw or cw
 
                case (6)
                   np=MAX_DIV/6
@@ -1386,19 +1589,66 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
       character(len=2)               :: c_latt
       character(len=1)               :: c_alatt
-      character(len=5)               :: car_prime
+      character(len=8)               :: car_prime
       character(len=8), dimension(5) :: car_op,nc_lat,nc_alat
       character(len=40)              :: str_hall
-      integer                        :: prime,n,iv,Invt
-      integer                        :: n1,n2,n_lat,n_alat
+      integer                        :: i,prime,n,iv,Invt,ind_sh
+      integer                        :: n1,n2,n_lat,n_alat,n_antic
+      integer,          dimension(3) :: ish
+      integer,        dimension(3,3) :: s
+      real(kind=cp),  dimension(3,3) :: sinv
+      real(kind=cp),    dimension(3) :: t
+      logical                        :: pout=.false., need_shift=.false.
+      character(len=40),    dimension(Ngen) :: symb_gen
+      Type(Symm_Oper_Type), dimension(Ngen) :: Op_gen
+      integer, dimension(3,3),parameter :: ident=reshape([1,0,0,0,1,0,0,0,1],[3,3])
 
-      logical                        :: pout=.false.
+      integer, parameter         :: ntr=33
+      character(len=*), dimension(0:ntr),parameter:: symb_tr= ["   ","a  ","b  ","c  ","n  ","u  ","v  ","w  ","d  ",&
+             "ab ","ac ","bc ","uv ","uw ","vw ","da ","db ","dc ","dn ","ua ","ub ","uc ","va ","vb ","vc ",&
+             "wa ","wb ","wc ","avw","ubw","uvc","nu ","nv ","nw "]
+      type(rational), dimension(3,0:ntr) :: st_trans
+      st_trans = reshape([ 0_LI//1_LI, 0_LI//1_LI, 0_LI//1_LI,  &  !        0 !no translation
+                           1_LI//2_LI, 0_LI//1_LI, 0_LI//1_LI,  &  !a       1
+                           0_LI//1_LI, 1_LI//2_LI, 0_LI//1_LI,  &  !b       2
+                           0_LI//1_LI, 0_LI//1_LI, 1_LI//2_LI,  &  !c       3
+                           1_LI//2_LI, 1_LI//2_LI, 1_LI//2_LI,  &  !n       4
+                           1_LI//4_LI, 0_LI//1_LI, 0_LI//1_LI,  &  !u       5
+                           0_LI//1_LI, 1_LI//4_LI, 0_LI//1_LI,  &  !v       6
+                           0_LI//1_LI, 0_LI//1_LI, 1_LI//4_LI,  &  !w       7
+                           1_LI//4_LI, 1_LI//4_LI, 1_LI//4_LI,  &  !d       8
+                           1_LI//2_LI, 1_LI//2_LI, 0_LI//1_LI,  &  !ab      9
+                           1_LI//2_LI, 0_LI//1_LI, 1_LI//2_LI,  &  !ac     10
+                           0_LI//1_LI, 1_LI//2_LI, 1_LI//2_LI,  &  !bc     11
+                           1_LI//4_LI, 1_LI//4_LI, 0_LI//1_LI,  &  !uv     12
+                           1_LI//4_LI, 0_LI//1_LI, 1_LI//4_LI,  &  !uw     13
+                           0_LI//1_LI, 1_LI//4_LI, 1_LI//4_LI,  &  !vw     14
+                           3_LI//4_LI, 1_LI//4_LI, 1_LI//4_LI,  &  !da     15
+                           1_LI//4_LI, 3_LI//4_LI, 1_LI//4_LI,  &  !db     16
+                           1_LI//4_LI, 1_LI//4_LI, 3_LI//4_LI,  &  !dc     17
+                           3_LI//4_LI, 3_LI//4_LI, 3_LI//4_LI,  &  !dn     18
+                           3_LI//4_LI, 0_LI//1_LI, 0_LI//1_LI,  &  !ua     19
+                           1_LI//4_LI, 1_LI//2_LI, 0_LI//1_LI,  &  !ub     20
+                           1_LI//4_LI, 0_LI//1_LI, 1_LI//2_LI,  &  !uc     21
+                           1_LI//2_LI, 1_LI//4_LI, 0_LI//1_LI,  &  !va     22
+                           0_LI//1_LI, 3_LI//4_LI, 0_LI//1_LI,  &  !vb     23
+                           0_LI//1_LI, 1_LI//4_LI, 1_LI//2_LI,  &  !vc     24
+                           1_LI//2_LI, 0_LI//1_LI, 1_LI//4_LI,  &  !wa     25
+                           0_LI//1_LI, 1_LI//2_LI, 1_LI//4_LI,  &  !wb     26
+                           0_LI//1_LI, 0_LI//1_LI, 3_LI//4_LI,  &  !wc     27
+                           1_LI//2_LI, 1_LI//4_LI, 1_LI//4_LI,  &  !avw    28
+                           1_LI//4_LI, 1_LI//2_LI, 1_LI//4_LI,  &  !ubw    29
+                           1_LI//4_LI, 1_LI//4_LI, 1_LI//2_LI,  &  !uvc    30
+                           3_LI//4_LI, 1_LI//2_LI, 1_LI//2_LI,  &  !nu     31
+                           1_LI//2_LI, 3_LI//4_LI, 1_LI//2_LI,  &  !nv     32
+                           1_LI//2_LI, 1_LI//2_LI, 3_LI//4_LI],[3,ntr+1])  !nv     33
+
 
       if (pout) then
-         print*,'Generators'
-         print*,'-----------'
+         write(*,"(a)")'Generators'
+         write(*,"(a)")'-----------'
          do n=1,ngen
-            print*,'Gen:',n,trim(gen(n))
+            write(*,"(a,i5,a)")'Gen:',n,"  "//trim(gen(n))
          end do
       end if
 
@@ -1410,117 +1660,66 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          Err_CFML%Msg="Get_Hall_from_SpG@GSPACEGROUPS: Number of generators is zero!"
       end if
 
+      !Calculate symmetry symbols of generators and determine if one of the operators
+      !cannot be represented if there is a translation like n/3 or n/6 in an operator
+      !that is not oriented along the c-axis
+      ind_sh=0
+      ish=0
+      if(present(Ishift)) then
+        ish=Ishift
+      else
+        do i=1,ngen
+          Op_gen(i)=Get_Op_from_Symb(gen(i))
+          s=Op_gen(i)%Mat(1:3,1:3)
+          t=Op_gen(i)%Mat(1:3,4)
+          Symb_gen(i)=Symmetry_Symbol(s,t)
+          !write(*,"(i5,a)") i,"  ->  "//trim(Symb_gen(i))
+          if(Equal_Matrix(s,ident,3)) cycle
+          if(ind_sh == 0) then
+            !if(index(Symb_gen(i),"z") == 0 .or. .not. (index(Symb_gen(i),"x") /= 0 .and. index(Symb_gen(i),"y") /= 0)) then
+            if(index(Symb_gen(i),"z") == 0 ) then
+              if(index(Symb_gen(i),"/3") /= 0 .or. index(Symb_gen(i),"/6") /= 0 ) then
+                need_shift=.true.
+                ind_sh=i
+              end if
+            end if
+          end if
+        end do
+        if(need_shift) then !Determine the shift (only along z!)
+          !s=Op_gen(ind_sh)%Mat(1:3,1:3)
+          !t=Op_gen(ind_sh)%Mat(1:3,4)
+          !s=s-ident
+          !t(3)=t(3)/s(3,3)
+          !!t=matmul(sinv,t) !New origin shift that multiplied by 12 should give an integer
+          !ish=-nint(12.0*t)
+          !write(*,"(a,3i8,a)") " Calculated Shift: [",ish," ]"
+          write(*,"(a,/,a)") " => Warning! operator: "//trim(gen(ind_sh))//"  cannot be written with a legal Hall symbol", &
+                             "    A different setting of the group will be generateded."
+        end if
+      end if
       call Init_SpaceGroup(Grp)
       call Rational_Identity_Matrix(identidad)
 
-      !Examine the input generators to determine non-conventional lattice of anti-lattice type
-      !and add the (anti)lattice generators to the Hall symbol
-      n_lat=0; n_alat=0
+      !Examine the input generators to determine non-conventional lattice of anti-translations type
+      !and add the (anti)translation generators to the Hall symbol. Search also anti-centre
+      n_lat=0; n_alat=0; n_antic=0
       do n=1,ngen
         call Get_Mat_From_Symb(gen(n), Mat, Invt)
         if(rational_equal(Mat(1:3,1:3),identidad)) then
           tr=Mat(1:3,4)
           tr=rational_modulo_lat(tr)
-          if (rational_equal(tr,[1//2, 0//1, 0//1])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1a"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'a"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[0//1, 1//2,  0//1])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1b"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'b"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[0//1,  0//1, 1//2])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1c"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'c"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[1//4,  0//1, 0//1])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1u"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'u"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[0//1, 1//4,  0//1])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1v"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'v"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[0//1,  0//1, 1//4])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1w"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'w"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[1//4,  1//4, 1//4])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1d"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'd"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[0//1,  1//4, 1//4])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1vw"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'vw"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[1//4, 0//1,  1//4])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1uw"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'uw"
-             end if
-             cycle
-          end if
-          if (rational_equal(tr,[1//4,  1//4, 0//1])) then
-             if(invt == 1) then
-               n_lat=n_lat+1
-               nc_lat(n_lat)="1uv"
-             else
-               n_alat=n_alat+1
-               nc_alat(n_alat)="1'uv"
-             end if
-             cycle
-          end if
+          do i=1,ntr
+            if (rational_equal(tr,st_trans(:,i))) then
+              if(invt == 1) then
+                n_lat=n_lat+1
+                nc_lat(n_lat)="1"//trim(symb_tr(i))
+              else
+                n_alat=n_alat+1
+                nc_alat(n_alat)="1'"//trim(symb_tr(i))
+              end if
+              exit
+            end if
+          end do
         end if
       end do
 
@@ -1546,8 +1745,8 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          do n=1,n_alat
            write(*,"(i3,tr4,a)") n,nc_alat(n)
          end do
-         print*,'Raw Group'
-         print*,'-----------'
+         write(*,"(a)")'Raw Group'
+         write(*,"(a)")'-----------'
          call Write_SpaceGroup_Info(Grp)
       end if
 
@@ -1567,13 +1766,13 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
          return
       end if
 
-      !> Anti_lattice
+      !> Anti-translations
       c_alatt=" "
       do n=1,Grp%multip
          !> Conditions
          if (.not. Is_OP_Anti_Lattice(Grp%op(n))) cycle
 
-         !> Traslation
+         !> Translation
          tr=Grp%op(n)%Mat(1:3,4)
          tr=rational_modulo_lat(tr)
 
@@ -1589,7 +1788,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
 
          if (rational_equal(tr,[0//1, 0//1, 1//2])) then
             if (Grp%Laue == "-1") then
-               c_alatt='S'
+               c_alatt='n'
             else
                if (Grp%SPG_lat=="R") then
                   c_alatt="I"
@@ -1624,7 +1823,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
                   c_alatt="I"
 
                case ("F")
-                  c_alatt="S"
+                  c_alatt="n"
             end select
             exit
          end if
@@ -1742,8 +1941,11 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
             end do
 
          case ("TRIGONAL")
+            !Look for possible shift because one generators cannot be represented with
+            !a Hall symbol
+            !if (present(ishift) .or. need_shift) then
             if (present(ishift)) then
-               str_Hall=Search_Hall_Operators(Grp,ishift)
+               str_Hall=Search_Hall_Operators(Grp,ish)
             else
                str_Hall=Search_Hall_Operators(Grp)
             end if
@@ -1785,8 +1987,9 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
             car_op(3:)=" "
 
          case ("HEXAGONAL")
+            !if (present(ishift) .or. need_shift) then
             if (present(ishift)) then
-               str_Hall=Search_Hall_Operators(Grp,ishift)
+               str_Hall=Search_Hall_Operators(Grp,ish)
             else
                str_Hall=Search_Hall_Operators(Grp)
             end if
@@ -1855,12 +2058,14 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       !> Constructing the Hall symbol
       !> ----
 
-      !> Lattice + anti-lattice
+      !> Lattice + anti-translations
       Hall=trim(c_latt)
 
       !> Redundat centre of symmetry?
       if(Hall(1:1) == "-") then !Centre of symmetry at the origin
         do n=1,3
+           n1=index(car_op(n),"-1'") !Skip anti-centring
+           if(n1 /= 0) cycle
            n1=index(car_op(n),"-1")  !Redundant centre of symmetry
            if(n1 /= 0) car_op(n)=" "
         end do
@@ -1870,7 +2075,7 @@ SubModule (CFML_gSpaceGroups) SPG_Generators_from_Hall
       Hall=trim(Hall)//' '//trim(car_op(1))//' '//trim(car_op(2))//' '//trim(car_op(3))
 
       !> Completing Hall symbol with non-conventional lattice centrings
-      if(n_lat /= 0) then
+      if(n_lat /= 0 .and. index(c_latt,"X") /= 0 ) then
          do n=1,n_lat
            Hall=trim(Hall)//' '//trim(nc_lat(n))
          end do

@@ -18,7 +18,6 @@ Submodule (CFML_Rational) RAT_Operator_Minus
        res = - r%numerator // r%denominator
        res=rational_simplify(res)
 
-       return
     End Function Rational_Minus
 
     !!----
@@ -36,7 +35,6 @@ Submodule (CFML_Rational) RAT_Operator_Minus
            & r%denominator * s%denominator
        res=rational_simplify(res)
 
-       return
     End Function Rational_Subtract
 
     !!----
@@ -53,7 +51,6 @@ Submodule (CFML_Rational) RAT_Operator_Minus
        res = (i * s%denominator -  s%numerator) //  s%denominator
        res=rational_simplify(res)
 
-       return
     End Function Integer_Rational_Subtract
 
     !!----
@@ -70,7 +67,6 @@ Submodule (CFML_Rational) RAT_Operator_Minus
        res = (s%numerator - i * s%denominator) //  s%denominator
        res=rational_simplify(res)
 
-       return
     End Function Rational_Integer_Subtract
 
 End Submodule RAT_Operator_Minus

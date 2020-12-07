@@ -116,7 +116,6 @@ Submodule (CFML_Maths) Maths_Sort
           end if
        end do
 
-       return
     End Function Sort_I
 
     !!----
@@ -227,7 +226,6 @@ Submodule (CFML_Maths) Maths_Sort
           end if
        end do
 
-       return
     End Function Sort_R
 
 End Submodule Maths_Sort

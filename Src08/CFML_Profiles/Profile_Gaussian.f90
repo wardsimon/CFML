@@ -25,7 +25,6 @@ SubModule (CFML_Profiles) PRF_Gaussian
       bg= 2.7725887222397812376689284858327/(H*H)
       gauss_val = ag* exp(-bg*x*x)
 
-      return
    End Function Gaussian
 
    !!----
@@ -54,7 +53,6 @@ SubModule (CFML_Profiles) PRF_Gaussian
          dpar(1:2)=(/gaussp,dgaussH/)
       end if
 
-      return
    End Subroutine Gaussian_Der
 
    !!--++
@@ -89,7 +87,6 @@ SubModule (CFML_Profiles) PRF_Gaussian
          dgdt = 2.0 * c*c * delp * Gauss/(gamma*gamma)
       end if
 
-      return
    End Subroutine Prof_Gaussian
 
 End SubModule PRF_Gaussian

@@ -26,7 +26,6 @@ SubModule (CFML_Bonds_Tables) TAB_GetBond_Routines
       if (.not. Set_BT_Variable) call Set_Bonds_Table()
       Bonds=Get_Bonds_Table_Z(Z1,Z2)
 
-      return
    End Function Get_Bonds_Table_Symbol
 
    !!--++
@@ -49,7 +48,6 @@ SubModule (CFML_Bonds_Tables) TAB_GetBond_Routines
 
       bonds=bond_length_table(:,z1,z2)
 
-      return
    End Function Get_Bonds_Table_Z
 
 End SubModule TAB_GetBond_Routines

@@ -70,7 +70,6 @@ Submodule (CFML_Maths) Maths_RowEchelonForm
           end if
        end do
 
-       return
     End Subroutine RowEchelonFormM
 
     !!----
@@ -151,7 +150,6 @@ Submodule (CFML_Maths) Maths_RowEchelonForm
           end if
        end do
 
-       return
     End Subroutine RowEchelonFormT
 
     !!----
@@ -201,7 +199,6 @@ Submodule (CFML_Maths) Maths_RowEchelonForm
 
        Q = transpose(Q)
 
-       return
     End Subroutine SmithNormalForm
 
 End Submodule Maths_RowEchelonForm

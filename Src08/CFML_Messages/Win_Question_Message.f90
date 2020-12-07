@@ -22,7 +22,6 @@ SubModule (CFML_Messages) Wmess_Question
 
       call WMessageBox(YesNo,QuestionIcon,CommonYes, trim(Mess),trim(ch_title))
 
-      return
    End Subroutine Question_Message
 
 

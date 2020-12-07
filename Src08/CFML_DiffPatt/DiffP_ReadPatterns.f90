@@ -49,7 +49,6 @@ SubModule (CFML_DiffPatt) RPatt
 
       end if
 
-      return
    End Subroutine Read_Pattern_Mult
 
    !!--++

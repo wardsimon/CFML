@@ -28,7 +28,6 @@ SubModule (CFML_Profiles) PRF_BacktoBack
          bb_val =  N*exp(-beta*x)
       end if
 
-      return
    End Function Back_To_Back_Exp
 
    !!----
@@ -68,7 +67,6 @@ SubModule (CFML_Profiles) PRF_BacktoBack
          end if
       end if
 
-      return
    End Subroutine Back_To_Back_Exp_Der
 
 End SubModule PRF_BacktoBack

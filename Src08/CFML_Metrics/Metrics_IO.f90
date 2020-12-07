@@ -77,7 +77,6 @@ Submodule (CFML_Metrics) Metrics_IORoutines
 
        end select
 
-       return
     End Subroutine Write_Crystal_Cell
 
 
@@ -132,7 +131,6 @@ Submodule (CFML_Metrics) Metrics_IORoutines
           Err_CFML%Msg="READ_CRYSTAL_CELL@METRICS:  Error reading Cell parameters from a binary file!"
        end if
 
-       return
     End Subroutine Read_Bin_Crystal_Cell
 
     !!----
@@ -176,7 +174,6 @@ Submodule (CFML_Metrics) Metrics_IORoutines
                                Cell%CartType, cell%lcell, cell%lang
        end select
 
-       return
     End Subroutine Write_Bin_Crystal_Cell
 
 End Submodule Metrics_IORoutines

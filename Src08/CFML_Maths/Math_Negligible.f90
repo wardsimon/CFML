@@ -23,7 +23,6 @@ Submodule (CFML_Maths) Maths_Negligible
 
        Neglig=.true.
 
-       return
     End Function Negligible_C
 
     !!----
@@ -43,7 +42,6 @@ Submodule (CFML_Maths) Maths_Negligible
 
        Neglig=.true.
 
-       return
     End Function Negligible_R
 
 End Submodule Maths_Negligible

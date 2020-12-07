@@ -19,7 +19,6 @@ Submodule (CFML_Rational) RAT_Operator_Multiply
        res = r%numerator * s%numerator // (r%denominator * s%denominator)
        res=rational_simplify(res)
 
-       return
     End Function Rational_Multiply
 
     !!----
@@ -36,7 +35,6 @@ Submodule (CFML_Rational) RAT_Operator_Multiply
        res = i * s%numerator // s%denominator
        res=rational_simplify(res)
 
-       return
     End Function Integer_Rational_Multiply
 
     !!----
@@ -53,7 +51,6 @@ Submodule (CFML_Rational) RAT_Operator_Multiply
        res = i * s%numerator // s%denominator
        res=rational_simplify(res)
 
-       return
     End Function Rational_Integer_Multiply
 
 End Submodule RAT_Operator_Multiply

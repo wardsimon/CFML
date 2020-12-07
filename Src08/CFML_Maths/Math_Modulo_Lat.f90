@@ -21,7 +21,6 @@ Submodule (CFML_Maths) Maths_Modulo_Lat
 
        u=mod(v+10.0_cp,1.0_cp)
 
-       return
     End Function Modulo_Lat
 
 End Submodule Maths_Modulo_Lat

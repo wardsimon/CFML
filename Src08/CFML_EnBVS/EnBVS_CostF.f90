@@ -25,7 +25,6 @@
        bv=EXP((d0-d)/b0)
        sbv=bv*sd/b0
 
-       return
     End Subroutine Bond_Valence
 
     !!----

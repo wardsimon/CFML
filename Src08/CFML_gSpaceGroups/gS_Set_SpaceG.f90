@@ -795,6 +795,7 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
           else
              call Read_single_SSG(str,num)
           end if
+          if(Err_CFML%Ierr /= 0)  return
           iclass=igroup_class(num)
           nmod=iclass_nmod(iclass)
           D=3+nmod
@@ -1126,6 +1127,17 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
                exit
             end do
          end if
+
+         !> Is it a compact BNS symbol?
+         if (n_it == 0) then
+            call Set_Shubnikov_Info()
+            do i=1,NUM_SHUBNIKOV
+               if (trim(str) /= trim(Shubnikov_info(i)%BNS)) cycle
+               str_hall=Shubnikov_info(i)%Mhall
+               exit
+            end do
+         end if
+
          if (len_trim(gList) == 0) then   !This is the case when we provide a non-standard symbol (e.g. P b n m instead of P n m a)
             call Get_Generators(str_hall,l_gen,n_gen)
             if (Err_CFML%Ierr /= 0) return
@@ -1196,6 +1208,14 @@ SubModule (CFML_gSpaceGroups) SPG_SpaceGroup_Procedures
            SpaceG%spg_symb = str_HM(1:1)//l_case(str_HM(2:))
            !if(n_it > 0 .and. len_trim(SpaceG%spg_symb) == 0) SpaceG%spg_symb=trim(spgr_info(n_it)%hm) !str_HM(1:1)//l_case(str_HM(2:))
         end if
+      else if(SpaceG%D > 4) then !superspace group
+        Select Type (SpaceG)
+          class is (Spg_Oreal_Type)
+            allocate(SpaceG%Om(SpaceG%D,SpaceG%D,SpaceG%multip))
+            do i=1,SpaceG%multip
+              SpaceG%Om(:,:,i)=SpaceG%Op(i)%Mat
+            end do
+        End Select
       end if
       if(SpaceG%mag_type == 4) SpaceG%Anticentred=1
 
