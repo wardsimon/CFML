@@ -477,7 +477,7 @@ Program Bond_Str
                 end do
                 write(unit=lun,fmt="(a)") " "
               end if
-              do n1=1,Ac%N_Cations
+              do_n1: do n1=1,Ac%N_Cations
                  do j=1,Ac%N_Anions
                     n2=Ac%N_Cations+j
                     write(unit=lun,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
@@ -489,8 +489,14 @@ Program Bond_Str
                     write(unit=lun,fmt="(2(a,a,a,f6.3,a),/)") &
                           "   Cation (Eff. radius): ",Ac%Species(n1),"(",Ac%Radius(n1),")   ",  &
                           "   Anion  (Eff. radius): ",Ac%Species(n2),"(",Ac%Radius(n2),")"
+                    if(abs(Table_Dzero(n1,n2)) < 0.0001) then
+                      err_conf=.true.
+                      write(unit=ERR_Conf_Mess,fmt="(a)") " => Bad parameters for "//Ac%Species(n1)//" with "//Ac%Species(n2)// &
+                                                          "  -> Use the instruction: BVELPAR Nc R0 Cutoff D0 Rmin alpha"
+                      exit do_n1
+                    end if                      
                  end do
-              end do
+              end do do_n1
            end if
         else
            ! Setting Tables for B and D0
