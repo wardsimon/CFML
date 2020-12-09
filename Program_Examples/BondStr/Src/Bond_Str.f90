@@ -492,9 +492,9 @@ Program Bond_Str
                     if(abs(Table_Dzero(n1,n2)) < 0.0001) then
                       err_conf=.true.
                       write(unit=ERR_Conf_Mess,fmt="(a)") " => Bad parameters for "//Ac%Species(n1)//" with "//Ac%Species(n2)// &
-                                                          "  -> Use the instruction: BVELPAR Nc R0 Cutoff D0 Rmin alpha"
+                                                          "  -> Use the instruction: BVELPAR Cation Anion Nc R0 Cutoff D0 Rmin alpha"
                       exit do_n1
-                    end if                      
+                    end if
                  end do
               end do do_n1
            end if
