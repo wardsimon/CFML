@@ -36,7 +36,6 @@ SubModule (CFML_Profiles) PRF_Ikeda_Carpenter
          ik_val = 0.5*a3*((1.0-R)*x2*exa+2.0*R*beta*ramb*(exb-exa*poly))
       end if
 
-      return
    End Function Ikeda_Carpenter
 
    !!----
@@ -86,7 +85,6 @@ SubModule (CFML_Profiles) PRF_Ikeda_Carpenter
          end if
       end if
 
-      return
    End Subroutine Ikeda_Carpenter_Der
 
 

@@ -37,7 +37,6 @@ SubModule (CFML_Profiles) PRF_Finger
          dfunc=0.5_cp*(Asin(a)-Asin(b))
       End If
 
-      return
    End Function dfunc_int
 
    !!----
@@ -57,7 +56,6 @@ SubModule (CFML_Profiles) PRF_Finger
       sinx = Sin(x)
       extra = 0.25_cp*(Log(Abs(sinx+1.0_cp))-Log(Abs(sinx-1.0_cp)))
 
-      return
    End Function extra_int
 
    !!----
@@ -335,7 +333,6 @@ SubModule (CFML_Profiles) PRF_Finger
          dprdd = 0.5_cp*(dprdd - dprds)  !D is really D-S
       End If
 
-      Return
    End Subroutine Prof_Val
 
 End SubModule PRF_Finger

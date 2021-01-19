@@ -23,7 +23,6 @@ SubModule (CFML_Messages) Wmess_Infos
          write(unit=iunit,fmt="(tr1,a)") " "
       end if
 
-      return
    End Subroutine Info_Message
 
 End SubModule Wmess_Infos

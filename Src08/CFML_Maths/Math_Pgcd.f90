@@ -35,7 +35,6 @@ Submodule (CFML_Maths) Math_pgcd
 
        mcd=v
 
-       return
     End Function Gcd
 
     !!----
@@ -62,7 +61,6 @@ Submodule (CFML_Maths) Math_pgcd
        t=gcd(a,b)
        if (t /=0) mcm=(a*b)/t
 
-       return
     End Function Lcm
 
 End Submodule Math_pgcd

@@ -31,7 +31,6 @@ Submodule (CFML_Strings) STR_StrTools
          end if
       end do
 
-      return
    End Function Pack_String
 
    !!----
@@ -64,7 +63,6 @@ Submodule (CFML_Strings) STR_StrTools
          string=string(i+lstr:)
       end do
 
-      return
    End Function String_Count
 
    !!----
@@ -89,7 +87,6 @@ Submodule (CFML_Strings) STR_StrTools
              lstr(pos:pos) = CHAR ( ICHAR(lstr(pos:pos)) - INC )
       end do
 
-      return
    End Function L_Case
 
    !!----
@@ -114,7 +111,6 @@ Submodule (CFML_Strings) STR_StrTools
              UStr(pos:pos) = CHAR ( ICHAR(UStr(pos:pos)) + INC )
       end do
 
-      return
    End Function U_Case
 
    !!----
@@ -137,7 +133,6 @@ Submodule (CFML_Strings) STR_StrTools
       i=index(str,trim(to_strip),back=.true.)
       if (i > 0) sstr=str(1:i-1)
 
-      return
    End Function Strip_String
 
    !!----
@@ -182,7 +177,6 @@ Submodule (CFML_Strings) STR_StrTools
 
       Equal=.true.
 
-      return
    End Function Equal_Sets_Text
 
    !!----
@@ -204,7 +198,6 @@ Submodule (CFML_Strings) STR_StrTools
       Str="Date: "//dat(7:8)//"/"//dat(5:6)//"/"//dat(1:4)//      &
           "  Time: "//tim(1:2)//":"//tim(3:4)//":"//tim(5:10)
 
-      return
    End Function Get_DateTime
 
    !!----
@@ -228,7 +221,6 @@ Submodule (CFML_Strings) STR_StrTools
          Directory=" "
       end If
 
-      Return
    End Function Get_Dirname
 
    !!----
@@ -252,7 +244,6 @@ Submodule (CFML_Strings) STR_StrTools
          Filename=trim(Str)
       end If
 
-      Return
    End Function Get_Filename
 
    !!----
@@ -288,7 +279,6 @@ Submodule (CFML_Strings) STR_StrTools
           extension=filename(idx:)
       end if
 
-      return
    End Function Get_Extension
 
    !!----
@@ -328,6 +318,7 @@ Submodule (CFML_Strings) STR_StrTools
          if (str(j:j) == '"') then  !A chains of characters is found, advance up to the next "
             do k=1,len_trim(str)    !the character "car" is ignored if it is within " "
                j=j+1
+               if(j > len_trim(str)) exit
                if (str(j:j) /= '"') cycle
                exit
             end do
@@ -339,7 +330,6 @@ Submodule (CFML_Strings) STR_StrTools
          end if
       end do
 
-      return
    End Subroutine Get_Separator_Pos
 
    !!----
@@ -394,7 +384,6 @@ Submodule (CFML_Strings) STR_StrTools
          dire(ic)=line2(:nlong2)
       end do
 
-      return
    End Subroutine Get_Words
 
    !!----
@@ -447,7 +436,6 @@ Submodule (CFML_Strings) STR_StrTools
       str1=adjustl(str1)
       if(present(nlong1)) nlong1=len_trim(str1)
 
-      return
    End Subroutine Cut_String
 
    !!----
@@ -482,7 +470,6 @@ Submodule (CFML_Strings) STR_StrTools
          end if
       end do
 
-      return
    End Subroutine Get_Substring_Positions
 
    !!----
@@ -553,7 +540,6 @@ Submodule (CFML_Strings) STR_StrTools
          end do
       end if
 
-      return
    End Subroutine SubString_Replace
 
    !!----
@@ -575,7 +561,6 @@ Submodule (CFML_Strings) STR_StrTools
           call Sort_Strings(Str(iq:))
        end if
 
-       return
     End Subroutine Sort_Strings
 
     !!----
@@ -625,9 +610,6 @@ Submodule (CFML_Strings) STR_StrTools
           end if
        end do
 
-       return
     End Subroutine Sort_PR_Partition
-
-
 
 End Submodule STR_StrTools

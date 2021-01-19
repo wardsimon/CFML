@@ -37,7 +37,6 @@ Submodule (CFML_Maths) Maths_Sbm_Rank
           if (w(i) > tol) r=r+1
        end do
 
-       return
     End Function mRank
 
     !!----
@@ -229,7 +228,6 @@ Submodule (CFML_Maths) Maths_Sbm_Rank
           end do
        end do
 
-       return
     End Subroutine Svdcmp
 
 End Submodule Maths_Sbm_Rank

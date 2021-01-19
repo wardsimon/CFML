@@ -169,7 +169,9 @@ SubModule (CFML_SuperSpace_Database) TAB_SuperSpace_Database_Read
       if (present(DB_Path)) then
          database=trim(db_path)
          n=len_trim(database)
-         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+         if( n /= 0) then
+           if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+         end if
       else
          Env="CRYSFML_DB"
          if (present(EnvDB)) Env=trim(EnvDB)
@@ -276,7 +278,7 @@ SubModule (CFML_SuperSpace_Database) TAB_SuperSpace_Database_Read
       read(unit=i_db,fmt=*) igroup_nops(m)
       read(unit=i_db,fmt=*) (((igroup_ops(i,j,k,m),i=1,nmod+4),j=1,nmod+4), k=1,igroup_nops(m))
 
-      close(unit=i_db)
+      close(unit=i_db) !Some variables are needed
 
    End Subroutine Read_single_SSG
 

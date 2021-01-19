@@ -36,7 +36,6 @@ SubModule (CFML_Profiles) PRF_TCH_pVoigt
        lor   = al/(1.0_cp+bl*x2)
        pv_val = eta*lor + (1.0_cp - eta)*gauss
 
-       return
     End Function TCH_pVoigt
 
     !!----
@@ -102,7 +101,6 @@ SubModule (CFML_Profiles) PRF_TCH_pVoigt
           dpar(1:3)=(/derx,derHG,derHL/)
        end if
 
-       return
     End Subroutine TCH_pVoigt_Der
 
 End SubModule PRF_TCH_pVoigt

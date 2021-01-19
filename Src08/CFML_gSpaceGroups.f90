@@ -52,7 +52,7 @@ Module CFML_gSpaceGroups
     Use CFML_Magnetic_Database
     Use CFML_SuperSpace_Database
     Use CFML_Maths,             only: Set_eps_math, modulo_lat, determ3D, Get_eps_math, Zbelong,EPSS,Diagonalize_RGEN, &
-                                      equal_vector,resolv_sist_3x3,trace
+                                      equal_vector,resolv_sist_3x3,trace,Equal_Matrix, Inverse_Matrix
     Use CFML_Strings,           only: u_case, l_case, pack_string, get_separator_pos, get_num, &
                                       get_words, String_Fraction_2Dig,Set_Symb_From_Mat
 
@@ -74,11 +74,11 @@ Module CFML_gSpaceGroups
               Inverse_OP, Get_Orbit, Get_moment_ctr, Get_TFourier_Ctr
 
     public :: Allocate_OP, Allocate_SpaceGroup, Allocate_KVector, Change_Setting_SpaceG, &
-              Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,      &
-              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups, Group_Constructor,&
-              Identify_Group, Init_SpaceGroup,  Is_OP_Inversion_Centre,           &
-              Set_Conditions_NumOP_EPS, Set_SpaceGroup,Is_OP_Lattice_Centring,    &
-              Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec,Is_OP_Anti_Lattice, &
+              Get_Cosets, Get_Generators, Get_Laue_PG, Get_Magnetic_Lattice,             &
+              Get_Mat_from_Symb, Get_Stabilizer, Get_SubGroups_gen, Group_Constructor,   &
+              Identify_Group, Init_SpaceGroup,  Is_OP_Inversion_Centre,                  &
+              Set_Conditions_NumOP_EPS, Set_SpaceGroup,Is_OP_Lattice_Centring,           &
+              Write_SpaceGroup_Info, Get_Multip_Pos, Is_Lattice_Vec,Is_OP_Anti_Lattice,  &
               Get_SubGroups_full, SearchOp, Write_SymTrans_Code, Read_SymTrans_Code
 
     !---- Types ----!
@@ -170,6 +170,7 @@ Module CFML_gSpaceGroups
     character(len=1), dimension(10),  parameter :: XYZ=["x","y","z","t","u","v","w","p","q","r"]
     character(len=1), dimension(10),  parameter :: ABC=["a","b","c","d","e","f","g","h","i","j"]
     character(len=3), dimension(10),  parameter :: X1X2X3=["x1 ","x2 ","x3 ","x4 ","x5 ","x6 ","x7 ","x8 ","x9 ","x10"]
+    character(len=3), dimension(10),  parameter :: A1A2A3=["a1 ","a2 ","a3 ","a4 ","a5 ","a6 ","a7 ","a8 ","a9 ","a10"]
 
     integer                                         :: MaxNum_OP=2048     ! Maximum number of Operators
     character(len=120), dimension(230)              :: it_spg_gen=" "     ! Generator of space groups in the standard setting
@@ -580,15 +581,14 @@ Module CFML_gSpaceGroups
           real(kind=cp), dimension(:,:),intent(out)  :: atr
        End Subroutine Get_Stabilizer
 
-       Module Subroutine Get_SubGroups(SpG, SubG, nsg, indexg, point,printd)
+       Module Subroutine Get_SubGroups_gen(SpG, SubG, nsg, point,printd)
           !---- Arguments ----!
           type(Spg_Type),                   intent( in) :: SpG
           type(Spg_Type),dimension(:),      intent(out) :: SubG
           integer,                          intent(out) :: nsg
-          integer,                 optional,intent(in)  :: indexg
           logical, dimension(:,:), optional,intent(out) :: point
           logical,                 optional,intent(in)  :: printd
-       End Subroutine Get_SubGroups
+       End Subroutine Get_SubGroups_gen
 
        Module Subroutine Get_SubGroups_full(SpG, SubG, nsg, indexg, point,printd)
           !---- Arguments ----!

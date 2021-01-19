@@ -38,7 +38,6 @@ SubModule (CFML_Random) Random_Poisson_sub
          gg=v/u
       end if
 
-      return
    End Function Gg_F
 
    !!--++
@@ -70,7 +69,6 @@ SubModule (CFML_Random) Random_Poisson_sub
       if (x < 0) x=0
       gpg=x
 
-      return
    End Function Gpg_F
 
    !!--++
@@ -102,7 +100,6 @@ SubModule (CFML_Random) Random_Poisson_sub
 
       gpp=k
 
-      return
    End Function Gpp_F
 
    !!----
@@ -157,7 +154,6 @@ SubModule (CFML_Random) Random_Poisson_sub
          Ival=mt
       end if
 
-      return
    End Function Random_Poisson
 
 End SubModule Random_Poisson_sub

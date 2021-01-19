@@ -32,7 +32,6 @@ Submodule (CFML_Maths) Maths_Upper_Triangular
           end do
        end do
 
-       return
     End Function Upper_Triangular_I
 
     !!----
@@ -60,7 +59,6 @@ Submodule (CFML_Maths) Maths_Upper_Triangular
           end do
        end do
 
-       return
     End Function  Upper_Triangular_R
 
 

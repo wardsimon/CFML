@@ -88,7 +88,6 @@ SubModule (CFML_Random) Random_Von_Mises_sub
 
       fn_val = sign(th, (r - rlast)/(one - rlast) - half)
 
-      return
    End Function Random_Von_Mises
 
    !!--++
@@ -121,7 +120,6 @@ SubModule (CFML_Random) Random_Von_Mises_sub
 
       resultt = resultt * rangee
 
-      return
    End Function Integral
 
 End SubModule Random_Von_Mises_sub

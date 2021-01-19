@@ -15,7 +15,6 @@ SubModule (CFML_Messages) Wmess_ScrollMsg
       win_console= -1
       wscroll=.false.
 
-      return
    End Subroutine Close_Scroll_Window
 
    !!----
@@ -56,7 +55,6 @@ SubModule (CFML_Messages) Wmess_ScrollMsg
       call WEditPutTextPart(trim(Mess)//newline,iendbuf)
       call WindowSelect(0)
 
-      return
    End Subroutine Write_Scroll_Text
 
 End SubModule Wmess_ScrollMsg

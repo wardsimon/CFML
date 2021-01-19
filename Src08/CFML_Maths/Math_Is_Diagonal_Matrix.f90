@@ -32,7 +32,6 @@ Submodule (CFML_Maths) Maths_Is_Diagonal_Matrix
           end do
        end do
 
-       return
     End Function Is_Diagonal_Matrix_I
 
     !!----
@@ -61,7 +60,6 @@ Submodule (CFML_Maths) Maths_Is_Diagonal_Matrix
           end do
        end do
 
-       return
     End Function Is_Diagonal_Matrix_R
 
 End Submodule Maths_Is_Diagonal_Matrix

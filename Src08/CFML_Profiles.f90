@@ -393,7 +393,6 @@ Module CFML_Profiles
                          exp_e1=exp_e1-pi*(0.0_dp,1.0_dp)*exp(z)
       end if
 
-      return
    End Function Expi_E1
 
 End Module  CFML_Profiles

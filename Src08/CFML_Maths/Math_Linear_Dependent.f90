@@ -91,7 +91,6 @@ Submodule (CFML_Maths) Maths_Linear_Dependent
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_C: input dimension of vector incompatible with matrix"
        end if
 
-       return
     End Function Linear_Dependent_C
 
     !!----
@@ -154,7 +153,6 @@ Submodule (CFML_Maths) Maths_Linear_Dependent
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_I: input dimension of vector incompatible with matrix"
        end if
 
-       return
     End Function Linear_Dependent_I
 
     !!----
@@ -216,7 +214,6 @@ Submodule (CFML_Maths) Maths_Linear_Dependent
           err_cfml%msg="MATHS@LINEAR_DEPENDENT_R: input dimension of vector incompatible with matrix"
        end if
 
-       return
     End Function Linear_Dependent_R
 
 

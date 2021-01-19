@@ -136,12 +136,12 @@ elseif(APPLE)
     find_library(XMU_LIBRARY NAMES Xmu PATHS ENV LD_LIBRARY_PATH)
     find_library(X11_LIBRARY NAMES X11 PATHS ENV LD_LIBRARY_PATH)
     find_library(XEXT_LIBRARY NAMES Xext PATHS ENV LD_LIBRARY_PATH)
-    find_library(SM_LIBRARY NAMES SM PATHS ENV LD_LIBRARY_PATH)
-    find_library(ICE_LIBRARY NAMES ICE PATHS ENV LD_LIBRARY_PATH)
+    #find_library(SM_LIBRARY NAMES SM PATHS ENV LD_LIBRARY_PATH)
+    #find_library(ICE_LIBRARY NAMES ICE PATHS ENV LD_LIBRARY_PATH)
     find_library(XFT_LIBRARY NAMES Xft PATHS ENV LD_LIBRARY_PATH)
     find_library(FONTCONFIG_LIBRARY NAMES fontconfig PATHS ENV LD_LIBRARY_PATH)
     find_library(XINERAMA_LIBRARY NAMES Xinerama PATHS ENV LD_LIBRARY_PATH)
-    find_library(ICONV_LIBRARY NAMES iconv PATHS ENV LD_LIBRARY_PATH)
+    #find_library(ICONV_LIBRARY NAMES iconv PATHS ENV LD_LIBRARY_PATH)
     
 
     find_library(WINTERACTER_LIBRARY NAMES winter wint PATHS ${WINTERACTER_MOD_DIR})
@@ -157,41 +157,25 @@ elseif(APPLE)
                                  XMU_LIBRARY
                                  X11_LIBRARY
                                  XEXT_LIBRARY
-                                 SM_LIBRARY
-                                 ICE_LIBRARY
                                  XFT_LIBRARY
                                  FONTCONFIG_LIBRARY
-                                 XINERAMA_LIBRARY
-                                 ICONV_LIBRARY)
+                                 XINERAMA_LIBRARY)
    
 else()
     # Linux
 
     if(COMPILER_NAME STREQUAL ifort)
 
-        if(${ARCH32})
-            find_path(WINTERACTER_MOD_DIR
-                      NAMES winteracter.mod
-                      PATHS ${WINTERACTER}/lib.if8
-                            ${WINTER}/lib.if8
-                            ${WINT}/lib.if8
-                            ${HOME}/wint/lib.if8
-                            ${HOME}/lib.if8
-                            /usr/local/lib/wint/lib.if8
-                            /usr/lib/wint/lib.if8
-                            /opt/lib/wint/lib.if8)
-        else(${ARCH32})
-	        find_path(WINTERACTER_MOD_DIR
-                       NAMES winteracter.mod
-                       PATHS ${WINTERACTER}/lib.i64
-                             ${WINTER}/lib.i64
-                             ${WINT}/lib.i64
-                             ${HOME}/wint/lib.i64
-                             ${HOME}/lib.i64
-                             /usr/local/lib/wint/lib.i64
-                             /usr/lib/wint/lib.i64
-                             /opt/lib/wint/lib.i64)
-        endif(${ARCH32})
+	    find_path(WINTERACTER_MOD_DIR
+                   NAMES winteracter.mod
+                   PATHS ${WINTERACTER}/lib.i64
+                         ${WINTER}/lib.i64
+                         ${WINT}/lib.i64
+                         ${HOME}/wint/lib.i64
+                         ${HOME}/lib.i64
+                         /usr/local/lib/wint/lib.i64
+                         /usr/lib/wint/lib.i64
+                         /opt/lib/wint/lib.i64)
 		
     elseif(COMPILER_NAME STREQUAL gfortran)
 
@@ -209,16 +193,26 @@ else()
     endif()
 
     #libfind_library(XM Xm)
+    #libfind_library(XT Xt)
+    #libfind_library(XMU Xmu)
+    #libfind_library(X11 X11)
+    #libfind_library(XEXT Xext)
+    #libfind_library(SM SM)
+    #libfind_library(ICE ICE)
+    #libfind_library(XFT Xft)
+    #libfind_library(FONTCONFIG fontconfig)
+    #libfind_library(XINERAMA Xinerama)
+    
     find_library(XM_LIBRARY NAMES Xm PATHS ENV LD_LIBRARY_PATH)
-    libfind_library(XT Xt)
-    libfind_library(XMU Xmu)
-    libfind_library(X11 X11)
-    libfind_library(XEXT Xext)
-    libfind_library(SM SM)
-    libfind_library(ICE ICE)
-    libfind_library(XFT Xft)
-    libfind_library(FONTCONFIG fontconfig)
-    libfind_library(XINERAMA Xinerama)
+    find_library(XT_LIBRARY NAMES Xt PATHS ENV LD_LIBRARY_PATH)
+    find_library(XMU_LIBRARY NAMES Xmu PATHS ENV LD_LIBRARY_PATH)
+    find_library(X11_LIBRARY NAMES X11 PATHS ENV LD_LIBRARY_PATH)
+    find_library(XEXT_LIBRARY NAMES Xext PATHS ENV LD_LIBRARY_PATH)
+    #find_library(SM_LIBRARY NAMES SM PATHS ENV LD_LIBRARY_PATH)
+    #find_library(ICE_LIBRARY NAMES ICE PATHS ENV LD_LIBRARY_PATH)
+    find_library(XFT_LIBRARY NAMES Xft PATHS ENV LD_LIBRARY_PATH)
+    find_library(FONTCONFIG_LIBRARY NAMES fontconfig PATHS ENV LD_LIBRARY_PATH)
+    find_library(XINERAMA_LIBRARY NAMES Xinerama PATHS ENV LD_LIBRARY_PATH)
 
     find_library(WINTERACTER_LIBRARY NAMES winter wint PATHS ${WINTERACTER_MOD_DIR})
 
@@ -233,8 +227,6 @@ else()
                                  XMU_LIBRARY
                                  X11_LIBRARY
                                  XEXT_LIBRARY
-                                 SM_LIBRARY
-                                 ICE_LIBRARY
                                  XFT_LIBRARY
                                  FONTCONFIG_LIBRARY
                                  XINERAMA_LIBRARY)

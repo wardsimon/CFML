@@ -279,7 +279,6 @@
        end do
        if(allocated(A%atom)) deallocate(A%atom)
        if(present(debug)) close(unit=lu)
-       return
     End Subroutine Set_New_AsymUnit
 
 
@@ -323,7 +322,6 @@
           end if
        end do
 
-       return
     End Subroutine Set_Orbits_Inlist
 
   End Submodule Orbits

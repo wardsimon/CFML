@@ -30,7 +30,6 @@ SubModule (CFML_Rational) RAT_Equal_Rational
       end do
       equal=.true.
 
-      return
    End Function Rational_Equal_Vector
 
    !!----
@@ -59,7 +58,6 @@ SubModule (CFML_Rational) RAT_Equal_Rational
       end do
       equal=.true.
 
-      return
    End Function Rational_Equal_Matrix
 
 End SubModule RAT_Equal_Rational

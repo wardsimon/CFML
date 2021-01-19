@@ -25,7 +25,6 @@ SubModule (CFML_Profiles) PRF_Lorentzian
       bl= 4.0/(H*H)
       lor_val = al/(1.0+bl*x*x)
 
-      return
    End Function Lorentzian
 
    !!----
@@ -54,7 +53,6 @@ SubModule (CFML_Profiles) PRF_Lorentzian
          dpar(1:2)=(/lorp,dlorH/)
       end if
 
-      return
    End Subroutine Lorentzian_Der
 
    !!--++
@@ -86,7 +84,6 @@ SubModule (CFML_Profiles) PRF_Lorentzian
       dldt = 8.0 * cl * gamma * delp / denom2
       dldg = cl * (4.0 * delp2 - gamma2) / denom2
 
-      return
    End Subroutine Prof_Lorentzian
 
 End SubModule PRF_Lorentzian

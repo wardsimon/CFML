@@ -426,7 +426,6 @@
              Pat%gbgr  =.false.
        end select
 
-       return
     End Subroutine Allocate_Pattern
 
     !!----

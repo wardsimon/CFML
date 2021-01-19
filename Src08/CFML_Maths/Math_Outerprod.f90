@@ -25,7 +25,6 @@ Submodule (CFML_Maths) Maths_Outerprod
 
        c =spread(a,dim=2,ncopies=size(b))*spread(b,dim=1,ncopies=size(a))
 
-       return
     End Function Outerprod
 
 End Submodule Maths_Outerprod

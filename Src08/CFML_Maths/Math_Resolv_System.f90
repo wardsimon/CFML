@@ -58,7 +58,6 @@ Submodule (CFML_Maths) Maths_Resolv_System
           ix(2)=1
        end if
 
-       return
     End Subroutine Resolv_Sist_1x2
 
     !!----
@@ -163,7 +162,6 @@ Submodule (CFML_Maths) Maths_Resolv_System
              err_cfml%msg="MATHS@RESOLV_SIST_1x3: Inconsistent case ax+by+cz=t (1x3)"
        end select
 
-       return
     End Subroutine Resolv_Sist_1x3
 
     !!----
@@ -258,7 +256,6 @@ Submodule (CFML_Maths) Maths_Resolv_System
           end select
        end if
 
-       return
     End Subroutine Resolv_Sist_2x2
 
 
@@ -746,7 +743,6 @@ Submodule (CFML_Maths) Maths_Resolv_System
              end select
        end select
 
-       return
     End Subroutine Resolv_Sist_2x3
 
     !!----
@@ -990,7 +986,6 @@ Submodule (CFML_Maths) Maths_Resolv_System
           end select
        end if
 
-       return
     End Subroutine Resolv_Sist_3x3
 
 End Submodule Maths_Resolv_System

@@ -2849,10 +2849,12 @@ SubModule (CFML_IOForm) IO_CIF
          call read_cif_hm(cif,spp,n_ini,n_end)
          call set_spacegroup(spp,Spg)
       end if
+
       if (len_trim(Spg%spg_symb) <= 0) then
          call read_cif_hall(cif,spp,n_ini,n_end)
          call set_spacegroup(spp,Spg)
       end if
+
       if (len_trim(Spg%spg_symb) <= 0 .or. Err_CFML%IErr ==1) return
 
       !> Atoms information

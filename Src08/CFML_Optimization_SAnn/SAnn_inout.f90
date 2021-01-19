@@ -103,7 +103,6 @@
           write(unit=ipr,fmt=forma1)   ("      Cost#",j,":",vs%Cost(j),j=1,vs%nconf)
        end if
 
-       return
     End Subroutine Write_SimAnn_MStateV
 
     !!----
@@ -139,7 +138,6 @@
           write(unit=ipr,fmt=forma)  i,namep,vs%state(i),vs%low(i),vs%high(i),vs%bound(i),vs%stp(i),vs%code(i),vs%config(i)
        end do
 
-       return
     End Subroutine Write_SimAnn_StateV
 
  End Submodule SAnn_inout

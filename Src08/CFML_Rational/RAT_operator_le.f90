@@ -25,7 +25,6 @@ Submodule (CFML_Rational) RAT_Operator_LE
        res = r_simple%numerator * s_simple%denominator <= &
            & s_simple%numerator * r_simple%denominator
 
-       return
     End Function Rational_LE
 
     !!----
@@ -45,7 +44,6 @@ Submodule (CFML_Rational) RAT_Operator_LE
        r_simple = rational_simplify(r)
        res = r_simple%numerator <= i * r_simple%denominator
 
-       return
     End Function Rational_Integer_LE
 
     !!----
@@ -65,7 +63,6 @@ Submodule (CFML_Rational) RAT_Operator_LE
        r_simple = rational_simplify(r)
        res = i * r_simple%denominator  <= r_simple%numerator
 
-       return
     End Function Integer_Rational_LE
 
 End Submodule RAT_Operator_LE

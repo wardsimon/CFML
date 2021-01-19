@@ -57,7 +57,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          end if
       end do
 
-      return
    End Function Rational_Co_linear
 
    !!----
@@ -84,7 +83,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          end if
       end do
 
-      return
    End Function Rational_Is_NullVector
 
    !!----
@@ -113,7 +111,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          end do
       end do
 
-      return
    End Function Rational_Is_DiagonalMatrix
 
    !!----
@@ -145,7 +142,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          end if
       end do
 
-      return
    End Function Rational_Modulo_Lat
 
    !!----
@@ -179,7 +175,6 @@ SubModule (CFML_Rational) RAT_Rational_General
       end do
 
       k=n1 - nNull
-      return
    End Function Rational_Rank
 
    !!----
@@ -208,7 +203,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          r=r + M(i,i)
       end do
 
-      return
    End Function Rational_Trace
 
    !!----
@@ -245,7 +239,6 @@ SubModule (CFML_Rational) RAT_Rational_General
          end do
       end if
 
-      return
    End Function Rational_Determ
 
    !!----
@@ -281,7 +274,6 @@ SubModule (CFML_Rational) RAT_Rational_General
 
       B=invA ! This gives an approximation according to the 'maximum_denominator' value
 
-      return
    End Function Rational_Inverse_Matrix
 
 End SubModule RAT_Rational_General

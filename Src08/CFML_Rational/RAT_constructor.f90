@@ -19,7 +19,6 @@ Submodule (CFML_Rational) RAT_Constructor
 
        res = rational(numerator, denominator)
 
-       return
     End Function Make_Rational
 
     !!----
@@ -35,7 +34,6 @@ Submodule (CFML_Rational) RAT_Constructor
 
        res = rational(int(numerator,kind=li), int(denominator,kind=li))
 
-       return
     End Function Make_Rational_Int
 
 End Submodule RAT_Constructor

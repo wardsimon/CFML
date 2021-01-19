@@ -56,7 +56,6 @@
        Coord_Info%S_Dist   =0.0
        Coord_Info%Tr_Coo   =0.0
 
-       return
     End Subroutine Allocate_Coordination_Type
 
     !!----
@@ -112,7 +111,6 @@
        Coord_Info%Natoms=0
        Coord_Info%Max_Coor= 0
 
-       return
     End Subroutine Deallocate_Coordination_Type
 
     !!----
@@ -131,7 +129,6 @@
        if (allocated(pl%p) )   deallocate(pl%p)
        if (allocated(pl%x) )   deallocate(pl%x)
 
-       return
     End Subroutine Deallocate_Point_List
 
 

@@ -46,7 +46,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
           d2y(k)=d2y(k)*d2y(k+1)+u(k)
        end do
 
-       return
     End Function Second_Derivative
 
     !!----
@@ -87,7 +86,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
 
        Ys=datYs
 
-       return
     End Function Smoothing_Vec
 
     !!----
@@ -133,7 +131,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
        b=(xi-x(klo))/h
        yi=a*y(klo)+b*y(khi)+((a**3-a)*d2y(klo)+(b**3-b)* d2y(khi))*(h**2)/6.0
 
-       return
     End Function Spline_Interpol
 
     !!----
@@ -158,7 +155,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
        slope=(y(i+1)-y(i))/(x(i+1)-x(i))
        yi=(xi-x(i))*slope+y(i)
 
-       return
     End Function Linear_Interpol
 
     !!----
@@ -200,7 +196,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
          d1y(i) = (y2 - y1) / step
        end do
 
-       return
     End Function First_Derivative
 
     !!----
@@ -253,7 +248,6 @@ Submodule (CFML_Maths) Maths_Smoothing_Interpol
           ys(k)=ys(k)*ys(k+1)+u(k)
        end do
 
-       return
     End Function Spline_D2Y
 
 End Submodule Maths_Smoothing_Interpol

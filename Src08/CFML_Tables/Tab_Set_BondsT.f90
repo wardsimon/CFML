@@ -2152,7 +2152,6 @@ SubModule (CFML_Bonds_Tables) TAB_SetBond_Routines
 
       Set_BT_Variable =.true.
 
-      return
    End Subroutine Set_Bonds_Table
 
 End SubModule TAB_SetBond_Routines

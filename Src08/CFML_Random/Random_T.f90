@@ -65,7 +65,6 @@ SubModule (CFML_Random) Random_Tsub
 
       fn_val = x
 
-      return
    End Function Random_T
 
 End SubModule Random_Tsub

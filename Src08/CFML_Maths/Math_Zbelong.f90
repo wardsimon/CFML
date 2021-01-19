@@ -24,7 +24,6 @@ Submodule (CFML_Maths) Math_Zbelong
        vec= abs(real(nint (a))-a)
        belong=.not. ANY(vec > epss)
 
-       return
     End Function Zbelong_M
 
     !!----
@@ -43,7 +42,6 @@ Submodule (CFML_Maths) Math_Zbelong
 
        belong=.true.
 
-       return
     End Function Zbelong_R
 
     !!----
@@ -69,7 +67,6 @@ Submodule (CFML_Maths) Math_Zbelong
        end do
        belong=.true.
 
-       return
     End Function Zbelong_V
 
 End Submodule Math_Zbelong

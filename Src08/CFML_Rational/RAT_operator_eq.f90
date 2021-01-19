@@ -18,7 +18,6 @@ Submodule (CFML_Rational) RAT_Operator_EQ
 
        res = r%numerator * s%denominator == s%numerator * r%denominator
 
-       return
     End Function Rational_EQ
 
     !!----
@@ -34,7 +33,6 @@ Submodule (CFML_Rational) RAT_Operator_EQ
 
        res = r%denominator == 1_LI .and. r%numerator == i
 
-       return
     End Function Rational_Integer_EQ
 
     !!----
@@ -50,7 +48,6 @@ Submodule (CFML_Rational) RAT_Operator_EQ
 
        res = r%denominator == 1_LI .and. r%numerator == i
 
-       return
     End Function Integer_Rational_EQ
 
 End Submodule RAT_Operator_EQ

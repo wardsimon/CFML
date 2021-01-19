@@ -69,7 +69,6 @@
        Mt(2,3)= sin(p)*sin(t)                         !  w
        Mt(3,3)= cos(t)                                !
 
-       return
     End Function Matrix_Phithechi
 
     !!----
@@ -117,7 +116,6 @@
        Mt(2,3)=-sin(p)     !  w
        Mt(3,3)= cos(p)     !
 
-       return
     End Function Matrix_Rx
 
     !!----
@@ -165,7 +163,6 @@
        Mt(2,3)= 0.0     !  w
        Mt(3,3)= cos(p)  !
 
-       return
     End Function Matrix_Ry
 
     !!----
@@ -213,7 +210,6 @@
        Mt(2,3)= 0.0     !  w
        Mt(3,3)= 1.0     !
 
-       return
     End Function Matrix_Rz
 
     !!---- Pure Module Function Set_Rotation_Matrix(ang) Result(Rot)
@@ -308,7 +304,6 @@
         if(present(ang)) ang=phi
         if(present(w)) w=vu
       end if
-      return
     End Subroutine Get_Matrix_moving_v_to_u
 
  End Submodule Matrices

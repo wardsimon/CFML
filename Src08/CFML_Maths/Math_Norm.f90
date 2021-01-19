@@ -25,7 +25,6 @@ Submodule (CFML_Maths) Maths_Norm
           r=sqrt(dot_product(real(x), matmul(g,real(x))))
        end if
 
-       return
     End Function Norm_I
 
     !!----
@@ -46,7 +45,6 @@ Submodule (CFML_Maths) Maths_Norm
           r=sqrt(dot_product(x, matmul(g,x)))
        end if
 
-       return
     End Function Norm_R
 
 End Submodule Maths_Norm

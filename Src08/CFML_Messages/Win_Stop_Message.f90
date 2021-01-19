@@ -23,7 +23,6 @@ SubModule (CFML_Messages) Wmess_StoppingMess
 
       call WMessageBox(YesNo, StopIcon, CommonYes, trim(Mess), trim(ch_title))
 
-      return
    End Subroutine Stop_Message
 
 End SubModule Wmess_StoppingMess

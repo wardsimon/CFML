@@ -86,7 +86,6 @@ SubModule (CFML_gSpaceGroups) SPG_Check_Gener
          gen_out(:) = genAux(1:ngen)
       end if
 
-      return
    End Subroutine Check_Gener
 
 End SubModule SPG_Check_Gener
