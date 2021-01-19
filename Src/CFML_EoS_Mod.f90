@@ -70,7 +70,7 @@
    private
 
    !---- Public procedures ----!
-   public :: Alpha_Cal, Dkdt_Cal, Get_Alpha_Cell,  Get_Cp, Get_Cv, Get_DebyeT, Get_GPT, Get_Grun_th, Get_Grun_PT, Get_K, Get_Kp, Get_N_Groups, Get_Max_Group, &
+   public :: Alpha_Cal, Check_Axis, Dkdt_Cal, Get_Alpha_Cell,  Get_Cp, Get_Cv, Get_DebyeT, Get_GPT, Get_Grun_th, Get_Grun_PT, Get_K, Get_Kp, Get_N_Groups, Get_Max_Group, &
              Get_Mod_Axis, Get_Mod_Cell, Get_Modp_axis, Get_Modp_Cell, Get_press_Axis, Get_Press_Cell, Get_Pressure, Get_Pressure_Esd, &
              Get_Pressure_X, Get_Property_X, Get_Props_General, Get_Props_Third, Get_Temperature,  Get_Transition_Pressure, &
              Get_Transition_Strain, Get_Transition_Temperature, Get_Volume, Get_volume_Axis, Get_Volume_Cell, Get_Volume_S, K_Cal, Kp_Cal,   &
@@ -435,7 +435,40 @@ Contains
 
       return
    End Function Alpha_Cal
+   !!----
+   !!---- FUNCTION CHECK_AXIS
+   !!----
+   !!---- Returns .true. if length of axis can be calculated from eos in cell
+   !!----
+   !!---- Date: 15/12/2020
+   !!   
+   Function Check_Axis(cell,axis) result(ok)
+    !---- Arguments ----!
+    type(eos_cell_type) :: cell
+    type(axis_type)   :: axis 
 
+    !---- Local Variables ----!
+    logical :: ok
+
+    !>init
+    ok=.true.
+   
+    !>set flags
+    call Set_Cell_Types(cell)
+    
+    !>Test
+    select case(axis%ieos)
+    case(0:6)
+        if(cell%loaded(axis%ieos) > 0)return
+    case(-2)
+        call Loaded_Cell(cell)
+        if(.not. warn_eos)return
+    end select
+    
+    ok=.false.
+    
+    return
+   End Function Check_Axis
    !!----
    !!---- FUNCTION DKDT_CAL
    !!----
@@ -1783,7 +1816,7 @@ Contains
     !---- Local Variables ----!      
     real(kind=cp)   :: mp
     integer         :: i
-    real(kind=cp)   :: k,kmax,pstep,pcal,m
+    real(kind=cp)   :: k,kmax,pstep,pcal
     !for spline
     integer,parameter                 :: nstep=11   !must be odd
     integer                           :: imid
@@ -2736,7 +2769,6 @@ Contains
     real(kind=cp),intent(out),dimension(6) :: parvals
     
     !---- Local Variables ----!   
-    real(kind=cp),dimension(2,6) :: vals
 
     
     !init
@@ -3721,7 +3753,7 @@ Contains
     
     !---- Local Variables ----!   
     type(crystal_cell_type) :: cell
-    integer         :: ierr
+
     
     
         !get the unit cell, metric tensors
@@ -3943,7 +3975,7 @@ Contains
     !---- Local Variables ----!    
     integer     ::i
     real(kind=cp)      :: vfactor
-    real(kind=cp)       :: cosang, aprod
+
     !init
     l=10._cp
     
@@ -4865,7 +4897,7 @@ Contains
 
       !---- Local Variables ----!
       integer       :: i,jo
-      real(kind=cp) :: pth,thtref,exp0,eta0,vlocal,eth,eth0
+      real(kind=cp) :: pth,thtref,exp0,eta0,eth,eth0
       real(kind=cp) :: gammaV, thetaD,thetaE
       real(kind=cp),dimension(0:2) :: pthp  !contributions to pth
       real(kind=cp),dimension(n_eospar) :: ev
@@ -5422,7 +5454,7 @@ Contains
       return
    End Function VscaleMGD
 
-   function xtypes_of_scale(g,gdat) result(xtypes)
+   function xtypes_of_scale(g,gdat) result(xtypes)  !PLEASE DO NOT REMOVE G FOR NOW _ NEED TO CHECK WHAT THI IS DOING: RJA
        
     !returns the xtype corresponding to a scale factor in params(51:59)
     !if no xtype because scale-factor not associated with a group, returns value -1
@@ -6076,7 +6108,7 @@ Contains
 
 
       !---- Local Variables ----!
-      type(Eos_Type)                 :: Eost                 ! Eos Parameter local copy
+
       integer                        :: ip                   ! param number=50+igp
       integer                        :: icycle,j               
       real(kind=cp), dimension(-2:2) :: p                    ! array for calc p values
@@ -7087,7 +7119,7 @@ Contains
     real(kind=cp)   :: d !returned volume  factor 2nd derivative
     real(kind=cp)   ::  pi,ti,del
     real(kind=cp),dimension(-2:2) :: a
-    integer     :: ia,j
+    integer     :: j
     
 
         
@@ -7232,7 +7264,6 @@ Contains
     integer                     :: i,j,k
     real(kind=cp)               :: v,arg
     real(kind=cp),dimension(3)  :: abc,ang
-    logical                     :: ok
     character(len=2)            :: ctype
     !init
     abc=10._cp
@@ -7546,8 +7577,7 @@ Contains
       !---- Arguments ----!
       type (EoS_Type), intent(in out) :: Eospar
 
-      !---- Variables ----!
-      integer  :: n
+
 
       !> Check for valid model number. If not valid, set zero
       if (eospar%iangle < 0 .or. eospar%iangle > N_ANGLE_MODELS)eospar%iangle=0
@@ -9029,7 +9059,7 @@ Contains
       character(len=255)                            :: text
       character(len=10)                             :: forma
       real(kind=cp)                                 :: val
-      real(kind=cp),dimension(N_ANGPOLY)            :: tpoly
+
 
       !> initialisation
       call init_eos_type(eos)
@@ -11303,7 +11333,7 @@ Contains
       !---- Local Variables ----!
       integer           :: lun,i,ia,angflag     
       character(len=180):: ltext 
-      character(len=20) :: stext,sign,var
+      character(len=20) :: sign,var
       
       !>check for angle to print
       angflag=0
