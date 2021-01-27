@@ -67,7 +67,7 @@
               Mat_Cross, Modulo_Lat,         &
               Negligible, Norm,              &
               Outerprod,                     &
-              Poly_Legendre,                 &
+              Poly_Legendre, Polynomial_Fit, &
               mRank, Rotation_OX, Rotation_OY, Rotation_OZ, Real_Spher_Harm_Ang,  &
               Real_Spher_Harm_Ucvec, Real_Spher_HarmCharge_Ucvec, &
               Scalar, Second_Derivative, Smoothing_Vec, Sort, Spline_Interpol, Spline_D2y,  &
@@ -1028,6 +1028,14 @@
           real(kind=cp),dimension(:),intent(in)    :: a,b
           real(kind=cp),dimension(size(a),size(b)) :: c
        End Function Outerprod
+       
+       Pure Module Function Polynomial_Fit(X, Y, NPoints, Order) Result(Coeff)
+          !---- Arguments ----!
+          real(kind=cp), dimension(:), intent(in) :: X,Y        
+          integer,                     intent(in) :: NPoints    
+          integer,                     intent(in) :: Order      
+          real(kind=cp), dimension(Order+1)       :: Coeff      
+       End Function Polynomial_Fit   
 
        Pure Module Subroutine Points_In_Line2D(X1, XN, N, XP)
           !---- Arguments ----!
