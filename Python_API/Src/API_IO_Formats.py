@@ -17,6 +17,10 @@ import CFML_api.API_Crystal_Metrics
 import CFML_api.API_Crystallographic_Symmetry
 import CFML_api.API_Atom_TypeDef
 
+#class JobInfo():
+#todo with help of file_jobinfo
+
+
 class CIFFile():
     """ A class used to handle CIF Files
 
