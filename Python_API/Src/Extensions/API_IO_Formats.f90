@@ -18,13 +18,20 @@ module API_IO_Formats
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env 
   
-  use CFML_IO_Formats,                only: Job_Info_type, Readn_set_Xtal_structure
+  use CFML_IO_Formats,                only: &
+       Job_Info_type, &
+       Get_Job_Info, &
+       Readn_set_Xtal_structure
   
   use API_Atom_TypeDef,               only: Atom_List_Type_p  
   use API_Crystallographic_Symmetry,  only: Space_Group_Type_p
   use API_Crystal_Metrics,            only: Crystal_Cell_Type_p
 
   implicit none
+
+  type Job_Info_type_p
+     type(Job_Info_type), pointer :: p
+  end type Job_Info_type_p
 
 contains
   
@@ -43,15 +50,16 @@ contains
     integer            :: ierror
     integer            :: ii
 
-    type(object)                    :: filename_obj
-    character(len=:), allocatable   :: filename
+    type(object)                    :: filename_obj, mode_obj
+    character(len=:), allocatable   :: filename, mode
 
     type(Crystal_Cell_type_p)       :: cell_p
     type(Space_Group_type_p)        :: spg_p
     type(Atom_list_type_p)          :: a_p
+    type(Job_info_type_p)           :: job_p
 
-    integer                         :: cell_p12(12), spg_p12(12), a_p12(12)
-    type(list)                      :: cell_obj, spg_obj, a_obj
+    integer                         :: cell_p12(12), spg_p12(12), a_p12(12), job_p12(12)
+    type(list)                      :: cell_obj, spg_obj, a_obj, job_obj
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -59,8 +67,8 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
 
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "readn_set_xtal_structure expects exactly 1 argument: filename")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "readn_set_xtal_structure expects exactly 2 arguments: filename, mode")
        call args%destroy
        return
     endif
@@ -68,8 +76,11 @@ contains
     ierror = args%getitem(filename_obj, 0)
     ierror = cast(filename, filename_obj)
 
-    allocate(cell_p%p, spg_p%p, a_p%p)
-    call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode="CIF")
+    ierror = args%getitem(mode_obj, 1)
+    ierror = cast_nonstrict(mode, mode_obj)
+
+    allocate(cell_p%p, spg_p%p, a_p%p, job_p%p)
+    call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode=mode,Job_info=job_p%p)
 
     cell_p12 = transfer(cell_p, cell_p12)
     ierror = list_create(cell_obj)
@@ -89,16 +100,116 @@ contains
        ierror = a_obj%append(a_p12(ii))
     end do
 
+    job_p12    = transfer(job_p, job_p12)
+    ierror = list_create(job_obj)
+    do ii=1,12
+       ierror = job_obj%append(job_p12(ii))
+    end do
+
     ierror = dict_create(retval)
     ierror = retval%setitem("Cell", cell_obj)
     ierror = retval%setitem("SpG",  spg_obj)
-    ierror = retval%setitem("A", A_obj)
+    ierror = retval%setitem("A",    a_obj)
+    ierror = retval%setitem("JobInfo", job_obj)
 
     r = retval%get_c_ptr()
     call args%destroy
 
   end function IO_formats_readn_set_xtal_structure
 
+  ! @brief Create an atom list from an array of CIF lines
+  function IO_Formats_jobinfo_from_CIF_string_array(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+
+    integer     :: max_line_length
+    integer     :: ii
+    type(list)  :: job_obj
+    type(object):: item_obj
+    character(len=:), allocatable :: item
+
+    integer                              :: nline, n_ini
+    type(Job_Info_type_p)                :: job_p
+    integer                              :: job_p12(12)
+
+    character(len=:), dimension(:), allocatable :: stringarray
+    type(object)                            :: stringarray_obj
+    type(list)                           :: stringarray_list
+    
+    r = C_NULL_PTR      
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ierror = args%len(num_args)
+    if (num_args /=1 ) then
+       call raise_exception(TypeError, "jobinfo_from_CIF_string_array expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    ierror = args%getitem(stringarray_obj, 0)
+    ierror = cast(stringarray_list, stringarray_obj)
+    ierror = stringarray_list%len(nline)
+
+    ! Compute max line length
+    max_line_length = 0
+    do ii=1,nline
+        ierror = stringarray_list%getitem(item_obj, ii-1)
+        ierror = cast(item, item_obj)
+        if (len(item) > max_line_length) then
+            max_line_length = len(item)
+        endif
+        call item_obj%destroy
+    enddo
+    allocate(character(max_line_length) :: stringarray(nline))
+
+    ! Fill stringarray
+    do ii=1,nline
+        ierror = stringarray_list%getitem(item_obj, ii-1)
+        ierror = cast(item, item_obj)
+        stringarray(ii) = item
+        call item_obj%destroy
+    enddo
+
+    ! Create atom list from stringarray
+    allocate(job_p%p)
+    n_ini = 1
+    call Get_Job_Info(stringarray, n_ini, nline+1, job_p%p)
+
+    !
+    job_p12 = transfer(job_p,job_p12)
+    ierror = list_create(job_obj)
+    do ii=1,12
+       ierror = job_obj%append(job_p12(ii))
+    end do
+
+    !
+    ierror = dict_create(retval)
+    ierror = retval%setitem("JobInfo", job_obj)
+    r = retval%get_c_ptr()
+
+    !
+    call args%destroy
+    call job_obj%destroy
+    deallocate(stringarray)
+    call stringarray_obj%destroy
+    call stringarray_list%destroy
+
+  end function IO_Formats_jobinfo_from_CIF_string_array
+
+  function IO_Formats_del_jobinfo(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    
+  end function IO_Formats_del_jobinfo
 
   function IO_Formats_get_title(self_ptr, args_ptr) result(r) bind(c)
         
@@ -260,7 +371,7 @@ contains
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(pat_typ, job_info_type_pointer%p%pat_typ)
+    ierror = ndarray_create(pat_typ, job_info_type_pointer%p%patt_typ)
     ierror = dict_create(retval)
     ierror = retval%setitem("pat_typ", pat_typ)
     r = retval%get_c_ptr()

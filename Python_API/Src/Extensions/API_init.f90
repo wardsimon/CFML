@@ -227,7 +227,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(169)
+    call method_table%init(171)
 
     !--------------------------
     ! Error Messages (1)
@@ -645,13 +645,22 @@ CONTAINS
 
 
     !--------------------------
-    ! IO formats (17)
+    ! IO formats (19)
     !--------------------------
     call method_table%add_method("IO_formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
+    call method_table%add_method("IO_formats_del_jobinfo", &                  ! method name
+         "Delete a Job info", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_formats_del_jobinfo))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_formats_jobinfo_from_CIF_string_array", & ! method name
+         "Create a job info from an array of CIF lines", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_formats_jobinfo_from_CIF_string_array))  ! address of Fortran function to add
        
     call method_table%add_method("IO_Formats_get_title", &                  ! method name
          "title getter", &  !doc-string

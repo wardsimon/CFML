@@ -24,17 +24,18 @@ class JobInfo(CFML_api.FortranBindedClass):
     ...
     Attributes
     ----------
-    filename : string
+    string_array:
 
     Methods
     -------
 
     """
-    def __init__(self, string=None):
+    def __init__(self, string_array=None):
         CFML_api.FortranBindedClass.__init__(self)
-        if filename:
-            self.from_string(string)
-    #todo 
+        if string_array:
+            dict = CFML_api.crysfml_api.IO_Formats_jobinfo_from_CIF_string_array(string_array)
+            self._set_fortran_address(dict["JobInfo"])
+            
 
     def __del__(self):
         address = self.get_fortran_address()
@@ -228,7 +229,31 @@ class CIFFile():
         Loads the CIF File
         """
         self.__filename = filename
-        dict = CFML_api.crysfml_api.IO_formats_readn_set_xtal_structure(self.__filename)
+
+        # Check if file exists
+        file_exists = False
+        if filename[-4:] == ".cif" or filename[-4:] == ".cfl":
+            if os.path.exists(file):
+                file_exists = True
+                if filename[-4:] == ".cif":
+                    mode = "CIF"
+                else:
+                    mode = "CFL"
+        elif os.path.exists(filename+".cfl"):
+                filename = filename + ".cfl"
+                file_exists = True
+                mode = "CFL"
+        elif os.path.exists(filename+".cif"):
+                filename = filename + ".cif"
+                file_exists = True
+                mode = "CIF"
+
+        if not file_exists:
+            raise IOError("No file with name: " + filename)
+        else:
+                
+        dict = CFML_api.crysfml_api.IO_formats_readn_set_xtal_structure(self.__filename, mode)
         self.__cell = CFML_api.API_Crystal_Metrics.Cell.from_fortran_address(dict["Cell"])
         self.__space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup.from_fortran_address(dict["SpG"])
         self.__atom_list = CFML_api.API_Atom_TypeDef.AtomList.from_fortran_address(dict["A"])
+        self.__job_info = CFML_api.API_IO_Formats.JobInfo.from_fortran_address(dict["JobInfo"])
