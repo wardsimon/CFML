@@ -100,7 +100,6 @@ SubModule (CFML_Reflections) RFL_Write_RefList
       write(unit=lun,fmt="(a,i4,tr3,a,i4,tr3,a,i4)") " => H_min: ",hmin," K_min: ",kmin," L_min: ",lmin
       write(unit=lun,fmt="(a)") " "
 
-      return
    End Subroutine Write_Info_RefList
 
 End SubModule RFL_Write_RefList

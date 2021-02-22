@@ -66,7 +66,6 @@ Submodule (CFML_Maths) Maths_Equal_Matrix
        end do
        info=.true.
 
-       return
     End Function Equal_Matrix_C
 
     !!----
@@ -126,7 +125,6 @@ Submodule (CFML_Maths) Maths_Equal_Matrix
        end do
        info=.true.
 
-       return
     End Function Equal_Matrix_I
 
     !!----
@@ -186,7 +184,6 @@ Submodule (CFML_Maths) Maths_Equal_Matrix
        end do
        info=.true.
 
-       return
     End Function Equal_Matrix_R
 
 End Submodule Maths_Equal_Matrix

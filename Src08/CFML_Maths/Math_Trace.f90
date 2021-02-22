@@ -27,7 +27,6 @@ Submodule (CFML_Maths) Math_Trace
           b=b+a(i,i)
        end do
 
-       return
     End Function Trace_C
 
     !!----
@@ -50,7 +49,6 @@ Submodule (CFML_Maths) Math_Trace
           b=b+a(i,i)
        end do
 
-       return
     End Function Trace_I
 
     !!----
@@ -73,7 +71,6 @@ Submodule (CFML_Maths) Math_Trace
           b=b+a(i,i)
        end do
 
-       return
     End Function Trace_R
 
 

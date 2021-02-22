@@ -174,7 +174,6 @@
           end if
        end do
 
-       return
     End Function Hk_Equiv
 
     !!----
@@ -224,7 +223,6 @@
                  .and. mod(ivec(1)+ivec(2),2) == 0 ) info=.true.
        end select
 
-       return
     End Function K_Equiv
 
     !!----
@@ -283,7 +281,6 @@
           end select
        end if
 
-       return
     End Function K_Equiv_Minus_K
 
     !---------------------!
@@ -605,7 +602,6 @@
           write(unit=lu,fmt="(a,/)")    "    to be real values.   "
        end if
 
-       return
     End Subroutine Write_Group_k
 
  End Module CFML_Propagation_Vectors

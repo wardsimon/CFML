@@ -328,7 +328,6 @@
                    R(3,1)-R(1,3), &
                    R(1,2)-R(2,1) /)
       end if
-      return
     End Subroutine Get_Anglen_Axis_From_RotMat
 
     !!----
@@ -642,7 +641,6 @@
        s=sqrt(s1+s2+s3+s4)*to_deg
        tor=tau
 
-       return
     End Subroutine Torsion_and_Sigma
 
  End SubModule Angle_calculations

@@ -2636,6 +2636,10 @@
           call Deallocate_BVEL_Table()
        end if
 
+       if(present(N_Bvel)) then
+          call Complete_Table_BVEL(A,N_bvel,bvel)
+       end if
+
        return
     End Subroutine Set_Table_BVEL_Params
 

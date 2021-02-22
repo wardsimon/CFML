@@ -36,7 +36,6 @@ Submodule (CFML_Maths) Maths_Factorial
           end do
        end if
 
-       return
     End Function Factorial_I
 
     !!----
@@ -65,7 +64,6 @@ Submodule (CFML_Maths) Maths_Factorial
           end do
        end if
 
-       return
     End Function Factorial_R
 
 End Submodule Maths_Factorial

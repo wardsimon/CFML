@@ -27,7 +27,6 @@ SubModule (CFML_Profiles) PRF_Exponential
          ex_val = alfa*exp(-alfa*x)
       end if
 
-      return
    End Function Exponential
 
    !!----
@@ -58,7 +57,6 @@ SubModule (CFML_Profiles) PRF_Exponential
          end if
       end if
 
-      return
    End Subroutine Exponential_Der
 
 End SubModule PRF_Exponential

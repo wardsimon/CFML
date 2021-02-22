@@ -64,7 +64,6 @@ Submodule (CFML_Maths) CFML_Math_002
           exit
        end  do do_p
 
-       return
     End Function Co_Prime
 
     !!----
@@ -122,7 +121,6 @@ Submodule (CFML_Maths) CFML_Math_002
 
        if (present(ifact)) ifact=n
 
-       return
     End Subroutine Co_Prime_vector
 
 End Submodule CFML_Math_002

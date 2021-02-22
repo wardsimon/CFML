@@ -114,7 +114,6 @@ Submodule (CFML_Maths) Maths_Points_In_Line2D
        end do
        xp(:,n)=xn
 
-       return
     End Subroutine Points_In_Line2D
 
 End Submodule Maths_Points_In_Line2D

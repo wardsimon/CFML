@@ -146,7 +146,6 @@ SubModule (CFML_FFT) FFT_Convol
           fft(i)=cmplx(x(i),y(i))
        end do
 
-       return
     End Function F_FFT
 
     !!----
@@ -693,7 +692,6 @@ SubModule (CFML_FFT) FFT_Convol
           end do
        end do
 
-       return
     End Subroutine HFFT
 
     !!----
@@ -854,7 +852,6 @@ SubModule (CFML_FFT) FFT_Convol
           Array(i)=cmplx(x(i),y(i))
        end do
 
-       return
     End Subroutine SFFT
 
  End SubModule FFT_Convol

@@ -335,7 +335,6 @@
           end if
        end do
 
-       return
     End Subroutine Random_Order
 
     !!----
@@ -366,7 +365,6 @@
        write(unit=lun2,fmt="(a, (7i10))") " Random no. seeds: ", seed
        call random_seed(put=seed)
 
-       return
     End Subroutine Seed_Random_Number
 
  End Module CFML_Random

@@ -32,7 +32,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
        lor   = al/(1.0+bl*x2)
        pv_val = eta*lor + (1.0 - eta)*gauss
 
-       return
     End Function Pseudovoigt
 
     !!----
@@ -88,7 +87,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
           dpar(1:3)=(/derx,derH,derEta/)
        end if
 
-       return
     End Subroutine Pseudovoigt_Der
 
 
@@ -128,7 +126,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
                          dprde , dprds , dprdd , y(i), use_asym, use_hps)
        end do
 
-       return
     End Subroutine Calc_Pseudo_Voigt
 
     !!--++
@@ -163,7 +160,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
        dprdg = eta * dldg + (1.0_cp - eta) * dgdg
        dprde = Lorentz - Gauss
 
-       return
     End Subroutine PsVoigtian
 
     !!----
@@ -201,7 +197,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
        lor   = 1.0/(1.0+bl*x2)
        pv_val = (eta*lor + (1.0 - eta)*gauss)/Norm
 
-       return
     End Function Split_Pseudovoigt
 
     !!----
@@ -296,7 +291,6 @@ SubModule (CFML_Profiles) PRF_Pseudovoigt
 
        end if
 
-       return
     End Subroutine Split_Pseudovoigt_Der
 
 

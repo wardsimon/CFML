@@ -91,6 +91,5 @@ SubModule (CFML_Profiles) PRF_Tof_Jorgensen
          deriv%gamma = 2.0_dp*deriv%sigma*sqrt(sigma*inv_8ln2)
       end if
 
-      return
    End Subroutine Tof_Jorgensen
 End SubModule PRF_Tof_Jorgensen

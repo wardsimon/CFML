@@ -872,7 +872,6 @@ SubModule (CFML_Profiles) PRF_Init_Profval
 
       init_profval=.true.
 
-      return
    End Subroutine Init_Prof_Val
 
 End SubModule PRF_Init_Profval

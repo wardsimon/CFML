@@ -23,7 +23,6 @@ SubModule (CFML_Messages) Wmess_Warning
          write(unit=iunit,fmt="(tr1,a)") "****"
       end if
 
-      return
    End Subroutine Warning_Message
 
 End SubModule Wmess_Warning

@@ -30,7 +30,6 @@ SubModule (CFML_Rational) RAT_Is_Integer_Rational
       end do
       OK=.true.
 
-      return
    End Function Is_Integer_Rational_Matrix
 
    !!----
@@ -54,7 +53,6 @@ SubModule (CFML_Rational) RAT_Is_Integer_Rational
       end do
       OK=.true.
 
-      return
    End Function Is_Integer_Rational_Vector
 
    !!----
@@ -70,7 +68,6 @@ SubModule (CFML_Rational) RAT_Is_Integer_Rational
       OK=.false.
       if (r%denominator == 1_LI ) ok=.true.
 
-      return
    End Function Is_Integer_Rational_Scalar
 
 End SubModule RAT_Is_Integer_Rational

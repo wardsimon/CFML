@@ -36,7 +36,6 @@ Submodule (CFML_Maths) Maths_Rotation_Axes
 
        Rvec=matmul(rot,vec)
 
-       return
     End Function Rotation_OX
 
     !!----
@@ -68,7 +67,6 @@ Submodule (CFML_Maths) Maths_Rotation_Axes
 
        Rvec=matmul(rot,vec)
 
-       return
     End Function Rotation_OY
 
     !!----
@@ -100,7 +98,6 @@ Submodule (CFML_Maths) Maths_Rotation_Axes
 
        Rvec=matmul(rot,Vec)
 
-       return
     End Function Rotation_OZ
 
 End Submodule Maths_Rotation_Axes

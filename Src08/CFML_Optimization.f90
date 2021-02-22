@@ -354,7 +354,6 @@
        x(1:nparm) = maxi(1:nparm) * r(1:nparm) + mini(1:nparm)
        call Model_Functn(nparm,x, f)
 
-       return
     End Subroutine Fun
 
     !!----
@@ -507,7 +506,6 @@
       !                       nmeth mxfun loops iquad iout nflag(out) ifun(out) iter(out)   eps       acc
        Opt=Opt_Conditions_Type("Simplex",0, 0,   1000, 2000,  1,    0,     0,        0,         0,  1.0e-6_cp,1.0e-20_cp)
 
-       return
     End Subroutine Init_Opt_Conditions
 
     !!----

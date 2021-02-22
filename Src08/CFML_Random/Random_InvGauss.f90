@@ -78,7 +78,6 @@ SubModule (CFML_Random) Random_Gauss
 
       fn_val = x
 
-      return
    End Function Random_Inv_Gauss
 
 End SubModule Random_Gauss

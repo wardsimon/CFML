@@ -23,7 +23,6 @@ Submodule (CFML_Maths) Cross_Product
        w(2)=u(3)*v(1)-u(1)*v(3)
        w(3)=u(1)*v(2)-u(2)*v(1)
 
-       return
     End Function Cross_Product_C
 
     !!----
@@ -43,7 +42,6 @@ Submodule (CFML_Maths) Cross_Product
        w(2)=u(3)*v(1)-u(1)*v(3)
        w(3)=u(1)*v(2)-u(2)*v(1)
 
-       return
     End Function Cross_Product_R
 
     !!----
@@ -64,7 +62,6 @@ Submodule (CFML_Maths) Cross_Product
        w(2)=u(3)*v(1)-u(1)*v(3)  !u1  u2  u3! = (u2.v3 - u3.v2)i + (v1.u3 - u1.v3)j + (u1.v2-u2.v1)k
        w(3)=u(1)*v(2)-u(2)*v(1)  !v1  v2  v3!
 
-       return
     End Function Cross_Product_I
 
 End Submodule Cross_Product

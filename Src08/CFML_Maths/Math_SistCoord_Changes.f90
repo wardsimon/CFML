@@ -34,7 +34,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
        CarCoord(2)=SphCoord(1)*sin(ph)*sin(th)
        CarCoord(3)=SphCoord(1)*cos(th)
 
-       return
     End Function Get_Cart_from_Spher
 
     !!----
@@ -60,7 +59,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
        CarCoord(2)=CilCoord(1)*sin(ph)
        CarCoord(3)=CilCoord(3)
 
-       return
     End Function Get_Cart_from_Cylin
 
     !!----
@@ -95,7 +93,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
           if (mode(1:1) == "D" .or. mode(1:1) == "d") CilCoord(2)=CilCoord(2)*TO_DEG
        end if
 
-       return
     End Function Get_Cylin_from_Cart
 
     !!----
@@ -141,7 +138,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
           end if
        end if
 
-       return
     End Function Get_Spher_from_Cart
 
     !!----
@@ -167,7 +163,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
           SphCoord=Get_Spher_from_Cart(CarCoord,mode)
        end if
 
-       return
     End Function Get_Spher_from_Cylin
 
     !!----
@@ -193,7 +188,6 @@ Submodule (CFML_Maths) Maths_ConvCoordinates
           CilCoord=Get_Cylin_from_Cart(CarCoord,mode)
        end if
 
-       return
     End Function Get_Cylin_from_Spher
 
 End Submodule Maths_ConvCoordinates

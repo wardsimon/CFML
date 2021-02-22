@@ -28,7 +28,6 @@ SubModule (CFML_Profiles) PRF_Hat
          h_val =1.0/par(1)
       end if
 
-      return
    End Function Hat
 
    !!----
@@ -60,7 +59,6 @@ SubModule (CFML_Profiles) PRF_Hat
          end if
       end if
 
-      return
    End Subroutine Hat_Der
 
 

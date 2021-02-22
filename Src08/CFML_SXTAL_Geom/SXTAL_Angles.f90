@@ -30,7 +30,7 @@
           exit
         end if
       end do
-      return
+
     End Function chkin180
 
     !!----
@@ -69,7 +69,6 @@
           ph=0.0
        End If
 
-       Return
     End Subroutine Angs_4c_bisecting
 
     !!----

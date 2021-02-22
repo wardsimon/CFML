@@ -55,7 +55,6 @@ Submodule (CFML_Maths) Co_Linear
           end do
        end if
 
-       return
     End Function Co_Linear_C
 
     !!----
@@ -107,7 +106,6 @@ Submodule (CFML_Maths) Co_Linear
           end do
        end if
 
-       return
     End Function Co_Linear_I
 
     !!----
@@ -160,7 +158,6 @@ Submodule (CFML_Maths) Co_Linear
           end do
        end if
 
-       return
     End Function Co_Linear_R
 
 End Submodule Co_Linear

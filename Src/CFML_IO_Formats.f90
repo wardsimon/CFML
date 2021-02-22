@@ -3777,7 +3777,7 @@
        character(len=2)                    :: chars
        character(len=10)                   :: label
        character(len=4)                    :: symbcar
-       logical                             :: ktag,no_symop_mxmymz,no_cent_mxmymz,mom_symmform
+       logical                             :: ktag,no_symop_mxmymz,no_cent_mxmymz,mom_symmform,mom_modulus
 
        !type(Magnetic_Group_Type)  :: SG
        type(file_list_type)       :: mcif
@@ -3797,7 +3797,7 @@
        ktag=.false.
        no_symop_mxmymz=.false.
        no_cent_mxmymz=.false.
-       mom_symmform=.false.
+       mom_symmform=.false.; mom_modulus=.false.
 
        do
           i=i+1
@@ -4345,6 +4345,15 @@
                           return
                         end if
                       end do
+
+                      i=i+1
+                      if(index(mcif%line(i),"_atom_site_moment.spherical_modulus") /= 0) then !should appear before symmform
+                        !write(*,*) " _atom_site_moment.spherical_modulus FOUND"
+                        mom_modulus=.true.
+                      else
+                        i=i-1
+                      end if
+
                       i=i+1
                       if(index(mcif%line(i),"_atom_site_moment.symmform") /= 0) then
                         !write(*,*) " _atom_site_moment.symmform FOUND"
@@ -4720,26 +4729,35 @@
        if(num_mom /= 0) then
           !write(*,"(a,i4)") " Treating magnetic moments:  ",num_mom
           m=4
-          if(mom_symmform) m=5
+          if(mom_symmform) m=m+1
+          if(mom_modulus) m=m+1
           do i=1,num_mom
             call getword(mom_strings(i),lab_items,iv)
             !write(*,"(2i6,tr4,5(a,tr3))") k,iv,lab_items(1:iv)
             if(iv /= m) then
                Err_Form=.true.
                write(unit=Err_Form_Mess,fmt="(a,i4)")" Error reading magnetic moment #",i
-               Err_Form_Mess=trim(Err_Form_Mess)//" -> 4-5 items expected in this line: 'Label mx my mz', read: "// &
+               Err_Form_Mess=trim(Err_Form_Mess)//" -> 4-6 items expected in this line: 'Label mx my mz', read: "// &
                                                       trim(mom_strings(i))
                return
             end if
             label=Lab_items(1)
+            kfin=3
+            if(mom_modulus) kfin=4
             do j=1,Am%natoms
                if(label == Am%Atom(j)%lab) then
-                 do k=1,3
+                 do k=1,kfin
                      call getnum_std(lab_items(1+k),values,std,iv)
-                     Am%Atom(j)%M_xyz(k)=values(1)
-                     Am%Atom(j)%sM_xyz(k)=std(1)
+                     if(k <= 3) then
+                       Am%Atom(j)%M_xyz(k)=values(1)
+                       Am%Atom(j)%sM_xyz(k)=std(1)
+                     else
+                       Am%Atom(j)%moment=values(1) !module of the magnetic moment if given
+                     end if
                  end do
-                 Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+                 if(kfin ==3) then
+                   Am%Atom(j)%moment=99.0  !used for indicating that this atom is susceptible to bring a magnetic moment
+                 end if
                end if
             end do
           end do

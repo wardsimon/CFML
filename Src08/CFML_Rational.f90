@@ -802,7 +802,6 @@ Module CFML_Rational
           R(j,j)= 1_LI//1_LI
        end do
 
-       return
     End Subroutine Rational_Identity_Matrix
 
     !!----
@@ -822,7 +821,6 @@ Module CFML_Rational
           res=r_gcd(j, modulo(i, j))
        end if
 
-       return
     End Function R_Gcd
 
     !!----
@@ -859,7 +857,6 @@ Module CFML_Rational
        s= 0_LI
        if (r%numerator /= 0_LI) s= r%denominator // r%numerator
 
-       return
     End Function Rational_Recip
 
     !!----
@@ -888,7 +885,6 @@ Module CFML_Rational
        end if
        str=adjustl(Pack_String(line))
 
-       return
     End Function Rational_String
 
 End Module CFML_Rational

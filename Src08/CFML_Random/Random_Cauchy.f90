@@ -27,7 +27,6 @@ SubModule (CFML_Random) Random_Cauchy_sub
 
       fn_val = v(1) / v(2)
 
-      return
    End Function Random_Cauchy
 
 End SubModule Random_Cauchy_sub

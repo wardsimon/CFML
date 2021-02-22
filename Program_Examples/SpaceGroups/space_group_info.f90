@@ -15,23 +15,38 @@ Program SPG_Info
    !---- Variables ----!
    implicit none
 
-   character(len=20)      :: spgr
+   character(len=120)      :: spgr
    type(Space_Group_type) :: grp_espacial
-   integer,           dimension(10) :: point_op
-   character(len=50), dimension(10) :: gen
+   integer,           dimension(20) :: point_op
+   character(len=50), dimension(20) :: gen
    character(len=70)                :: op_symb
-   character(len=6),  dimension(10) :: sgen
+   character(len=6),  dimension(20) :: sgen
    integer :: ngen,i,j
 
    !---- Procedure ----!
    do
       write(unit=*,fmt="(a)") " => Enter a space group: "
-      write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall symbol or number): "
+      write(unit=*,fmt="(a)",advance="no") " => Space Group (HM/Hall symbol, number or list of generators): "
       read(unit=*,fmt="(a)") spgr
       if (len_trim(spgr)==0) exit
-
-      !> Setting the Space Group Information
-      call set_spacegroup(spgr,grp_espacial)
+      if(index(spgr,"x") /= 0 .and. index(spgr,"y") /= 0 .and. index(spgr,"z") /= 0) then
+        ngen=0
+        do
+          i=index(spgr,";")
+          if(i == 0) then 
+            ngen=ngen+1
+            gen(ngen)=adjustl(spgr)
+            exit
+          end if
+          ngen=ngen+1
+          gen(ngen) = adjustl(spgr(1:i-1))
+          spgr=adjustl(spgr(i+1:))
+        end do
+        call set_spacegroup(spgr,grp_espacial,gen,ngen,"gen")
+      else      
+        !> Setting the Space Group Information
+        call set_spacegroup(spgr,grp_espacial)
+      end if
       if(err_symm) then
         write(unit=*,fmt="(a)") "    Warning: "//trim(err_symm_mess)
         cycle

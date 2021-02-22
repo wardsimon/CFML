@@ -541,7 +541,6 @@
 
        if (.not. opn) close(unit=lun)
 
-       return
     End Subroutine Reading_Lines
 
     !!----

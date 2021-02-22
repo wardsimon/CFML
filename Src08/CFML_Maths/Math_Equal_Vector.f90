@@ -48,7 +48,6 @@ Submodule (CFML_Maths) Maths_Equal_Vector
 
        info=.true.
 
-       return
     End Function Equal_Vector_C
 
     !!----
@@ -88,7 +87,6 @@ Submodule (CFML_Maths) Maths_Equal_Vector
        end do
        info=.true.
 
-       return
     End Function Equal_Vector_I
 
     !!----
@@ -129,7 +127,6 @@ Submodule (CFML_Maths) Maths_Equal_Vector
 
        info=.true.
 
-       return
     End Function Equal_Vector_R
 
 End Submodule Maths_Equal_Vector

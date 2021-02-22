@@ -90,7 +90,7 @@ SubModule (CFML_gSpaceGroups) SPG_OnePrime
       call Rational_Identity_Matrix(identidad)
 
       do n=1,G%multip
-         !> Only need found 1' or -1'
+         !> Only need to find 1' or -1'
          if (G%op(n)%Time_Inv /= -1) cycle
          tr=G%op(n)%Mat(1:3,4)
          if (.not. rational_is_NullVector(tr) ) cycle

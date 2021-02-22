@@ -41,7 +41,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
                            2.0*u13 * a * c * as * cs * cosb + &
                            2.0*u23 * b * c * bs * cs * cosa )
 
-       return
     End Function U_Equiv
 
     !!----
@@ -64,7 +63,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
        beta(5)=0.25*b(5)*cell%rcell(1)*cell%rcell(3) ! beta13
        beta(6)=0.25*b(6)*cell%rcell(2)*cell%rcell(3) ! beta23
 
-       return
     End Function Get_Betas_from_B
 
     !!----
@@ -81,7 +79,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
 
        u=b/(4.0_cp*TPI2)
 
-       return
     End Function Get_U_from_B
 
     !!----
@@ -104,7 +101,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
        b(5)=4.0*beta(5)/(cell%rcell(1)*cell%rcell(3)) ! B13
        b(6)=4.0*beta(6)/(cell%rcell(2)*cell%rcell(3)) ! B23
 
-       return
     End Function Get_B_from_Betas
 
     !!----
@@ -127,7 +123,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
        beta(5)=tpi2*u(5)*cell%rcell(1)*cell%rcell(3) ! beta13
        beta(6)=tpi2*u(6)*cell%rcell(2)*cell%rcell(3) ! beta23
 
-       return
     End Function Get_Betas_from_U
 
     !!----
@@ -166,7 +161,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
        betas(5) = bet(1,3)
        betas(6) = bet(2,3)
 
-       return
     End Function Get_Betas_from_Biso
 
     !!----
@@ -189,7 +183,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
        u(5)=beta(5)/(tpi2*cell%rcell(1)*cell%rcell(3)) ! U13
        u(6)=beta(6)/(tpi2*cell%rcell(2)*cell%rcell(3)) ! U23
 
-       return
     End Function Get_U_from_Betas
 
     !!----
@@ -206,7 +199,6 @@ Submodule (CFML_Metrics) Metrics_ThConversion
 
        b=4.0*tpi2*u
 
-       return
     End Function Get_B_from_U
 
 End Submodule Metrics_ThConversion

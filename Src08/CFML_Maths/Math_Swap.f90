@@ -25,7 +25,6 @@ Submodule (CFML_Maths) Maths_Swap
        a=b
        b=dum
 
-       return
     End Subroutine Swap_C
 
     !!----
@@ -46,7 +45,6 @@ Submodule (CFML_Maths) Maths_Swap
        a=b
        b=dum
 
-       return
     End Subroutine Swap_I
 
     !!----
@@ -67,7 +65,6 @@ Submodule (CFML_Maths) Maths_Swap
        a=b
        b=dum
 
-       return
     End Subroutine Swap_R
 
     !!----
@@ -91,7 +88,6 @@ Submodule (CFML_Maths) Maths_Swap
           b=swp
        end if
 
-       return
     End Subroutine Swap_Masked_C
 
     !!----
@@ -115,7 +111,6 @@ Submodule (CFML_Maths) Maths_Swap
           b=swp
        end if
 
-       return
     End Subroutine Swap_Masked_I
 
     !!----
@@ -139,7 +134,6 @@ Submodule (CFML_Maths) Maths_Swap
           b=swp
        end if
 
-       return
     End Subroutine Swap_Masked_R
 
 End Submodule Maths_Swap

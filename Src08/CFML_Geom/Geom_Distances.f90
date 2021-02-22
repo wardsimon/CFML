@@ -312,7 +312,6 @@
           end do !j
        end do !i
 
-       return
     End Subroutine Calc_Dist_Angle
 
     !!----
@@ -1046,7 +1045,6 @@
        end do
        s=sqrt(s)/dis
 
-       return
     End Subroutine Distance_and_Sigma
 
     !!----
@@ -1176,7 +1174,6 @@
           write(unit=lun,fmt="(a,/,/,/)")
        end if
 
-       return
     End Subroutine P1_Dist
 
     !!----

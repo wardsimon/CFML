@@ -29,7 +29,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT1D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft1D
 
     !!--++
@@ -65,7 +64,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT2D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft2D
 
     !!--++
@@ -102,7 +100,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT3D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft3D
 
     !!--++
@@ -139,7 +136,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT4D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft4D
 
     !!--++
@@ -179,7 +175,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT5D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft5D
 
     !!--++
@@ -218,7 +213,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT6D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft6D
 
     !!--++
@@ -257,7 +251,6 @@ Submodule (CFML_FFT) FFTGen
           Err_CFML%Msg="FFT7D@CFML_FFT: Error in FFT!"
        end if
 
-       return
     End Function Fft7D
 
     !!--++
@@ -306,7 +299,6 @@ Submodule (CFML_FFT) FFTGen
           end if
        end do
 
-       return
     End Subroutine Fftn
 
 End SubModule FFTGen

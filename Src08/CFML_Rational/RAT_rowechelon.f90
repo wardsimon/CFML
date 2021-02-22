@@ -67,7 +67,6 @@ SubModule (CFML_Rational) RAT_RowEchelonForm
          end if
       end do
 
-      return
    End subroutine Rational_RowEchelonForm_M
 
    !!----
@@ -147,7 +146,6 @@ SubModule (CFML_Rational) RAT_RowEchelonForm
          end if
       end do
 
-      return
    End Subroutine Rational_RowEchelonForm_MT
 
    !!----
@@ -196,7 +194,6 @@ SubModule (CFML_Rational) RAT_RowEchelonForm
 
       Q=transpose(Q)
 
-      return
    End Subroutine Rational_SmithNormalForm
 
 End SubModule RAT_RowEchelonForm

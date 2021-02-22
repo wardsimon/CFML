@@ -64,7 +64,6 @@ Submodule (CFML_Maths) Maths_Locate
        end do
        j=jl
 
-       return
     End Function Locate_I
 
     !!----

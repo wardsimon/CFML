@@ -3061,7 +3061,7 @@
        end if
 
        !> check
-       if (abs(std) < 0.0000001) then
+       if (abs(std) < 0.00000001) then
           aux=rformat(value,precision(value)+2)
           line=adjustl(aux)
           if (line(1:1) /= "-") line=" "//trim(line(1:len(line)-1))
@@ -3121,7 +3121,6 @@
 
        if(line(1:1) /= "-") line=" "//trim(line(1:len(line)-1))
 
-       return
     End Subroutine SetNum_Std
 
     !!--++

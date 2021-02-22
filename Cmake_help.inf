@@ -65,26 +65,26 @@ F_IA32_REDIST12    C:\Program Files (x86)\Common Files\Intel\Shared Libraries\
 
 To be run in an environment with intel 64bits:
 -----------------------------------------------------------------------OK for release
-cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D PROG_EX=OFF -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
 
-cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+cmake -G "NMake Makefiles" -D CMAKE_Fortran_COMPILER=ifort -D PROG_EX=OFF -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
 
-cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+cmake -G "NMake Makefiles"  -D GUI=ON -D PROG_EX=OFF -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
 
-cmake -G "NMake Makefiles"  -D GUI=ON -D ARCH32=OFF -D CMAKE_Fortran_COMPILER_FORCED=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
+cmake -G "NMake Makefiles"  -D GUI=ON -D PROG_EX=OFF -D ARCH32=OFF -D CMAKE_Fortran_COMPILER_FORCED=ON -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC -D WCRYSFML_PREFIX=LibW ..\..\.
 -----------------------------------------------------------------------OK for debug
 
 Building CrysFML08  
 ==================
 # Console Only for Ifort in debug mode
-cmake -G "NMake Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D PROG_EX=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
 # Console Only for Ifort in release mode
-cmake -G "NMake Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+cmake -G "NMake Makefiles"  -D ARCH32=OFF -D PROG_EX=OFF  GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_INSTALL_PREFIX=%CRYSFML%\ifort64 -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
 
 # Console Only for gfortran in debug mode
-cmake -G "MinGW Makefiles"  -D ARCH32=OFF -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF -D PROG_EX=OFF  -D CMAKE_BUILD_TYPE=Debug -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran_debug -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
 # Console Only for gfortran in release mode
-cmake -G "MinGW Makefiles"  -D ARCH32=OFF GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
+cmake -G "MinGW Makefiles"  -D ARCH32=OFF -D PROG_EX=OFF  GUI=OFF -D CMAKE_BUILD_TYPE=Release -D CMAKE_Fortran_COMPILER=gfortran -D CMAKE_INSTALL_PREFIX=%CRYSFML%\gfortran -D CRYSFML_PREFIX=LibC08 -D CRYSFML08=ON ..\..\.
 
  
 Building CrysFML for use with HDF5

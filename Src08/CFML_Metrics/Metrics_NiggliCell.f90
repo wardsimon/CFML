@@ -59,7 +59,6 @@ Submodule (CFML_Metrics) Metrics_Niggli_Cell
           call Set_Crystal_Cell(Vcell(1:3),Vcell(4:6), Cell)
        end if
 
-       return
     End Subroutine Niggli_Cell_ABC
 
     !!----
@@ -117,7 +116,6 @@ Submodule (CFML_Metrics) Metrics_Niggli_Cell
           call Set_Crystal_Cell([a,b,c],[alpha,beta,gamma], Cell)
        end if
 
-       return
     End Subroutine Niggli_Cell_Params
 
     !!----
@@ -165,7 +163,6 @@ Submodule (CFML_Metrics) Metrics_Niggli_Cell
           call Set_Crystal_Cell(celda%cell,celda%ang,celln)
        end if
 
-       return
     End Subroutine Niggli_Cell_Type
 
     !!----
@@ -224,7 +221,6 @@ Submodule (CFML_Metrics) Metrics_Niggli_Cell
           call Set_Crystal_Cell(celda%cell,celda%ang, Cell)
        end if
 
-       return
     End Subroutine Niggli_Cell_Vect
 
     !!----
@@ -421,14 +417,6 @@ Submodule (CFML_Metrics) Metrics_Niggli_Cell
           end if
        end if
 
-       return
     End Subroutine Niggli_Cell_Mat
 
 End Submodule Metrics_Niggli_Cell
-
-
-
-
-
-
-

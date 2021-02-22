@@ -16,7 +16,6 @@ SubModule (CFML_BVS_Tables) TAB_DelBVS_Routines
 
       if (allocated(Ap_Table)) deallocate(Ap_Table)
 
-      return
    End Subroutine Remove_Atomic_Properties_Table
 
    !!----
@@ -30,7 +29,6 @@ SubModule (CFML_BVS_Tables) TAB_DelBVS_Routines
 
       if (allocated(BVEL_Table)) deallocate(BVEL_Table)
 
-      return
    End Subroutine Remove_BVEL_Table
 
    !!----
@@ -44,7 +42,6 @@ SubModule (CFML_BVS_Tables) TAB_DelBVS_Routines
 
       if (allocated(BVS_Table)) deallocate(BVS_Table)
 
-      return
    End Subroutine Remove_BVS_Table
 
    !!----
@@ -58,7 +55,6 @@ SubModule (CFML_BVS_Tables) TAB_DelBVS_Routines
 
       if (allocated(sBVS_Table)) deallocate(sBVS_Table)
 
-      return
    End Subroutine Remove_sBVS_Table
 
 End SubModule TAB_DelBVS_Routines

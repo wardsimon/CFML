@@ -25,7 +25,6 @@ Submodule (CFML_Maths) Maths_Scalar
           r=dot_product(real(x), matmul(g,real(y)))
        end if
 
-       return
     End Function Scalar_I
 
     !!----
@@ -46,7 +45,6 @@ Submodule (CFML_Maths) Maths_Scalar
           r=dot_product(x, matmul(g,y))
        end if
 
-       return
     End Function Scalar_R
 
 

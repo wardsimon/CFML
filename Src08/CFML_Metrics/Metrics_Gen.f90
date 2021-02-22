@@ -376,7 +376,6 @@ Submodule (CFML_Metrics) Metrics_Gen
 
        end select
 
-       return
     End Subroutine Set_Crystal_Cell
 
     !!----

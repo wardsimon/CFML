@@ -35,7 +35,6 @@ Submodule (CFML_Maths) Determinant
              det=DeterN_C(A,n)
        end select
 
-       return
     End Function Determinant_C
 
     !!----
@@ -67,7 +66,6 @@ Submodule (CFML_Maths) Determinant
              det=DeterN_I(A,n)
        end select
 
-       return
     End Function Determinant_I
 
     !!----
@@ -99,7 +97,6 @@ Submodule (CFML_Maths) Determinant
              det=DeterN_R(A,n)
        end select
 
-       return
     End Function Determinant_R
 
     !!----
@@ -144,7 +141,6 @@ Submodule (CFML_Maths) Determinant
           det=d*exp(det)
        end if
 
-       return
     End Function PseudoDeterm_C
 
     !!----
@@ -161,7 +157,6 @@ Submodule (CFML_Maths) Determinant
        !> Calculate the inverse determinant of the matrix
        det = A(1,1)*A(2,2) - A(1,2)*A(2,1)
 
-       return
     End Function Deter2_C
 
     !!----
@@ -178,7 +173,6 @@ Submodule (CFML_Maths) Determinant
        !> Calculate the inverse determinant of the matrix
        det = A(1,1)*A(2,2) - A(1,2)*A(2,1)
 
-       return
     End Function Deter2_I
 
     !!----
@@ -195,7 +189,6 @@ Submodule (CFML_Maths) Determinant
        !> Calculate the inverse determinant of the matrix
        det = A(1,1)*A(2,2) - A(1,2)*A(2,1)
 
-       return
     End Function Deter2_R
 
     !!----
@@ -214,7 +207,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
 
-       return
     End Function Deter3_C
 
     !!----
@@ -233,7 +225,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
 
-       return
     End Function Deter3_I
 
     !!----
@@ -252,7 +243,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
            + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1)
 
-       return
     End Function Deter3_R
 
     !!----
@@ -276,7 +266,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,4)*(A(2,1)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))+A(2,2)*(A(3,3)*A(4,1)-A(3,1)*A(4,3))+ &
              A(2,3)*(A(3,1)*A(4,2)-A(3,2)*A(4,1)))
 
-       return
     End Function Deter4_C
 
     !!----
@@ -300,7 +289,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,4)*(A(2,1)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))+A(2,2)*(A(3,3)*A(4,1)-A(3,1)*A(4,3))+ &
              A(2,3)*(A(3,1)*A(4,2)-A(3,2)*A(4,1)))
 
-       return
     End Function Deter4_I
 
     !!----
@@ -324,7 +312,6 @@ Submodule (CFML_Maths) Determinant
            - A(1,4)*(A(2,1)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))+A(2,2)*(A(3,3)*A(4,1)-A(3,1)*A(4,3))+ &
              A(2,3)*(A(3,1)*A(4,2)-A(3,2)*A(4,1)))
 
-       return
     End Function Deter4_R
 
     !!----
@@ -434,7 +421,6 @@ Submodule (CFML_Maths) Determinant
           !> End of K loop
        end do
 
-       return
     End Function DeterN_C
 
     !!----
@@ -477,7 +463,6 @@ Submodule (CFML_Maths) Determinant
        dd=d*exp(dd)
        det=nint(dd)
 
-       return
     End Function DeterN_I
 
     !!----
@@ -518,7 +503,6 @@ Submodule (CFML_Maths) Determinant
        end do
        det=d*exp(det)
 
-       return
     End Function DeterN_R
 
     !!----
@@ -543,7 +527,6 @@ Submodule (CFML_Maths) Determinant
           det = det+Vec1(i)*(Vec2(j)*Vec3(k)-Vec2(k)*Vec3(j))
        end do
 
-       return
     End Function Determ_V_I
 
     !!----
@@ -568,7 +551,6 @@ Submodule (CFML_Maths) Determinant
           det = det+Vec1(i)*(Vec2(j)*Vec3(k)-Vec2(k)*Vec3(j))
        end do
 
-       return
     End Function Determ_V_R
 
 End Submodule Determinant
