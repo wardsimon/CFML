@@ -2,7 +2,7 @@
 # Commad line arguments section
 #################################
 
-cmake_minimum_required(VERSION 2.8.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 # By default the built is in CONSOLE mode and 32 bits. If 64 bits have to be used one should do -D ARCH32=OFF
 option(MINGW_HDF_TRICK "Help building with MinGW" OFF)
