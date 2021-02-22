@@ -19,7 +19,6 @@ if(WIN32)
     endif()
 # MacOS
 elseif(APPLE)
-    set(GLOBAL_DEPS CFML_GlobalDeps_MacOS.f90)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
         set(GLOBAL_DEPS CFML_GlobalDeps_MacOS_Intel.f90)
