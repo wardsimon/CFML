@@ -16,10 +16,143 @@ import CFML_api.crysfml_api
 import CFML_api.API_Crystal_Metrics
 import CFML_api.API_Crystallographic_Symmetry
 import CFML_api.API_Atom_TypeDef
+import CFML_api.FortranBindedClass
 
-#class JobInfo():
-#todo with help of file_jobinfo
+class JobInfo(CFML_api.FortranBindedClass):
+    """ A class used to handle the job informations, read from a CFL File
 
+    ...
+    Attributes
+    ----------
+    filename : string
+
+    Methods
+    -------
+
+    """
+    def __init__(self, string=None):
+        CFML_api.FortranBindedClass.__init__(self)
+        if filename:
+            self.from_string(string)
+    #todo 
+
+    def __del__(self):
+        address = self.get_fortran_address()
+        if address:
+            CFML_api.crysfml_api.IO_Formats_del_jobinfo(self.get_fortran_address())
+    
+    @property
+    def title(self):
+        """
+        Identification of the job
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_title(self.get_fortran_address())["title"]
+    
+    @property
+    def num_phases(self):
+        """
+        Number of phases
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_num_phases(self.get_fortran_address())["num_phases"]
+    
+    @property
+    def num_patterns(self):
+        """
+        Number of patterns
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_num_patterns(self.get_fortran_address())["num_patterns"]
+    
+    @property
+    def num_cmd(self):
+        """
+        Number of command lines
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_num_cmd(self.get_fortran_address())["num_cmd"]
+    
+    @property
+    def pattern_types(self):
+        """
+        Array of strings with the types of the patterns
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_pat_typ(self.get_fortran_address())["pat_typ"]
+    
+    @property
+    def phase_names(self):
+        """
+        Array of strings with the names of the phases
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_phas_nam(self.get_fortran_address())["phas_nam"]
+    
+    @property
+    def cmd(self):
+        """
+        Array of strings with the names of the phases
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_cmd(self.get_fortran_address())["cmd"]
+    
+    @property
+    def range_stl(self):
+        """
+        Range in sinTheta/Lambda
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_range_stl(self.get_fortran_address())["range_stl"]
+    
+    @property
+    def range_q(self):
+        """
+        Range in 4pi*sinTheta/Lambda
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_range_q(self.get_fortran_address())["range_q"]
+    
+    @property
+    def range_d(self):
+        """
+        Range in d-spacing
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_range_d(self.get_fortran_address())["range_d"]
+    
+    @property
+    def range_2theta(self):
+        """
+        Range in 2theta-spacing
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_range_2theta(self.get_fortran_address())["range_2theta"]
+    
+    @property
+    def range_energy(self):
+        """
+        Range in Energy
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_range_energy(self.get_fortran_address())["range_energy"]
+    
+    @property
+    def lambda(self):
+        """
+        Lambda1, Lambda2
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_lambda(self.get_fortran_address())["lambda"]
+    
+    @property
+    def lambda_ratio(self):
+        """
+        ratio lambda2/lambda1
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_ratio(self.get_fortran_address())["ratio"]
+    
+    @property
+    def d_to_tof_1(self):
+        """
+        d-to-TOF coefficient
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_dtt1(self.get_fortran_address())["dtt1"]
+    
+    @property
+    def d_to_tof_2(self):
+        """
+        d-to-TOF coefficient
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_dtt2(self.get_fortran_address())["dtt2"]
+    
 
 class CIFFile():
     """ A class used to handle CIF Files

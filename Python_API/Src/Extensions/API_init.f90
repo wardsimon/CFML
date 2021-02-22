@@ -59,7 +59,23 @@ module API_init
        crystallographic_symmetry_get_wyckoff_str_orbit
        
   use API_IO_Formats, only: &
-       IO_formats_readn_set_xtal_structure
+       IO_formats_readn_set_xtal_structure, &
+       IO_Formats_get_title, &
+       IO_Formats_get_num_phases, &
+       IO_Formats_get_num_patterns, &
+       IO_Formats_get_num_cmd, &
+       IO_Formats_get_pat_typ, &
+       IO_Formats_get_phas_nam, &
+       IO_Formats_get_cmd, &
+       IO_Formats_get_range_stl, &
+       IO_Formats_get_range_q, &
+       IO_Formats_get_range_d, &
+       IO_Formats_get_range_2theta, &
+       IO_Formats_get_range_energy, &
+       IO_Formats_get_lambda, &
+       IO_Formats_get_ratio, &
+       IO_Formats_get_dtt1, &
+       IO_Formats_get_dtt2
 
   use API_Structure_Factors, only: &
        structure_factors_structure_factors, &
@@ -211,7 +227,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(153)
+    call method_table%init(169)
 
     !--------------------------
     ! Error Messages (1)
@@ -629,12 +645,94 @@ CONTAINS
 
 
     !--------------------------
-    ! IO formats (1)
+    ! IO formats (17)
     !--------------------------
     call method_table%add_method("IO_formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
+
+       
+    call method_table%add_method("IO_Formats_get_title", &                  ! method name
+         "title getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_title))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_num_phases", &                  ! method name
+         "num_phases getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_num_phases))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_num_patterns", &                  ! method name
+         "num_patterns getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_num_patterns))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_num_cmd", &                  ! method name
+         "num_cmd getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_num_cmd))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_pat_typ", &                  ! method name
+         "pat_typ getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_pat_typ))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_phas_nam", &                  ! method name
+         "phas_nam getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_phas_nam))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_cmd", &                  ! method name
+         "cmd getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_cmd))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_range_stl", &                  ! method name
+         "range_stl getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_range_stl))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_range_q", &                  ! method name
+         "range_q getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_range_q))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_range_d", &                  ! method name
+         "range_d getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_range_d))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_range_2theta", &                  ! method name
+         "range_2theta getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_range_2theta))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_range_energy", &                  ! method name
+         "range_energy getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_range_energy))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_lambda", &                  ! method name
+         "lambda getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_lambda))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_ratio", &                  ! method name
+         "ratio getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_ratio))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_dtt1", &                  ! method name
+         "dtt1 getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_dtt1))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_dtt2", &                  ! method name
+         "dtt2 getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_dtt2))  ! address of Fortran function to add
+    
 
     !--------------------------
     ! Atom Typedef (45)
