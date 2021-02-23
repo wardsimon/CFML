@@ -17,7 +17,8 @@ module API_IO_Formats
   use forpy_mod
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env 
-  
+
+  use CFML_GlobalDeps,                only: cp
   use CFML_IO_Formats,                only: &
        Job_Info_type, &
        Get_Job_Info, &
@@ -202,6 +203,34 @@ contains
 
   end function IO_Formats_jobinfo_from_CIF_string_array
 
+  subroutine get_job_info_type_from_arg(args, job_info_type_pointer)
+    
+    type(tuple) :: args
+    type(Job_info_type_p), intent(out) :: job_info_type_pointer
+
+    type(object) :: arg_obj
+    type(list) :: arg_list
+    integer :: job_info_type_p12(12)
+
+    integer :: ierror
+    integer :: ii
+    type(object) :: t
+
+    ierror = args%getitem(arg_obj, 0)
+
+    ierror = cast(arg_list, arg_obj)
+    do ii=1,12
+       ierror = arg_list%getitem(t, ii-1)
+       ierror = cast(job_info_type_p12(ii), t)
+       call t%destroy
+    enddo
+    job_info_type_pointer = transfer(job_info_type_p12, job_info_type_pointer)
+    call arg_obj%destroy
+    call arg_list%destroy
+    
+  end subroutine get_job_info_type_from_arg
+
+  
   function IO_Formats_del_jobinfo(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
@@ -484,7 +513,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(range_stl, job_info_type_pointer%p%range_stl)
     ierror = dict_create(retval)
-    ierror = retval%setitem("range_stl", range_stl)
+    !ierror = retval%setitem("range_stl", range_stl)
     r = retval%get_c_ptr()
     call args%destroy
     call range_stl%destroy
@@ -521,7 +550,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(range_q, job_info_type_pointer%p%range_q)
     ierror = dict_create(retval)
-    ierror = retval%setitem("range_q", range_q)
+    !ierror = retval%setitem("range_q", range_q)
     r = retval%get_c_ptr()
     call args%destroy
     call range_q%destroy
@@ -558,7 +587,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(range_d, job_info_type_pointer%p%range_d)
     ierror = dict_create(retval)
-    ierror = retval%setitem("range_d", range_d)
+    !ierror = retval%setitem("range_d", range_d)
     r = retval%get_c_ptr()
     call args%destroy
     call range_d%destroy
@@ -595,7 +624,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(range_2theta, job_info_type_pointer%p%range_2theta)
     ierror = dict_create(retval)
-    ierror = retval%setitem("range_2theta", range_2theta)
+    !ierror = retval%setitem("range_2theta", range_2theta)
     r = retval%get_c_ptr()
     call args%destroy
     call range_2theta%destroy
@@ -632,7 +661,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(range_energy, job_info_type_pointer%p%range_energy)
     ierror = dict_create(retval)
-    ierror = retval%setitem("range_energy", range_energy)
+    !ierror = retval%setitem("range_energy", range_energy)
     r = retval%get_c_ptr()
     call args%destroy
     call range_energy%destroy
@@ -669,7 +698,7 @@ contains
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = ndarray_create(lambda, job_info_type_pointer%p%lambda)
     ierror = dict_create(retval)
-    ierror = retval%setitem("lambda", lambda)
+    !ierror = retval%setitem("lambda", lambda)
     r = retval%get_c_ptr()
     call args%destroy
     call lambda%destroy
@@ -703,7 +732,7 @@ contains
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = dict_create(retval)
-    ierror = retval%setitem("ratio", job_info_type_pointer%p%ratio)
+    !ierror = retval%setitem("ratio", job_info_type_pointer%p%ratio)
     r = retval%get_c_ptr()
     call args%destroy
      
@@ -736,7 +765,7 @@ contains
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = dict_create(retval)
-    ierror = retval%setitem("dtt1", job_info_type_pointer%p%dtt1)
+    !ierror = retval%setitem("dtt1", job_info_type_pointer%p%dtt1)
     r = retval%get_c_ptr()
     call args%destroy
      
@@ -769,7 +798,7 @@ contains
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
     ierror = dict_create(retval)
-    ierror = retval%setitem("dtt2", job_info_type_pointer%p%dtt2)
+    !ierror = retval%setitem("dtt2", job_info_type_pointer%p%dtt2)
     r = retval%get_c_ptr()
     call args%destroy
      
