@@ -60,11 +60,13 @@ module API_init
        
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure, &
+       IO_Formats_jobinfo_from_CIF_string_array, &
+       IO_Formats_del_jobinfo, &
        IO_Formats_get_title, &
        IO_Formats_get_num_phases, &
        IO_Formats_get_num_patterns, &
        IO_Formats_get_num_cmd, &
-       IO_Formats_get_pat_typ, &
+       IO_Formats_get_patt_typ, &
        IO_Formats_get_phas_nam, &
        IO_Formats_get_cmd, &
        IO_Formats_get_range_stl, &
@@ -647,20 +649,20 @@ CONTAINS
     !--------------------------
     ! IO formats (19)
     !--------------------------
-    call method_table%add_method("IO_formats_readn_set_xtal_structure", &                  ! method name
+    call method_table%add_method("IO_Formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(IO_formats_readn_set_xtal_structure))  ! address of Fortran function to add
+         c_funloc(IO_Formats_readn_set_xtal_structure))  ! address of Fortran function to add
 
-    call method_table%add_method("IO_formats_del_jobinfo", &                  ! method name
+    call method_table%add_method("IO_Formats_del_jobinfo", &                  ! method name
          "Delete a Job info", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(IO_formats_del_jobinfo))  ! address of Fortran function to add
+         c_funloc(IO_Formats_del_jobinfo))  ! address of Fortran function to add
     
-    call method_table%add_method("IO_formats_jobinfo_from_CIF_string_array", & ! method name
+    call method_table%add_method("IO_Formats_jobinfo_from_CIF_string_array", & ! method name
          "Create a job info from an array of CIF lines", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(IO_formats_jobinfo_from_CIF_string_array))  ! address of Fortran function to add
+         c_funloc(IO_Formats_jobinfo_from_CIF_string_array))  ! address of Fortran function to add
        
     call method_table%add_method("IO_Formats_get_title", &                  ! method name
          "title getter", &  !doc-string
@@ -682,10 +684,10 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_Formats_get_num_cmd))  ! address of Fortran function to add
     
-    call method_table%add_method("IO_Formats_get_pat_typ", &                  ! method name
+    call method_table%add_method("IO_Formats_get_patt_typ", &                  ! method name
          "pat_typ getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
-         c_funloc(IO_Formats_get_pat_typ))  ! address of Fortran function to add
+         c_funloc(IO_Formats_get_patt_typ))  ! address of Fortran function to add
     
     call method_table%add_method("IO_Formats_get_phas_nam", &                  ! method name
          "phas_nam getter", &  !doc-string

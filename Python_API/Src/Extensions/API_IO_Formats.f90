@@ -236,7 +236,49 @@ contains
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
     type(c_ptr) :: r
-    
+  
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(job_info_type_p) :: job_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "del_jobinfo expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    !
+    call get_job_info_type_from_arg(args, job_p)
+
+    if(allocated(job_p%p%Patt_typ))      deallocate(job_p%p%Patt_typ)
+    if(allocated(job_p%p%Phas_nam))      deallocate(job_p%p%Phas_nam)
+    if(allocated(job_p%p%cmd))           deallocate(job_p%p%cmd)
+
+    if(allocated(job_p%p%range_stl))     deallocate(job_p%p%range_stl)   
+    if(allocated(job_p%p%range_q))       deallocate(job_p%p%range_q)    
+    if(allocated(job_p%p%range_d))       deallocate(job_p%p%range_d)    
+    if(allocated(job_p%p%range_2theta))  deallocate(job_p%p%range_2theta)
+    if(allocated(job_p%p%range_Energy))  deallocate(job_p%p%range_Energy)
+    if(allocated(job_p%p%range_tof))     deallocate(job_p%p%range_tof)
+    if(allocated(job_p%p%Lambda))        deallocate(job_p%p%Lambda)  
+    if(allocated(job_p%p%ratio))         deallocate(job_p%p%ratio)     
+    if(allocated(job_p%p%dtt1))          deallocate(job_p%p%dtt1)
+    if(allocated(job_p%p%dtt2))          deallocate(job_p%p%dtt2)
+
+    deallocate(job_p%p)
+    !
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
     
   end function IO_Formats_del_jobinfo
 
@@ -373,7 +415,7 @@ contains
   end function IO_Formats_get_num_cmd
   
   
-  function IO_Formats_get_pat_typ(self_ptr, args_ptr) result(r) bind(c)
+  function IO_Formats_get_patt_typ(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -383,8 +425,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: pat_typ
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -392,22 +435,27 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_pat_typ expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_patt_typ expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(pat_typ, job_info_type_pointer%p%patt_typ)
+
+    
+    ierror = args%getitem(indx_obj, 1) !get the pattern number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    ierror = retval%setitem("pat_typ", pat_typ)
+    ierror = retval%setitem("patt_typ", job_info_type_pointer%p%patt_typ(indx))
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call pat_typ%destroy
+    call indx_obj%destroy
      
-  end function IO_Formats_get_pat_typ
+  end function IO_Formats_get_patt_typ
   
   
   function IO_Formats_get_phas_nam(self_ptr, args_ptr) result(r) bind(c)
@@ -420,8 +468,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: phas_nam
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -429,20 +478,24 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_phas_nam expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_phas_nam expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(phas_nam, job_info_type_pointer%p%phas_nam)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    ierror = retval%setitem("phas_nam", phas_nam)
+    ierror = retval%setitem("phas_nam", job_info_type_pointer%p%phas_nam(indx))
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call phas_nam%destroy
+    call indx_obj%destroy
      
   end function IO_Formats_get_phas_nam
   
@@ -457,8 +510,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: cmd
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -466,20 +520,24 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_cmd expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_cmd expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(cmd, job_info_type_pointer%p%cmd)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    ierror = retval%setitem("cmd", cmd)
+    ierror = retval%setitem("cmd", job_info_type_pointer%p%cmd(indx))
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call cmd%destroy
+    call indx_obj%destroy
      
   end function IO_Formats_get_cmd
   
@@ -494,8 +552,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: range_stl
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -503,20 +562,25 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_range_stl expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_range_stl expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(range_stl, job_info_type_pointer%p%range_stl)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("range_stl", range_stl)
+    ierror = retval%setitem("min", job_info_type_pointer%p%range_stl(indx)%mina)
+    ierror = retval%setitem("max", job_info_type_pointer%p%range_stl(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call range_stl%destroy
+    call indx_obj%destroy
      
   end function IO_Formats_get_range_stl
   
@@ -531,8 +595,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: range_q
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -540,20 +605,25 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_range_q expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_range_q expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(range_q, job_info_type_pointer%p%range_q)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("range_q", range_q)
+    ierror = retval%setitem("min", job_info_type_pointer%p%range_q(indx)%mina)
+    ierror = retval%setitem("max", job_info_type_pointer%p%range_q(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call range_q%destroy
+    call indx_obj%destroy
      
   end function IO_Formats_get_range_q
   
@@ -569,7 +639,8 @@ contains
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
   
-    type(ndarray) :: range_d
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -577,20 +648,25 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_range_d expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_range_d expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(range_d, job_info_type_pointer%p%range_d)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("range_d", range_d)
+    ierror = retval%setitem("min", job_info_type_pointer%p%range_d(indx)%mina)
+    ierror = retval%setitem("max", job_info_type_pointer%p%range_d(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call range_d%destroy
+    call indx_obj%destroy
      
   end function IO_Formats_get_range_d
   
@@ -605,8 +681,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: range_2theta
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -614,20 +691,26 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_range_2theta expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_range_2theta expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(range_2theta, job_info_type_pointer%p%range_2theta)
+    
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("range_2theta", range_2theta)
+    ierror = retval%setitem("min", job_info_type_pointer%p%range_2theta(indx)%mina)
+    ierror = retval%setitem("max", job_info_type_pointer%p%range_2theta(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call range_2theta%destroy
+    call indx_obj%destroy
+    
      
   end function IO_Formats_get_range_2theta
   
@@ -643,7 +726,8 @@ contains
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
   
-    type(ndarray) :: range_energy
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -651,20 +735,25 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_range_energy expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_range_energy expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(range_energy, job_info_type_pointer%p%range_energy)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("range_energy", range_energy)
+    ierror = retval%setitem("min", job_info_type_pointer%p%range_energy(indx)%mina)
+    ierror = retval%setitem("max", job_info_type_pointer%p%range_energy(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call range_energy%destroy
+    call indx_obj%destroy  
      
   end function IO_Formats_get_range_energy
   
@@ -679,8 +768,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
-  
-    type(ndarray) :: lambda
+
+    type(object) :: indx_obj
+    integer :: indx
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -688,21 +778,26 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_lambda expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_lambda expects exactly 2 arguments")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
-    ierror = ndarray_create(lambda, job_info_type_pointer%p%lambda)
+    
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("lambda", lambda)
+    ierror = retval%setitem("lambda1", job_info_type_pointer%p%lambda(indx)%mina)
+    ierror = retval%setitem("lambda2", job_info_type_pointer%p%lambda(indx)%maxb)
+    
     r = retval%get_c_ptr()
     call args%destroy
-    call lambda%destroy
-     
+    call indx_obj%destroy  
+
   end function IO_Formats_get_lambda
   
   

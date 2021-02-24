@@ -12,6 +12,8 @@
 #
 # **************************************************************************
 
+import os
+
 import CFML_api.crysfml_api
 import CFML_api.API_Crystal_Metrics
 import CFML_api.API_Crystallographic_Symmetry
@@ -71,72 +73,130 @@ class JobInfo(CFML_api.FortranBindedClass):
         return CFML_api.crysfml_api.IO_Formats_get_num_cmd(self.get_fortran_address())["num_cmd"]
     
     @property
-    def pattern_types(self):
+    def pattern_types(self, indx=None):
         """
-        Array of strings with the types of the patterns
+        String with the pattern type of pattern indx in [0, num_patterns-1]
         """
-        return CFML_api.crysfml_api.IO_Formats_get_pat_typ(self.get_fortran_address())["pat_typ"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        return CFML_api.crysfml_api.IO_Formats_get_patt_typ(self.get_fortran_address(), key+1)["patt_typ"]
     
     @property
-    def phase_names(self):
+    def phase_names(self, indx=None):
         """
-        Array of strings with the names of the phases
+        String with the name of the phase indx in [0, num_phases-1]
         """
-        return CFML_api.crysfml_api.IO_Formats_get_phas_nam(self.get_fortran_address())["phas_nam"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        return CFML_api.crysfml_api.IO_Formats_get_phas_nam(self.get_fortran_address(), key+1)["phas_nam"]
     
     @property
-    def cmd(self):
+    def cmd(self, indx=None):
         """
-        Array of strings with the names of the phases
+        Command lines: text for actions in [0, num_cmd-1]
         """
-        return CFML_api.crysfml_api.IO_Formats_get_cmd(self.get_fortran_address())["cmd"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        return CFML_api.crysfml_api.IO_Formats_get_cmd(self.get_fortran_address(),key+1)["cmd"]
     
     @property
-    def range_stl(self):
+    def range_stl(self,indx=None):
         """
-        Range in sinTheta/Lambda
+        Range in sinTheta/Lambda of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_range_stl(self.get_fortran_address())["range_stl"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        mina = CFML_api.crysfml_api.IO_Formats_get_range_stl(self.get_fortran_address(),key+1)["min"]
+        maxb = CFML_api.crysfml_api.IO_Formats_get_range_stl(self.get_fortran_address(),key+1)["max"]
+            
+        return mina, maxb
     
     @property
-    def range_q(self):
+    def range_q(self,indx=None):
         """
-        Range in 4pi*sinTheta/Lambda
+        Range in 4pi*sinTheta/Lambda of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_range_q(self.get_fortran_address())["range_q"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        mina = CFML_api.crysfml_api.IO_Formats_get_range_q(self.get_fortran_address(),key+1)["min"]
+        maxb = CFML_api.crysfml_api.IO_Formats_get_range_q(self.get_fortran_address(),key+1)["max"]
+            
+        return mina, maxb
+        
     
     @property
-    def range_d(self):
+    def range_d(self, indx=None):
         """
-        Range in d-spacing
+        Range in d-spacing of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_range_d(self.get_fortran_address())["range_d"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        mina = CFML_api.crysfml_api.IO_Formats_get_range_d(self.get_fortran_address(),key+1)["min"]
+        maxb = CFML_api.crysfml_api.IO_Formats_get_range_d(self.get_fortran_address(),key+1)["max"]
+            
+        return mina, maxb
+        
     
     @property
-    def range_2theta(self):
+    def range_2theta(self, indx=None):
         """
-        Range in 2theta-spacing
+        Range in 2theta-spacing of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_range_2theta(self.get_fortran_address())["range_2theta"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        mina = CFML_api.crysfml_api.IO_Formats_get_range_2theta(self.get_fortran_address(),key+1)["min"]
+        maxb = CFML_api.crysfml_api.IO_Formats_get_range_2theta(self.get_fortran_address(),key+1)["max"]
+            
+        return mina, maxb
+        
     
     @property
-    def range_energy(self):
+    def range_energy(self, indx=None):
         """
-        Range in Energy
+        Range in Energy of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_range_energy(self.get_fortran_address())["range_energy"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        mina = CFML_api.crysfml_api.IO_Formats_get_range_energy(self.get_fortran_address(),key+1)["min"]
+        maxb = CFML_api.crysfml_api.IO_Formats_get_range_energy(self.get_fortran_address(),key+1)["max"]
+            
+        return mina, maxb
+        
     
     @property
-    def lambda(self):
+    def lambdas(self, indx=None):
         """
-        Lambda1, Lambda2
+        Lambda1, Lambda2 of phase indx
         """
-        return CFML_api.crysfml_api.IO_Formats_get_lambda(self.get_fortran_address())["lambda"]
-    
+        if indx:
+            key=indx
+        else:
+            key=0
+        lambda1 = CFML_api.crysfml_api.IO_Formats_get_lambda(self.get_fortran_address(),key+1)["lambda1"]
+        lambda2 = CFML_api.crysfml_api.IO_Formats_get_lambda(self.get_fortran_address(),key+1)["lambda2"]
+            
+        return lambda1, lambda2
+ 
     @property
     def lambda_ratio(self):
         """
-        ratio lambda2/lambda1
+        ratio lambda2/lambda1 
         """
         return CFML_api.crysfml_api.IO_Formats_get_ratio(self.get_fortran_address())["ratio"]
     
@@ -204,6 +264,13 @@ class CIFFile():
         List of atoms (CFML_api.AtomList type)
         """
         return self.__atom_list
+
+    @property
+    def job_info(self):
+        """
+        Info on the type of job (CFML_api.Job_info type)
+        """
+        return self.__job_info
     
     @filename.setter
     def filename(self, filename):
@@ -233,7 +300,7 @@ class CIFFile():
         # Check if file exists
         file_exists = False
         if filename[-4:] == ".cif" or filename[-4:] == ".cfl":
-            if os.path.exists(file):
+            if os.path.exists(filename):
                 file_exists = True
                 if filename[-4:] == ".cif":
                     mode = "CIF"
@@ -252,8 +319,10 @@ class CIFFile():
             raise IOError("No file with name: " + filename)
         else:
                 
-        dict = CFML_api.crysfml_api.IO_formats_readn_set_xtal_structure(self.__filename, mode)
-        self.__cell = CFML_api.API_Crystal_Metrics.Cell.from_fortran_address(dict["Cell"])
-        self.__space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup.from_fortran_address(dict["SpG"])
-        self.__atom_list = CFML_api.API_Atom_TypeDef.AtomList.from_fortran_address(dict["A"])
-        self.__job_info = CFML_api.API_IO_Formats.JobInfo.from_fortran_address(dict["JobInfo"])
+            dict = CFML_api.crysfml_api.IO_Formats_readn_set_xtal_structure(self.__filename, mode)
+            print('mode',mode)
+            self.__cell = CFML_api.API_Crystal_Metrics.Cell.from_fortran_address(dict["Cell"])
+            self.__space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup.from_fortran_address(dict["SpG"])
+            self.__atom_list = CFML_api.API_Atom_TypeDef.AtomList.from_fortran_address(dict["A"])
+            self.__job_info = JobInfo.from_fortran_address(dict["JobInfo"])
+            #self.__job_info = CFML_api.API_IO_Formats.JobInfo.from_fortran_address(dict["JobInfo"])

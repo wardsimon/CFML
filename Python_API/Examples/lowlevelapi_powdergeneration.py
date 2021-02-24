@@ -13,6 +13,9 @@ cif_file = CFML_api.CIFFile(filename)
 cell = cif_file.cell
 space_group = cif_file.space_group
 atom_list = cif_file.atom_list
+job_info = cif_file.job_info
+
+print(job_info.pattern_types)
 
 cell.print_description()
 space_group.print_description()
