@@ -15,17 +15,16 @@ space_group = cif_file.space_group
 atom_list = cif_file.atom_list
 job_info = cif_file.job_info
 
-print(job_info.pattern_types)
-
 cell.print_description()
 space_group.print_description()
 atom_list.print_description()
 
+# Do we want to keep this or use job_info ?
 powder_pattern_simulation_conditions = CFML_api.PowderPatternSimulationConditions()
 
 reflection_list = CFML_api.ReflectionList(
     cell, space_group, True, 0, powder_pattern_simulation_conditions.getSinThetaOverLambdaMax())
-reflection_list.compute_structure_factors(space_group, atom_list)
+reflection_list.compute_structure_factors(space_group, atom_list, job_info)
 
 diffraction_pattern = CFML_api.DiffractionPattern(powder_pattern_simulation_conditions, reflection_list, cell.reciprocal_cell_vol)
 

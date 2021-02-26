@@ -35,6 +35,10 @@ module API_Structure_Factors
       Reflection_List_type_p, &
       get_reflection_list_from_arg
 
+  use API_IO_Formats, only: &
+       Job_info_type_p, &
+       get_job_info_type_from_arg
+
   implicit none
 
 contains
@@ -54,18 +58,24 @@ contains
     type(list)   :: index_obj
     type(object) :: arg_obj
 
-    type(Atom_list_type_p)       :: atom_list_p
+    type(Atom_list_type_p)          :: atom_list_p
     type(Space_Group_type_p)        :: spg_p
     type(Reflection_List_type_p)    :: reflection_list_p
+    type(job_info_type_p)           :: job_p
 
+    character(len=3)       :: mode
+    character(len=16)      :: pattern
+    
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
     call unsafe_cast_from_c_ptr(args, args_ptr)
     ! Check if the arguments are OK
     ierror = args%len(num_args)
 
-    if (num_args /= 3) then
-       call raise_exception(TypeError, "structure_factors_structure_factors expects exactly 3 arguments")
+    write(*,*) 'num_args', num_args
+    
+    if (num_args < 3) then
+       call raise_exception(TypeError, "structure_factors_structure_factors expects at least 3 arguments")
        !@atom_list @space_group.as_fortran_object(), @reflection_list
        call args%destroy
        return
@@ -76,6 +86,23 @@ contains
     call get_space_group_type_from_arg(args, spg_p, 1)
 
     call get_reflection_list_from_arg(args, reflection_list_p, 2)
+
+    write(6,*) 'compute structure factors'
+
+!!$    mode = "XRA"
+!!$    if (num_args == 4) then
+!!$       call get_job_info_type_from_arg(args, job_p, 3)
+
+!!$       pattern = job_p%p%Patt_typ(1)
+!!$       select case(pattern)
+!!$       case("XRAY_2THE","XRAY_SXTA","XRAY_ENER")
+!!$          mode = "XRA"
+!!$       case("NEUT_2THE","NEUT_SXTA","NEUT_TOF")
+!!$          mode = "NUC"
+!!$       case default
+!!$          mode = "XRA"
+!!$       end select
+!!$   endif
 
     call Structure_Factors(atom_list_p%p, spg_p%p, reflection_list_p%p)
 

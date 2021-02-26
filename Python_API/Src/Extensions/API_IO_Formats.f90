@@ -203,10 +203,11 @@ contains
 
   end function IO_Formats_jobinfo_from_CIF_string_array
 
-  subroutine get_job_info_type_from_arg(args, job_info_type_pointer)
+  subroutine get_job_info_type_from_arg(args, job_info_type_pointer, indx)
     
     type(tuple) :: args
     type(Job_info_type_p), intent(out) :: job_info_type_pointer
+    integer, optional, intent(in)      :: indx
 
     type(object) :: arg_obj
     type(list) :: arg_list
@@ -216,8 +217,12 @@ contains
     integer :: ii
     type(object) :: t
 
-    ierror = args%getitem(arg_obj, 0)
-
+    if (present(indx)) then
+       ierror = args%getitem(arg_obj, indx)
+    else
+       ierror = args%getitem(arg_obj, 0)
+    endif
+       
     ierror = cast(arg_list, arg_obj)
     do ii=1,12
        ierror = arg_list%getitem(t, ii-1)

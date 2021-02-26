@@ -34,7 +34,7 @@ class JobInfo(CFML_api.FortranBindedClass):
     """
     def __init__(self, string_array=None):
         CFML_api.FortranBindedClass.__init__(self)
-        if string_array:
+        if string_array is not None:
             dict = CFML_api.crysfml_api.IO_Formats_jobinfo_from_CIF_string_array(string_array)
             self._set_fortran_address(dict["JobInfo"])
             
@@ -43,6 +43,11 @@ class JobInfo(CFML_api.FortranBindedClass):
         address = self.get_fortran_address()
         if address:
             CFML_api.crysfml_api.IO_Formats_del_jobinfo(self.get_fortran_address())
+
+    def print_description(self):
+        """ Prints the job info description """
+        print("test job info")
+        #CFML_api.crysfml_api.crystallographic_symmetry_write_spacegroup(self.get_fortran_address())
     
     @property
     def title(self):
