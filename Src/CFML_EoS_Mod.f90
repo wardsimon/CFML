@@ -79,7 +79,7 @@ Module CFML_EoS
              Get_Pressure, Get_Pressure_Esd, Get_Pressure_X, Get_Property_X, Get_Temperature,   &
              Get_Transition_Pressure, Get_Transition_Strain, Get_Transition_Temperature,        &
              Get_Volume, Get_Volume_Axis, Get_Volume_Cell, Get_Volume_S, Get_Params_Cell,       &
-             Get_Props_General, Get_Props_Third, &
+             Get_Props_General, Get_Props_Third, Isotropic_Cell,  &
              K_Cal, Kp_Cal, Kpp_Cal, &
              Linear_allowed, &
              Pressure_F, Principal_Eos, Pthermal, &
@@ -5287,6 +5287,32 @@ Contains
 
       return
    End Function Get_Volume_Third
+
+   !!----
+   !!---- FUNCTION ISOTROPIC_CELL
+   !!----
+   !!---- returns .true. if crystal system is isotropic or cubic
+   !!----
+   !!---- Date: 23/02/2021
+   !!   
+   Function Isotropic_Cell(cell_eos) result(isotropic)
+
+      !---- Arguments ----!
+    type(eos_cell_type),intent(in)      :: cell_eos
+    logical                             :: isotropic    
+    
+    !---- Local Variables ----!    
+    character(len=len(cell_eos%system)) :: sys
+
+    
+    isotropic=.true.
+    sys=U_case(cell_eos%system)
+    if(index(sys,'ISOT') > 0)return
+    if(index(sys,'CUB')  > 0)return
+    isotropic=.false.
+    
+    return
+    end function Isotropic_Cell
    
    !!----
    !!---- FUNCTION K_CAL
@@ -7316,9 +7342,11 @@ Contains
       end if
 
       !> Cp and CV - write these provided there is a thermal and eos model and non-zero gamma0
-      if (eos%imodel > 0 .and. eos%itherm > 0  .and. .not. eos%linear) then
-         parout(20)=get_cp(P,T,Eos)
-         parout(21)=get_cv(P,T,Eos)
+          if(eos%itherm /= 0 .and. eos%imodel /= 0 .and. (abs(eos%params(18)) >tiny(0._cp) .or. eos%osc_allowed))then
+              if(VscaleMGD(Eos) .and. .not. eos%linear)then
+                 parout(20)=get_cp(P,T,Eos)
+                 parout(21)=get_cv(P,T,Eos)
+              endif
       end if
 
       !> output this datum: dynamic formatting to text string
@@ -7350,8 +7378,11 @@ Contains
       if (eos%itherm == 7 .or.  eos%itherm == 8) &
          text=trim(text)//'  '//trim(rformat(parout(17),ip(17)))
 
-      if (eos%imodel > 0 .and. eos%itherm > 0  .and. .not. eos%linear) &
-         text=trim(text)//'  '//trim(rformat(parout(20),ip(20)))//'  '//trim(rformat(parout(21),ip(21)))
+      if(eos%itherm /= 0 .and. eos%imodel /= 0 .and. (abs(eos%params(18)) >tiny(0._cp) .or. eos%osc_allowed))then
+              if(VscaleMGD(Eos) .and. .not. eos%linear) &
+                text=trim(text)//'  '//trim(rformat(parout(20),ip(20)))//'  '//trim(rformat(parout(21),ip(21)))
+      endif
+      
 
       return
    End Subroutine Eoscal_Text
@@ -11145,7 +11176,10 @@ Contains
       if (eos%itherm == 7)head=trim(head)//' DebyeT'
       if (eos%itherm == 8)head=trim(head)//'    EinT'
 
-      if (eos%imodel > 0 .and. eos%itherm > 0  .and. .not. eos%linear)head=trim(head)//'    Cp      Cv'
+      if(eos%itherm /= 0 .and. eos%imodel /= 0 .and. (abs(eos%params(18)) >tiny(0._cp) .or. eos%osc_allowed))then
+            if(VscaleMGD(Eos) .and. .not. eos%linear)head=trim(head)//'    Cp      Cv'
+      endif
+      
 
       !> Write header
       write(lun,'(/a)')trim(head)
