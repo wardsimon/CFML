@@ -1857,7 +1857,7 @@ Contains
       if (index(U_case(eos%pscale_name),'KBAR') > 0) k=k*1.0E8
 
       select case(eos%itherm)
-         case(7,8)                           !Calculation from Cv, avoiding alpha, which would be recursive
+         case(6,7,8)                           !Calculation from Cv, avoiding alpha, which would be recursive
             v=get_volume(p,t,eos)
             gamma2=get_grun_th(P,T,Eos)**2.0_cp
             !          gamma2=get_grun_V(V,Eos)**2.0_cp
@@ -1913,7 +1913,9 @@ Contains
                cvpart(0)=3.0_cp*eos%params(13)*8.314_cp * (4.0_cp*debye(3,x) -3.0_cp*x/(exp(x)-1))
                ! no scaling, units are in R=8.314 J/mol/K
 
-         case(8)  !Einstein
+          
+            
+         case(6,8)  !Einstein: includes Holland-Powell
             x=get_DebyeT(V,Eos)/t
             if (x < 20)     &        !corresponds to 0.05ThetaE where Cv < 0.00002 J/mol/K
                cvpart(0)=3.0_cp*eos%params(13)*8.314_cp * x**2._cp * exp(x)/(exp(x)-1)**2._cp
@@ -1931,7 +1933,7 @@ Contains
             return        ! this approach not compatible with mode calculations
       end select
 
-      !> Extra oscillators: only allowed in combination with models 7 9 and 10
+      !> Extra oscillators: only allowed in combination with models 6,7,8
       if (eos%osc_allowed .and. sum(eos%iosc) > 0)then
          cvpart(0)=(1._cp-eos%params(40)-eos%params(45))*cvpart(0)     ! partial contribution main oscillator
 
@@ -2493,8 +2495,8 @@ Contains
       if (eos%linear) VV0=VV0**3.0_cp
 
       if (io == 0)then                    !main thermal model
-         if (eos%osc_allowed .and. eos%params(14) > 0.5_cp)then
-            !q-compromise: gamma/V is constant
+         if (eos%osc_allowed .and. eos%params(14) > 0.5_cp )then
+            !q-compromise: gamma/V is constant: MGD and Einstein are allowed q-comp, Holland-Powell is always q-comp
             Grun=eos%params(18)*VV0
 
          else
@@ -6267,7 +6269,7 @@ Contains
             pthp(0)=0.0_cp
       end select
 
-      !>Extra oscillators: only allowed in combination with models 7 9 and 10
+      !>Extra oscillators: only allowed in combination with models 6,7,8
       if (EoS%osc_allowed .and. sum(EoS%iosc) > 0)then
          pthp(0)=(1._cp-EoS%params(40)-EoS%params(45))*pthp(0)     ! partial contribution main oscillator
 
@@ -6868,7 +6870,7 @@ Contains
       end if
 
       !> If MGD or q-compromise type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
-      if (eos%itherm == 7 .or. eos%itherm == 8)then
+      if (eos%itherm == 6 .or. eos%itherm == 7 .or. eos%itherm == 8)then
          if (len_trim(eos%pscale_name) == 0)then
             Warn_EoS=.true.
             Warn_Eos_Mess='EoS must have a Pscale in kbar or GPa'
@@ -8313,8 +8315,9 @@ Contains
             EoS%TRef        = 298.0_cp
             EoS%TRef_fixed  = .false.
             EoS%params(11)  = 298.0_cp             ! Einstein temperature default
+            EoS%params(14)  = 1.0                   ! q-compromise
             EoS%pthermaleos  =.true.
-            EoS%Osc_allowed  =.false.
+            EoS%Osc_allowed  =.true.
 
          case(7,8)                                 ! MGD,  Einstein Osc:
             EoS%factor(10:14)  = 1.0_cp            ! plus gamma0 and q as (18),(19)
@@ -9492,7 +9495,7 @@ Contains
          eos%vcv(4,1:imax)=0._cp
          eos%vcv(1:imax,4)=0._cp
          warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"EoS file in old format for APL EoS: check parameter values carefully"
+         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  EoS file in old format for APL EoS: check parameter values carefully"
       end if
 
       !> Move angle polynomial values from params(1:30) and clear params(1:30)
@@ -9506,6 +9509,18 @@ Contains
          end do
          eos%params(1:30)=0._cp
       end if
+      
+      !>Trap Natom=0 in HP thermal pressure model
+      if(eos%itherm == 6 .and. eos%params(13) == 0)then
+         warn_eos=.true.
+         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Natom was read as zero. Reset it to correct value"
+      endif
+      
+      !>Warn if extra oscillators
+      if(sum(eos%iosc) > 0)then
+         warn_eos=.true.
+         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Extra oscillators in eos file. These are not supported in this version"
+      endif          
 
       !> Now finish setting the other eos components
       call set_eos_names(eos)
@@ -9891,7 +9906,7 @@ Contains
    !!---- SUBROUTINE SET_EOS_IMPLIED_VALUES
    !!----
    !!---- Fix Kp and Kpp values from Model and Order of EoSpar
-   !!----
+   !!---- And other implied values
    !!---- Date: 17/07/2015
    !!
    Subroutine Set_Eos_Implied_Values(Eos)
@@ -9946,10 +9961,20 @@ Contains
 
          case(7) !Kumar
             if (EoS%iorder == 2)ev(3)=4.0_cp
-      end select
+         end select
+         
+         !> Thermal models
+         select case(eos%itherm)
+         case(6)        ! Holland-Powell thermal pressure
+             eos%params(18)=eos%params(1)*eos%params(10)*eos%params(2)/get_cv(eos%pref,eos%tref,eos)
+             eos%params(18)=eos%params(18)/EPthermal_factor(Eos)
+         end select
+         
+         
 
       !> Handle linear or volume
-      if (.not. EoS%linear) then
+
+         if (.not. EoS%linear) then
          if (EoS%iorder == 2) EoS%params(3)=ev(3)
          if (EoS%iorder == 2 .or. EoS%iorder == 3) EoS%params(4)=ev(4)
 
@@ -10151,11 +10176,13 @@ Contains
             EoS%iuse(8:9)=0     ! No dK/dT parameter:
             EoS%iuse(10)=1    ! alpha at Tref
             EoS%iuse(11)=1    ! Einstein T should be reported
-            EoS%iuse(18)=2    ! Grunesien parameter at Pref,Tref
-            EoS%iuse(19)=3    ! Grunesien q power law parameter
+            EoS%iuse(13)=2    ! Natoms per formula unit
+            EoS%iuse(14)=0    ! Flag for q-compromise: does not appear to user
+            EoS%iuse(18)=3    ! Grunesien parameter at Pref,Tref. This is implied by alpha0
+            EoS%iuse(19)=0    ! Grunesien q power law parameter: this is a q-comp model
             EoS%TRef_fixed   = .false.
             EoS%pthermaleos  =.true.
-            EoS%Osc_allowed  =.false.
+            EoS%Osc_allowed  =.true.
 
          case (7,8)             ! Thermal pressure in MGD or Einstein form,
             if (EoS%imodel==0) EoS%iuse(2:4)=2   ! K, Kp refinement is not stable without a pressure model
@@ -10442,7 +10469,11 @@ Contains
             EoS%parname(10:11) = (/'alph0','Th_E '/)
             EoS%comment(10) = 'Constant of thermal expansion at Tref x10^5 K^-1'
             EoS%comment(11) = 'Einstein temperature in K'
-
+            EoS%parname(13) = 'Natom'
+            EoS%comment(13) = 'Number of atoms per formula unit'
+            EoS%parname(14) = 'qcomp'
+            EoS%comment(14) = 'Switch for q-compromise model, +1 for compromise'
+            
          case (7)
             EoS%parname(11) = 'ThMGD'
             EoS%comment(11) = 'Debye temperature in K'
@@ -11749,8 +11780,14 @@ Contains
       write(unit=lun,fmt='(a)') ' '
       write(unit=lun,fmt='(a)') '   Model: '//trim(EoS%tmodel)
 
-      if (EoS%osc_allowed .and. EoS%params(14) > 0.5_cp)       &
-          write(unit=lun,fmt='(a)') '           with q-compromise'
+      if (EoS%osc_allowed .and. EoS%params(14) > 0.5_cp)then
+          if(eos%itherm == 6)then
+            write(unit=lun,fmt='(a)') '           (this is a q-compromise EoS)'
+          else
+            write(unit=lun,fmt='(a)') '           with q-compromise'
+          endif
+      endif
+      
       write(unit=lun,fmt='(a)') ' '
 
       write(unit=lun,fmt='(a,f8.2,a)') '   Temperature of reference: ',EoS%tref,' K'
