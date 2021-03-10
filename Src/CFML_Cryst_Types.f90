@@ -2266,8 +2266,9 @@
                CrystOrt(3,2) = cellv(2)*cosd(ang(1))
                CrystOrt(3,3) = cellv(3)
 
-           case('AB')  !This is the alternate case in the version prior to  2019
-                 ! x//a and Y // b*
+           case('AC')  !This is the alternate case in the version prior to  2019.
+                 ! Incorrectly labelled in 2019 as x//a and Y // b*  = AB!!!! 
+                 !  It is really x//a and Z // c* =AC
                  !  Transponse of the following matrix:
                  !    a = (       a   ,         0           ,       0             )
                  !    b = ( b cosgamma,    b singamma       ,       0             )
