@@ -22,7 +22,6 @@ rem ****---- Intel Compiler ----****
 :IFORT
    ifort /c Sup_Exc.f90 /O2 /nologo /I%CRYSFML%\ifort64\LibC
    ifort /c EnerMag.f90   /O2 /nologo /I%CRYSFML%\ifort64\LibC
-   rem ifort /exe:EnerMag *.obj C:\CrysFML\ifort\LibC\crysfml.lib
    link /subsystem:console /stack:64000000 /out:EnerMag.exe *.obj %CRYSFML%\ifort64\LibC\crysfml.lib
    goto END
 rem
