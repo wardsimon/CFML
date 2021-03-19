@@ -81,6 +81,7 @@ module API_init
 
   use API_Structure_Factors, only: &
        structure_factors_structure_factors, &
+       structure_factors_structure_factors_job, &
        structure_factors_write_structure_factors
 
   use API_Crystal_Metrics, only: &
@@ -229,7 +230,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(171)
+    call method_table%init(172)
 
     !--------------------------
     ! Error Messages (1)
@@ -992,17 +993,24 @@ CONTAINS
 
 
     !--------------------------
-    ! Structure Factors (2)
+    ! Structure Factors (3)
     !--------------------------
     call method_table%add_method("structure_factors_structure_factors", &                  ! method name
          "Computes structure factors", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(structure_factors_structure_factors))  ! address of Fortran function to add
 
+    call method_table%add_method("structure_factors_structure_factors_job", &                  ! method name
+         "Computes structure factors with job info", &       ! doc-string
+         METH_VARARGS, &                                     ! this method takes arguments but no keyword arguments
+         c_funloc(structure_factors_structure_factors_job))  ! address of Fortran function to add
+
     call method_table%add_method("structure_factors_write_structure_factors", &                  ! method name
          "Print structure factors", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(structure_factors_write_structure_factors))  ! address of Fortran function to add
+
+    
     !--------------------------
     ! Crystal Metrics (21)
     !--------------------------

@@ -16,26 +16,27 @@ import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
 class ReflectionList(CFML_api.FortranBindedClass):
-    def __init__(self, cell, spg, lfriedel, value1, value2):
+    def __init__(self, cell, spg, lfriedel, job):
         CFML_api.FortranBindedClass.__init__(self)
+        (stlmin, stlmax) = job.range_stl
         self._set_fortran_address(
             CFML_api.crysfml_api.reflections_utilities_hkl_uni_reflist(
                 cell.get_fortran_address(), spg.get_fortran_address(),
-                lfriedel, value1, value2)["address"])
+                lfriedel, stlmin, stlmax)["address"])
         
     def __del__(self):
         CFML_api.crysfml_api.reflections_utilities_del_reflection_list(self.get_fortran_address())
     
-    def compute_structure_factors(self, space_group, atom_list, job_info=None):
-        if job_info is not None:
-            print("Warning: implementation not finished for job_info")
-            test = job_info.get_fortran_address()
-            
-            CFML_api.crysfml_api.structure_factors_structure_factors(
-                atom_list.get_fortran_address(), space_group.get_fortran_address(),
-                self.get_fortran_address())
-        else:
-            print("No info on the job is given, default calculation is performed")
-            CFML_api.crysfml_api.structure_factors_structure_factors(
-                atom_list.get_fortran_address(), space_group.get_fortran_address(),
-                self.get_fortran_address())
+    def compute_structure_factors(self, space_group, atom_list):
+        print("Warning: implementation not finished - default calculation")
+        CFML_api.crysfml_api.structure_factors_structure_factors(
+            atom_list.get_fortran_address(), space_group.get_fortran_address(),
+            self.get_fortran_address())
+
+    def compute_structure_factors_job(self, space_group, atom_list, job):
+        print("Warning: implementation not finished for job_info")
+                    
+        CFML_api.crysfml_api.structure_factors_structure_factors_job(
+            atom_list.get_fortran_address(), space_group.get_fortran_address(),
+            job.get_fortran_address(), self.get_fortran_address())
+        

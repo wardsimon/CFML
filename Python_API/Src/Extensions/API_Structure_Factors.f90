@@ -19,7 +19,7 @@ module API_Structure_Factors
   use, intrinsic :: iso_fortran_env
 
   use CFML_GlobalDeps,                 only: Cp
-  use CFML_Structure_Factors,      only: &
+  use CFML_Structure_Factors,          only: &
        Structure_Factors, &
        Write_Structure_Factors
 
@@ -61,10 +61,60 @@ contains
     type(Atom_list_type_p)          :: atom_list_p
     type(Space_Group_type_p)        :: spg_p
     type(Reflection_List_type_p)    :: reflection_list_p
+
+    character(len=3)       :: mode
+    character(len=16)      :: pattern
+    real(kind=cp)          :: lambda
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    
+    if (num_args /= 3) then
+       call raise_exception(TypeError, "structure_factors_structure_factors expects exactly 3 arguments")
+       !@atom_list @space_group.as_fortran_object(), @job_info, @reflection_list
+       call args%destroy
+       return
+    endif
+
+    call get_atom_list_type_from_arg(args, atom_list_p, 0)
+
+    call get_space_group_type_from_arg(args, spg_p, 1)
+
+    call get_reflection_list_from_arg(args, reflection_list_p, 2)
+    
+    call Structure_Factors(atom_list_p%p, spg_p%p, reflection_list_p%p)
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+  end function structure_factors_structure_factors
+
+  function structure_factors_structure_factors_job(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr)        :: r
+    type(tuple)        :: args
+    type(dict)         :: retval
+
+    integer            :: num_args
+    integer            :: ierror
+    integer            :: ii
+
+    type(list)   :: index_obj
+    type(object) :: arg_obj
+
+    type(Atom_list_type_p)          :: atom_list_p
+    type(Space_Group_type_p)        :: spg_p
+    type(Reflection_List_type_p)    :: reflection_list_p
     type(job_info_type_p)           :: job_p
 
     character(len=3)       :: mode
     character(len=16)      :: pattern
+    real(kind=cp)          :: lambda
     
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -74,9 +124,9 @@ contains
 
     write(*,*) 'num_args', num_args
     
-    if (num_args < 3) then
-       call raise_exception(TypeError, "structure_factors_structure_factors expects at least 3 arguments")
-       !@atom_list @space_group.as_fortran_object(), @reflection_list
+    if (num_args /= 4) then
+       call raise_exception(TypeError, "structure_factors_structure_factors_job expects exactly 4 arguments")
+       !@atom_list @space_group.as_fortran_object(), @job_info, @reflection_list
        call args%destroy
        return
     endif
@@ -87,29 +137,17 @@ contains
 
     call get_reflection_list_from_arg(args, reflection_list_p, 2)
 
-    write(6,*) 'compute structure factors'
-
-!!$    mode = "XRA"
-!!$    if (num_args == 4) then
-!!$       call get_job_info_type_from_arg(args, job_p, 3)
-
-!!$       pattern = job_p%p%Patt_typ(1)
-!!$       select case(pattern)
-!!$       case("XRAY_2THE","XRAY_SXTA","XRAY_ENER")
-!!$          mode = "XRA"
-!!$       case("NEUT_2THE","NEUT_SXTA","NEUT_TOF")
-!!$          mode = "NUC"
-!!$       case default
-!!$          mode = "XRA"
-!!$       end select
-!!$   endif
-
+    call get_job_info_type_from_arg(args, job_p, 3)
+     
+    write(*,*) 'Got the job'
+    flush(6)
+    
     call Structure_Factors(atom_list_p%p, spg_p%p, reflection_list_p%p)
 
     ierror = dict_create(retval)
     r = retval%get_c_ptr()
 
-  end function structure_factors_structure_factors
+  end function structure_factors_structure_factors_job
 
   function structure_factors_write_structure_factors(self_ptr, args_ptr) result(r) bind(c)
 

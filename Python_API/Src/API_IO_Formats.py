@@ -329,5 +329,6 @@ class CIFFile():
             self.__cell = CFML_api.API_Crystal_Metrics.Cell.from_fortran_address(dict["Cell"])
             self.__space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup.from_fortran_address(dict["SpG"])
             self.__atom_list = CFML_api.API_Atom_TypeDef.AtomList.from_fortran_address(dict["A"])
+
             self.__job_info = JobInfo.from_fortran_address(dict["JobInfo"])
             #self.__job_info = CFML_api.API_IO_Formats.JobInfo.from_fortran_address(dict["JobInfo"])

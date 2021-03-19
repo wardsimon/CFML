@@ -18,7 +18,7 @@ module API_IO_Formats
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env 
 
-  use CFML_GlobalDeps,                only: cp
+  use CFML_GlobalDeps,                only: cp, sp, pi
   use CFML_IO_Formats,                only: &
        Job_Info_type, &
        Get_Job_Info, &
@@ -81,7 +81,16 @@ contains
     ierror = cast_nonstrict(mode, mode_obj)
 
     allocate(cell_p%p, spg_p%p, a_p%p, job_p%p)
-    call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode=mode,Job_info=job_p%p)
+    
+
+    if (mode == 'CIF') then
+       call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode='CIF')
+
+       call Init_Job_info(job_p%p)
+       
+    else
+       call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode=mode, Job_Info=job_p%p)
+    end if
 
     cell_p12 = transfer(cell_p, cell_p12)
     ierror = list_create(cell_obj)
@@ -111,12 +120,110 @@ contains
     ierror = retval%setitem("Cell", cell_obj)
     ierror = retval%setitem("SpG",  spg_obj)
     ierror = retval%setitem("A",    a_obj)
+    
     ierror = retval%setitem("JobInfo", job_obj)
 
     r = retval%get_c_ptr()
     call args%destroy
 
   end function IO_formats_readn_set_xtal_structure
+
+  subroutine Init_Job_info(job_info)
+
+    type(Job_Info_type) :: job_info
+
+    integer                           :: n_pat, nphas
+    real(kind=sp)                     :: a1,a2,a3,a4,a5
+
+    n_pat=1
+    nphas=1
+    
+    Job_info%title=" General Job: CrysFML"
+    Job_info%Num_Patterns=1
+    Job_info%Num_Patterns = 1
+    Job_info%Num_Phases= 1
+    Job_info%Num_Cmd= 0
+
+    if (allocated(Job_Info%Patt_typ)) deallocate(Job_Info%Patt_typ)
+    allocate(Job_Info%Patt_typ(n_pat))
+
+    if (allocated(Job_Info%Phas_nam)) deallocate(Job_Info%Phas_nam)
+    allocate(Job_Info%Phas_nam(nphas))
+
+    if (allocated(Job_Info%range_stl)) deallocate(Job_Info%range_stl)
+    allocate(Job_Info%range_stl(n_pat))
+
+    if (allocated(Job_Info%range_q)) deallocate(Job_Info%range_q)
+    allocate(Job_Info%range_q(n_pat))
+
+    if (allocated(Job_Info%range_d)) deallocate(Job_Info%range_d)
+    allocate(Job_Info%range_d(n_pat))
+
+    if (allocated(Job_Info%range_2theta)) deallocate(Job_Info%range_2theta)
+    allocate(Job_Info%range_2theta(n_pat))
+
+    if (allocated(Job_Info%range_energy)) deallocate(Job_Info%range_energy)
+    allocate(Job_Info%range_energy(n_pat))
+
+    if (allocated(Job_Info%range_tof)) deallocate(Job_Info%range_tof)
+    allocate(Job_Info%range_tof(n_pat))
+
+    if (allocated(Job_Info%lambda)) deallocate(Job_Info%lambda)
+    allocate(Job_Info%lambda(n_pat))
+
+    if (allocated(Job_Info%ratio)) deallocate(Job_Info%ratio)
+    allocate(Job_Info%ratio(n_pat))
+
+    if (allocated(Job_Info%dtt1)) deallocate(Job_Info%dtt1)
+    allocate(Job_Info%dtt1(n_pat))
+
+    if (allocated(Job_Info%dtt2)) deallocate(Job_Info%dtt2)
+    allocate(Job_Info%dtt2(n_pat))
+
+    Job_Info%Patt_typ    =" "
+    Job_Info%Phas_nam    =" "
+    Job_Info%range_stl%mina=0.0
+    Job_Info%range_stl%maxb=0.0
+    Job_Info%range_q%mina=0.0
+    Job_Info%range_q%maxb=0.0
+    Job_Info%range_d%mina=0.0
+    Job_Info%range_d%maxb=0.0
+    Job_Info%range_2theta%mina=0.0
+    Job_Info%range_2theta%maxb=0.0
+    Job_Info%range_Energy%mina=0.0
+    Job_Info%range_Energy%maxb=0.0
+    Job_Info%range_tof%mina=0.0
+    Job_Info%range_tof%maxb=0.0
+    Job_Info%Lambda%mina=0.0
+    Job_Info%Lambda%maxb=0.0
+    Job_Info%ratio = 0.0
+    Job_Info%dtt1 = 0.0
+    Job_Info%dtt2 = 0.0
+    
+    
+    a1=1.5405
+    a2=a1
+    a3=0.0
+    a4=0.0
+    a5=120.0
+    Job_Info%Patt_typ(n_pat)="XRAY_2THE"
+    Job_Info%Lambda(n_pat)%mina=a1
+    Job_Info%Lambda(n_pat)%maxb=a2
+    Job_Info%ratio(n_pat)=a3
+    Job_Info%range_2theta(n_pat)%mina=a4
+    Job_Info%range_2theta(n_pat)%maxb=a5
+    a4=sind(0.5*a4)/a1
+    a5=sind(0.5*a5)/a2
+    Job_Info%range_stl(n_pat)%mina=a4
+    Job_Info%range_stl(n_pat)%maxb=a5
+    Job_Info%range_q(n_pat)%mina=a4*4.0*pi
+    Job_Info%range_q(n_pat)%maxb=a5*4.0*pi
+    Job_Info%range_d(n_pat)%mina=0.5/a5
+    Job_Info%range_d(n_pat)%maxb=0.5/a4
+
+    Job_Info%Phas_nam(1)= Job_info%title
+
+  end subroutine Init_Job_info
 
   ! @brief Create an atom list from an array of CIF lines
   function IO_Formats_jobinfo_from_CIF_string_array(self_ptr, args_ptr) result(r) bind(c)
@@ -207,7 +314,7 @@ contains
     
     type(tuple) :: args
     type(Job_info_type_p), intent(out) :: job_info_type_pointer
-    integer, optional, intent(in)      :: indx
+    integer, optional    :: indx
 
     type(object) :: arg_obj
     type(list) :: arg_list

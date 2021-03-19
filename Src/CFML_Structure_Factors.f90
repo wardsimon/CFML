@@ -2887,6 +2887,8 @@
        character(len=*), optional,         intent(in)     :: Mode
        real(kind=cp), optional,            intent(in)     :: lambda
 
+       
+       
        !Provisional items
        ! integer::i,j
        !---------------
@@ -2899,11 +2901,14 @@
        else
           if(present(lambda)) then
             if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp,Lambda=lambda)
-          else
-            if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp)
+         else
+            write(*,*) 'init SF >>>'
+             if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp)
+             write(*,*) '<< init SF'
           end if
        end if
 
+       
        !---- Table TH ----!
        Call Calc_Table_TH(Reflex,Atm)
 
