@@ -6211,7 +6211,30 @@ Contains
 
       return
    End Function Principal_EoS
-   
+   !!----
+   !!---- FUNCTION PSCALEMGD
+   !!----
+   !!---- Date: 31/03/2021
+   !!
+   Function PscaleMGD(EoS) Result(MGD)
+      !---- Arguments ----!
+      type(Eos_Type), intent(in)  :: EoS          ! EoS
+      logical                     :: MGD        ! .true. if e%pscale_name iskbar or Gpa
+
+      !---- Local Variables ----!
+      character(len=len(eos%vscale_name)) :: vname
+
+      MGD=.false.
+
+      vname=adjustl(U_case(eos%pscale_name))
+      if (len_trim(vname) == 0)return
+
+      if (index(vname,'GPA') > 0 ) MGD=.true.
+      if (index(vname,'KBAR') > 0 ) MGD=.true.
+
+
+      return
+   End Function PscaleMGD   
    !!----
    !!---- FUNCTION PTHERMAL
    !!----
@@ -6870,13 +6893,13 @@ Contains
       end if
 
       !> If MGD or q-compromise type thermal EoS, must have eos%pscale_name and eos%_Vscale_name
-      if (eos%itherm == 6 .or. eos%itherm == 7 .or. eos%itherm == 8)then
-         if (len_trim(eos%pscale_name) == 0)then
+      if (eos%itherm == 7 .or. eos%itherm == 8)then
+         if ( .not. pscaleMGD(Eos))then
             Warn_EoS=.true.
             Warn_Eos_Mess='EoS must have a Pscale in kbar or GPa'
          end if
 
-         if (len_trim(eos%Vscale_name) == 0 .or. .not. VscaleMGD(EoS))then
+         if ( .not. VscaleMGD(EoS))then
             Warn_EoS=.true.
             if (len_trim(Warn_EoS_Mess) == 0)then
                Warn_Eos_Mess='EoS must have a Vscale in cm3/mol'
@@ -7471,7 +7494,7 @@ Contains
    !!--..      Written 7-April-2014 to fix invalid eos parameters and report as error message
    !!--..      This is different from physical_check, because that checks properties at specific
    !!--..      p and T
-   !!----
+   !!----      Later added warning state for non-fatal problems
    !!---- Date: 11/07/2016
    !!
    Subroutine EoSParams_Check(EoS)
@@ -7565,6 +7588,45 @@ Contains
                   err_eos_mess=trim(err_eos_mess)//' And '//trim(EoS%comment(11))//' was =< 0. Not allowed! Reset to Tref'
                end if
             end if
+            
+            if(eos%itherm == 7 .or. eos%itherm ==8)then !thermal P require Natom, only Cv and alpha need this in HP2011
+               if(eos%params(13) < 1.0)then
+                   err_eos=.true.
+                   if (len_trim(err_eos_mess) == 0) then
+                        err_eos_mess='Natom < 1.0 not valid: reset it!'
+                    else
+                        err_eos_mess=trim(err_eos_mess)//' And Natom < 1.0 not valid: reset it!'
+                    end if
+               endif
+               if ( .not. pscaleMGD(Eos))then
+                   err_eos=.true.
+                   if (len_trim(err_eos_mess) == 0) then
+                        err_eos_mess='Pscale must be GPa or kbar'
+                    else
+                        err_eos_mess=trim(err_eos_mess)//' And Pscale must be GPa or kbar'
+                    end if     
+               endif
+               if ( .not. vscaleMGD(Eos))then
+                   err_eos=.true.
+                   if (len_trim(err_eos_mess) == 0) then
+                        err_eos_mess='Vscale must be cm^3/mol'
+                    else
+                        err_eos_mess=trim(err_eos_mess)//' And Vscale must be cm^3/mol'
+                    end if     
+               endif
+             elseif(eos%itherm == 6)then !only Cv and alpha need this in HP2011
+               if(eos%params(13) < 1.0)then
+                   warn_eos=.true.
+                   if (len_trim(warn_eos_mess) == 0) then
+                        warn_eos_mess='Natom =0 so PVT  correct, but not heat capacities or calculated alpha'
+                    else
+                        warn_eos_mess=trim(warn_eos_mess)//' And Natom =0 so PVT  correct, but not heat capacities or calculated alpha'
+                    endif
+               end if
+               
+            endif
+            
+            
          end select
 
       !> Check q-comp switch
@@ -9315,7 +9377,8 @@ Contains
       character(len=255)                            :: text
       character(len=10)                             :: forma
       real(kind=cp)                                 :: val
-
+      character(len=255)                            :: wtext    !local warning message, transferred to Warn_Eos_Mess on exit
+      logical                                       :: warn     !local flag: needed to prevent potential over-writing by other routines
 
       !> initialisation
       call init_eos_type(eos)
@@ -9325,6 +9388,8 @@ Contains
       ierr=0
       idoc=0                      ! local counter
       nlines=size(flines)
+      warn=.false.
+      wtext=' '
 
       do
          nl=nl+1
@@ -9482,8 +9547,8 @@ Contains
          eos%vcv(1:imax,8:9)=eos%vcv(1:imax,5:6)
          eos%vcv(5:6,1:imax)=0._cp
          eos%vcv(1:imax,5:6)=0._cp
-         warn_eos=.true.
-         Warn_Eos_Mess="EoS file in old format for cross terms: check parameter values carefully"
+         warn=.true.
+         Wtext="EoS file in old format for cross terms: check parameter values carefully"
       end if
 
       !> Trap move of Z for APL from params(4) to (5): do it after icross so no conflict with cross terms
@@ -9494,8 +9559,8 @@ Contains
          eos%vcv(1:imax,5)=eos%vcv(1:imax,4)
          eos%vcv(4,1:imax)=0._cp
          eos%vcv(1:imax,4)=0._cp
-         warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  EoS file in old format for APL EoS: check parameter values carefully"
+         warn=.true.
+         Wtext=trim(Wtext)//"  EoS file in old format for APL EoS: check parameter values carefully"
       end if
 
       !> Move angle polynomial values from params(1:30) and clear params(1:30)
@@ -9512,14 +9577,14 @@ Contains
       
       !>Trap Natom=0 in HP thermal pressure model
       if(eos%itherm == 6 .and. eos%params(13) == 0)then
-         warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Natom was read as zero. Reset it to correct value"
+         warn=.true.
+         Wtext=trim(Wtext)//"  Natom was read as zero. PVT will be correct, but not heat capacities or calculated alpha"
       endif
       
       !>Warn if extra oscillators
       if(sum(eos%iosc) > 0)then
-         warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Extra oscillators in eos file. These are not supported in this version"
+         warn=.true.
+         Wtext=trim(Wtext)//"  Extra oscillators in eos file. These are not supported in this version"
       endif          
 
       !> Now finish setting the other eos components
@@ -9540,8 +9605,13 @@ Contains
          eos%esd(i)=sqrt(eos%vcv(i,i))   ! set the esd's from the vcv
       end do
 
-      call set_eos_implied_values(eos)           ! set implied values
-
+      call set_eos_implied_values(eos)           ! set implied values. Calls from this routine may clear Warn_Eos_Mess
+      if(warn)then
+          Warn_Eos_Mess=trim(Warn_Eos_Mess)//' '//trim(wtext)
+          Warn_eos=.true.
+      endif
+      
+      
       !> we have to also set the refinement flags to match vcv
       do i=1,n_eospar
          if (abs(eos%vcv(i,i)) > tiny(0.0)) eos%iref(i)=1
