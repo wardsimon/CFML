@@ -6236,7 +6236,7 @@ Contains
 
 
       return
-   End Function PscaleMGD
+   End Function PscaleMGD   
 
    !!----
    !!---- FUNCTION PTHERMAL
@@ -7591,7 +7591,7 @@ Contains
                   err_eos_mess=trim(err_eos_mess)//' And '//trim(EoS%comment(11))//' was =< 0. Not allowed! Reset to Tref'
                end if
             end if
-
+            
             if(eos%itherm == 7 .or. eos%itherm ==8)then !thermal P require Natom, only Cv and alpha need this in HP2011
                if(eos%params(13) < 1.0)then
                    err_eos=.true.
@@ -7607,7 +7607,7 @@ Contains
                         err_eos_mess='Pscale must be GPa or kbar'
                     else
                         err_eos_mess=trim(err_eos_mess)//' And Pscale must be GPa or kbar'
-                    end if
+                    end if     
                endif
                if ( .not. vscaleMGD(Eos))then
                    err_eos=.true.
@@ -7615,7 +7615,7 @@ Contains
                         err_eos_mess='Vscale must be cm^3/mol'
                     else
                         err_eos_mess=trim(err_eos_mess)//' And Vscale must be cm^3/mol'
-                    end if
+                    end if     
                endif
              elseif(eos%itherm == 6)then !only Cv and alpha need this in HP2011
                if(eos%params(13) < 1.0)then
@@ -7626,10 +7626,10 @@ Contains
                         warn_eos_mess=trim(warn_eos_mess)//' And Natom =0 so PVT  correct, but not heat capacities or calculated alpha'
                     endif
                end if
-
+               
             endif
-
-
+            
+            
          end select
 
       !> Check q-comp switch
@@ -9577,30 +9577,22 @@ Contains
          end do
          eos%params(1:30)=0._cp
       end if
-
+      
       !>Trap Natom=0 in HP thermal pressure model
       if(eos%itherm == 6 .and. eos%params(13) == 0)then
          warn=.true.
          Wtext=trim(Wtext)//"  Natom was read as zero. PVT will be correct, but not heat capacities or calculated alpha"
       endif
-
+      
       !>Warn if extra oscillators
       if(sum(eos%iosc) > 0)then
          warn=.true.
          Wtext=trim(Wtext)//"  Extra oscillators in eos file. These are not supported in this version"
-      endif
+      endif          
 
-      !>Trap Natom=0 in HP thermal pressure model
-      if(eos%itherm == 6 .and. eos%params(13) == 0)then
-         warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Natom was read as zero. Reset it to correct value"
-      endif
 
-      !>Warn if extra oscillators
-      if(sum(eos%iosc) > 0)then
-         warn_eos=.true.
-         Warn_Eos_Mess=trim(Warn_Eos_Mess)//"  Extra oscillators in eos file. These are not supported in this version"
-      endif
+
+
 
       !> Now finish setting the other eos components
       call set_eos_names(eos)
@@ -9625,8 +9617,8 @@ Contains
           Warn_Eos_Mess=trim(Warn_Eos_Mess)//' '//trim(wtext)
           Warn_eos=.true.
       endif
-
-
+      
+      
       !> we have to also set the refinement flags to match vcv
       do i=1,n_eospar
          if (abs(eos%vcv(i,i)) > tiny(0.0)) eos%iref(i)=1
