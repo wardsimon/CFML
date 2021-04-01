@@ -77,6 +77,7 @@ Module CFML_EoS
              Get_Grun_Th,Get_Grun_V, Get_K, Get_Kp, Get_Mod_Axis, Get_Mod_Cell,                 &
              Get_Modp_Axis, Get_Modp_Cell, Get_Press_Axis, Get_Press_Cell,                      &
              Get_Pressure, Get_Pressure_Esd, Get_Pressure_X, Get_Property_X, Get_Temperature,   &
+             Get_Temperature_P0,                                                                &
              Get_Transition_Pressure, Get_Transition_Strain, Get_Transition_Temperature,        &
              Get_Volume, Get_Volume_Axis, Get_Volume_Cell, Get_Volume_S, Get_Params_Cell,       &
              Get_Props_General, Get_Props_Third, Isotropic_Cell,  &
@@ -84,10 +85,10 @@ Module CFML_EoS
              Linear_allowed, &
              Pressure_F, Principal_Eos, Pthermal, &
              Set_XdataTypes, Strain, Strain_EOS, &
-             Thermal_Pressure_Eos, Transition_Phase, & 
+             Thermal_Pressure_Eos, Transition_Phase, &
              VscaleMGD
 
-             
+
    public :: Allocate_EoS_Data_List, Allocate_EoS_List, &
              Calc_Conlev, Check_scales, Copy_Eos_Data_List, &
              Deallocate_EoS_Data_List, Deallocate_EoS_List, Def_Crystal_System, &
@@ -102,7 +103,7 @@ Module CFML_EoS
              Set_Cell_Types, Set_Eos_Implied_Values, Set_Eos_Names, Set_Eos_Use,      &
              Write_Data_Conlev, Write_EoS_DataFile, Write_EoS_File, Write_Eoscal,     &
              Write_Eoscal_Header, Write_Info_Conlev, Write_Info_EoS, Write_Info_Eos_Cell_Type
-             
+
 
    !--------------------!
    !---- PARAMETERS ----!
@@ -1759,16 +1760,16 @@ Contains
 
       return
    End Function Get_Angle_VolFactor_Deriv2
-   
+
    !!--++
    !!--++ FUNCTION GET_APL
    !!--++
    !!--++ Returns a,b,c APL parameters and their derivatives in vectors.
    !!--++
    !!--++ output values:
-   !!--++      a(1,j) are a,b,c 
-   !!--++      a(2,j) are first derivs 
-   !!--++      a(3,j) are second derivs of the a,b,c 
+   !!--++      a(1,j) are a,b,c
+   !!--++      a(2,j) are first derivs
+   !!--++      a(3,j) are second derivs of the a,b,c
    !!--++
    !!--++ Explicit values of VV0 etc used as input, because this depends on thermal model etc
    !!--++ not just on the PV model parameters
@@ -1779,7 +1780,7 @@ Contains
       !---- Arguments ----!
       real(kind=cp),               intent(in)  :: VV0, V0, K0, Kp, Kpp, Z   !input parameters: VV0 is V/V0
       integer,                     intent(in)  :: iorder
-      real(kind=cp),dimension(3,3)             :: a  
+      real(kind=cp),dimension(3,3)             :: a
 
       !---- Local Variables ----!
       real(kind=cp) :: x,c0,c2,c3,pFG0
@@ -1913,8 +1914,8 @@ Contains
                cvpart(0)=3.0_cp*eos%params(13)*8.314_cp * (4.0_cp*debye(3,x) -3.0_cp*x/(exp(x)-1))
                ! no scaling, units are in R=8.314 J/mol/K
 
-          
-            
+
+
          case(6,8)  !Einstein: includes Holland-Powell
             x=get_DebyeT(V,Eos)/t
             if (x < 20)     &        !corresponds to 0.05ThetaE where Cv < 0.00002 J/mol/K
@@ -2541,7 +2542,7 @@ Contains
       real(kind=cp), intent(in)    :: t    ! Tenperature
       type(Eos_Type),intent(in)    :: Eos  ! Eos Parameters
       real(kind=cp)                :: k
-      
+
       !---- Local Variables ----!
       real(kind=cp) :: v
 
@@ -2568,7 +2569,7 @@ Contains
       real(kind=cp),  intent(in) :: T    ! Temperature
       type(Eos_Type), intent(in) :: EoS  ! Eos Parameter
       real(kind=cp)              :: k0
-      
+
       !---- Local Variables ----!
       real(kind=cp) :: vr
 
@@ -2604,7 +2605,7 @@ Contains
       real(kind=cp),intent(in)        :: t    ! Tenperature
       type(Eos_Type),intent(in)       :: Eos  ! Eos Parameters
       real(kind=cp)                   :: kp
-      
+
       !---- Local Variables ----!
       real(kind=cp) :: v
 
@@ -2629,7 +2630,7 @@ Contains
       real(kind=cp),  intent(in) :: T    ! Temperature
       type(Eos_Type), intent(in) :: EoS  ! Eos Parameter
       real(kind=cp)              :: kp0
-      
+
       !---- Local Variables ----!
       real(kind=cp) :: vr
 
@@ -2808,7 +2809,7 @@ Contains
          y(i)=get_Volume_cell(Pcal,T,cell_eos,axis)
          pcal=pcal+pstep
       end do
-      
+
       call Second_Derivative(x, y, NSTEP, d2y)
       call First_Derivative(x, y, NSTEP, d2y, dy)
 
@@ -2832,7 +2833,7 @@ Contains
       type(eos_cell_type), intent(in) :: cell_eos
       integer,             intent(in) :: ieos     ! the modulus of the axis (1,2,3) or V (0) to be calculated
       real(kind=cp)                   :: modu
-      
+
       !---- Local Variables ----!
       integer       :: i
       real(kind=cp) :: beta_ang
@@ -3002,7 +3003,7 @@ Contains
          y(i)=get_mod_general(Pcal,T,cell_eos,axis)
          pcal=pcal+pstep
       end do
-      
+
       call Second_Derivative(x, y, NSTEP, d2y)
       call First_Derivative(x, y, NSTEP, d2y, dy)
       imid=int(NSTEP/2) + 1
@@ -3100,7 +3101,7 @@ Contains
    End Function Get_Modp_Third
 
 
-   
+
    !!----
    !!---- FUNCTION GET_PARAMS_CELL
    !!----    returns full cell parameters in crystal_cell_type for input P and T
@@ -3594,7 +3595,7 @@ Contains
       integer,                 intent(in) :: itype
       real(kind=cp), optional, intent(in) :: Pest    ! approx pressure: needed if transitions
       real(kind=cp)                       :: p
-      
+
       !---- Local Variables ----!
       integer            :: ic,irev
       real(kind=cp)      :: temp,ktarget,kcalc,ktol,step,del,delprev,pprev,v0,step_prev
@@ -3738,7 +3739,7 @@ Contains
       type(Eos_Type),    intent(in) :: EoS     ! Eos Parameter
       integer, optional, intent(in) :: xtype   ! =0 when X=V, =1 for X=K (isothermal)
       real(kind=cp)                 :: Val
-       
+
       !---- Local Variables ----!
       integer       :: itype
       real(kind=cp) :: vol, agt
@@ -3796,7 +3797,7 @@ Contains
 
       return
    End Function Get_Props_General
-   
+
    !!--++
    !!--++ FUNCTION GET_PROPS_PTVTABLE
    !!--++
@@ -3963,7 +3964,7 @@ Contains
 
       return
    End Function Get_Props_PTVTable
-   
+
    !!----
    !!---- FUNCTION GET_PROPS_THIRD
    !!----
@@ -3993,7 +3994,7 @@ Contains
 
       return
    End Function Get_Props_Third
-   
+
    !!--++
    !!--++ SUBROUTINE GET_TAIT
    !!--++
@@ -4044,7 +4045,7 @@ Contains
 
       return
    End Function Get_Tait
-   
+
    !!----
    !!---- FUNCTION GET_TEMPERATURE
    !!----
@@ -4118,7 +4119,7 @@ Contains
 
       return
    End Function Get_Temperature
-   
+
    !!--++
    !!--++ FUNCTION GET_TEMPERATURE_P0
    !!--++
@@ -4129,11 +4130,11 @@ Contains
    Function Get_Temperature_P0(V, EoS, Tmin, Tmax) Result(Tk)
       !---- Arguments ----!
       real(kind=cp),           intent(in) :: V       ! Volume at temperature T or Pth (Pthermal case)
-      type(Eos_Type),          intent(in) :: EoS    ! Eos Parameter
-      real(kind=cp), optional, intent(in) :: Tmin      ! Range for solution in T
+      type(Eos_Type),          intent(in) :: EoS     ! Eos Parameter
+      real(kind=cp), optional, intent(in) :: Tmin    ! Range for solution in T
       real(kind=cp), optional, intent(in) :: Tmax
       real(kind=cp)                       :: tk
-      
+
       !---- Local Variables ----!
       real(kind=cp)                      :: tref
       real(kind=cp)                      :: v00,v0T
@@ -4398,7 +4399,7 @@ Contains
 
       return
    End Function Get_Temperature_P0
-   
+
    !!----
    !!---- FUNCTION GET_TRANSITION_PRESSURE
    !!----
@@ -4446,7 +4447,7 @@ Contains
 
       return
    End Function Get_Transition_Pressure
-   
+
    !!----
    !!---- FUNCTION GET_TRANSITION_STRAIN
    !!----
@@ -4507,7 +4508,7 @@ Contains
 
       return
    End Function Get_Transition_Strain
-   
+
    !!----
    !!---- FUNCTION GET_TRANSITION_TEMPERATURE
    !!----
@@ -4540,7 +4541,7 @@ Contains
 
       return
    End Function Get_Transition_Temperature
-   
+
    !!--++
    !!--++ FUNCTION GET_V0_AXIS
    !!--++
@@ -4610,7 +4611,7 @@ Contains
 
       return
    End Function Get_V0_Cell
-   
+
    !!--++
    !!--++ FUNCTION Get_V0_T
    !!--++
@@ -4711,7 +4712,7 @@ Contains
 
       return
    End Function Get_V0_T
-   
+
    !!----
    !!---- FUNCTION GET_VOLUME
    !!----
@@ -4992,7 +4993,7 @@ Contains
 
       return
    End Function Get_Volume_Cell
-   
+
    !!--++
    !!--++ FUNCTION GET_VOLUME_GENERAL
    !!--++
@@ -5068,7 +5069,7 @@ Contains
                V=2.0_cp*EoS%params(1)            !stop infinite looping
                return
             end if
-            
+
          else
             if (Kc > K)exit
             if (Vprev < 0.001_cp*EoS%params(1) )then
@@ -5114,7 +5115,7 @@ Contains
 
       return
    End Function Get_Volume_K
-   
+
    !!--++
    !!--++ FUNCTION GET_VOLUME_K_OLD
    !!--++
@@ -5156,7 +5157,7 @@ Contains
 
       return
    End Function Get_Volume_K_old
-   
+
    !!----
    !!---- FUNCTION GET_VOLUME_S
    !!----
@@ -5247,7 +5248,7 @@ Contains
          vfactor=sqrt(3.0_cp)/2.0_cp
 
       call init_err_eos()
-      
+
       select case(U_case(cell_eos%system(1:4)))
          case('ORTH','MONO','TRIC')
             vfactor=Get_Angle_Volfactor(P,T,cell_eos)
@@ -5296,26 +5297,26 @@ Contains
    !!---- returns .true. if crystal system is isotropic or cubic
    !!----
    !!---- Date: 23/02/2021
-   !!   
+   !!
    Function Isotropic_Cell(cell_eos) result(isotropic)
 
       !---- Arguments ----!
     type(eos_cell_type),intent(in)      :: cell_eos
-    logical                             :: isotropic    
-    
-    !---- Local Variables ----!    
+    logical                             :: isotropic
+
+    !---- Local Variables ----!
     character(len=len(cell_eos%system)) :: sys
 
-    
+
     isotropic=.true.
     sys=U_case(cell_eos%system)
     if(index(sys,'ISOT') > 0)return
     if(index(sys,'CUB')  > 0)return
     isotropic=.false.
-    
+
     return
     end function Isotropic_Cell
-   
+
    !!----
    !!---- FUNCTION K_CAL
    !!----
@@ -5871,7 +5872,7 @@ Contains
 
       return
    End Function Kpp_Cal
-   
+
    !!----
    !!---- FUNCTION LINEAR_ALLOWED
    !!----
@@ -5894,7 +5895,7 @@ Contains
 
       return
    End Function Linear_Allowed
-   
+
    !!--++
    !!--++ FUNCTION MURN_INTERPOLATE_PTVTABLE
    !!--++
@@ -5933,7 +5934,7 @@ Contains
 
       return
    End Function Murn_Interpolate_PTV_Table
-   
+
    !!--++
    !!--++ SUBROUTINE MURN_PTV_TABLE
    !!--++
@@ -5987,7 +5988,7 @@ Contains
 
       return
    End Function Murn_PTV_Table
-   
+
    !!--++
    !!--++ FUNCTION NORMPRESSURE_EOS
    !!--++
@@ -6070,7 +6071,7 @@ Contains
 
       return
    End Function NormPressure_Eos
-   
+
    !!--++
    !!--++ FUNCTION NORMPRESSURE_P
    !!--++
@@ -6120,7 +6121,7 @@ Contains
 
       return
    End Function NormPressure_P
-   
+
    !!----
    !!---- FUNCTION PRESSURE_F
    !!----
@@ -6211,6 +6212,7 @@ Contains
 
       return
    End Function Principal_EoS
+
    !!----
    !!---- FUNCTION PSCALEMGD
    !!----
@@ -6235,6 +6237,7 @@ Contains
 
       return
    End Function PscaleMGD   
+
    !!----
    !!---- FUNCTION PTHERMAL
    !!----
@@ -6332,7 +6335,7 @@ Contains
 
       return
    End Function Pthermal
-   
+
    !!----
    !!---- FUNCTION SET_XDATATYPES
    !!----
@@ -6366,7 +6369,7 @@ Contains
 
       return
    End Function Set_XdataTypes
-   
+
    !!----
    !!---- FUNCTION STRAIN
    !!----
@@ -6448,7 +6451,7 @@ Contains
 
       return
    End Function Strain_EOS
-   
+
    !!----
    !!---- FUNCTION THERMAL_PRESSURE_EOS
    !!----
@@ -6475,7 +6478,7 @@ Contains
 
       return
    End Function Thermal_Pressure_Eos
-   
+
    !!--++
    !!--++ FUNCTION TRANSFORM_ESD
    !!--++
@@ -6555,7 +6558,7 @@ Contains
 
       return
    End Function Transform_Esd
-   
+
    !!----
    !!---- LOGICAL FUNCTION TRANSITION_PHASE
    !!----
@@ -6600,7 +6603,7 @@ Contains
 
       return
    End Function Transition_Phase
-   
+
    !!----
    !!---- FUNCTION VSCALEMGD
    !!----
@@ -6625,7 +6628,7 @@ Contains
    End Function VscaleMGD
 
 
-   
+
    !---------------------!
    !---- SUBROUTINES ----!
    !---------------------!
@@ -6808,7 +6811,7 @@ Contains
 
       return
    End Subroutine Calc_Conlev
-   
+
    !!--++
    !!--++ SUBROUTINE CHECK_AXIS
    !!--++
@@ -6816,7 +6819,7 @@ Contains
    !!--++
    !!--++ Date: 15/12/2020  (does not appear to be used???)
    !!
-   Subroutine Check_Axis(Cell, Axis, OK) 
+   Subroutine Check_Axis(Cell, Axis, OK)
       !---- Arguments ----!
       type(eos_cell_type), intent(in out) :: cell
       type(axis_type),     intent(in)     :: axis
@@ -7407,7 +7410,7 @@ Contains
               if(VscaleMGD(Eos) .and. .not. eos%linear) &
                 text=trim(text)//'  '//trim(rformat(parout(20),ip(20)))//'  '//trim(rformat(parout(21),ip(21)))
       endif
-      
+
 
       return
    End Subroutine Eoscal_Text
@@ -8632,7 +8635,7 @@ Contains
       !>local copies
       E=EoS
       T=e%tref
-      
+
       !> check PVT present
       n=0
       if (present(Tin))then
@@ -8797,7 +8800,7 @@ Contains
    !!----
    !!---- SUBROUTINE PVEOS_CHECK
    !!----
-   !!---- Checks compressional part of Eos at P,T for validity (normally that K > 0, or K > K0/2) 
+   !!---- Checks compressional part of Eos at P,T for validity (normally that K > 0, or K > K0/2)
    !!---- for volume
    !!---- Does not do transition part
    !!----
@@ -9335,7 +9338,7 @@ Contains
    !!----
    !!---- General routine a single Eos from a file
    !!----
-   !!---- Date: 12/10/2015 
+   !!---- Date: 12/10/2015
    !!
    Subroutine Read_Eos_File(FName, Eos)
       !---- Arguments ----!
@@ -9586,6 +9589,10 @@ Contains
          warn=.true.
          Wtext=trim(Wtext)//"  Extra oscillators in eos file. These are not supported in this version"
       endif          
+
+
+
+
 
       !> Now finish setting the other eos components
       call set_eos_names(eos)
@@ -9971,7 +9978,7 @@ Contains
 
       return
    End Subroutine Set_Eos_Factors
-   
+
    !!----
    !!---- SUBROUTINE SET_EOS_IMPLIED_VALUES
    !!----
@@ -10032,15 +10039,15 @@ Contains
          case(7) !Kumar
             if (EoS%iorder == 2)ev(3)=4.0_cp
          end select
-         
+
          !> Thermal models
          select case(eos%itherm)
          case(6)        ! Holland-Powell thermal pressure
              eos%params(18)=eos%params(1)*eos%params(10)*eos%params(2)/get_cv(eos%pref,eos%tref,eos)
              eos%params(18)=eos%params(18)/EPthermal_factor(Eos)
          end select
-         
-         
+
+
 
       !> Handle linear or volume
 
@@ -10343,7 +10350,7 @@ Contains
 
       return
    End Subroutine Set_Eos_Use
-   
+
 
    !!--++
    !!--++ SUBROUTINE SET_OSC_NAMES
@@ -10543,7 +10550,7 @@ Contains
             EoS%comment(13) = 'Number of atoms per formula unit'
             EoS%parname(14) = 'qcomp'
             EoS%comment(14) = 'Switch for q-compromise model, +1 for compromise'
-            
+
          case (7)
             EoS%parname(11) = 'ThMGD'
             EoS%comment(11) = 'Debye temperature in K'
@@ -11157,7 +11164,7 @@ Contains
 
       return
    End Subroutine Write_Eoscal
-   
+
    !!--++
    !!--++ SUBROUTINE WRITE_EOSCAL_CELL_HEADER
    !!--++
@@ -11280,7 +11287,7 @@ Contains
       if(eos%itherm /= 0 .and. eos%imodel /= 0 .and. (abs(eos%params(18)) >tiny(0._cp) .or. eos%osc_allowed))then
             if(VscaleMGD(Eos) .and. .not. eos%linear)head=trim(head)//'    Cp      Cv'
       endif
-      
+
 
       !> Write header
       write(lun,'(/a)')trim(head)
@@ -11857,7 +11864,7 @@ Contains
             write(unit=lun,fmt='(a)') '           with q-compromise'
           endif
       endif
-      
+
       write(unit=lun,fmt='(a)') ' '
 
       write(unit=lun,fmt='(a,f8.2,a)') '   Temperature of reference: ',EoS%tref,' K'
