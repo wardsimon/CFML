@@ -1034,7 +1034,7 @@
        SpG%Numops = group%Numops
        SpG%Centred= group%centred
        SpG%Centre= group%Centre
-       SpG%Centre_coord= group%Centre_coord
+       if(allocated(group%Centre_coord)) SpG%Centre_coord= group%Centre_coord
        SpG%Multip = group%multip
        allocate(SpG%SymopSymb(SpG%Multip),SpG%Symop(SpG%Multip))
        do i=1,SpG%Multip
