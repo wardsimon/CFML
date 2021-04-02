@@ -5892,7 +5892,7 @@ Contains
       !> tests
       if (imodel == 6) allowed=.false.    !APL
       if (present(itherm)) then
-         if (itherm == 7 .or. itherm == 8) allowed=.false.  !MGD & Einstein
+         if (itherm == 6 .or. itherm == 7 .or. itherm == 8) allowed=.false.  !MGD & Einstein
       end if
 
       return
@@ -7569,6 +7569,20 @@ Contains
          end if
       end if
 
+      !> CHeck that Z> 0 for APL EoS
+      if (EoS%imodel ==6) then
+         if (EoS%params(5) < tiny(0.0_cp) ) then
+            EoS%params(5)=1.0_cp
+            err_eos=.true.
+            if (len_trim(err_eos_mess) == 0) then
+               err_eos_mess=' Z was < 0. Not allowed! Reset to 1.0'
+            else
+               err_eos_mess=trim(err_eos_mess)//' Z was < 0. Not allowed! Reset to 1.0'
+            end if
+         end if
+      end if
+      
+      
       !> Check Tref is positive
       if (EoS%tref < -1.0_cp*tiny(0.0_cp)) then
          EoS%tref=0.0_cp
@@ -7714,7 +7728,7 @@ Contains
       end if
 
       !> If MGD and linear warn that this is not generally valid
-      if ((EoS%itherm == 7 .or. EoS%itherm == 8) .and. EoS%linear) then
+      if ((EoS%itherm == 6 .or. EoS%itherm == 7 .or. EoS%itherm == 8) .and. EoS%linear) then
          err_eos=.true.
          text='Linear EoS only has valid parameters if the material is cubic'
          if (len_trim(err_eos_mess) == 0) then
@@ -8540,7 +8554,9 @@ Contains
       EoS%params(1)= 1.0_cp
       EoS%params(2)=10.0_cp
       EoS%params(3)= 4.0_cp
-
+      EoS%params(5)= 1.0_cp          ! Z for APL, set non-zero for safety. params(5) not used by any other EoS
+      
+      
       EoS%X        = 0.0_cp
       EoS%stoich   = 1.0_cp
 
