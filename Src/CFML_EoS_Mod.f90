@@ -372,6 +372,13 @@ Module CFML_EoS
    logical,            public :: Warn_EOS=.false.  ! Logical Variable indicating an error in CFML_EoS module
    character(len=256), public :: Warn_EOS_Mess=" " ! String containing information about the last error
 
+   !---------------------------------!
+   !---- Interfaces - Overloaded ----!
+   !---------------------------------!
+   Interface  Linear_EoS_Allowed
+       Module Procedure Linear_EoS_Allowed_I
+       Module Procedure Linear_EoS_Allowed_EoS
+   End Interface
 
 Contains
 
@@ -5873,30 +5880,65 @@ Contains
       return
    End Function Kpp_Cal
 
-   !!----
-   !!---- FUNCTION Linear_EoS_Allowed
-   !!----
-   !!---- Date: 03/02/2021
+   !!--++
+   !!--++ FUNCTION Linear_EoS_Allowed
+   !!--++
+   !!--++ Date: 03/02/2021
    !!
-   Function Linear_EoS_Allowed(Imodel, Itherm) Result(Allowed)
+   Function Linear_EoS_Allowed_Eos(Eos) Result(Allowed)
       !---- Arguments ----!
-      integer,           intent(in) :: imodel      !number of eos PV model
-      integer, optional, intent(in) :: itherm      !number of thermal model
-      logical             :: allowed
+      type(Eos_Type), intent(in) :: EoS    ! Eos Parameter
+      logical                    :: allowed
 
       !---- Local Variables ----!
 
       !> init
       allowed=.true.
 
-      !> tests
-      if (imodel == 6) allowed=.false.    !APL
+      !> Model
+      if (eos%imodel == 6) then
+         allowed=.false.    !APL
+         return
+      end if
+
+      !> Thermal model
+      select case (eos%itherm)
+         case (6:8)
+            allowed=.false.
+      end select
+
+      return
+   End Function Linear_EoS_Allowed_Eos
+
+   !!--++
+   !!--++ FUNCTION Linear_EoS_Allowed
+   !!--++
+   !!--++ Date: 03/02/2021
+   !!
+   Function Linear_EoS_Allowed_I(Imodel, Itherm) Result(Allowed)
+      !---- Arguments ----!
+      integer, optional, intent(in) :: imodel      !number of eos PV model
+      integer, optional, intent(in) :: itherm      !number of thermal model
+      logical                       :: allowed
+
+      !---- Local Variables ----!
+
+      !> init
+      allowed=.true.
+
+      !> Model
+      if (present(imodel)) then
+         if (imodel == 6) allowed=.false.    !APL
+         return
+      end if
+
+      !> Thermal model
       if (present(itherm)) then
          if (itherm == 6 .or. itherm == 7 .or. itherm == 8) allowed=.false.  !MGD & Einstein
       end if
 
       return
-   End Function Linear_EoS_Allowed
+   End Function Linear_EoS_Allowed_I
 
    !!--++
    !!--++ FUNCTION MURN_INTERPOLATE_PTVTABLE
@@ -7569,7 +7611,8 @@ Contains
          end if
       end if
 
-      !> CHeck that Z> 0 for APL EoS
+
+      !> Check that Z> 0 for APL EoS
       if (EoS%imodel ==6) then
          if (EoS%params(5) < tiny(0.0_cp) ) then
             EoS%params(5)=1.0_cp
@@ -7581,8 +7624,9 @@ Contains
             end if
          end if
       end if
-      
-      
+
+
+
       !> Check Tref is positive
       if (EoS%tref < -1.0_cp*tiny(0.0_cp)) then
          EoS%tref=0.0_cp
@@ -8554,6 +8598,7 @@ Contains
       EoS%params(1)= 1.0_cp
       EoS%params(2)=10.0_cp
       EoS%params(3)= 4.0_cp
+
       EoS%params(5)= 1.0_cp          ! Z for APL, set non-zero for safety. params(5) not used by any other EoS
       
       
