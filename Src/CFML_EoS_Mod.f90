@@ -5929,7 +5929,6 @@ Contains
       !> Model
       if (present(imodel)) then
          if (imodel == 6) allowed=.false.    !APL
-         return
       end if
 
       !> Thermal model
