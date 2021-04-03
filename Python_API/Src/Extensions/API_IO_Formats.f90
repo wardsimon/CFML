@@ -23,6 +23,7 @@ module API_IO_Formats
        Job_Info_type, &
        Get_Job_Info, &
        Readn_set_Xtal_structure
+  Use CFML_Math_General,              only: Sind
   
   use API_Atom_TypeDef,               only: Atom_List_Type_p  
   use API_Crystallographic_Symmetry,  only: Space_Group_Type_p
