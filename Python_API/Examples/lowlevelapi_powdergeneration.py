@@ -28,7 +28,8 @@ reflection_list = CFML_api.ReflectionList(
     cell, space_group, True, job_info)
 
 print(job_info.pattern_types)
-#reflection_list.compute_structure_factors_job(space_group, atom_list, job_info)
+
+reflection_list.compute_structure_factors_job(space_group, atom_list, job_info)
 reflection_list.compute_structure_factors(space_group, atom_list)
 
 print(job_info.pattern_types)
