@@ -7559,16 +7559,19 @@ Contains
       if (EoS%imodel < -1 .and. EoS%imodel > N_PRESS_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of compressional eos'
+         return
       end if
 
       if (EoS%itherm < -1 .and. EoS%itherm > N_THERM_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of thermal model'
+         return
       end if
 
       if (EoS%itran < -1 .and. EoS%itran > N_TRANS_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of phase transition model'
+         return
       end if
 
       if (EoS%ishear < 0 .and. EoS%ishear > N_SHEAR_MODELS)then
@@ -7579,13 +7582,17 @@ Contains
       if (EoS%icross < 0 .and. EoS%icross > N_CROSS_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of PT cross-terms model'
+         return
       end if
 
       if (EoS%iangle < 0 .and. EoS%iangle > N_ANGLE_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of angle polynomial'
+         return
       end if
 
+      call check_scales(eos)
+      
       !> Check that v0 is positive
       if (EoS%params(1) < tiny(0.0) .and. EoS%iangle == 0) then
          EoS%params(1)=1.0_cp
@@ -7660,22 +7667,7 @@ Contains
                         err_eos_mess=trim(err_eos_mess)//' And Natom < 1.0 not valid: reset it!'
                     end if
                endif
-               if ( .not. pscaleMGD(Eos))then
-                   err_eos=.true.
-                   if (len_trim(err_eos_mess) == 0) then
-                        err_eos_mess='Pscale must be GPa or kbar'
-                    else
-                        err_eos_mess=trim(err_eos_mess)//' And Pscale must be GPa or kbar'
-                    end if
-               endif
-               if ( .not. vscaleMGD(Eos))then
-                   err_eos=.true.
-                   if (len_trim(err_eos_mess) == 0) then
-                        err_eos_mess='Vscale must be cm^3/mol'
-                    else
-                        err_eos_mess=trim(err_eos_mess)//' And Vscale must be cm^3/mol'
-                    end if
-               endif
+
              elseif(eos%itherm == 6)then !only Cv and alpha need this in HP2011
                if(eos%params(13) < 1.0)then
                    warn_eos=.true.
@@ -10060,33 +10052,38 @@ Contains
       ev= EoS_to_Vec(eos) !  ev contains volume-like parameters
 
       select case (EoS%imodel)
-         case (1) ! Murnaghan
-            return      ! no defaults
+      case (1) ! Murnaghan
+            ev(4)=0._cp     !clear Kpp if set
+            ev(5)=0._cp     !clear Z if set
 
          case (2) ! Birch-Murnaghan
             if (EoS%iorder == 2) ev(3)=4.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*((ev(3)-4.0_cp)*(ev(3)-3.0_cp)+35.0_cp/9.0_cp)/ev(2)  !for order 2 and 3
             end if
-
+            ev(5)=0._cp     !clear Z if set
+            
          case (3) ! Vinet
             if (EoS%iorder == 2) ev(3)=1.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*((0.5_cp*ev(3))**2+0.5*ev(3)-19.0_cp/36.0_cp)/ev(2) !for order 2 and 3
             end if
-
+            ev(5)=0._cp     !clear Z if set
+            
          case (4) ! Natural
             if (EoS%iorder == 2) ev(3)=2.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*(1.0_cp + (ev(3)-2.0_cp)+(ev(3)-2.0_cp)**2.0_cp)/ev(2) !for order 2 and 3
             end if
-
+            ev(5)=0._cp     !clear Z if set
+            
          case (5) ! Tait with definitions of order derived from Holland and Powell (2011)
             if (EoS%iorder == 2) ev(3)=4.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3)then
                if (abs(ev(2)) > 0.0)ev(4)=-1.0_cp*ev(3)/ev(2)
             end if
-
+            ev(5)=0._cp     !clear Z if set
+            
          case (6) !APL
             pFG0=AFERMIGAS*(ev(5)/ev(1))**1.66666667_cp
             c0=-1.0_cp*log(3.0_cp*ev(2)/pFG0)           ! assumes V in A^3
@@ -10100,6 +10097,8 @@ Contains
 
          case(7) !Kumar
             if (EoS%iorder == 2)ev(3)=4.0_cp
+            ev(5)=0._cp     !clear Z if set
+            
          end select
 
          !> Thermal models
@@ -10113,7 +10112,7 @@ Contains
 
       !> Handle linear or volume
 
-         if (.not. EoS%linear) then
+      if (.not. EoS%linear) then
          if (EoS%iorder == 2) EoS%params(3)=ev(3)
          if (EoS%iorder == 2 .or. EoS%iorder == 3) EoS%params(4)=ev(4)
 
