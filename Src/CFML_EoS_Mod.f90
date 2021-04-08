@@ -7558,32 +7558,20 @@ Contains
       !> Check for valid model numbers
       if (EoS%imodel < -1 .and. EoS%imodel > N_PRESS_MODELS)then
          err_eos=.true.
-<<<<<<< HEAD
          err_eos_mess=' Invalid number for type of compressional eos'
-=======
-         err_eos_mess=' Invalid number for type of compressional eos'
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
          return
       end if
 
       if (EoS%itherm < -1 .and. EoS%itherm > N_THERM_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of thermal model'
-<<<<<<< HEAD
          return
-=======
-         return
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
       end if
 
       if (EoS%itran < -1 .and. EoS%itran > N_TRANS_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of phase transition model'
-<<<<<<< HEAD
          return
-=======
-         return
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
       end if
 
       if (EoS%ishear < 0 .and. EoS%ishear > N_SHEAR_MODELS)then
@@ -7594,28 +7582,18 @@ Contains
       if (EoS%icross < 0 .and. EoS%icross > N_CROSS_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of PT cross-terms model'
-<<<<<<< HEAD
          return
-=======
-         return
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
       end if
 
       if (EoS%iangle < 0 .and. EoS%iangle > N_ANGLE_MODELS)then
          err_eos=.true.
          err_eos_mess=' Invalid number for type of angle polynomial'
-<<<<<<< HEAD
          return
       end if
 
-      call check_scales(eos)
-=======
-         return
-      end if
 
       call check_scales(eos)
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
-      
+
       !> Check that v0 is positive
       if (EoS%params(1) < tiny(0.0) .and. EoS%iangle == 0) then
          EoS%params(1)=1.0_cp
@@ -7640,11 +7618,7 @@ Contains
          end if
       end if
 
-<<<<<<< HEAD
 
-=======
-
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
       !> Check that Z> 0 for APL EoS
       if (EoS%imodel ==6) then
          if (EoS%params(5) < tiny(0.0_cp) ) then
@@ -8616,14 +8590,9 @@ Contains
       EoS%params(1)= 1.0_cp
       EoS%params(2)=10.0_cp
       EoS%params(3)= 4.0_cp
+      EoS%params(5)= 1.0_cp          ! Z for APL, set non-zero for safety. params(5) not used by any other EoS
+      
 
-<<<<<<< HEAD
-      EoS%params(5)= 1.0_cp          ! Z for APL, set non-zero for safety. params(5) not used by any other EoS
-      
-=======
-      EoS%params(5)= 1.0_cp          ! Z for APL, set non-zero for safety. params(5) not used by any other EoS
-      
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
       
       EoS%X        = 0.0_cp
       EoS%stoich   = 1.0_cp
@@ -10084,11 +10053,8 @@ Contains
       ev= EoS_to_Vec(eos) !  ev contains volume-like parameters
 
       select case (EoS%imodel)
-<<<<<<< HEAD
+
       case (1) ! Murnaghan
-=======
-      case (1) ! Murnaghan
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
             ev(4)=0._cp     !clear Kpp if set
             ev(5)=0._cp     !clear Z if set
 
@@ -10097,44 +10063,32 @@ Contains
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*((ev(3)-4.0_cp)*(ev(3)-3.0_cp)+35.0_cp/9.0_cp)/ev(2)  !for order 2 and 3
             end if
-<<<<<<< HEAD
             ev(5)=0._cp     !clear Z if set
-=======
-            ev(5)=0._cp     !clear Z if set
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
+
             
          case (3) ! Vinet
             if (EoS%iorder == 2) ev(3)=1.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*((0.5_cp*ev(3))**2+0.5*ev(3)-19.0_cp/36.0_cp)/ev(2) !for order 2 and 3
             end if
-<<<<<<< HEAD
             ev(5)=0._cp     !clear Z if set
-=======
-            ev(5)=0._cp     !clear Z if set
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
+
             
          case (4) ! Natural
             if (EoS%iorder == 2) ev(3)=2.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3) then
                if (abs(ev(2)) > 0.0) ev(4)=-1.0_cp*(1.0_cp + (ev(3)-2.0_cp)+(ev(3)-2.0_cp)**2.0_cp)/ev(2) !for order 2 and 3
             end if
-<<<<<<< HEAD
             ev(5)=0._cp     !clear Z if set
-=======
-            ev(5)=0._cp     !clear Z if set
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
+
             
          case (5) ! Tait with definitions of order derived from Holland and Powell (2011)
             if (EoS%iorder == 2) ev(3)=4.0_cp
             if (EoS%iorder == 2 .or. EoS%iorder == 3)then
                if (abs(ev(2)) > 0.0)ev(4)=-1.0_cp*ev(3)/ev(2)
             end if
-<<<<<<< HEAD
             ev(5)=0._cp     !clear Z if set
-=======
-            ev(5)=0._cp     !clear Z if set
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
+
             
          case (6) !APL
             pFG0=AFERMIGAS*(ev(5)/ev(1))**1.66666667_cp
@@ -10148,13 +10102,9 @@ Contains
             end if
 
          case(7) !Kumar
-<<<<<<< HEAD
+
             if (EoS%iorder == 2)ev(3)=4.0_cp
             ev(5)=0._cp     !clear Z if set
-=======
-            if (EoS%iorder == 2)ev(3)=4.0_cp
-            ev(5)=0._cp     !clear Z if set
->>>>>>> 294cc628d0cd12f50c163a3f43267aa0a6225e9e
             
          end select
 
