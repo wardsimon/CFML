@@ -5358,6 +5358,7 @@ Contains
 
       !> Init
       kc=EoS%params(2)               ! safe default, K(P,T)=K0
+      if(EoS%imodel == 0)return      ! no P model returns with default K0
 
       !> Pressure is needed for Tait, Murngahan, and for spontaneous strain at transitions
       !> This is the 'true' pressure, uncorrected for Pthermal
@@ -5592,7 +5593,8 @@ Contains
       real(Kind=cp)                      :: Pcorr    ! Pressure minus Pthermal.
 
       !> Init
-      kpc=0.0_cp
+      kpc=EoS%params(3)
+      if(EoS%imodel == 0)return      ! no P model returns with default K0
 
       !> Pressure is needed for Tait, Murngahan, and for spontaneous strain at transitions
       !> This is the 'true' pressure, uncorrected for Pthermal
@@ -8831,7 +8833,7 @@ Contains
          end if
       end if
 
-      if (.not. e%linear .and.  V > tiny(0._cp))then
+      if (.not. e%linear .and.  V > tiny(0._cp) .and. e%imodel /= 0)then
          if (K_cal(V,T,E,P) < tiny(0._cp))then
             write(unit=car, fmt='(2f10.1)') p, t
             car=adjustl(car)
