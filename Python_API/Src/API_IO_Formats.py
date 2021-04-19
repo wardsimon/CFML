@@ -47,8 +47,14 @@ class JobInfo(CFML_api.FortranBindedClass):
     def print_description(self):
         """ Prints the job info description """
         print("test job info")
-        #CFML_api.crysfml_api.crystallographic_symmetry_write_spacegroup(self.get_fortran_address())
-    
+        print(self.title)
+        print("Number of patterns: " + str(self.num_patterns) )
+        print("Type of pattern: " + self.pattern_types)
+        print("Lambda range: " +str(self.lambdas) )
+        print("Lambda ratio: "+ str(self.lambda_ratio) )
+        print("Range 2theta: "+str(self.range_2theta) )
+        print("Range sin(theta)/lambda: "+str(self.range_stl) )
+        
     @property
     def title(self):
         """
@@ -199,11 +205,15 @@ class JobInfo(CFML_api.FortranBindedClass):
         return lambda1, lambda2
  
     @property
-    def lambda_ratio(self):
+    def lambda_ratio(self, indx=None):
         """
         ratio lambda2/lambda1 
         """
-        return CFML_api.crysfml_api.IO_Formats_get_ratio(self.get_fortran_address())["ratio"]
+        if indx:
+            key=indx
+        else:
+            key=0
+        return CFML_api.crysfml_api.IO_Formats_get_ratio(self.get_fortran_address(),key+1)["ratio"]
     
     @property
     def d_to_tof_1(self):
@@ -276,6 +286,13 @@ class CIFFile():
         Info on the type of job (CFML_api.Job_info type)
         """
         return self.__job_info
+
+    @property
+    def powder_pattern_simulation_conditions(self):
+        """
+        Info on the type of job (CFML_api.Job_info type)
+        """
+        return self.__powpat_simcond
     
     @filename.setter
     def filename(self, filename):
@@ -325,10 +342,13 @@ class CIFFile():
         else:
                 
             dict = CFML_api.crysfml_api.IO_Formats_readn_set_xtal_structure(self.__filename, mode)
-            print('mode',mode)
+            
             self.__cell = CFML_api.API_Crystal_Metrics.Cell.from_fortran_address(dict["Cell"])
             self.__space_group = CFML_api.API_Crystallographic_Symmetry.SpaceGroup.from_fortran_address(dict["SpG"])
             self.__atom_list = CFML_api.API_Atom_TypeDef.AtomList.from_fortran_address(dict["A"])
 
             self.__job_info = JobInfo.from_fortran_address(dict["JobInfo"])
-            #self.__job_info = CFML_api.API_IO_Formats.JobInfo.from_fortran_address(dict["JobInfo"])
+
+            powpat_simcond = CFML_api.PowderPatternSimulationConditions()
+            powpat_simcond.readFromCFLFile(filename)
+            self.__powpat_simcond = powpat_simcond

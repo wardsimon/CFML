@@ -2901,10 +2901,8 @@
        else
           if(present(lambda)) then
             if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp,Lambda=lambda)
-         else
-            write(*,*) 'init SF >>>'
-             if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp)
-             write(*,*) '<< init SF'
+         else          
+            if(.not. SF_Initialized) call Init_Structure_Factors(Reflex,Atm,Grp)           
           end if
        end if
 

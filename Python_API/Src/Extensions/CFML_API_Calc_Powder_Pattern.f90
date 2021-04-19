@@ -1,12 +1,12 @@
 module CFML_API_Calc_Powder_Pattern
 
-use CFML_GlobalDeps,  only: to_Deg
+use CFML_GlobalDeps,           only: to_Deg
 use CFML_Math_General,         only: asind,locate
 use CFML_Atom_TypeDef,         only: Atom_Type, Atom_List_Type,Allocate_Atom_List
 use CFML_Reflections_Utilities,only: Reflection_List_Type
 use CFML_Diffraction_Patterns, only: Diffraction_Pattern_Type, Allocate_Diffraction_Pattern
-use CFML_PowderProfiles_CW,    only: TCH_pVoigt,PseudoVoigt
-
+use CFML_PowderProfiles_CW,    only: TCH_pVoigt, PseudoVoigt
+use CFML_IO_Formats,           only: Job_Info_type
 
 implicit none
 

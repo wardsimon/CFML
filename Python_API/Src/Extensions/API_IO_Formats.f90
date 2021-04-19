@@ -90,9 +90,19 @@ contains
        call Init_Job_info(job_p%p)
        
     else
-       call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode=mode, Job_Info=job_p%p)
+       call Readn_set_Xtal_structure(trim(filename),cell_p%p,spg_p%p,a_p%p,Mode=mode,Job_Info=job_p%p)
     end if
 
+    if (job_p%p%num_patterns /= 1) then
+       write(*,*) 'Warning: only one pattern is possible, only the first one will be considered'
+    endif
+
+    if (job_p%p%lambda(1)%mina /= job_p%p%lambda(1)%maxb) then
+       write(*,*) 'Warning: only monochromatic calculation is implemented, lambda is set to lambda_min'
+       job_p%p%lambda(1)%maxb = job_p%p%lambda(1)%mina
+    endif
+
+       
     cell_p12 = transfer(cell_p, cell_p12)
     ierror = list_create(cell_obj)
     do ii=1,12
@@ -120,8 +130,7 @@ contains
     ierror = dict_create(retval)
     ierror = retval%setitem("Cell", cell_obj)
     ierror = retval%setitem("SpG",  spg_obj)
-    ierror = retval%setitem("A",    a_obj)
-    
+    ierror = retval%setitem("A",    a_obj) 
     ierror = retval%setitem("JobInfo", job_obj)
 
     r = retval%get_c_ptr()
@@ -289,7 +298,6 @@ contains
     allocate(job_p%p)
     n_ini = 1
     call Get_Job_Info(stringarray, n_ini, nline+1, job_p%p)
-
     !
     job_p12 = transfer(job_p,job_p12)
     ierror = list_create(job_obj)
@@ -924,6 +932,9 @@ contains
     integer :: num_args
     integer :: ierror
     type(Job_info_Type_p) :: job_info_type_pointer
+
+    type(object) :: indx_obj
+    integer :: indx
   
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -931,18 +942,24 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
     ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args /= 1) then
-       call raise_exception(TypeError, "get_ratio expects exactly 1 argument")
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_ratio expects exactly 2 argumenta")
        call args%destroy
        return
     endif
     
     ! Doing boring stuff
     call get_job_info_type_from_arg(args, job_info_type_pointer)
+
+    ierror = args%getitem(indx_obj, 1) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
     ierror = dict_create(retval)
-    !ierror = retval%setitem("ratio", job_info_type_pointer%p%ratio)
+    ierror = retval%setitem("ratio", job_info_type_pointer%p%ratio(indx))
     r = retval%get_c_ptr()
+    
     call args%destroy
+    call indx_obj%destroy  
      
   end function IO_Formats_get_ratio
   

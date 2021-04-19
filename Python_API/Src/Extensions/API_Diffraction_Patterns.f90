@@ -29,6 +29,10 @@ module API_Diffraction_Patterns
        Reflection_List_type_p, &
        get_reflection_list_from_arg
 
+  use API_IO_Formats, only: &
+       Job_Info_type_p, &
+       get_job_info_type_from_arg
+  
   implicit none
 
   type Diffraction_Pattern_type_p
@@ -165,6 +169,7 @@ contains
     type(Reflection_List_type_p)     :: hkl_p
     type(Diffraction_Pattern_type_p) :: pattern_p
     type(Powder_Pattern_Simulation_Conditions_type_p) :: powpat_p
+    type(Job_info_type_p)            :: job_p
     integer                          :: pattern_p12(12)
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
@@ -173,9 +178,9 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
 
-    if (num_args /= 3) then
-       call raise_exception(TypeError, "Calc_Powder_Pattern expects exactly 3 arguments")
-       !Powpat_conditions, Reflectionlist, Scalef
+    if (num_args /= 4) then
+       call raise_exception(TypeError, "Calc_Powder_Pattern expects exactly 4 arguments")
+       !Powpat_conditions, Job_info, Reflectionlist, Scalef
        call args%destroy
        call arg_obj%destroy
        call index_obj%destroy
@@ -184,9 +189,14 @@ contains
 
     allocate(powpat_p%p)
     call get_powpat_from_args(args, powpat_p, 0)
-    call get_reflection_list_from_arg(args, hkl_p, 1)
-    ierror = args%getitem(arg_obj, 2)
+
+    call get_job_info_type_from_arg(args, job_p, 1)
+    
+    call get_reflection_list_from_arg(args, hkl_p, 2)
+    
+    ierror = args%getitem(arg_obj, 3)
     ierror = cast_nonstrict(powpat_p%p%scalef, arg_obj)
+    
     allocate(pattern_p%p)
     call Calc_Powder_Pattern(powpat_p%p,hkl_p%p,pattern_p%p)
     deallocate(powpat_p%p)

@@ -732,8 +732,10 @@
           line=u_case(adjustl(file_dat(i)))
           if (line(1:5) == "TITLE") Job_info%title=line(7:)
           if (line(1:5) == "NPATT") then
+             
              read(unit=line(7:), fmt=*,iostat=ier) Job_info%Num_Patterns
              if (ier /= 0) Job_info%Num_Patterns=1
+          
           end if
           if (line(1:6) == "PHASE_") then
              nphas=nphas+1
