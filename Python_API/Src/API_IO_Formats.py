@@ -46,7 +46,7 @@ class JobInfo(CFML_api.FortranBindedClass):
 
     def print_description(self):
         """ Prints the job info description """
-        print("test job info")
+        
         print(self.title)
         print("Number of patterns: " + str(self.num_patterns) )
         print("Type of pattern: " + self.pattern_types)

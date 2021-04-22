@@ -136,8 +136,7 @@ contains
     call get_reflection_list_from_arg(args, reflection_list_p, 2)
 
     call get_job_info_type_from_arg(args, job_p, 3)
-     
-    write(*,*) job_p%p%patt_typ(1)
+    
 
     select case (job_p%p%patt_typ(1))
     case ("XRAY_2THE", "XRAY_SXTAL", "XRAY_ENER")

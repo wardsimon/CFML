@@ -29,8 +29,7 @@ class ReflectionList(CFML_api.FortranBindedClass):
         CFML_api.crysfml_api.reflections_utilities_del_reflection_list(self.get_fortran_address())
     
     def compute_structure_factors(self, space_group, atom_list, job):
-        print("Warning: implementation not finished for job_info")
-                    
+                            
         CFML_api.crysfml_api.structure_factors_structure_factors(
             atom_list.get_fortran_address(), space_group.get_fortran_address(),
             self.get_fortran_address(), job.get_fortran_address())

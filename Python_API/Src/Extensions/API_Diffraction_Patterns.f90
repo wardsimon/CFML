@@ -18,12 +18,13 @@ module API_Diffraction_Patterns
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
 
+  use CFML_GlobalDeps,                only: cp, sp, pi
+  
   use CFML_Diffraction_Patterns, only: &
        Diffraction_Pattern_Type
 
   use CFML_API_Calc_Powder_Pattern, only: &
-       Calc_Powder_Pattern, &
-       Powder_Pattern_Simulation_Conditions_type
+       Calc_Powder_Pattern
 
   use API_reflections_utilities, only: &
        Reflection_List_type_p, &
@@ -39,49 +40,46 @@ module API_Diffraction_Patterns
      type(Diffraction_Pattern_type), pointer :: p
   end type Diffraction_Pattern_type_p
 
-  type Powder_Pattern_Simulation_Conditions_type_p
-     type(Powder_Pattern_Simulation_Conditions_type), pointer :: p
-  end type Powder_Pattern_Simulation_Conditions_type_p
 
 contains
 
-  subroutine get_powpat_from_args(args, pow_pat_sim_c_p, indx)
-    type(tuple)                            :: args
-    type(Powder_Pattern_Simulation_Conditions_type_p), intent(out)  :: pow_pat_sim_c_p
-    integer, optional                      :: indx
-
-    type(object) :: arg_obj
-    type(dict) :: arg_dict
-
-    integer :: ierror
-    integer :: ii
-
-    if (present(indx)) then
-       ierror = args%getitem(arg_obj, indx)
-    else
-       ierror = args%getitem(arg_obj, 0)
-    endif
-
-    ierror = cast(arg_dict, arg_obj)
-
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%job   , "job")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Lambda, "lambda")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%U     , "u_resolution")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%V     , "v_resolution")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%W     , "w_resolution")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%X     , "x_resolution")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Ls    , "lorentzian_size")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Thmin , "theta_min")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Thmax , "theta_max")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%step  , "theta_step")
-    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%bkg   , "background")
-
-    call arg_obj%destroy
-    call arg_dict%destroy
-
-  end subroutine get_powpat_from_args
-
-
+!!$  subroutine get_powpat_from_args(args, pow_pat_sim_c_p, indx)
+!!$    type(tuple)                            :: args
+!!$    type(Powder_Pattern_Simulation_Conditions_type_p), intent(out)  :: pow_pat_sim_c_p
+!!$    integer, optional                      :: indx
+!!$
+!!$    type(object) :: arg_obj
+!!$    type(dict) :: arg_dict
+!!$
+!!$    integer :: ierror
+!!$    integer :: ii
+!!$
+!!$    if (present(indx)) then
+!!$       ierror = args%getitem(arg_obj, indx)
+!!$    else
+!!$       ierror = args%getitem(arg_obj, 0)
+!!$    endif
+!!$
+!!$    ierror = cast(arg_dict, arg_obj)
+!!$
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%job   , "job")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Lambda, "lambda")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%U     , "u_resolution")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%V     , "v_resolution")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%W     , "w_resolution")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%X     , "x_resolution")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Ls    , "lorentzian_size")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Thmin , "theta_min")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%Thmax , "theta_max")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%step  , "theta_step")
+!!$    ierror = arg_dict%getitem(pow_pat_sim_c_p%p%bkg   , "background")
+!!$
+!!$    call arg_obj%destroy
+!!$    call arg_dict%destroy
+!!$
+!!$  end subroutine get_powpat_from_args
+!!$
+!!$
   subroutine get_diffraction_pattern_type_from_arg(args, diffraction_pattern_type_pointer, indx)
     type(tuple)                            :: args
     type(Diffraction_Pattern_type_p), intent(out)  :: diffraction_pattern_type_pointer
@@ -168,9 +166,11 @@ contains
 
     type(Reflection_List_type_p)     :: hkl_p
     type(Diffraction_Pattern_type_p) :: pattern_p
-    type(Powder_Pattern_Simulation_Conditions_type_p) :: powpat_p
+    
     type(Job_info_type_p)            :: job_p
     integer                          :: pattern_p12(12)
+
+    real(kind=cp)                    :: scalef
 
     r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
     ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
@@ -178,29 +178,29 @@ contains
     ! Check if the arguments are OK
     ierror = args%len(num_args)
 
-    if (num_args /= 4) then
-       call raise_exception(TypeError, "Calc_Powder_Pattern expects exactly 4 arguments")
-       !Powpat_conditions, Job_info, Reflectionlist, Scalef
+    if (num_args /= 3) then
+       call raise_exception(TypeError, "Calc_Powder_Pattern expects exactly 3 arguments")
+       !Job_info, Reflectionlist, Scalef
        call args%destroy
        call arg_obj%destroy
        call index_obj%destroy
        return
     endif
 
-    allocate(powpat_p%p)
-    call get_powpat_from_args(args, powpat_p, 0)
-
-    call get_job_info_type_from_arg(args, job_p, 1)
+    call get_job_info_type_from_arg(args, job_p, 0)
     
-    call get_reflection_list_from_arg(args, hkl_p, 2)
+    call get_reflection_list_from_arg(args, hkl_p, 1)
     
-    ierror = args%getitem(arg_obj, 3)
-    ierror = cast_nonstrict(powpat_p%p%scalef, arg_obj)
+    ierror = args%getitem(arg_obj, 2)
+    ierror = cast_nonstrict(scalef, arg_obj)
     
     allocate(pattern_p%p)
-    call Calc_Powder_Pattern(powpat_p%p,hkl_p%p,pattern_p%p)
-    deallocate(powpat_p%p)
-
+    if ((job_p%p%patt_typ(1) == "XRAY_2THE") .or. (job_p%p%patt_typ(1) == "NEUT_2THE")) then
+       call Calc_Powder_Pattern(job_p%p,scalef,hkl_p%p,pattern_p%p)
+    else
+       call raise_exception(TypeError, "Only 2THETA calculations are possible")
+    endif
+       
     pattern_p12 = transfer(pattern_p,pattern_p12)
     ierror = list_create(index_obj)
     do ii=1,12

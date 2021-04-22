@@ -236,6 +236,11 @@
     !!----    type(interval_type),dimension(:), allocatable :: Lambda         ! Lambda
     !!----    real(kind=cp)      ,dimension(:), allocatable :: ratio          ! ratio lambda2/lambda1
     !!----    real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2      ! d-to-TOF coefficients
+    !!----
+    !!---- Powder Pattern Simulation Conditions
+    !!----    real(kind=cp)                                 :: U, V, W, X, Y, Ls, Gs
+    !!----    real(kind=cp)                                 :: theta_step
+    !!----    real(kind=cp)                                 :: bkg
     !!---- End Type Job_Info_type
     !!----
     !!---- Update: February - 2005
@@ -257,6 +262,9 @@
        type(interval_type),dimension(:), allocatable :: Lambda
        real(kind=cp)      ,dimension(:), allocatable :: ratio
        real(kind=cp)      ,dimension(:), allocatable :: dtt1,dtt2
+       real(kind=cp)                                 :: U, V, W, X, Y
+       real(kind=cp)                                 :: theta_step
+       real(kind=cp)                                 :: bkg
     End Type Job_Info_type
 
     !!----
@@ -728,6 +736,15 @@
        Job_info%title=" General Job: CrysFML"
        Job_info%Num_Patterns=1
 
+       Job_Info%U = 0.0
+       Job_Info%V = 0.0
+       Job_Info%W = 0.0
+       Job_Info%X = 0.0
+       Job_Info%Y = 0.0
+       
+       Job_Info%theta_step = 0.0
+       Job_Info%bkg = 0.0
+
        do i=i_ini,i_end
           line=u_case(adjustl(file_dat(i)))
           if (line(1:5) == "TITLE") Job_info%title=line(7:)
@@ -749,6 +766,28 @@
              n_pat=n_pat+1
              ipt(n_pat)=i
           end if
+
+          if (line(1:7) == "UVWXY") then
+             !> @todo job_info%Y default value = to_deg*1.54056/1900
+             read(unit=line(7:),fmt=*,iostat=ier) Job_info%U,Job_info%V,Job_info%W,Job_info%X, Job_info%Y
+             if (ier /= 0) then
+                Job_info%U=0.02; Job_info%V=-0.02; Job_info%W=0.12; Job_info%X=0.0015; Job_info%Y= 0.0465
+             end if
+          end if
+
+          if (line(1:4) == "STEP") then         
+             read(unit=line(5:),fmt=*,iostat=ier) Job_info%theta_step
+             if (ier /= 0) then
+                Job_info%theta_Step = 0.05
+             end if
+          end if
+
+
+          if (line(1:7) == "BACKGD") then
+             read(unit=line(7:),fmt=*,iostat=ier) Job_info%bkg
+             if(ier /= 0) Job_info%bkg=20.0
+          end if
+          
        end do
 
        if (nphas == 0) then
@@ -820,6 +859,8 @@
        Job_Info%ratio = 0.0
        Job_Info%dtt1 = 0.0
        Job_Info%dtt2 = 0.0
+       
+       
        if (ncmd > 0) then
           if (allocated(Job_Info%cmd)) deallocate(Job_Info%cmd)
           allocate(Job_Info%cmd(ncmd))

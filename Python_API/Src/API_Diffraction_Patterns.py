@@ -16,11 +16,10 @@ import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
 class DiffractionPattern(CFML_api.FortranBindedClass):
-    def __init__(self, simulation_conditions, job_info, reflection_list, scale_f):
+    def __init__(self, job_info, reflection_list, scale_f):
         CFML_api.FortranBindedClass.__init__(self)
         
         self._set_fortran_address(CFML_api.crysfml_api.diffraction_patterns_compute_powder_pattern(
-            simulation_conditions.to_dict(), 
             job_info.get_fortran_address(), 
             reflection_list.get_fortran_address(), scale_f)["address"])
         
