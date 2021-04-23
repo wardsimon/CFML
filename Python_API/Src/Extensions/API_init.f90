@@ -73,6 +73,7 @@ module API_init
        IO_Formats_get_range_q, &
        IO_Formats_get_range_d, &
        IO_Formats_get_range_2theta, &
+       IO_Formats_set_range_2theta, &
        IO_Formats_get_range_energy, &
        IO_Formats_get_lambda, &
        IO_Formats_get_ratio, &
@@ -229,7 +230,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(171)
+    call method_table%init(172)
 
     !--------------------------
     ! Error Messages (1)
@@ -647,7 +648,7 @@ CONTAINS
 
 
     !--------------------------
-    ! IO formats (19)
+    ! IO formats (20)
     !--------------------------
     call method_table%add_method("IO_Formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
@@ -718,6 +719,11 @@ CONTAINS
          "range_2theta getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_Formats_get_range_2theta))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_set_range_2theta", &                  ! method name
+         "range_2theta setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_range_2theta))  ! address of Fortran function to add
     
     call method_table%add_method("IO_Formats_get_range_energy", &                  ! method name
          "range_energy getter", &  !doc-string

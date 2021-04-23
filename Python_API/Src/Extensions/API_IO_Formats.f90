@@ -834,6 +834,80 @@ contains
     
      
   end function IO_Formats_get_range_2theta
+
+  function IO_Formats_set_range_2theta(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: indx_obj, mina_obj, maxb_obj
+    integer :: indx
+
+    real(kind=sp) :: a1,a2,a4,a5, mina, maxb
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args .le. 2) then
+       call raise_exception(TypeError, "set_range_2theta expects 3 or more arguments")
+       call args%destroy
+       return
+    endif
+
+     ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(mina_obj, 1) !get the value of theta min
+    ierror = cast_nonstrict(mina, mina_obj)
+
+    ierror = args%getitem(maxb_obj, 2) !get the value of theta max
+    ierror = cast_nonstrict(maxb, maxb_obj)
+
+    ierror = args%getitem(indx_obj, 3) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
+    select case (job_p%p%patt_typ(indx))
+    case("XRAY_2THE","NEUT_2THE","XRAY_SXTA","NEUT_SXTA")
+       
+       job_p%p%range_2theta(indx)%mina = mina
+       job_p%p%range_2theta(indx)%maxb = maxb
+
+       
+       a1 = Job_p%p%Lambda(indx)%mina
+       a2 = Job_p%p%Lambda(indx)%maxb
+       
+       a4=sind(0.5*mina)/a1
+       a5=sind(0.5*maxb)/a2
+       Job_p%p%range_stl(indx)%mina=a4
+       Job_p%p%range_stl(indx)%maxb=a5
+       Job_p%p%range_q(indx)%mina=a4*4.0*pi
+       Job_p%p%range_q(indx)%maxb=a5*4.0*pi
+       Job_p%p%range_d(indx)%mina=0.5/a5
+       Job_p%p%range_d(indx)%maxb=0.5/a4
+       
+    case default
+       write(*,*) "only possible to change theta in XRAY_2THE, NEUT_2THE, XRAY_SXTA, NEUT_SXTA"
+    end select
+         
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call indx_obj%destroy
+    call mina_obj%destroy
+    call maxb_obj%destroy
+
+  end function IO_Formats_set_range_2theta
   
   
   function IO_Formats_get_range_energy(self_ptr, args_ptr) result(r) bind(c)

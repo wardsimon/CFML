@@ -26,10 +26,12 @@ class JobInfo(CFML_api.FortranBindedClass):
     ...
     Attributes
     ----------
-    string_array:
+    
 
     Methods
     -------
+    print_description
+        Prints the description of the job
 
     """
     def __init__(self, string_array=None):
@@ -49,11 +51,14 @@ class JobInfo(CFML_api.FortranBindedClass):
         
         print(self.title)
         print("Number of patterns: " + str(self.num_patterns) )
+        print("Number of phases: " + str(self.num_phases) )
         print("Type of pattern: " + self.pattern_types)
         print("Lambda range: " +str(self.lambdas) )
         print("Lambda ratio: "+ str(self.lambda_ratio) )
-        print("Range 2theta: "+str(self.range_2theta) )
+        print("Range 2theta: "+ str(self.range_2theta) )
         print("Range sin(theta)/lambda: "+str(self.range_stl) )
+
+        
         
     @property
     def title(self):
@@ -174,6 +179,15 @@ class JobInfo(CFML_api.FortranBindedClass):
             
         return mina, maxb
         
+    @range_2theta.setter
+    def range_2theta(self, range_theta, indx=None):
+        if indx:
+            key=indx
+        else:
+            key=0
+
+        (mina, maxb) = range_theta
+        CFML_api.crysfml_api.IO_Formats_set_range_2theta(self.get_fortran_address(), mina, maxb, key+1)
     
     @property
     def range_energy(self, indx=None):

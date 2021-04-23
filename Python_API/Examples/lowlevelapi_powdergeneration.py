@@ -20,6 +20,12 @@ job_info = cif_file.job_info
 # atom_list.print_description()
 job_info.print_description()
 
+print(job_info.range_2theta)
+
+job_info.range_2theta=(0.0,120.0)
+
+print(job_info.range_2theta)
+
 # Friedel's pair F(h,k,l) = F(-h,-k,-l) in absence of anomalous dispersion phasing techniques
 reflection_list = CFML_api.ReflectionList(cell, space_group, True, job_info)
 
@@ -28,5 +34,5 @@ reflection_list.compute_structure_factors(space_group, atom_list, job_info)
 diffraction_pattern = CFML_api.DiffractionPattern(job_info,
                                                   reflection_list, cell.reciprocal_cell_vol)
 
-plt.plot(diffraction_pattern.x, diffraction_pattern.ycalc)
-plt.show()
+#plt.plot(diffraction_pattern.x, diffraction_pattern.ycalc)
+#plt.show()
