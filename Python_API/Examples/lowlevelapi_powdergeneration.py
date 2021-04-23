@@ -20,11 +20,13 @@ job_info = cif_file.job_info
 # atom_list.print_description()
 job_info.print_description()
 
-print(job_info.range_2theta)
-
 job_info.range_2theta=(0.0,120.0)
 
 print(job_info.range_2theta)
+
+job_info.u_resolution = 0.5
+
+print(job_info.u_resolution)
 
 # Friedel's pair F(h,k,l) = F(-h,-k,-l) in absence of anomalous dispersion phasing techniques
 reflection_list = CFML_api.ReflectionList(cell, space_group, True, job_info)

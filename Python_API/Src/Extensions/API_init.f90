@@ -78,7 +78,21 @@ module API_init
        IO_Formats_get_lambda, &
        IO_Formats_get_ratio, &
        IO_Formats_get_dtt1, &
-       IO_Formats_get_dtt2
+       IO_Formats_get_dtt2, &
+       IO_Formats_get_U, &
+       IO_Formats_get_V, &
+       IO_Formats_get_W, &
+       IO_Formats_get_X, &
+       IO_Formats_get_Y, &
+       IO_Formats_get_theta_step, &
+       IO_Formats_get_bkg, &
+       IO_Formats_set_U, &
+       IO_Formats_set_V, &
+       IO_Formats_set_W, &
+       IO_Formats_set_X, &
+       IO_Formats_set_Y, &
+       IO_Formats_set_theta_step, &
+       IO_Formats_set_bkg
 
   use API_Structure_Factors, only: &
        structure_factors_structure_factors, &
@@ -230,7 +244,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(172)
+    call method_table%init(186)
 
     !--------------------------
     ! Error Messages (1)
@@ -648,7 +662,7 @@ CONTAINS
 
 
     !--------------------------
-    ! IO formats (20)
+    ! IO formats (27)
     !--------------------------
     call method_table%add_method("IO_Formats_readn_set_xtal_structure", &                  ! method name
          "read an input file and construct the crystal structure in terms of Cell, SpG and A", &  !doc-string
@@ -750,7 +764,76 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_Formats_get_dtt2))  ! address of Fortran function to add
     
+    call method_table%add_method("IO_Formats_get_U", &                  ! method name
+         "U getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_U))  ! address of Fortran function to add
 
+    call method_table%add_method("IO_Formats_set_U", &                  ! method name
+         "U setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_U))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_V", &                  ! method name
+         "V getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_V))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_set_V", &                  ! method name
+         "V setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_V))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_W", &                  ! method name
+         "W getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_W))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_set_W", &                  ! method name
+         "W setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_W))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_X", &                  ! method name
+         "X getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_X))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_set_X", &                  ! method name
+         "X setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_X))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_Y", &                  ! method name
+         "Y getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_Y))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_det_Y", &                  ! method name
+         "Y detter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_Y))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_theta_step", &                  ! method name
+         "theta_step getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_theta_step))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_set_theta_step", &                  ! method name
+         "theta_step setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_theta_step))  ! address of Fortran function to add
+    
+    call method_table%add_method("IO_Formats_get_bkg", &                  ! method name
+         "bkg getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_get_bkg))  ! address of Fortran function to add
+
+    call method_table%add_method("IO_Formats_set_bkg", &                  ! method name
+         "bkg setter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(IO_Formats_set_bkg))  ! address of Fortran function to add
+    
     !--------------------------
     ! Atom Typedef (45)
     !--------------------------

@@ -835,81 +835,7 @@ contains
      
   end function IO_Formats_get_range_2theta
 
-  function IO_Formats_set_range_2theta(self_ptr, args_ptr) result(r) bind(c)
-        
-    type(c_ptr), value :: self_ptr
-    type(c_ptr), value :: args_ptr
-    type(c_ptr) :: r
-    type(tuple) :: args
-    type(dict) :: retval
-    integer :: num_args
-    integer :: ierror
-    type(Job_info_Type_p) :: job_p
-
-    type(object) :: indx_obj, mina_obj, maxb_obj
-    integer :: indx
-
-    real(kind=sp) :: a1,a2,a4,a5, mina, maxb
-
-    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
-    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
-    call unsafe_cast_from_c_ptr(args, args_ptr)
-    ! Check if the arguments are OK
-    ierror = args%len(num_args)
-    ! we should also check ierror, but this example does not do complete error checking for simplicity
-    if (num_args .le. 2) then
-       call raise_exception(TypeError, "set_range_2theta expects 3 or more arguments")
-       call args%destroy
-       return
-    endif
-
-     ! Doing boring stuff
-    call get_job_info_type_from_arg(args, job_p)
-
-    ierror = args%getitem(mina_obj, 1) !get the value of theta min
-    ierror = cast_nonstrict(mina, mina_obj)
-
-    ierror = args%getitem(maxb_obj, 2) !get the value of theta max
-    ierror = cast_nonstrict(maxb, maxb_obj)
-
-    ierror = args%getitem(indx_obj, 3) !get the phase number
-    ierror = cast_nonstrict(indx, indx_obj)
-    
-    select case (job_p%p%patt_typ(indx))
-    case("XRAY_2THE","NEUT_2THE","XRAY_SXTA","NEUT_SXTA")
-       
-       job_p%p%range_2theta(indx)%mina = mina
-       job_p%p%range_2theta(indx)%maxb = maxb
-
-       
-       a1 = Job_p%p%Lambda(indx)%mina
-       a2 = Job_p%p%Lambda(indx)%maxb
-       
-       a4=sind(0.5*mina)/a1
-       a5=sind(0.5*maxb)/a2
-       Job_p%p%range_stl(indx)%mina=a4
-       Job_p%p%range_stl(indx)%maxb=a5
-       Job_p%p%range_q(indx)%mina=a4*4.0*pi
-       Job_p%p%range_q(indx)%maxb=a5*4.0*pi
-       Job_p%p%range_d(indx)%mina=0.5/a5
-       Job_p%p%range_d(indx)%maxb=0.5/a4
-       
-    case default
-       write(*,*) "only possible to change theta in XRAY_2THE, NEUT_2THE, XRAY_SXTA, NEUT_SXTA"
-    end select
-         
-    
-    ierror = dict_create(retval)
-    r = retval%get_c_ptr()
-
-    call args%destroy
-    call indx_obj%destroy
-    call mina_obj%destroy
-    call maxb_obj%destroy
-
-  end function IO_Formats_set_range_2theta
-  
-  
+ 
   function IO_Formats_get_range_energy(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
@@ -1102,4 +1028,629 @@ contains
     call args%destroy
      
   end function IO_Formats_get_dtt2
+
+
+  function IO_Formats_get_U(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_U expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("U", job_info_type_pointer%p%U)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_U
+  
+  
+  function IO_Formats_get_V(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_V expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("V", job_info_type_pointer%p%V)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_V
+  
+  
+  function IO_Formats_get_W(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_W expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("W", job_info_type_pointer%p%W)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_W
+  
+  
+  function IO_Formats_get_X(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_X expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("X", job_info_type_pointer%p%X)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_X
+  
+  
+  function IO_Formats_get_Y(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_Y expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("Y", job_info_type_pointer%p%Y)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_Y
+  
+  
+  function IO_Formats_get_theta_step(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_theta_step expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("theta_step", job_info_type_pointer%p%theta_step)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_theta_step
+  
+  
+  function IO_Formats_get_bkg(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_info_type_pointer
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_bkg expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_info_type_pointer)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("bkg", job_info_type_pointer%p%bkg)
+    r = retval%get_c_ptr()
+    call args%destroy
+     
+  end function IO_Formats_get_bkg
+
+  !---------------------
+  !Setters
+  !---------------------
+
+    function IO_Formats_set_range_2theta(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: indx_obj, mina_obj, maxb_obj
+    integer :: indx
+
+    real(kind=sp) :: a1,a2,a4,a5, mina, maxb
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args .le. 2) then
+       call raise_exception(TypeError, "set_range_2theta expects 3 or more arguments")
+       call args%destroy
+       return
+    endif
+
+     ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(mina_obj, 1) !get the value of theta min
+    ierror = cast_nonstrict(mina, mina_obj)
+
+    ierror = args%getitem(maxb_obj, 2) !get the value of theta max
+    ierror = cast_nonstrict(maxb, maxb_obj)
+
+    ierror = args%getitem(indx_obj, 3) !get the phase number
+    ierror = cast_nonstrict(indx, indx_obj)
+    
+    select case (job_p%p%patt_typ(indx))
+    case("XRAY_2THE","NEUT_2THE","XRAY_SXTA","NEUT_SXTA")
+       
+       job_p%p%range_2theta(indx)%mina = mina
+       job_p%p%range_2theta(indx)%maxb = maxb
+
+       
+       a1 = Job_p%p%Lambda(indx)%mina
+       a2 = Job_p%p%Lambda(indx)%maxb
+       
+       a4=sind(0.5*mina)/a1
+       a5=sind(0.5*maxb)/a2
+       Job_p%p%range_stl(indx)%mina=a4
+       Job_p%p%range_stl(indx)%maxb=a5
+       Job_p%p%range_q(indx)%mina=a4*4.0*pi
+       Job_p%p%range_q(indx)%maxb=a5*4.0*pi
+       Job_p%p%range_d(indx)%mina=0.5/a5
+       Job_p%p%range_d(indx)%maxb=0.5/a4
+       
+    case default
+       write(*,*) "only possible to change theta in XRAY_2THE, NEUT_2THE, XRAY_SXTA, NEUT_SXTA"
+    end select
+         
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call indx_obj%destroy
+    call mina_obj%destroy
+    call maxb_obj%destroy
+
+  end function IO_Formats_set_range_2theta
+  
+  function IO_Formats_set_U(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_U expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%U = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+     
+  end function IO_Formats_set_U
+  
+  
+  function IO_Formats_set_V(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_V expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%V = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+     
+  end function IO_Formats_set_V
+  
+  
+  function IO_Formats_set_W(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_W expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%W = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+   
+     
+  end function IO_Formats_set_W
+  
+  
+  function IO_Formats_set_X(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_X expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%X = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+     
+  end function IO_Formats_set_X
+  
+  
+  function IO_Formats_set_Y(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_Y expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%Y = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+     
+  end function IO_Formats_set_Y
+  
+  
+  function IO_Formats_set_theta_step(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_theta_step expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%theta_step = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+    
+     
+  end function IO_Formats_set_theta_step
+  
+  
+  function IO_Formats_set_bkg(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Job_info_Type_p) :: job_p
+
+    type(object) :: val_obj
+    real(kind=cp) :: val
+  
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "set_bkg expects exactly 2 argument")
+       !self, new_value
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_job_info_type_from_arg(args, job_p)
+
+    ierror = args%getitem(val_obj, 1) !get the value
+    ierror = cast_nonstrict(val, val_obj)
+
+    job_p%p%bkg = val
+    
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call val_obj%destroy
+     
+  end function IO_Formats_set_bkg
+
 end module API_IO_Formats

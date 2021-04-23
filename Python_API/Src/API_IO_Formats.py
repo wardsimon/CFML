@@ -26,8 +26,23 @@ class JobInfo(CFML_api.FortranBindedClass):
     ...
     Attributes
     ----------
+    range_2theta : (float, float)
+       (theta_min, theta_max) 
+    theta_step : float
+        delta_theta between two points of the Simulated Powder pattern
+    u_resolution : float
+       Resolution parameter U for Simulated Powder pattern
+    v_resolution : float
+       Resolution parameter V for Simulated Powder pattern
+    w_resolution : float
+       Resolution parameter W for Simulated Powder pattern
+    x_resolution : float
+       Resolution parameter X for Simulated Powder pattern
+    y_resolution : float
+       Resolution parameter Y for Simulated Powder pattern
+    bkg : float
+       Constant background value for Simulated Powder pattern
     
-
     Methods
     -------
     print_description
@@ -242,6 +257,91 @@ class JobInfo(CFML_api.FortranBindedClass):
         d-to-TOF coefficient
         """
         return CFML_api.crysfml_api.IO_Formats_get_dtt2(self.get_fortran_address())["dtt2"]
+
+    
+    @property
+    def u_resolution(self):
+        """
+        Resolution parameter U for Simulated Powder pattern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_U(self.get_fortran_address())["U"]
+    
+    @u_resolution.setter
+    def u_resolution(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_U(self.get_fortran_address(), val)
+    
+    @property
+    def v_resolution(self):
+        """
+        Resolution parameter V for Simulated Powder pattern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_V(self.get_fortran_address())["V"]
+
+    @v_resolution.setter
+    def v_resolution(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_V(self.get_fortran_address(), val)
+    
+    @property
+    def w_resolution(self):
+        """
+        Resolution parameter W for Simulated Powder pattern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_W(self.get_fortran_address())["W"]
+
+    @w_resolution.setter
+    def w_resolution(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_W(self.get_fortran_address(), val)
+    
+    @property
+    def x_resolution(self):
+        """
+        Resolution parameter X for Simulated Powder pattern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_X(self.get_fortran_address())["X"]
+
+    @x_resolution.setter
+    def x_resolution(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_X(self.get_fortran_address(), val)
+    
+    @property
+    def y_resolution(self):
+        """
+        Resolution parameter Y for Simluated Powder pattern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_Y(self.get_fortran_address())["Y"]
+
+    @y_resolution.setter
+    def y_resolution(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_Y(self.get_fortran_address(), val)
+    
+    @property
+    def theta_step(self):
+        """
+        Step in theta for the Simulated Powder patttern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_theta_step(self.get_fortran_address())["theta_step"]
+
+    @theta_step.setter
+    def theta_step(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_theta_step(self.get_fortran_address(), val)
+    
+    @property
+    def bkg(self):
+        """
+        Cosntant background value for the Simulated Powder patttern
+        """
+        return CFML_api.crysfml_api.IO_Formats_get_bkg(self.get_fortran_address())["bkg"]
+
+    @bkg.setter
+    def bkg(self, val):
+
+        CFML_api.crysfml_api.IO_Formats_set_bkg(self.get_fortran_address(), val)
     
 
 class CIFFile():
