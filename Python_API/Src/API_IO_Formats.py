@@ -232,6 +232,17 @@ class JobInfo(CFML_api.FortranBindedClass):
         lambda2 = CFML_api.crysfml_api.IO_Formats_get_lambda(self.get_fortran_address(),key+1)["lambda2"]
             
         return lambda1, lambda2
+
+    @lambdas.setter
+    def lambdas(self, range_lambda, indx=None):
+        if indx:
+            key=indx
+        else:
+            key=0
+
+        (mina, maxb) = range_lambda
+        CFML_api.crysfml_api.IO_Formats_set_lambda(self.get_fortran_address(), mina, maxb, key+1)
+    
  
     @property
     def lambda_ratio(self, indx=None):
