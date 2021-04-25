@@ -325,7 +325,7 @@
       Integer, dimension(3) :: rx
       Integer, dimension(3) :: ry
     End Type Zone_Axis_Type
-    
+
     !!----
     !!----  TYPE :: STRAIN_TENSOR_TYPE
     !!--..
@@ -335,12 +335,12 @@
        integer                       :: Istype=0    ! Strain type
        type(crystal_cell_type)       :: cell0       ! cfml data structure for the reference cell
        type(crystal_cell_type)       :: cell1       ! cfml data structure for the final cell
-       character(len=2)              :: carType     ! Cartesian axial choice: first character specifies real axis 
+       character(len=2)              :: carType     ! Cartesian axial choice: first character specifies real axis
                                                     ! parallel to Cart, second recip axis with a or a* always
-                                                    ! close to X, b or b* always close to Y 
+                                                    ! close to X, b or b* always close to Y
        character(len=40)             :: System=" "  ! Crystal System  (transferred from dat structures)
-      
-       real(kind=cp),dimension(0:1,1:2,1:2) :: pt   ! The p & t of cell 0 and 1: pt(0,1,1) is P1, pt(0,2,1) is T1 etc, 
+
+       real(kind=cp),dimension(0:1,1:2,1:2) :: pt   ! The p & t of cell 0 and 1: pt(0,1,1) is P1, pt(0,2,1) is T1 etc,
                                                     ! last value=2 is esd
 
        !> values normally calculated from two cells
@@ -348,25 +348,25 @@
        real(kind=cp), dimension(3,3)   :: esd=     0.0   ! Strain esd values
        real(kind=cp), dimension(3)     :: eval=    0.0   ! Eigen values in ascending order
        real(kind=cp), dimension(3)     :: evalesd= 0.0   ! Eigen values esds
-       real(kind=cp), dimension(3,3)   :: evec=    0.0   ! Eigenvector components in same order: evec(1:3,i) holds the 
+       real(kind=cp), dimension(3,3)   :: evec=    0.0   ! Eigenvector components in same order: evec(1:3,i) holds the
                                                          ! i’th vector components wrt Cartesian axes.
-       real(kind=cp), dimension(3,3,2) :: cart_ang=0.0   ! Angles of eigenvectors to Cartesian axes cart_ang(1:3,i,1) 
-                                                         ! has the angles for the i'th eigenvector, cart_ang(1:3,i,2) 
+       real(kind=cp), dimension(3,3,2) :: cart_ang=0.0   ! Angles of eigenvectors to Cartesian axes cart_ang(1:3,i,1)
+                                                         ! has the angles for the i'th eigenvector, cart_ang(1:3,i,2)
                                                          ! the esd
-       real(kind=cp), dimension(3,3,4) :: cell_ang=0.0   ! Angles of eigenvectors to cell axes of reference cell 
-                                                         ! cell_ang(1:3,i,1) has the angles for the i'th eigenvector, 
+       real(kind=cp), dimension(3,3,4) :: cell_ang=0.0   ! Angles of eigenvectors to cell axes of reference cell
+                                                         ! cell_ang(1:3,i,1) has the angles for the i'th eigenvector,
                                                          ! cell_ang(1:3,i,2) the esd, last index 3,4 angles to recip cell
        real(kind=cp), dimension(3,2,4) :: dir_close      ! Closest low index hkl and angle to evec i in dir_close(i,1,1:4), same for UVW in dir_close(i,2,1:4)
-      
+
        !> Property values calculated directly from strain values and PT: Stored because makes output easier!
        real(kind=cp), dimension(3,3) :: ep=      0.0   ! Strains
        real(kind=cp), dimension(3,3) :: esdp=    0.0   ! Strain esd values
        real(kind=cp), dimension(3)   :: evalp=   0.0   ! Eigen values in ascending order
        real(kind=cp), dimension(3)   :: evalpesd=0.0   ! Eigen values esds
        character(len=60)             :: property=''    ! property for strain, eg thermal expansion, compressibility
-      
+
     End Type Strain_Tensor_Type
-    
+
     !!----
     !!---- ERR_CRYS
     !!----    logical, public :: Err_Crys
@@ -907,11 +907,11 @@
        return
     End Function U_Equiv
 
-    !!---- 
+    !!----
     !!---- Function Volume_from_cell
-    !!---- 
+    !!----
     !!---- Calculate the volume of the cell
-    !!---- 
+    !!----
     !!---- 19/01/2021
     !!
     Function Volume_from_Cell(a,ang) Result(V)
@@ -946,8 +946,8 @@
     !!
     Function Calc_Cell_Strain(Itype,T0,T1) Result(Strain)
        !---- Arguments ----!
-       integer,                       intent(in) ::  Itype  ! strain type 
-                                                            ! 1: Eulerian finite, 2:Eulerian infinitesimal, 
+       integer,                       intent(in) ::  Itype  ! strain type
+                                                            ! 1: Eulerian finite, 2:Eulerian infinitesimal,
                                                             ! 3:Lagrangian finite, 4:Lagrangian infinitesimal
        real(kind=cp), dimension(3,3), intent(in) ::  T0     ! CR_Orth_Cel for chosen axial system for the starting state
        real(kind=cp), dimension(3,3), intent(in) ::  T1     ! CR_Orth_Cel for chosen axial system for the final state
@@ -1032,29 +1032,29 @@
     !!----
     !!----  Calculates metric tensor of deformed cell from initial cell and deformation tensor
     !!----  Initial cell and F matrix must be defined with respect to same axial system
-    !!---- 
-    !!----  26/02/2020, RJA  
-    !!       
+    !!----
+    !!----  26/02/2020, RJA
+    !!
     Function Calc_Deformed_Metric(C,F) Result(G1)
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(in) ::  C  ! CR_Orth_Cel for a chosen axial system for the starting state
-       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.  
+       real(kind=cp), dimension(3,3), intent(in) ::  F  ! Deformation tensor from C0 to C1.
        real(kind=cp), dimension(3,3)             ::  G1 ! Metric tensor of deformed cell
-       
+
        !---- Local Variables ----!
        real(kind=cp), dimension(3,3) :: G, D
 
        G=matmul(F,C)
        G=matmul(transpose(F),G)
        G=matmul(transpose(C),G)
-       
+
        !> alternate
        G1=matmul(F,C)
        G1=matmul(transpose(G1),G1)
-       
+
        !>test
        D=G1-G
-       
+
     End Function Calc_Deformed_Metric
 
 
@@ -1089,7 +1089,7 @@
        F=matmul(C1, C0inv)
 
     End Function Calc_Deformation_Tensor
-    
+
     !!----
     !!---- Subroutine  Calc_Paxes_Angles
     !!----
@@ -1100,37 +1100,37 @@
     !!
     Subroutine Calc_Paxes_Angles(x,c,index_range)
        !---- Arguments ----!
-       type(Strain_Tensor_Type), intent(inout) :: X 
+       type(Strain_Tensor_Type), intent(inout) :: X
        type(crystal_cell_type),  intent(in)    :: c            ! reference cell to which angles are calculated
        integer,                  intent(in)    :: index_range  ! max index for hunting nearest directions
-     
+
        !---- Local Variables ----!
        integer                     :: i,j
        real(kind=cp), dimension(3) :: vec
-     
+
        x%cart_ang(1:3,1:3,1)=acosd(x%evec(1:3,1:3))        ! Angles to Cartesian axes. Trivial, but needed for calculating errors
        x%cart_ang(1:3,1:3,2)=0._cp                         ! esds
-        
-       !> Calc angles from Eigenvectors to unit-cell axes 
+
+       !> Calc angles from Eigenvectors to unit-cell axes
        x%cell_ang(1:3,1:3,1)=0._cp
-        
+
        !> Angles to the crystal axes
        do i=1,3        ! set the crystal axis
           vec=0.
           vec(i)=1.0
           do j=1,3        ! loop over eigenvectors
              x%cell_ang(i,j,1)=acosd(dot_product(Cart_U_Vector('D',Vec,c),X%Evec(1:3,j)))      ! angle from evector j to cell vector i in real space
-             x%cell_ang(i,j,3)=acosd(dot_product(Cart_U_Vector('R',Vec,c),X%Evec(1:3,j)))      ! angle from evector j to cell vector i in recip space               
+             x%cell_ang(i,j,3)=acosd(dot_product(Cart_U_Vector('R',Vec,c),X%Evec(1:3,j)))      ! angle from evector j to cell vector i in recip space
           end do
        end do
 
        !> Find closest low-index plane normals and lattice vectors to each evec
        do i= 1,3       ! loop over evecs
           call find_lowindex_dir(X%Evec(1:3,i),C,'D',index_range,X%dir_close(i,2,1:3), X%dir_close(i,2,4))
-          call find_lowindex_dir(X%Evec(1:3,i),C,'R',index_range,X%dir_close(i,1,1:3), X%dir_close(i,1,4))            
+          call find_lowindex_dir(X%Evec(1:3,i),C,'R',index_range,X%dir_close(i,1,1:3), X%dir_close(i,1,4))
        end do
-     
-     End Subroutine Calc_Paxes_Angles    
+
+     End Subroutine Calc_Paxes_Angles
 
     !!----
     !!---- Subroutine Cell_From_Metric
@@ -1218,28 +1218,28 @@
 
        return
     End Subroutine Change_Setting_Cell
-    
+
     !!----
     !!---- Subroutine Find_Lowindex_Dir
     !!----
     !!----
-    !!---- 19/01/2021 
+    !!---- 19/01/2021
     !!
     Subroutine Find_Lowindex_Dir(Cvec,Cell,Space,Irange,Ind,Ang)
-       !---- Arguments ----!    
+       !---- Arguments ----!
        real(kind=cp), dimension(3), intent(in)  :: Cvec    ! Cartesian vector to be indexed on cell
        type(crystal_cell_type),     intent(in)  :: Cell    ! the cell params
        character(len=*),            intent(in)  :: Space   ! R or D for recip or direct space
-       integer,                     intent(in)  :: Irange  ! maximum value of index to test, will run 0 to +irange for first index, -irange to +irange for others 
+       integer,                     intent(in)  :: Irange  ! maximum value of index to test, will run 0 to +irange for first index, -irange to +irange for others
        real(kind=cp),dimension(3),  intent(out) :: Ind     ! indices of closest direction
        real(kind=cp),               intent(out) :: Ang     ! residual angle to nearest direction (always >=0 and <90)
-    
+
        !---- Local variables ----!
        integer                     :: i,j,k
        real(kind=cp),dimension(3)  :: vec      !Cartesian vector of direction to be tested
        real(kind=cp)               :: ang_temp
        logical                     :: invert
-    
+
        !> init
        ind=0.0_cp
        ang=180.0_cp
@@ -1259,7 +1259,7 @@
                     ang_temp=180._cp-ang_temp
                     invert=.true.
                 end if
-                    
+
                 if (ang_temp < ang)then
                     ang=ang_temp
                     ind=(/i,j,k/)
@@ -1267,10 +1267,10 @@
                 end if
              end do
           end do
-       end do   
- 
+       end do
+
     End Subroutine Find_Lowindex_Dir
-    
+
     !!----
     !!---- Subroutine Fix_Tensor
     !!----
@@ -1283,32 +1283,32 @@
        !---- Arguments ----!
        real(kind=cp), dimension(3,3), intent(inout) :: A
        character(len=*),              intent(in)    :: Sys_in
-    
+
        !---- Local Variables ----!
        character(len=len(sys_in)) :: sys
-    
+
 
        !> process system
        sys=U_case(adjustl(sys_in))
-    
+
        select case(sys(1:4))
           case ('TRIC','MONO')         ! cannot set mono off-diagonal terms zero, because we do not know Cart setting
              a(1,2)=(a(1,2)+a(2,1))/2.0
              a(1,3)=(a(1,3)+a(3,1))/2.0
              a(2,3)=(a(2,3)+a(3,2))/2.0
-        
+
           case ('ORTH')
              a(1,2)=0._cp
              a(1,3)=0._cp
              a(2,3)=0._cp
-        
+
           case ('TETR','TRIG','HEXA')
              a(1,1)=(a(1,1)+a(2,2))/2.0
-             a(2,2)=a(1,1)        
+             a(2,2)=a(1,1)
              a(1,2)=0._cp
              a(1,3)=0._cp
              a(2,3)=0._cp
-    
+
           case ('CUBI')
              a(1,1)=(a(1,1)+a(2,2)+a(3,3))/3.0
              a(2,2)=a(1,1)
@@ -1318,13 +1318,13 @@
              a(2,3)=0._cp
 
        end select
-    
+
        !> make symmetric: for all systems
        a(2,1)=a(1,2)
        a(3,1)=a(1,3)
        a(3,2)=a(2,3)
 
-    End Subroutine Fix_Tensor   
+    End Subroutine Fix_Tensor
 
     !!----
     !!---- Subroutine Get_basis_from_uvw(dmin,u,cell,ZoneB,ok,mode)
@@ -2226,7 +2226,7 @@
             CarType=U_case(adjustl(CarTypeIn))
             !> Check for valid input
             if(len_trim(CarType) == 2)then          !two symbols input
-                if(CarType .ne. 'CA' .and. CarType .ne. 'AB' .and.CarType .ne. 'BC' .and.CarType .ne. 'BA' .and.CarType .ne. 'CB')then
+                if(CarType /= 'CA' .and. CarType /= 'AB' .and.CarType /= 'BC' .and.CarType /= 'BA' .and.CarType /= 'CB')then
                     err_crys=.true.
                     err_crys_mess='Invalid CarType in call to Get_Cryst_Orthog_Matrix. Reset to default'
                     CarType='CA'     !default: c//Z, a*//X
@@ -2236,7 +2236,7 @@
                 case('C')
                     CarType(2:2)='A'
                 case('A')
-                    CarType(2:2)='B'
+                    CarType(2:2)='C'
                 case('B')
                     CarType(2:2)='C'        !defaults to c* // Z for this case
                 case default
@@ -2267,7 +2267,7 @@
                CrystOrt(3,3) = cellv(3)
 
            case('AC')  !This is the alternate case in the version prior to  2019.
-                 ! Incorrectly labelled in 2019 as x//a and Y // b*  = AB!!!! 
+                 ! Incorrectly labelled in 2019 as x//a and Y // b*  = AB!!!!
                  !  It is really x//a and Z // c* =AC
                  !  Transponse of the following matrix:
                  !    a = (       a   ,         0           ,       0             )
@@ -2310,8 +2310,8 @@
                 CrystOrt(1,3)=0.0
                 CrystOrt(2,3)=cellv(3)*cosd(ang(1))
                 CrystOrt(3,3)=cellv(3)*sind(ang(1))
-                
-                           
+
+
            case('CB') ! Neumann (1861) as given by Pauffler and Weber (1999)
                 cosgas =(cosd(ang(1))*cosd(ang(2))-cosd(ang(3)))/(sind(ang(1))*sind(ang(2)))
                 singas = sqrt(1.0-cosgas**2)
@@ -2373,11 +2373,11 @@
             CarType=U_case(adjustl(CarTypeIn))
             !> Check for valid input
             if(len_trim(CarType) == 2)then          !two symbols input
-                if(CarType .ne. 'CA' .and. CarType .ne. 'AB' .and. CarType .ne. 'BC' .and. CarType .ne. 'BA' .and. CarType .ne. 'CB')then
+                if(CarType /= 'CA' .and. CarType /= 'AB' .and. CarType /= 'BC' .and. CarType /= 'BA' .and. CarType /= 'CB')then
                     err_crys=.true.
                     err_crys_mess='Invalid CarType in call to Get_Deriv_Orth_Cell'
                     return
-                elseif(CarType .eq. 'BC' .or. CarType .eq. 'BA' .or. CarType .eq. 'CB')then
+                elseif(CarType == 'BC' .or. CarType == 'BA' .or. CarType == 'CB')then
                     err_crys=.true.
                     err_crys_mess='CarType not supported in  Get_Deriv_Orth_Cell'
                     return
@@ -2387,7 +2387,7 @@
                 case('C')
                     CarType(2:2)='A'
                 case('A')
-                    CarType(2:2)='B'
+                    CarType(2:2)='C'
                 case('B')
                     err_crys=.true.
                     err_crys_mess='CarType not supported in  Get_Deriv_Orth_Cell'
@@ -2397,7 +2397,7 @@
                 end select
             endif
         endif
-        if(len_trim(CarType) == 0)CarType='CA'     !default: c//Z, a*//X
+        if(len_trim(CarType) == 0) CarType='CA'     !default: c//Z, a*//X
 
 
         !> Now calculate the derivs for the two supported Cartesian sets
@@ -2788,7 +2788,7 @@
 
        return
     End Subroutine Init_Err_Crys
-    
+
     !!----
     !!---- Subroutine Init_Strain_Tensor
     !!----
@@ -2797,7 +2797,7 @@
     Subroutine Init_Strain_Tensor(T)
        !---- Argument ----!
        type(Strain_Tensor_Type),intent(in out) :: T
-    
+
        t%iref=0
        t%icell=0
        t%istype=0
@@ -2809,7 +2809,7 @@
        t%ep =0._cp
        t%esdp=0._cp
        t%property=''
-    
+
     End Subroutine Init_Strain_Tensor
 
     !!----
