@@ -815,7 +815,7 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_Formats_get_Y))  ! address of Fortran function to add
 
-    call method_table%add_method("IO_Formats_det_Y", &                  ! method name
+    call method_table%add_method("IO_Formats_set_Y", &                  ! method name
          "Y detter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(IO_Formats_set_Y))  ! address of Fortran function to add
