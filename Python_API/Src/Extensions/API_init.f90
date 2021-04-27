@@ -172,7 +172,17 @@ module API_init
 
   use API_Reflections_Utilities, only: &
        reflections_utilities_hkl_uni_reflist, &
-       reflections_utilities_del_reflection_list
+       reflections_utilities_del_reflection_list, &
+       reflection_utilities_get_H, &
+       reflection_utilities_get_Mult, &
+       reflection_utilities_get_Fo, &
+       reflection_utilities_get_Fc, &
+       reflection_utilities_get_SFo, &
+       reflection_utilities_get_S, &
+       reflection_utilities_get_W, &
+       reflection_utilities_get_Phase, &
+       reflection_utilities_get_A, &
+       reflection_utilities_get_B
 
   use API_Diffraction_Patterns, only: &
        diffraction_patterns_compute_powder_pattern, &
@@ -245,7 +255,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(187)
+    call method_table%init(197)
 
     !--------------------------
     ! Error Messages (1)
@@ -1073,7 +1083,7 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_get_Lm_xyz))  ! address of Fortran function to add
     !--------------------------
-    ! Reflection Utilities (2)
+    ! Reflection Utilities (12)
     !--------------------------
     call method_table%add_method("reflections_utilities_hkl_uni_reflist", &                  ! method name
          "Return the list of reflections", &  !doc-string
@@ -1084,6 +1094,57 @@ CONTAINS
          "Reflection list deallocation", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(reflections_utilities_del_reflection_list))  ! address of Fortran function to add
+
+    call method_table%add_method("reflection_utilities_get_H", &                  ! method name
+         "H getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_H))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_Mult", &                  ! method name
+         "Mult getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_Mult))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_Fo", &                  ! method name
+         "Fo getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_Fo))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_Fc", &                  ! method name
+         "Fc getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_Fc))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_SFo", &                  ! method name
+         "SFo getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_SFo))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_S", &                  ! method name
+         "S getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_S))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_W", &                  ! method name
+         "W getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_W))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_Phase", &                  ! method name
+         "Phase getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_Phase))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_A", &                  ! method name
+         "A getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_A))  ! address of Fortran function to add
+    
+    call method_table%add_method("reflection_utilities_get_B", &                  ! method name
+         "B getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflection_utilities_get_B))  ! address of Fortran function to add
+    
 
 
     !--------------------------
