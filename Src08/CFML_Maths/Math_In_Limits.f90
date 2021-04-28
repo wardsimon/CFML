@@ -45,7 +45,6 @@ Submodule (CFML_Maths) Maths_In_Limits
           exit
        end do
 
-       return
     End Function in_limits_i
 
     !!----
@@ -86,7 +85,6 @@ Submodule (CFML_Maths) Maths_In_Limits
           exit
        end do
 
-       return
     End Function in_limits_R
 
 End Submodule Maths_In_Limits

@@ -94,7 +94,7 @@
     !---- List of public subroutines ----!
     public :: Allocate_Atoms_Conf_List, Calc_BVS, Deallocate_Atoms_Conf_List,           &
               Init_Err_Conf, Set_Table_d0_b, Species_on_List, Set_Table_BVEL_Params,    &
-              Calc_Map_BVS, Cost_BVS, Cost_BVS_CoulombRep, Calc_Map_BVEL, Ewald,        &
+              Calc_Map_BVS, Calc_Site_Ene, Cost_BVS, Cost_BVS_CoulombRep, Calc_Map_BVEL, Ewald,        &
               Set_Formal_Charges
 
     !---- List of public private ----!
@@ -1084,6 +1084,188 @@
 
        return
     End Subroutine Calc_Map_BVS
+
+    !!----
+    !!---- Subroutine Calc_Site_Ene(A,Spg,Cell,x,y,z,atname,drmax,emin)  ! added by Nebil 14-09-2016
+    !!----    !---- Arguments ----!
+    !!----    type (Atoms_Conf_List_type), intent(in) :: A
+    !!----    type (Space_Group_Type),     intent(in) :: SpG
+    !!----    Type (Crystal_Cell_Type),    intent(in) :: Cell
+    !!----    real(kind=cp),               intent(in) :: x
+    !!----    real(kind=cp),               intent(in) :: y
+    !!----    real(kind=cp),               intent(in) :: z
+    !!----    character(len=*),            intent(in) :: atname  !Species of the probe atom e.g. LI+1
+    !!----    real(kind=cp),               intent(in) :: drmax
+    !!----    real(kind=cp),               intent(out):: emin
+    !!----
+    !!----    Calculate Bond-Valence site energy where the energy at point (x,y,z)
+    !!----    is determined by a species representative defined in atname. The BV-site Energy value
+    !!----    is evaluated for distances below drmax value.
+    !!----
+    !!---- Created: September 2016, added to crysfml April 2021
+    !!
+    Subroutine Calc_Site_Ene(A,Spg,Cell,x,y,z,atname,drmax,emin)
+      !---- Arguments ----!
+      type (Atoms_Conf_List_type), intent(in) :: A
+      type (Space_Group_Type),     intent(in) :: SpG
+      Type (Crystal_Cell_Type),    intent(in) :: Cell
+      real(kind=cp),               intent(in) :: x
+      real(kind=cp),               intent(in) :: y
+      real(kind=cp),               intent(in) :: z
+      character(len=*),            intent(in) :: atname  !Species of the probe atom e.g. LI+1
+      real(kind=cp),               intent(in) :: drmax
+      real(kind=cp),               intent(out):: emin
+
+      !---- Local variables ----!
+      character(len=4)                             :: car,atm
+      integer                                      :: i,j,k,n,n1,n2,np,jbvs
+      integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
+      integer                                      :: i1,j1,k1,sig1,sig2,ncont
+      real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
+      real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, d_cutoff, &
+                                                      dzero, alpha,c_rep,c_atr
+      real(kind=cp), dimension(3)                  :: pto,pta,step,extend
+      type (Atom_list_Type)                        :: At1, At2
+      logical                                      :: anion,cation
+      !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
+      real(kind=dp), parameter :: ke=14.399644850445155254866066
+      !Principal quantum numbers of the test=ion  and the species of all the atoms of the list
+      real(kind=cp) :: n_tion, ferfc
+      real(kind=cp), dimension(:), allocatable :: n_j
+
+      !---- Initial conditions ----!
+      if (A%natoms <= 0) return
+
+      !---- Preparing the Variables and calculations ----!
+      call Allocate_Atom_List(A%natoms,At1)
+      At1%atom=A%atom  !Atom list A%Atom(:)%ind(1) contains the pointer to the species
+                       !coming from A (Atoms_Conf_List_type, set in the main program)
+      atm=u_case(atname)
+      n1=0
+      allocate(n_j(A%N_Spec))
+      n_j=0.0
+      if (.not. allocated(Ap_Table)) call Set_Atomic_Properties()
+      do j=1,A%N_Spec
+        car=u_case(A%species(j))
+        do i=1,Ap_species_n
+          if(Ap_Table(i)%Symb == car) then
+             n_j(j)=real(Ap_Table(i)%n)
+             exit
+          end if
+        end do
+        if(car == atm) n_tion=n_j(j)
+      end do
+
+      do i=1,At1%natoms  !This exclude all atoms with the same species as Atname
+         n2=A%Atom(i)%ind(1)
+         if (trim(u_case(A%species(n2))) == trim(atm)) then
+            At1%atom(i)%active=.false.
+            q1=At1%atom(i)%charge
+            sig1=nint(SIGN(1.0_cp,q1))
+            n1=n2
+            radius=A%radius(n1)
+            car=A%Species(n1)
+         end if
+      end do
+      if (n1 ==0) then
+         err_conf=.true.
+         ERR_Conf_Mess="The point atom "//atname//" is not in the Species Table"
+         return
+      end if
+
+      call AtList1_ExtenCell_AtList2(Spg,At1,At2,.true.)
+      !call Deallocate_atom_list(At1)
+      !check that all species are well set in the list
+      !Write(unit=*,fmt="(a)") " => List of atoms for calculating BVEL"
+      do n=1,At2%natoms
+          n2=At2%Atom(n)%ind(1)
+          !write(unit=*,fmt="(a,a,3f12.5)") At2%Atom(n)%Lab,At2%Atom(n)%SfacSymb,At2%Atom(n)%x
+          if (n2 ==0) then
+             err_conf=.true.
+             ERR_Conf_Mess="The atom "//trim(At2%Atom(n)%lab)//" is not in the Species Table"
+             return
+          end if
+      end do
+
+      ! Determination of the valence expected for a good position
+      i=index(car,"+")
+      cation=.false.
+      anion=.false.
+      if( i /= 0) then
+        read(unit=car(i+1:),fmt=*) qval
+        cation=.true.
+      else
+        i=index(car,"-")
+        read(unit=car(i+1:),fmt=*) qval
+        anion=.true.
+      end if
+      extend=(/ drmax/cell%cell(1),  drmax/cell%cell(2), drmax/cell%cell(3) /)
+
+      pto(1)=x
+      pto(2)=y
+      pto(3)=z
+
+      rx1=pto(1)-extend(1)
+      if (rx1 <= 0.0) then
+         nx1=int(rx1)-1
+      else
+         nx1=int(rx1)
+      end if
+      nx2=int(pto(1)+extend(1))
+
+      ry1=pto(2)-extend(2)
+      if (ry1 <= 0.0) then
+         ny1=int(ry1)-1
+      else
+         ny1=int(ry1)
+      end if
+      ny2=int(pto(2)+extend(2))
+      
+      rz1=pto(3)-extend(3)
+      if (rz1 <= 0.0) then
+         nz1=int(rz1)-1
+      else
+         nz1=int(rz1)
+      end if
+      nz2=int(pto(3)+extend(3))
+
+      sbvs=0.0
+      rep=0.0
+      ncont=0
+      do n=1,At2%natoms
+         n2=At2%Atom(n)%ind(1)
+         q2=At2%Atom(n)%charge
+         sig2= nint(SIGN(1.0_cp,q2))
+         rho=(radius+A%radius(n2))*0.74
+         dzero=Table_Dzero(n1,n2)
+         dmin=Table_Rmin(n1,n2)
+         alpha=Table_Alpha(n1,n2)
+         d_cutoff=Table_Rcutoff(n1,n2)
+         occ=At2%Atom(n)%VarF(1)
+         c_rep=occ*q1*q2/sqrt(n_tion*n_j(n2))
+         c_atr=occ*dzero
+         ferfc=erfc(drmax/rho)/drmax !always below 10^(-9) when drmax/rho > 4.2
+         do k1=nz1,nz2
+            do j1=ny1,ny2
+               do i1=nx1,nx2
+                  pta=At2%Atom(n)%x+real((/i1,j1,k1/))
+                  dd=max(Distance(pto,pta,Cell),0.0001) !To avoid division by zero
+                  if (dd > drmax) cycle
+                  if (sig1 == sig2) then
+                     rep=rep + c_rep*(erfc(dd/rho)/dd-ferfc)
+                  else
+                     !if(dd > d_cutoff) cycle
+                     sbvs=sbvs+ c_atr*((exp(alpha*(dmin-dd))-1.0)**2-1.0)
+                  end if
+               end do
+            end do
+         end do
+
+      end do
+      !Multiply the repulsion term by the Coulomb constant to convert to eV
+      emin=sbvs+ke*rep
+      return
+    End Subroutine Calc_Site_Ene
 
     !!----
     !!---- Subroutine Complete_Table(A,N_bvsm,bvs_m)
@@ -2634,6 +2816,10 @@
              end do
           end do
           call Deallocate_BVEL_Table()
+       end if
+
+       if(present(N_Bvel)) then
+          call Complete_Table_BVEL(A,N_bvel,bvel)
        end if
 
        return

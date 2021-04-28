@@ -23,30 +23,48 @@ SubModule (CFML_Magnetic_Database) TAB_MagDB_Read
       integer            :: i,j,k,n,m,i_mag,ier
       character(len=40)  :: Env
       character(len=512) :: database
+      logical            :: esta
 
       !> Init
       call clear_error()
 
       !> Path
       Database=" "
+      esta=.false.
+      Env=" "
+
       if (present(DB_Path)) then
          database = trim(DB_Path)
          n=len_trim(database)
-         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
-      else
-         Env="CRYSFML_DB"
-         if (present(EnvDB)) Env=trim(EnvDB)
-
-         call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
-         n=len_trim(database)
-         if (n == 0) then
-            err_CFML%IErr=1
-            write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
-                                               "    This is needed for localizing the data base: magnetic_data.txt"//newline// &
-                                               "    that should be within the %"//trim(Env)//"% directory"
-            return
+         if(n /= 0)  then
+           if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
          end if
-         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+
+      else if (present(EnvDB)) then
+         Env=trim(EnvDB)
+
+      else
+         !Check first if the database magnetic_data.txt is in the current directory
+         inquire(file="magnetic_data.txt",exist=esta)
+         if(esta) then
+           database=" "
+         else
+           Env="CRYSFML_DB"
+         end if
+
+      end if
+
+      if(len_trim(Env) /= 0) then
+           call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
+           n=len_trim(database)
+           if (n == 0) then
+             err_CFML%IErr=1
+             write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
+                                               "    This is needed for localizing the data base: magnetic_data.txt"//newline// &
+                                               "    that may be within the %"//trim(Env)//"% directory"
+             return
+           end if
+           if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
       end if
 
       !> Open
@@ -151,30 +169,47 @@ SubModule (CFML_Magnetic_Database) TAB_MagDB_Read
       integer            :: i,j,k,n,m,i_mag
       character(len=40)  :: Env
       character(len=512) :: database
+      logical            :: esta
 
       call clear_error()
 
       !> Path
       Database=" "
+      esta=.false.
+      Env=" "
+
       if (present(DB_Path)) then
          database = trim(DB_Path)
          n=len_trim(database)
-         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+         if(n /= 0)  then
+           if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+         end if
+
+      else if (present(EnvDB)) then
+         Env=trim(EnvDB)
 
       else
-         Env="CRYSFML_DB"
-         if (present(EnvDB)) Env=trim(EnvDB)
-
-         call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
-         n=len_trim(database)
-         if (n == 0) then
-            err_CFML%IErr=1
-            write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
-                                               "    This is needed for localizing the data base: magnetic_data.bin"//newline// &
-                                               "    that should be within the %"//trim(Env)//"% directory"
-            return
+         !Check first if the database magnetic_data.txt is in the current directory
+         inquire(file="magnetic_data.bin",exist=esta)
+         if(esta) then
+           database=" "
+         else
+           Env="CRYSFML_DB"
          end if
-         if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
+
+      end if
+
+      if(len_trim(Env) /= 0) then
+           call GET_ENVIRONMENT_VARIABLE(trim(Env),database)
+           n=len_trim(database)
+           if (n == 0) then
+             err_CFML%IErr=1
+             write(unit=err_cfml%msg,fmt="(a)") " => The "//trim(Env)//" environment variable is not defined! "//newline// &
+                                               "    This is needed for localizing the data base: magnetic_data.txt"//newline// &
+                                               "    that may be within the %"//trim(Env)//"% directory"
+             return
+           end if
+           if (database(n:n) /= OPS_SEP) database=trim(database)//OPS_SEP
       end if
 
       !> open data file

@@ -52,7 +52,6 @@
              if (det ==  1) n= 1
        end select
 
-       return
     End Function Axes_Rotation
 
     !!----
@@ -143,7 +142,6 @@
        end do
        symb=pack_string(symb)
 
-       return
     End Subroutine Get_String_Resolv
 
     !!----
@@ -626,7 +624,6 @@
           iss=-1
        end do
 
-       return
     End Function SearchOp
 
     !!----
@@ -683,7 +680,6 @@
           tr(3)=real(k)
        end if
 
-       return
     End Subroutine Read_SymTrans_Code
 
     !!----

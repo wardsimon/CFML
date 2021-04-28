@@ -244,7 +244,7 @@ SubModule (CFML_Geometry_SXTAL) SXTAL_FlatCone
             omega(i)=om; chi(i)=ch; phi(i)=ph
         end if
       end do
-      return
+
     End Subroutine Get_FlatCone_Angles_D10
 
 End SubModule SXTAL_FlatCone

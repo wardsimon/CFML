@@ -56,7 +56,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
        end if
        e_val(1:n)=d(1:nn:2)
 
-       return
     End Subroutine Diagonalize_Herm
 
     !!----
@@ -102,7 +101,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           if(.not. present(norder)) call Diagonalize_EigenvSort(E_val,aux,n,0)
        end if
 
-       return
     End Subroutine Diagonalize_Symm
 
     !!----
@@ -191,7 +189,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           end do do_g
        end do
 
-       return
     End Subroutine Diagonalize_PR_Tqli1
 
     !!----
@@ -294,7 +291,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           end do do_g
        end do
 
-       return
     End Subroutine Diagonalize_PR_Tqli2
 
     !!----
@@ -374,7 +370,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           d(i)=a(i,i)
        end do
 
-       return
     End Subroutine Diagonalize_PR_Tred1
 
     !!----
@@ -480,7 +475,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           !> ... to here when finding only eigenvalues.
        end do
 
-       return
     End Subroutine Diagonalize_PR_Tred2
 
     !!----
@@ -528,7 +522,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           end if
        end do
 
-       return
     End Subroutine Diagonalize_EigenvSort
 
     !!----
@@ -563,7 +556,6 @@ Submodule (CFML_Maths) Maths_Diagonalize_SH
           evec(1:3,j)=s*vec(1:3,i)
        end do
 
-       return
     End Subroutine Orient_Eigenvectors
 
 End Submodule Maths_Diagonalize_SH

@@ -77,7 +77,6 @@ SubModule (CFML_Reflections) RFL_Refl_Conditions
       end do
       close(unit=iunit, status='delete')
 
-      return
    End Subroutine Search_Extinctions_File
 
    !!--++
@@ -1207,7 +1206,6 @@ SubModule (CFML_Reflections) RFL_Refl_Conditions
          if (present(iunit)) write(unit=iunit,fmt=*) "     =====>>> no general reflection condition"
       end if
 
-      return
    End Subroutine Write_Integral_Conditions
 
    !!--++

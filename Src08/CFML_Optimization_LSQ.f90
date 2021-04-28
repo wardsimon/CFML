@@ -784,7 +784,6 @@
        end do
        chisq=chisq/real(nfr)
 
-       return
     End Function Fchisq
 
     !---- Subroutines ----!
@@ -1494,7 +1493,6 @@
        end do !i=Lcode_max,maxs+1,-1
        Lcode_max=maxs
 
-       return
     End Subroutine Modify_Codes_State_Vector
 
  End Module CFML_Optimization_LSQ

@@ -26,7 +26,6 @@ Submodule (CFML_Maths) Maths_Tensor_Product
        mv(1,:)=Vec2
        w=matmul(mu,mv)
 
-       return
     End Function Tensor_Product_C
 
     !!----
@@ -48,7 +47,6 @@ Submodule (CFML_Maths) Maths_Tensor_Product
        mv(1,:)=Vec2
        w=matmul(mu,mv)
 
-       return
     End Function Tensor_Product_I
 
     !!----
@@ -70,7 +68,6 @@ Submodule (CFML_Maths) Maths_Tensor_Product
        mv(1,:)=Vec2
        w=matmul(mu,mv)
 
-       return
     End Function Tensor_Product_R
 
 End Submodule Maths_Tensor_Product

@@ -57,7 +57,6 @@ SubModule (CFML_Random) Random_Normal_sub
       !---- Return ratio of P"s coordinates as the normal deviate ----!
       fn_val = v/u
 
-      return
    End Function Random_Normal
 
    !!----
@@ -141,7 +140,6 @@ SubModule (CFML_Random) Random_Normal_sub
          end do ! i = j,n
       end do ! j = 1,n
 
-      return
    End Subroutine Random_Mvnorm
 
 End Submodule Random_Normal_sub

@@ -146,7 +146,6 @@ Submodule (CFML_Strings) STR_FullPString
        end if
        FMTstring(nStr:nStr) = ","
 
-       return
     End Subroutine BuildFMT
 
     !!----
@@ -393,7 +392,6 @@ Submodule (CFML_Strings) STR_FullPString
        !---- Close format string ----!
        FMTstring(nStr:nStr) = ")"
 
-       return
     End Subroutine FindFmt
 
     !!--++
@@ -468,7 +466,6 @@ Submodule (CFML_Strings) STR_FullPString
           Write(unit=Err_CFML%txt(3),fmt=LaMarque) " ",("-",i=1,nC_L-1),"^"
        end if
 
-       return
     End Subroutine FindFMT_Err
 
     !!----
@@ -484,7 +481,6 @@ Submodule (CFML_Strings) STR_FullPString
 
        line_nb=line_nb+line_n
 
-       return
     End Subroutine Inc_LineNum
 
     !!----
@@ -505,7 +501,6 @@ Submodule (CFML_Strings) STR_FullPString
        if(present(nline)) line_nb=nline
        call clear_error()
 
-       return
     End Subroutine Init_FindFMT
 
     !!--++
@@ -553,7 +548,6 @@ Submodule (CFML_Strings) STR_FullPString
           end if
        end if
 
-       return
     End Subroutine SGetFTMfield
 
     !!--++
@@ -636,7 +630,6 @@ Submodule (CFML_Strings) STR_FullPString
           iFld = nCar+48                    ! true size of the A field
        end if
 
-       return
     End Subroutine TreatMCharField
 
     !!--++
@@ -819,7 +812,6 @@ Submodule (CFML_Strings) STR_FullPString
           end if
        end do
 
-       return
     End Subroutine TreatNumerField
 
 End Submodule STR_FullPString

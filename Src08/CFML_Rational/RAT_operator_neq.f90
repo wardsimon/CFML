@@ -18,7 +18,6 @@ Submodule (CFML_Rational) RAT_Operator_NE
 
        res = r%numerator * s%denominator /= s%numerator * r%denominator
 
-       return
     End Function Rational_NE
 
 
@@ -35,7 +34,6 @@ Submodule (CFML_Rational) RAT_Operator_NE
 
        res = r%numerator /= i * r%denominator
 
-       return
     End Function Rational_Integer_NE
 
     !!----
@@ -51,7 +49,6 @@ Submodule (CFML_Rational) RAT_Operator_NE
 
        res = r%numerator /= i * r%denominator
 
-       return
     End Function Integer_Rational_NE
 
 End Submodule RAT_Operator_NE

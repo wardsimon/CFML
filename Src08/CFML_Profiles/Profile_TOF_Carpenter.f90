@@ -243,7 +243,6 @@ SubModule (CFML_Profiles) PRF_Tof_Carpenter
       end if
       deriv%sigma = deriv%gamma/(2.0_dp*inv_8ln2*gamma)
 
-      return
    End Subroutine Tof_Carpenter
 
 End SubModule PRF_Tof_Carpenter

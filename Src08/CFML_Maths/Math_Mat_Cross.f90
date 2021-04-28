@@ -25,7 +25,6 @@ Submodule (CFML_Maths) Maths_Cross
        M = reshape( (/  (0.0_cp,0.0_cp),   -vec(3),         vec(2),  &
                             vec(3),   (0.0_cp,0.0_cp),     -vec(1),  &
                            -vec(2),           vec(1),   (0.0_cp,0.0_cp)/),(/3,3/))
-       return
     End Function Mat_Cross_C
 
     !!----
@@ -46,7 +45,6 @@ Submodule (CFML_Maths) Maths_Cross
        M = reshape( (/ 0.0_cp,   -vec(3),     vec(2),  &
                         vec(3),    0.0_cp,   -vec(1),  &
                        -vec(2),     vec(1),    0.0_cp/),(/3,3/))
-       return
     End Function Mat_Cross_R
 
     !!----
@@ -67,7 +65,6 @@ Submodule (CFML_Maths) Maths_Cross
        M = reshape( (/   0,    -vec(3),    vec(2),  &
                         vec(3),    0,     -vec(1),  &
                        -vec(2),   vec(1),     0 /),(/3,3/))
-       return
     End Function Mat_Cross_I
 
 End Submodule Maths_Cross

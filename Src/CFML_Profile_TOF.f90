@@ -93,20 +93,18 @@ Module CFML_PowderProfiles_TOF
 
     !!--++
     !!--++ exp_m
-    !!--++    real(kind=dp),private, parameter ::    exp_m=0.003_dp
+    !!--++    real(kind=dp),private, parameter ::    exp_m=0.0025_dp
     !!--++
-    !!--++    Private variable
+    !!--++    Private variable use for scaling the divisions in exponential function calculations
+    !!--++    (used to avoid intermediates overflows/underflows)
     !!--++
     !!--++ Update: October - 2011
     !!
-    real(kind=dp),private, parameter ::    exp_m=0.003_dp
+    real(kind=dp),private, parameter ::    exp_m=0.0025_dp
 
     !!--++
     !!--++ INV_8LN2
     !!--++    real(kind=dp),private, parameter ::    inv_8ln2=0.18033688011112042591999058512524_dp
-    !!--++
-    !!--++    Private variable use for scaling the divisions in exponential function calculations
-    !!--++    (used to avoid intermediates overflows/underflows)
     !!--++
     !!--++ Update: April - 2011
     !!

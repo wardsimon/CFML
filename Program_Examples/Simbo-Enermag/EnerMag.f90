@@ -14,36 +14,34 @@
   !!---  The program code is written below the module "J_k_exchange". It uses
   !!---  the external module Super_Exchange that is also used by other programs
   !----------------------------------------------------------------------------
-  Module J_k_exchange
-    Implicit none
+   Module J_k_exchange
+   Implicit none
 
-    public :: j_k, spin_conf, genj, genk  !, read_exchange
-    private :: sin2p, cos2p, spin_confr, spin_confc
+   public  :: j_k, spin_conf, genj, genk  !, read_exchange
+   private :: sin2p, cos2p, spin_confr, spin_confc
 
-    integer, public, parameter :: nat=25, id=50, njo=1800000, ijo=10, nv=125000
-    integer, public                           :: natcel !number of atoms/primitive cell
-    real,    public, dimension        (3,nat) :: xyz    !Coordinates of atoms in the cell
-    real,    public, dimension        (  nat) :: s      !Spin of atoms
-    real,    public, dimension        (  id ) :: valj   !Exchange interactions of bond id
-    integer, public, dimension      (nat,nat) :: nterm  !number of terms of J(k)(i,j)
-    integer, public, dimension   (nat,nat,id) :: nvalj  !Pointer to the value of Jid
-    real   , public, dimension (3,nat,nat,id) :: trans  !Translation associated to the bond "id"
-                                                        !in the position term (i,j) of J(k)
-    character (len=6), public, dimension(nat) :: rnam   !Name of the atoms
+   integer, public, parameter :: nat=25, id=50, njo=1800000, ijo=10, nv=125000
+   integer, public                           :: natcel !number of atoms/primitive cell
+   real,    public, dimension        (3,nat) :: xyz    !Coordinates of atoms in the cell
+   real,    public, dimension        (  nat) :: s      !Spin of atoms
+   real,    public, dimension        (  id ) :: valj   !Exchange interactions of bond id
+   integer, public, dimension      (nat,nat) :: nterm  !number of terms of J(k)(i,j)
+   integer, public, dimension   (nat,nat,id) :: nvalj  !Pointer to the value of Jid
+   real   , public, dimension (3,nat,nat,id) :: trans  !Translation associated to the bond "id"
+                                                       !in the position term (i,j) of J(k)
+   character (len=6), public, dimension(nat) :: rnam   !Name of the atoms
 
-    Interface spin_conf
-      Module procedure spin_confc
-      Module procedure spin_confr
-    End Interface
-
-    CONTAINS
+   Interface spin_conf
+   Module procedure spin_confc
+   Module procedure spin_confr
+   End Interface
+   Contains
 
     !----------------------------------------------------------------------------------------------
     !      subroutine read_exchange()
-
     !      end subroutine read_exchange
     !----------------------------------------------------------------------------------------------
-      Subroutine j_k(rk,exchk,iex)
+    Subroutine j_k(rk,exchk,iex)
       real,    intent(in)     , dimension(3)       :: rk    !propagation vector
       complex, intent(out)    , dimension(nat,nat) :: exchk !J(k)
       integer, intent(out)                         :: iex   !=0 if real J(k)
@@ -62,26 +60,25 @@
             exchk(i,j)=exchk(i,j)-valj(nvalj(i,j,n))*cmplx( cos2p(-arg),sin2p(-arg)) ! -J(k) to minimize!!!
           End Do
           exchk(i,j)=exchk(i,j)*s(i)*s(j)       !Spin values absorbed in the Energy
-          IF(ABS(aimag(exchk(i,j))) > 1.e-04) iex=1
+          IF(abs(aimag(exchk(i,j))) > 1.e-04) iex=1
         End Do
       End Do
-      Return
-      End Subroutine j_k
-      !-----------------------------------------------------------------------
-      function cos2p(x) result(f_val)
+
+    End Subroutine j_k
+
+    function cos2p(x) result(f_val)
        real, intent (in) :: x
        real :: f_val
        f_val=cos(6.283185307*x)
-       return
-      end function cos2p
-      function sin2p(x)  result(f_val)
+    end function cos2p
+
+    function sin2p(x)  result(f_val)
        real, intent (in) :: x
        real :: f_val
        f_val=sin(6.283185307*x)
-       return
-      end function sin2p
-      !-----------------------------------------------------------------------
-      subroutine spin_confc(lun,rk,energy,d)
+    end function sin2p
+
+    subroutine spin_confc(lun,rk,energy,d)
       integer, intent(in)               :: lun
       real, intent(in),dimension(3)     :: rk
       real, intent(in)                  :: energy
@@ -101,6 +98,7 @@
           phas(i)=0.0
         end if
       end do
+
       do i=1,natcel
         write(unit=lun,fmt="(i4,a,a6,4f9.5)")i,"  ",rnam(i),(xyz(j,i),j=1,3),s(i)
         if(rmo(i) > 1.e-15) then
@@ -116,10 +114,10 @@
            write(unit=lun,fmt="(a)")       "               m =  0    <--- atom with zero moment"
         end if
       end do
-      return
-      end subroutine spin_confc
 
-      subroutine spin_confr(lun,rk,energy,d)
+    end subroutine spin_confc
+
+    subroutine spin_confr(lun,rk,energy,d)
       integer, intent(in)               :: lun
       real, intent(in),dimension(3)     :: rk
       real, intent(in)                  :: energy
@@ -131,35 +129,36 @@
           "    And propagation vector       : ",(rk(i),i=1,3),  &
           "    can be obtained from the following expressions:"
 
-        do i=1,natcel
-          if(real(d(i)) >= 0.0) then
-            phas(i)=0.0
-            rmo(i)=d(i)
-          else
-            phas(i)=0.5
-            rmo(i)=-d(i)
-          end if
-        end do
+      do i=1,natcel
+        if(real(d(i)) >= 0.0) then
+          phas(i)=0.0
+          rmo(i)=d(i)
+        else
+          phas(i)=0.5
+          rmo(i)=-d(i)
+        end if
+      end do
+
       do i=1,natcel
         write(unit=lun,fmt="(i4,a,a6,4f9.5)")i,"  ",rnam(i),(xyz(j,i),j=1,3),s(i)
         if(rmo(i) > 1.e-15) then
           if(phas(i) < 0.0 ) then
-           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2pi(k*Rn",phas(i),")}"
-           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2.pi.(k*Rn",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2.pi.(k*Rn",phas(i),")}"
           else
-           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2pi(k*Rn +",phas(i),")}"
-           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2pi(k*Rn +",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               Mx =  Cx . cos{2.pi.(k*Rn +",phas(i),")}"
+           write(unit=lun,fmt="(a,f7.4,a)")"               My =  Cy . sin{2.pi.(k*Rn +",phas(i),")}"
           end if
            write(unit=lun,fmt="(a)")       "               Mz =  0"
         else
            write(unit=lun,fmt="(a)")       "               m =  0    <--- atom with zero moment"
         end if
       end do
-      return
-      end subroutine spin_confr
+
+    end subroutine spin_confr
       !-----------------------------------------------------------------------
 
-      Subroutine genj(nojvar,njotas,rang1,rang2,npoi,valjj)
+    Subroutine genj(nojvar,njotas,rang1,rang2,npoi,valjj)
       integer, intent(in)                     :: nojvar
       integer, intent(out)                    :: njotas
       real,    intent(in) , dimension(ijo)    :: rang1
@@ -200,11 +199,11 @@
         end do
       end do
       njotas=jj
-      return
-      End Subroutine genj
+
+    End Subroutine genj
       !-----------------------------------------------------------------------
 
-      Subroutine genk(lun,ln,infil,nvk,vk,iprint)
+    Subroutine genk(lun,ln,infil,nvk,vk,iprint)
       integer, intent(in)                      :: lun, ln
       character (len=256), intent(in out)      :: infil
       integer, intent(out)                     :: nvk
@@ -213,6 +212,7 @@
       integer :: ier,i,j,k
       character (len=1)                :: ans
       integer, parameter               :: n_sk=96
+      logical, dimension(n_sk)         :: good
       logical                          :: double_k
       real, dimension(3)               :: xran
       real, dimension(3,n_sk), parameter :: sk = reshape ( (/         &
@@ -255,6 +255,7 @@
       integer :: iop, n, l, i1,i2
       iprint=0
       double_k=.false.
+      good=.false.
       call random_seed()
       do
        write(unit=*,fmt="(/,a,/)")"    Vectors k in BZ, components in [-1,1]"
@@ -402,17 +403,27 @@
              i1=i
           end if
         end do
-        do i=1,n_sk
+        l=0
+        do_spec: do i=1,n_sk
           do j=1,3
-            vk(j,i)=sk(j,i)
+            if(sk(j,i) < x1(j) .or. sk(j,i) > x2(j)) cycle do_spec
           end do
-        end do
-        i2=n_sk
+          good(i)=.true.
+          l=l+1
+          do j=1,3
+            vk(j,l)=sk(j,i)
+          end do
+        end do do_spec
+
+        !i2=n_sk
+        i2=l
         if(double_k) then
           do i=2,n_sk
-            i2=i2+1
-            vk(:,i2)=sk(:,i)
-            vk(i1,i2)=-vk(i1,i2)
+            if(good(i)) then
+              i2=i2+1
+              vk(:,i2)=sk(:,i)
+              vk(i1,i2)=-vk(i1,i2)
+            end if
           end do
         end if
 
@@ -420,17 +431,14 @@
             call random_number(xran)
             vk(:,j)=x1(:)+(x2(:)-x1(:))*xran(:)
         end do
-
+        nvk=nvk+i2
         write(unit=lun,fmt="(/,a)")      " => k-vectors generated at random in the region:   "
         write(unit=lun,fmt="( a,2f8.4)") "    Kx :",x1(1),x2(1)
         write(unit=lun,fmt="( a,2f8.4)") "    Ky :",x1(2),x2(2)
         write(unit=lun,fmt="( a,2f8.4)") "    Kz :",x1(3),x2(3)
-        if(double_k) then
-          write(unit=lun,fmt="(a)") "    Plus the special 179= 90+89  vectors stored in the program"
-        else
-          write(unit=lun,fmt="(a)") "    Plus the special 90 vectors stored in the program"
-        end if
-        write(unit=lun,fmt="( a,i6   )") "    Total number of k-vectors:",nvk
+        write(unit=lun,fmt="(a)") "    Plus special",i2,"  vectors stored in the program"
+        write(unit=lun,fmt="( a,i6   )") "    Total number of k-vectors (generated + special):",nvk
+        write(unit=*,fmt="( a,i6   )")   "    Total number of k-vectors (generated + special):",nvk
 
       Case (5)
         do
@@ -477,14 +485,14 @@
      ! if(iprint == 1) then
      !   open(unit=11,file=infil(1:ln)//".val",status="replace",action="write")
      ! end if
-      return
-      End Subroutine genk
-  !------------------------------------------------------------------------
-  End Module J_k_exchange
+
+    End Subroutine genk
+
+   End Module J_k_exchange
   !----------------------------------------------------------------------------
 
 
-  PROGRAM enermag
+ Program enermag
    !use Mod_fun
    use CFML_Math_general, only: diagonalize_sh
    use j_k_exchange
@@ -494,14 +502,14 @@
    real, dimension(3,nv)  :: vk
    integer, dimension(nv) :: nvect
    real, dimension(3) :: ktar, rktar, rk
-   CHARACTER(LEN=80), dimension(id ) ::  Jotas
-   CHARACTER(LEN=80)   ::  TITLE, cmdline
-   CHARACTER(LEN=1)    ::  ANS
-   CHARACTER(LEN=20)   ::  spg
-   CHARACTER(LEN=132)  ::  forma, line
-   CHARACTER (LEN=256) ::  resfil,infil,outfil
-   CHARACTER (LEN=4)   ::  jota
-   CHARACTER (LEN=80)  ::  expo,name_Jota
+   character(len=80), dimension(id ) ::  Jotas
+   character(len=80)   ::  TITLE, cmdline
+   character(len=1)    ::  ANS
+   character(len=20)   ::  spg
+   character(len=132)  ::  forma, line
+   character (len=256) ::  resfil,infil,outfil
+   character (len=4)   ::  jota
+   character (len=80)  ::  expo,name_Jota
    real, dimension(6)  :: ad
    LOGICAL :: ansf, compl, compl_tar
    integer, PARAMETER :: lun1=1, lun2=2, lun7=7
@@ -517,7 +525,6 @@
               iwrt, k, narg
    real    :: dmax,exch,emin,energy,rvalj,energytar,cpu_fin, cpu_ini,cpu_par, &
               cpu, remaining
-!--------------------------------------------------------------------
    nex=0
    ansf=.false.
    ln=0
@@ -804,9 +811,9 @@
        !------------------------------------------
        IF(jj == 1) THEN
          CALL genk(lun2,ln,infil,nvk,vk,iprint)
-         DO ik=1,nvk
+         Do ik=1,nvk
            nvect(ik)=0
-         END DO
+         End Do
         IF(iphase == 1) THEN
          forma="(/,a, (a,i1),a,/)"
          write(unit=forma(6:6),fmt="(i1)") nojvar
@@ -1098,4 +1105,4 @@
      exit
    END DO
    STOP
-  End Program EnerMag
+ End Program EnerMag

@@ -31,7 +31,6 @@ Submodule (CFML_Maths) Maths_Lower_Triangular
           end do
        end do
 
-       return
     End Function Lower_Triangular_I
 
     !!----
@@ -60,7 +59,6 @@ Submodule (CFML_Maths) Maths_Lower_Triangular
           end do
        end do
 
-       return
     End Function Lower_Triangular_R
 
 

@@ -17,7 +17,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        res = i // 1_LI
 
-       return
     End Subroutine Assign_Rational_Int_LI
 
     !!----
@@ -32,7 +31,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        res = i // 1
 
-       return
     End Subroutine Assign_Rational_Int
 
     !!----
@@ -70,7 +68,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        res= si*m(0,0)// m(1,0)
 
-       return
     End Subroutine Assign_Rational_Real_CP
 
     !!----
@@ -85,7 +82,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        i= nint(real(res%numerator,kind=cp)/real(res%denominator,kind=cp))
 
-       return
     End Subroutine Assign_Int_Rational
 
     !!----
@@ -100,7 +96,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        i= nint(real(res%numerator,kind=cp)/real(res%denominator,kind=cp))
 
-       return
     End Subroutine Assign_Int_LI_Rational
 
     !!----
@@ -115,7 +110,6 @@ Submodule (CFML_Rational) RAT_Assign
 
        x=real(res%numerator,kind=cp)/real(res%denominator,kind=cp)
 
-       return
     End Subroutine Assign_Real_Rational_CP
 
 End Submodule RAT_Assign

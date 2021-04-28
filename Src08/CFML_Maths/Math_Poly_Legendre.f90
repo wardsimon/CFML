@@ -62,7 +62,6 @@ Submodule (CFML_Maths) Math_Legendre
           end if
        end if
 
-       return
     End Function Poly_Legendre
 
 End Submodule Math_Legendre

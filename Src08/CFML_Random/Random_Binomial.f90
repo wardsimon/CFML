@@ -77,7 +77,6 @@ SubModule (CFML_Random) Random_Binomial
       !> This point should not be reached, but just in case:
       ival = r0
 
-      return
    End Function Random_Binomial1
 
    !!----
@@ -261,7 +260,6 @@ SubModule (CFML_Random) Random_Binomial
       if (pp > half) ix = n - ix
       ival = ix
 
-      return
    End Function Random_Binomial2
 
    !!--++
@@ -289,7 +287,6 @@ SubModule (CFML_Random) Random_Binomial
       rnr1=lngamma(nr1)
       fn_val = exp( rn1 - rr1 - rnr1 + r*log(p) + (n-r)*log(one - p) )
 
-      return
    End Function Bin_Prob
 
    !!--++
@@ -356,7 +353,6 @@ SubModule (CFML_Random) Random_Binomial
          fn_val = log(pi/temp) - fn_val
       end if
 
-      return
    End Function Lngamma
 
    !!----
@@ -429,7 +425,6 @@ SubModule (CFML_Random) Random_Binomial
       end do
       ival = x + s + half
 
-      return
    End Function Random_Neg_Binomial
 
 End Submodule Random_Binomial

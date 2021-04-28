@@ -49,7 +49,6 @@ Submodule (CFML_Maths) Sbm_Debye
           fval=ff
        end if
 
-       return
     End Function Debye
 
     !!----
@@ -121,7 +120,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end if
        end if
 
-       return
     End Function Debye_PR_ChebyshevSeries
 
     !!----
@@ -176,7 +174,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end select
        end if
 
-       return
     End Function Debye_DP
 
 
@@ -292,7 +289,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end if
        end if
 
-       return
     End Function Debye1
 
     !!----
@@ -416,7 +412,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end if
        end if
 
-       return
     End Function Debye2
 
     !!----
@@ -545,7 +540,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end if
        end if
 
-       return
     End Function Debye3
 
     !!----
@@ -677,7 +671,6 @@ Submodule (CFML_Maths) Sbm_Debye
           end if
        end if
 
-       return
     End Function Debye4
 
     !!----
@@ -728,7 +721,6 @@ Submodule (CFML_Maths) Sbm_Debye
        end do
        fval = 1.0_dp - (t1*x) + (n*t2)
 
-       return
     End Function DebyeN
 
 End Submodule Sbm_Debye

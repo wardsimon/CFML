@@ -20,7 +20,6 @@ Submodule (CFML_Maths) Maths_DerErfc
 
        der = - 1.128379167096_cp * exp(-x*x)   !from Abramovitz
 
-       return
     End Function Erfc_Deriv
 
 End Submodule Maths_DerErfc

@@ -63,7 +63,6 @@
        car=Pack_String(car)
        str=trim(car)
 
-       return
     End Function String_Fraction_1Dig
 
     !!----
@@ -144,7 +143,6 @@
        forms='(F'//trim(carw)//'.'//trim(card)//')'
        write(unit=Str,fmt=trim(forms)) val
 
-       return
     End Function String_Real
 
     !!----
@@ -180,7 +178,6 @@
        Str(20:27)=Frac(3)
        Str=Pack_String(Str)
 
-       return
     End Function Frac_Trans_1Dig
 
     !!----
@@ -244,7 +241,6 @@
        car=Pack_String(car)
        str=trim(car)
 
-       return
     End Function String_Fraction_2Dig
 
     !!----
@@ -280,7 +276,6 @@
        Strc=Pack_String(strc)
        Str=trim(strc)
 
-       return
     End Function Frac_Trans_2Dig
 
     !!----
@@ -333,7 +328,6 @@
           Mat(i,:)=Get_Vec_From_String(trim(split(i)), cod)
        end do
 
-       return
     End Function Get_Mat_From_Symb
 
     !!----
@@ -539,7 +533,6 @@
           vec(k)=Read_Fract(split(m))
        end do
 
-       return
     End Function Get_Vec_From_String
 
     !!----
@@ -641,7 +634,6 @@
        if (i /= 0) Symb(i+1:i+1)=" "
        Symb=Pack_String(Symb)
 
-       return
     End Function Set_Symb_From_Mat
 
     !!----
@@ -723,7 +715,6 @@
           err_cfml%msg=" No appropriate separator ("//cd(4)//") is present in the input string:"//trim(str)
        end if
 
-       return
     End Subroutine Get_Transf
 
     !!----
@@ -859,7 +850,6 @@
           end if
        end do
 
-       return
     End Subroutine Get_Num
 
     !!----
@@ -971,7 +961,6 @@
           end if
        end do
 
-       return
     End Subroutine Get_NumStd
 
     !!----
@@ -1050,7 +1039,6 @@
           n_col=n_col+n1*n2
        end do
 
-       return
     End Function NumCol_from_NumFmt
 
     !!----
@@ -1115,7 +1103,6 @@
           value=num/den
        end if
 
-       return
     End Function Read_Fract
 
     !!----
@@ -1204,7 +1191,6 @@
        if (aux(1:1) /= "-") aux=" "//trim(aux)
        str=trim(aux)
 
-       return
     End Function String_NumStd
 
  End Submodule STR_StrNum

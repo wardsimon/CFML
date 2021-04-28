@@ -57,7 +57,7 @@ Program Bond_Str
    logical                         :: gii_only=.false., npercolation=.false.
    real(kind=cp)                   :: ttol=20.0,dmax,dangl, rdmax,ramin
    real(kind=cp)                   :: drmax,delta,qval,tini,tfin,qn,qp,vol, E_end=3.0,total_time=0.0
-   Real(kind=cp)                   :: Emin,Eini,Eend,dE,dE_ini
+   Real(kind=cp)                   :: Emin,Eini,Eend,dE,dE_ini,E_site
    Real(kind=cp), Dimension(3)     :: E_percol,E_percol_aux
    Real(kind=cp), Dimension(:,:,:), Allocatable :: bvel_map
 
@@ -477,7 +477,7 @@ Program Bond_Str
                 end do
                 write(unit=lun,fmt="(a)") " "
               end if
-              do n1=1,Ac%N_Cations
+              do_n1: do n1=1,Ac%N_Cations
                  do j=1,Ac%N_Anions
                     n2=Ac%N_Cations+j
                     write(unit=lun,fmt="(2(a,i3,a,a4),/,3(a,f9.5),/,3(a,f9.5),a)")           &
@@ -489,8 +489,14 @@ Program Bond_Str
                     write(unit=lun,fmt="(2(a,a,a,f6.3,a),/)") &
                           "   Cation (Eff. radius): ",Ac%Species(n1),"(",Ac%Radius(n1),")   ",  &
                           "   Anion  (Eff. radius): ",Ac%Species(n2),"(",Ac%Radius(n2),")"
+                    if(abs(Table_Dzero(n1,n2)) < 0.0001) then
+                      err_conf=.true.
+                      write(unit=ERR_Conf_Mess,fmt="(a)") " => Bad parameters for "//Ac%Species(n1)//" with "//Ac%Species(n2)// &
+                                                          "  -> Use the instruction: BVELPAR Cation Anion Nc R0 Cutoff D0 Rmin alpha"
+                      exit do_n1
+                    end if
                  end do
-              end do
+              end do do_n1
            end if
         else
            ! Setting Tables for B and D0
@@ -544,6 +550,15 @@ Program Bond_Str
         else if(bvel_calc) then
            Write(unit=*,fmt="(/,a)") " => Calculation of Bond-Valence Energy Landscape Map (it can take few minutes) ...."
            write (unit=lun, fmt='(/,a,f10.4,a)')" => Global distance cutoff:",drmax," angstroms"
+           write(unit=lun,fmt='(/,2a/)') " => Bond-site energies for species ",trim(atname)
+           write(unit=lun,fmt='(4x,3a8,3x,a11)') "x","y","z","Site-energy"
+           do i = 1 , Ac%Natoms - 1
+             !write(*,'(2i4,2x,a)') i, Ac%Atom(i)%Ind(1), Ac%Species(Ac%Atom(i)%Ind(1))
+             if (Ac%Species(Ac%Atom(i)%Ind(1)) == Ac%Species(Ac%Atom(Ac%Natoms)%Ind(1))) then
+               call Calc_Site_Ene(Ac,Spgr,Cell,Ac%Atom(i)%X(1),Ac%Atom(i)%X(2),Ac%Atom(i)%X(3),Ac%Species(Ac%Atom(Ac%Natoms)%Ind(1)),drmax,E_site)
+               write(unit=lun,fmt='(4x,3f8.4,3x,f11.4)') Ac%Atom(i)%X,E_site
+             end if
+           end do
            if(delta > 0.01) then
              if(outp) then
                if(percolation) then

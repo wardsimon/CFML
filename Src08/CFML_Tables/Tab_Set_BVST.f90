@@ -2503,7 +2503,6 @@ SubModule (CFML_BVS_Tables) TAB_SetBVS_Routines
       Common_OxStates_Table(:,107) = [  7 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
       Common_OxStates_Table(:,108) = [  8 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ]
 
-      return
    End Subroutine Set_Common_Oxidation_States_Table
 
    !!----

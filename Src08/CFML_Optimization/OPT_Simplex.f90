@@ -568,7 +568,6 @@
                                                " function evaluations have been used"
        end if
 
-       return
     End Subroutine Nelder_Mead_Simplex
 
     !!--++
@@ -601,7 +600,6 @@
           end do
        end do
 
-       return
     End Subroutine Print_Tri_Matrix
 
     !!--++
@@ -702,7 +700,6 @@
           end if
        end if
 
-       return
     End Subroutine Syminv
 
     !!--++
@@ -806,7 +803,6 @@
           ifault = zero
        end if
 
-       return
     End Subroutine Chola
 
  End Submodule OPT_Simplex

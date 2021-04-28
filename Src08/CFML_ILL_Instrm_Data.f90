@@ -1318,7 +1318,6 @@ Module CFML_ILL_Instrm_Data
         Pat%ymin=minval(Pat%y)
         Pat%ymax=maxval(Pat%y)
 
-        return
     End Subroutine Adding_Numors_D1A_DiffPattern
 
     !!----
@@ -1432,7 +1431,6 @@ Module CFML_ILL_Instrm_Data
            end if
         end do
 
-        return
     End Subroutine Adding_Numors_D1B_D20
 
 
@@ -1652,7 +1650,6 @@ Module CFML_ILL_Instrm_Data
         Pat%ymin=minval(Pat%y)
         Pat%ymax=maxval(Pat%y)
 
-        return
     End Subroutine Adding_Numors_D4_DiffPattern
 
     !!----
@@ -1690,7 +1687,6 @@ Module CFML_ILL_Instrm_Data
           call init_powder_numor(Num(i),num_ang,ndata,nframes)
        end do
 
-       return
     End Subroutine Allocate_POWDER_Numors
 
     !!----
@@ -1728,7 +1724,6 @@ Module CFML_ILL_Instrm_Data
           call init_sxtal_numor(Num(i),num_ang,ndata,nframes)
        end do
 
-       return
     End Subroutine Allocate_SXTAL_Numors
 
     !!----
@@ -1843,7 +1838,6 @@ Module CFML_ILL_Instrm_Data
 
        uncompresscommand=ProgName
 
-       return
     End Subroutine Define_Uncompress_Program
 
     !!----
@@ -1999,7 +1993,6 @@ Module CFML_ILL_Instrm_Data
        path = " "
        if (present(actual_path)) actual_path = path
 
-       return
     End Subroutine Get_Absolute_Data_Path
 
 
@@ -2199,8 +2192,6 @@ Module CFML_ILL_Instrm_Data
 
        end if
 
-       return
-
     End Subroutine Get_Next_YearCycle
 
     !!----
@@ -2295,7 +2286,6 @@ Module CFML_ILL_Instrm_Data
          if(appl_alphas) dat_2D(:,:)= dat_2D(:,:)*Current_instrm%alphas(:,:)
        end if
 
-       return
     End Subroutine Get_Single_Frame_2D
 
     !!----
@@ -2310,7 +2300,6 @@ Module CFML_ILL_Instrm_Data
        ERR_ILLData=.false.
        ERR_ILLData_Mess=" "
 
-       return
     End Subroutine Init_Err_ILLData
 
     !!----
@@ -2369,7 +2358,6 @@ Module CFML_ILL_Instrm_Data
            end if
         end if
 
-        return
     End Subroutine Init_Powder_Numor
 
     !!----
@@ -2507,7 +2495,6 @@ Module CFML_ILL_Instrm_Data
            end if
         end if
 
-        return
     End Subroutine Init_SXTAL_Numor
 
     !!----
@@ -2526,7 +2513,6 @@ Module CFML_ILL_Instrm_Data
        Call Initialize_Numors_Directory()
        Call Initialize_Temp_Directory()
 
-       Return
     End Subroutine Initialize_Data_Directory
 
     !!----
@@ -2578,8 +2564,6 @@ Module CFML_ILL_Instrm_Data
           If (Ill_Data_Directory(nlong:nlong) /= Ops_Sep) Ill_Data_Directory = trim(Ill_Data_Directory)//Ops_Sep
        end if
        Got_Ill_Data_Directory = Directory_Exists(Trim(Ill_Data_Directory))
-
-       Return
 
     End Subroutine Initialize_Numors_Directory
 
@@ -2639,7 +2623,6 @@ Module CFML_ILL_Instrm_Data
        ! Temporal
        Got_Ill_Temp_Directory = Directory_Exists(Trim(Ill_Temp_Directory))
 
-       Return
     End Subroutine Initialize_Temp_Directory
 
 
@@ -2680,7 +2663,6 @@ Module CFML_ILL_Instrm_Data
           end select
        end do
 
-       return
     End Subroutine Number_KeyTypes_on_File
 
     !!--++
@@ -2780,7 +2762,6 @@ Module CFML_ILL_Instrm_Data
           Pat%Norm_Mon=n%monitor
        end if
 
-       return
     End Subroutine NumorD1BD20_To_DiffPattern
 
 
@@ -2938,7 +2919,7 @@ Module CFML_ILL_Instrm_Data
        !Completing the title of the powder pattern including the sumed numors
        write(unit=textnum,fmt="(2(a,i7))") " Numors added from ",PNumors(ind(1))%numor, " to ",PNumors(ind(num))%numor
        Pat%title=trim(Pat%Title)//" "//trim(textnum)
-       return
+
     End Subroutine PowderNumors_To_DiffPattern
 
     !!--++
@@ -3008,7 +2989,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_A_KeyType
 
     !!----
@@ -3417,7 +3397,6 @@ Module CFML_ILL_Instrm_Data
        end if
        Current_Instrm_set=.true.
 
-       return
     End Subroutine Read_Current_Instrm
 
     !!--++
@@ -3489,7 +3468,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_F_KeyType
 
     !!--++
@@ -3560,7 +3538,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_I_KeyType
 
     !!--++
@@ -3632,7 +3609,6 @@ Module CFML_ILL_Instrm_Data
 
        end if
 
-       return
     End Subroutine Read_J_KeyType
 
     !!----
@@ -3755,7 +3731,6 @@ Module CFML_ILL_Instrm_Data
           n%monitor=n%monitor/real(n%nframes)
        end if
 
-       return
     End Subroutine Read_Numor_D1A
 
     !!----
@@ -3958,7 +3933,6 @@ Module CFML_ILL_Instrm_Data
 
        end if
 
-       return
     End Subroutine Read_Numor_D1B
 
     !!----
@@ -4096,7 +4070,6 @@ Module CFML_ILL_Instrm_Data
        end do
        n%monitor=n%monitor/real(n%nframes)
 
-       return
     End Subroutine Read_Numor_D2B
 
     !!----
@@ -4224,7 +4197,6 @@ Module CFML_ILL_Instrm_Data
           n%counts(:,i)=real(ivalues(1:nval_i))
        end do
 
-       return
     End Subroutine Read_Numor_D4
 
     !!----
@@ -4557,7 +4529,6 @@ Module CFML_ILL_Instrm_Data
          n%scantype='q-scan'
        end if
 
-       return
     End Subroutine Read_Numor_D10
 
     !!----
@@ -4706,7 +4677,6 @@ Module CFML_ILL_Instrm_Data
           end if
        end do
 
-       return
     End Subroutine Read_Numor_D16
 
     !!----
@@ -5247,7 +5217,6 @@ Module CFML_ILL_Instrm_Data
           n%icounts%ivalues=ivalues(1:nval_i)
        end if
 
-       return
     End Subroutine Read_Numor_Generic
 
     !!----
@@ -5384,7 +5353,6 @@ Module CFML_ILL_Instrm_Data
           end if
        end if
 
-       return
     End Subroutine Read_Numor_D20
 
     !!----
@@ -5476,7 +5444,6 @@ Module CFML_ILL_Instrm_Data
          end if
        end if
 
-       return
     End Subroutine Read_Powder_Numor
 
     !!----
@@ -5554,7 +5521,6 @@ Module CFML_ILL_Instrm_Data
          end if
        end if
 
-       return
     End Subroutine Read_SXTAL_Numor
 
     !!--++
@@ -5621,7 +5587,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_R_KeyType
 
     !!--++
@@ -5695,7 +5660,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_S_KeyType
 
     !!--++
@@ -5741,7 +5705,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end if
 
-       return
     End Subroutine Read_V_KeyType
 
     !!----
@@ -5781,7 +5744,6 @@ Module CFML_ILL_Instrm_Data
        Current_Orient%ub=mat
        Current_Orient%ubinv=Invert(mat)
 
-       return
     End Subroutine Set_Current_Orient
 
     !!----
@@ -5878,7 +5840,6 @@ Module CFML_ILL_Instrm_Data
        call Set_Current_Orient(wave,ub)
        Current_Instrm_set=.true.
 
-       return
     End Subroutine Set_Default_Instrument
 
     !!----
@@ -5926,7 +5887,6 @@ Module CFML_ILL_Instrm_Data
           got_ILL_data_directory=.true.
        end if
 
-       return
     End Subroutine Set_ILL_Data_Directory
 
     !!----
@@ -6011,7 +5971,6 @@ Module CFML_ILL_Instrm_Data
           Instrm_directory = " "
        end if
 
-       return
     End Subroutine Set_Instrm_Directory
     !!----
     !!---- Subroutine Set_Instrm_Geometry_Directory(env_var)
@@ -6057,7 +6016,6 @@ Module CFML_ILL_Instrm_Data
            Instrm_Geometry_directory_set=.true.
        end if
 
-       return
     End Subroutine Set_Instrm_Geometry_Directory
 
     !!--++
@@ -6248,7 +6206,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end do
 
-       return
     End Subroutine Set_KeyTypes_on_File
 
     !!----
@@ -6384,7 +6341,6 @@ Module CFML_ILL_Instrm_Data
        end do
        close(unit=lun)
 
-       return
     End Subroutine Update_Current_Instrm_UB
 
     !!----
@@ -6582,7 +6538,6 @@ Module CFML_ILL_Instrm_Data
           end if
        end if
 
-       return
     End Subroutine Write_Current_Instrm_data
 
     !!----
@@ -6689,7 +6644,6 @@ Module CFML_ILL_Instrm_Data
 
        end select
 
-       return
     End Subroutine Write_Generic_Numor
 
     !!----
@@ -6733,7 +6687,6 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(a,f14.3  )") " Magnetic Field: ", Num%conditions(5)
        write(unit=ipr,fmt="(a)") " "
 
-       return
     End Subroutine Write_HeaderInfo_POWDER_Numor
 
     !!----
@@ -6804,7 +6757,6 @@ Module CFML_ILL_Instrm_Data
           end do
        end do
 
-       return
     End Subroutine Write_POWDER_Numor
 
     !!----
@@ -6863,7 +6815,6 @@ Module CFML_ILL_Instrm_Data
        write(unit=ipr,fmt="(tr2,3f12.7)")  Num%ub(3,:)
        write(unit=ipr,fmt="(a)") " "
 
-       return
     End Subroutine Write_HeaderInfo_SXTAL_Numor
 
     !!----
@@ -7001,7 +6952,6 @@ Module CFML_ILL_Instrm_Data
               Err_CFML%Msg=' Problems reading Calibration File for '//trim(Instrm)//' Instrument'
         end select
 
-        return
     End Subroutine Read_Calibration_File
 
     !!--++
@@ -7089,7 +7039,6 @@ Module CFML_ILL_Instrm_Data
         set_calibration_detector =.true.
         deallocate(filevar)
 
-        return
     End Subroutine Read_Calibration_File_D1A
 
     !!--++
@@ -7320,7 +7269,6 @@ Module CFML_ILL_Instrm_Data
         set_calibration_detector =.true.
         deallocate(filevar)
 
-        return
     End Subroutine Read_Calibration_File_D2B
 
     !!--++
@@ -7403,7 +7351,6 @@ Module CFML_ILL_Instrm_Data
 
         set_calibration_detector =.true.
 
-        return
     End Subroutine Read_Calibration_File_D20
 
     !!--++
@@ -7564,7 +7511,6 @@ Module CFML_ILL_Instrm_Data
         set_calibration_detector =.true.
         deallocate(filevar)
 
-        return
     End Subroutine Read_Calibration_File_D4
 
  End Module CFML_ILL_Instrm_Data

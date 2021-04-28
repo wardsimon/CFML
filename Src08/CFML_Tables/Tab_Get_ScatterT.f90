@@ -33,7 +33,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Atomic_Mass
 
    !!----
@@ -64,7 +63,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Atomic_Vol
 
    !!----
@@ -93,7 +91,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
 
       Symb=car
 
-      return
    End Function Get_Chem_Symb
 
    !!----
@@ -125,7 +122,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Covalent_Radius
 
    !!----
@@ -158,7 +154,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Fermi_Length
 
    !!----
@@ -191,7 +186,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Inc_Xs
 
    !!----
@@ -224,7 +218,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Abs_Xs
 
    !!----
@@ -262,7 +255,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Ionic_Radius
 
    !!----
@@ -293,7 +285,6 @@ SubModule (CFML_Scattering_Tables) TAB_GetSC_Routines
          end if
       end do
 
-      return
    End Function Get_Z_Symb
 
 End SubModule TAB_GetSC_Routines

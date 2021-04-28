@@ -271,10 +271,11 @@ Module CFML_ILL_Instrm_Data
              Allocate_SXTAL_numors, Allocate_Powder_Numors, Read_Numor_D1A, Read_Numor_D4,       &
              Read_Numor_D10, Init_Powder_Numor,  Read_Calibration_File_D1A,                      &
              Read_Calibration_File_D2B, Read_Calibration_File_D4, Adding_Numors_D1A_DiffPattern, &
-             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern,    &
-             Read_Numor_D19_NXS
+             Adding_Numors_D4_DiffPattern, Adding_Numors_D1B_D20, NumorD1BD20_To_DiffPattern
 
-
+#ifdef USE_HDF
+   private:: Read_Numor_D19_NXS, Read_Nexus_D19 
+#endif
    !---- Definitions ----!
 
    !!----
@@ -5006,6 +5007,12 @@ Module CFML_ILL_Instrm_Data
     End Subroutine Read_Numor_D19
 
 
+#ifdef USE_HDF
+    !!----
+    !!---- Subroutine Read_Numor_D19_NXS
+    !!----
+    !!---- 20/01/2021 
+    !!
     Subroutine Read_Numor_D19_NXS(filename,numor,succes,counts)
         !---- Arguments ----!
         character(len=*)               , intent(in)                   :: filename
@@ -5013,7 +5020,6 @@ Module CFML_ILL_Instrm_Data
         logical                                                       :: succes
         integer, optional, allocatable, dimension(:,:,:), intent(out) :: counts
 
-#ifdef USE_HDF
         !---- Local Variables ----!
         character(len=512)   filenamenxs
         logical                                      :: info
@@ -5053,8 +5059,8 @@ Module CFML_ILL_Instrm_Data
         ! Read NeXuS content
         call Read_Nexus_D19(filenamenxs,numor,counts)
         succes = .true.
-#endif
     End Subroutine Read_Numor_D19_NXS
+#endif
 
 
     !!----
@@ -7660,24 +7666,28 @@ Module CFML_ILL_Instrm_Data
 
         return
     End Subroutine Read_Calibration_File_D4
-
-    subroutine Read_Nexus_D19(filename,numor,counts)
+    
+#ifdef USE_HDF    
+    !!----
+    !!---- Subroutine Read_Nexus_D19
+    !!----
+    !!---- 20/01/2021
+    !!
+    Subroutine Read_Nexus_D19(Filename,Numor,Counts)
         !---- Arguments ----!
-        character(len=*),                       intent(in)  :: filename
-        type(SXTAL_NUMOR_type),                 intent(out) :: numor
+        character(len=*),                                 intent(in)  :: filename
+        type(SXTAL_NUMOR_type),                           intent(out) :: numor
         integer, dimension(:,:,:), optional, allocatable, intent(out) :: counts
 
-#ifdef USE_HDF
         !---- Local variables ----!
-        integer :: i,j,k,i_om,i_ti,i_mo,i_mc
-        integer :: hdferr
-        integer :: inum,nfrm,nrows,ncols
-        real :: wave,start,step,width,&
-                phi,chi,gamma,omega
-        real,    dimension(9)                  :: ub
-        integer, dimension(:),     allocatable :: axis
-        real,    dimension(:,:),   allocatable :: scan
-        integer, dimension(:,:,:), allocatable :: cnts
+        integer                                    :: i,j,k,i_om,i_ti,i_mo,i_mc
+        integer                                    :: hdferr
+        integer                                    :: inum,nfrm,nrows,ncols
+        real(kind=cp)                              :: wave,start,step,width,phi,chi,gamma,omega
+        real(kind=cp), dimension(9)                :: ub
+        integer, dimension(:), allocatable         :: axis
+        real(kind=cp), dimension(:,:), allocatable :: scan
+        integer, dimension(:,:,:), allocatable     :: cnts
 
         !---- Local variables with hdf5 types ----!
         integer(SIZE_T), PARAMETER :: sdim = 20 ! maximum string length
@@ -7876,7 +7886,7 @@ Module CFML_ILL_Instrm_Data
         end if
 
         deallocate(cnts)
+    End Subroutine Read_Nexus_D19
 #endif
-    end subroutine Read_Nexus_D19
 
  End Module CFML_ILL_Instrm_Data

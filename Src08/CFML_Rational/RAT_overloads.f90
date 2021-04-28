@@ -17,7 +17,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res = sign (r%numerator, r%denominator) // r%denominator
 
-       return
     End Function Rational_Abs
 
     !!----
@@ -32,7 +31,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res = r%numerator / r%denominator
 
-       return
     End Function Rational_Int
 
     !!----
@@ -47,7 +45,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res = nint(real(r%numerator,kind=cp)/real(r%denominator,kind=cp),kind=LI)
 
-       return
     End Function Rational_Nint
 
     !!----
@@ -62,7 +59,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res = modulo (r%numerator, r%denominator)
 
-       return
     End Function Rational_Modulo
 
     !!----
@@ -82,7 +78,6 @@ Submodule (CFML_Rational) RAT_Overloads
        val = modulo (real(r%numerator,kind=cp) / real(r%denominator,kind=cp),real(i,kind=cp))
        res = val
 
-       return
     End Function Rational_Integer_Modulo
 
     !!----
@@ -97,7 +92,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res = mod(r%numerator, r%denominator)
 
-       return
     End Function Rational_Mod
 
     !!----
@@ -117,7 +111,6 @@ Submodule (CFML_Rational) RAT_Overloads
       val = mod(real(r%numerator,kind=cp) / real(r%denominator,kind=cp),real(i,kind=cp))
       res = val
 
-      return
     End Function Rational_Integer_Mod
 
     !!----
@@ -141,7 +134,6 @@ Submodule (CFML_Rational) RAT_Overloads
           res=rational_simplify(res + r1(i)*r2(i))
        end do
 
-       return
     End Function Rational_Dot_Product
 
     !!----
@@ -163,7 +155,6 @@ Submodule (CFML_Rational) RAT_Overloads
           if (r(i) > res) res=r(i)
        end do
 
-       return
     End Function Rational_Maxval_Vector
 
     !!----
@@ -187,7 +178,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end do
        end do
 
-       return
     End Function Rational_Maxval_Matrix
 
     !!----
@@ -209,7 +199,6 @@ Submodule (CFML_Rational) RAT_Overloads
           if (r(i) < res) res=r(i)
        end do
 
-       return
     End Function Rational_Minval_Vector
 
     !!----
@@ -233,7 +222,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end do
        end do
 
-       return
     End Function Rational_Minval_Matrix
 
     !!----
@@ -257,7 +245,6 @@ Submodule (CFML_Rational) RAT_Overloads
           vec_out(i) = rational_simplify(dot_product(mat(i,1:nm),vec(1:nm)))
        end do
 
-       return
     End Function Rational_Matmul_Matvec
 
     !!----
@@ -292,7 +279,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end do
        end if
 
-       return
     End Function Rational_Matmul_Matmat
 
     !!----
@@ -322,7 +308,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end do
        end do
 
-       return
     End Function Rational_Maxloc_Matrix
 
     !!----
@@ -349,7 +334,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end if
        end do
 
-       return
     End Function Rational_Maxloc_Vector
 
     !!----
@@ -379,7 +363,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end do
        end do
 
-       return
     End Function Rational_Minloc_Matrix
 
 
@@ -407,7 +390,6 @@ Submodule (CFML_Rational) RAT_Overloads
           end if
        end do
 
-       return
     End Function Rational_Minloc_Vector
 
     !!----
@@ -422,7 +404,6 @@ Submodule (CFML_Rational) RAT_Overloads
 
        res=real(r%numerator,kind=cp) / real(r%denominator,kind=cp)
 
-       return
     End Function Rational_Real
 
     !!----
@@ -444,7 +425,6 @@ Submodule (CFML_Rational) RAT_Overloads
           suma=suma+vec(i)
        end do
 
-       return
     End Function Rational_Sum_Vector
 
 End Submodule RAT_Overloads

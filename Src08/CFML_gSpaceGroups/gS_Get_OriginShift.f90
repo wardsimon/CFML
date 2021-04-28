@@ -94,7 +94,6 @@ SubModule (CFML_gSpaceGroups) SPG_Get_Origin_Shift
          origShift = x(:,1)
       end if
 
-      return
    End Subroutine Get_Origin_Shift
 
 End Submodule SPG_Get_Origin_Shift

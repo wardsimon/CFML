@@ -49,7 +49,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
              Ainv=MatInvN_C(A,n)
        end select
 
-       return
     End Function Inverse_Matrix_C
 
     !!----
@@ -100,7 +99,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
              call Invert_Matrix_R(aa,ainv)
        end select
 
-       return
     End Function Inverse_Matrix_I
 
     !!----
@@ -147,7 +145,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
              call Invert_Matrix_R(A,Ainv)
        end select
 
-       return
     End Function Inverse_Matrix_R
 
     !!----
@@ -295,7 +292,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
 
        Ainv=aa
 
-       return
    End Function MatInvN_C
 
     !!----
@@ -350,7 +346,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
           call LU_backsub(lu,indx,b(:,i))
        end do
 
-       return
     End Subroutine Invert_Matrix_R
 
     !!----
@@ -397,7 +392,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
           b(i) = (b(i)-dot_product(a(i,i+1:n),b(i+1:n)))/a(i,i)
        end do
 
-       return
     End Subroutine LU_Backsub
 
     !!----
@@ -460,7 +454,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
           a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(a(j+1:n,j),a(j,j+1:n))  !Reduce remaining submatrix.
        end do
 
-       return
     End Subroutine LU_Decomp
 
     !!----
@@ -520,7 +513,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(1,2) = -detinv * A(1,2)
        B(2,2) = +detinv * A(1,1)
 
-       return
     End Function MatInv2_C
 
     !!----
@@ -556,7 +548,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(1,2) = -detinv * A(1,2)
        B(2,2) = +detinv * A(1,1)
 
-       return
     End Function MatInv2_R
 
     !!----
@@ -596,7 +587,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
        B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
-       return
     End Function MatInv3_C
 
     !!----
@@ -636,7 +626,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
        B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
 
-       return
     End Function MatInv3_R
 
     !!----
@@ -709,7 +698,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(4,4) = detinv*(A(1,1)*(A(2,2)*A(3,3)-A(2,3)*A(3,2))+ &
                 A(1,2)*(A(2,3)*A(3,1)-A(2,1)*A(3,3))+A(1,3)*(A(2,1)*A(3,2)-A(2,2)*A(3,1)))
 
-       return
     End Function MatInv4_C
 
     !!----
@@ -782,7 +770,6 @@ Submodule (CFML_Maths) Maths_Inverse_Matrix
        B(4,4) = detinv*(A(1,1)*(A(2,2)*A(3,3)-A(2,3)*A(3,2))+ &
                 A(1,2)*(A(2,3)*A(3,1)-A(2,1)*A(3,3))+A(1,3)*(A(2,1)*A(3,2)-A(2,2)*A(3,1)))
 
-       return
     End Function MatInv4_R
 
 End Submodule Maths_Inverse_Matrix

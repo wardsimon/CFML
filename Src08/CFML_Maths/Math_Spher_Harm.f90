@@ -76,7 +76,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
              klm=0.0_cp
        end select
 
-       return
     End Function Cubic_Harm_Ang
 
     !!----
@@ -216,7 +215,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
              klm=0.0_cp
        end select
 
-       return
     End Function Cubic_Harm_Ucvec
 
     !!----
@@ -279,7 +277,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
           return
        end if
 
-       return
     End Function Integral_Slater_Bessel
 
     !!----
@@ -323,7 +320,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
        end if
        ylmp=norm*ylmp
 
-       return
     End Function Real_Spher_Harm_Ang
 
     !!----
@@ -387,7 +383,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
        end if
        ylmp=norm*ylmp
 
-       return
     End Function Real_Spher_Harm_Ucvec
 
     !!----
@@ -543,7 +538,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
 
        Dlmp=Clmp(l,m,i)*Real_Spher_Harm_Ucvec(L,M,P,U)
 
-       return
     End Function Real_Spher_HarmCharge_Ucvec
 
     !!----
@@ -656,7 +650,6 @@ Submodule (CFML_Maths) Maths_SpherHarmon
              lj(2,5) =1
        end select
 
-       return
     End Subroutine Pikout_Lj_Cubic
 
  End Submodule Maths_SpherHarmon

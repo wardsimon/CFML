@@ -28,7 +28,6 @@ Submodule (CFML_Maths) Maths_Is_Null_Vector
           end if
        end do
 
-       return
     End Function Is_Null_Vector_I
 
     !!----
@@ -53,7 +52,6 @@ Submodule (CFML_Maths) Maths_Is_Null_Vector
           end if
        end do
 
-       return
     End Function Is_Null_Vector_R
 
 End Submodule Maths_Is_Null_Vector

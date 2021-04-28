@@ -53,25 +53,25 @@
                      /),(/3,96/) )
 
 
-      integer, parameter         :: nsites=3, numa=16, numag=500
-      integer                    :: i, nj, ns, ier, nvec, nsub, magtype
+      integer, parameter         :: nsites=4, numa=40, numag=500
+      integer                    :: i, nj, ns, ier, nvec, nsub, magtype,maxl
       integer                    :: inum, i1,i2,i3, num_mag
       integer, dimension(nsites) :: nats
       integer, dimension(numag)  :: mag_types, freq_mag
-      REAL, dimension(5)         :: valj
-      REAL, dimension(5,numag)   :: jdomin
-      REAL, dimension(5,numag)   :: jdomax
+      real, dimension(5)         :: valj
+      real, dimension(5,numag)   :: jdomin
+      real, dimension(5,numag)   :: jdomax
       character (len=35)         :: kvector
-      REAL, dimension(3)         :: vk,tvk
-      REAL, dimension(numa)      :: eigenvr,eigenvi
-      character (len=132)        :: fileres,forma
+      real, dimension(3)         :: vk,tvk
+      real, dimension(numa)      :: eigenvr,eigenvi
+      character (len=132)        :: fileres,forma,fform
       character (len=1)          :: parenth, ans
       character (len=512)        :: line
       real                       :: energ,jmin,jmax
       logical                    :: esta
       integer,           dimension(nsites*numa) :: magt
       character(len=1),  dimension(nsites*numa) :: magc
-      character(len=180),dimension(numag)       :: magchar
+      character(len=512),dimension(numag)       :: magchar
 
     ! Density information
    !---- Title or reference ----!
@@ -206,9 +206,9 @@
                magt(i) = 0
                magc(i) = '0'
              end if
-             magtype = magtype + magt(i)*(3**(nsub-i))
+             magtype = magtype + magt(i)*(2**(nsub-i))
            end do
-           magtype = 2*nvec*(3**nsub) + magtype
+           magtype = 2*nvec*(2**nsub) + magtype
          end if
 
      !Select the different magnetic structures
@@ -218,7 +218,7 @@
            freq_mag(num_mag)=freq_mag(num_mag)+1
            jdomin(1:nj,num_mag) = valj(1:nj)
            jdomax(1:nj,num_mag) = valj(1:nj)
-           write(magchar(num_mag),'(a,i2,a,49(a1,1x))') '(',nvec,': ',magc(1:nsub),')'
+           write(magchar(num_mag),'(a,i2,a,110(a1,1x))') '(',nvec,': ',magc(1:nsub),')'
            call Frac_Trans_1DIG(vk,kvector)
            magchar(num_mag) = trim(magchar(num_mag))//' k = '//kvector
 
@@ -243,7 +243,7 @@
              mag_types(num_mag)   = magtype
              jdomin(1:nj,num_mag) = valj(1:nj)
              jdomax(1:nj,num_mag) = valj(1:nj)
-             write(magchar(num_mag),'(a,i2,a,49(a1,1x))') '(',nvec,': ',magc(1:nsub),')'
+             write(magchar(num_mag),'(a,i2,a,110(a1,1x))') '(',nvec,': ',magc(1:nsub),')'
              call Frac_Trans_1DIG(vk,kvector)
              magchar(num_mag) = trim(magchar(num_mag))//' k = '//kvector
              j=num_mag
@@ -265,13 +265,25 @@
 
        write(3,'(a,a/)')'  ANALYSIS OF MAGNETIC STRUCTURE TYPES IN: ',trim(fileres)//'.res'
        write(3,'(a,i3)') ' => Number of distinct magnetic structures: ',num_mag
-       write(3,'(a//a/)')  ' => List of magnetic structure types: ',&
-           ' Type        Code          Vk-Sign seq.                           J-domains        ...............       Frequency'
-       write(*,'(a/a/)')  ' => List of magnetic structure types: ',&
-           ' Type        Code          Vk-Sign seq.                           J-domains        ...............       Frequency'
              !1234567890123456789012345678901
-       forma='(i5,2x,i10,2x,a,t60, (3x,2f6.1),i8)'
-       write(forma(21:21),'(i1)') nj
+       forma='(i5,2x,i12,2x,a,t60 ,  (3x,2f6.1),i10)'
+       maxl=0
+       do i=1,num_mag
+         j=len_trim(magchar(i))
+         if(j > maxl) maxl=j
+       end do
+       maxl=22+maxl
+       write(forma(18:20),'(i3.3)') maxl
+       write(forma(22:23),'(i2)') nj
+       !      123456789012345678
+       fform="(a,t   ,a,t   ,a /)"
+       write(fform(5:7),'(i3.3)') maxl+10
+       write(fform(12:14),'(i3.3)') maxl+15*nj
+       write(3,'(a//)')  ' => List of magnetic structure types: '
+       write(3,fform) ' Type        Code          Vk-Sign sequence','J-domains    ','      Frequency'
+       write(*,'(a//)')  ' => List of magnetic structure types: '
+       write(*,fform) ' Type        Code          Vk-Sign sequence','J-domains    ','      Frequency'
+
        do i=1,num_mag
          write(3,forma) i,mag_types(i),trim(magchar(i)), &
                             (jdomin(j,i),jdomax(j,i),j=1,nj), freq_mag(i)

@@ -27,7 +27,6 @@ Submodule (CFML_Rational) RAT_Operator_Divisor
           res=0_LI//1_LI
        end if
 
-       return
     End Function Rational_Divide
 
     !!----
@@ -48,7 +47,6 @@ Submodule (CFML_Rational) RAT_Operator_Divisor
           res=0_LI//1_LI
        end if
 
-       return
     End Function Rational_Integer_Divide
 
     !!----
@@ -69,7 +67,6 @@ Submodule (CFML_Rational) RAT_Operator_Divisor
           res=0_LI//1_LI
        end if
 
-       return
     End Function Integer_Rational_Divide
 
 End Submodule RAT_Operator_Divisor
