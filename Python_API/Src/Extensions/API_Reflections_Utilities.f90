@@ -100,6 +100,7 @@ contains
     endif
 
     call get_reflection_list_from_arg(args, hkl_p, 0)
+    if (allocated(hkl_p%p%ref)) deallocate(hkl_p%p%ref)
     deallocate(hkl_p%p)
 
     ierror = dict_create(retval)
@@ -178,6 +179,59 @@ contains
 
   end function reflections_utilities_hkl_uni_reflist
 
+  function reflections_utilities_get_item(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+    integer     :: ii
+
+    type(Reflection_list_type_p)               :: alist_p
+    type(Reflection_type_p)                    :: a_p
+
+    type(object) :: item_obj
+    integer      :: item, a_p12(12)
+    type(list)   :: a_obj
+
+    r = C_NULL_PTR      
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    
+    ierror = args%len(num_args)
+    
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_item expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+    
+    call get_reflection_list_from_arg(args, alist_p, 0)
+
+    ierror = args%getitem(item_obj, 1)
+    ierror = cast_nonstrict(item, item_obj)
+    allocate(a_p%p)
+    a_p%p = alist_p%p%ref(item+1)
+
+    a_p12    = transfer(a_p, a_p12)
+    ierror = list_create(a_obj)
+    do ii=1,12
+       ierror = a_obj%append(a_p12(ii))
+    end do
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("Ref", a_obj)
+
+    r = retval%get_c_ptr()
+    call args%destroy
+    call item_obj%destroy
+    call a_obj%destroy
+
+  end function reflections_utilities_get_item
+
   !---------------------------------------
   ! Reflection type
   !---------------------------------------
@@ -213,9 +267,39 @@ contains
 
   end subroutine get_reflection_type_from_arg
 
+  function reflections_utilities_del_reflection(self_ptr, args_ptr) result(r) bind(c)
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Reflection_type_p)    :: hkl_p
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "del_reflection expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+
+    call get_reflection_type_from_arg(args, hkl_p, 0)
+    deallocate(hkl_p%p)
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+    call args%destroy
+  end function reflections_utilities_del_reflection
+
   
 
-  function reflection_utilities_get_H(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_H(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -249,10 +333,10 @@ contains
     call args%destroy
     call H%destroy
      
-  end function reflection_utilities_get_H
+  end function reflections_utilities_get_H
   
   
-  function reflection_utilities_get_Mult(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_Mult(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -282,10 +366,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_Mult
+  end function reflections_utilities_get_Mult
   
   
-  function reflection_utilities_get_Fo(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_Fo(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -315,10 +399,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_Fo
+  end function reflections_utilities_get_Fo
   
   
-  function reflection_utilities_get_Fc(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_Fc(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -348,10 +432,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_Fc
+  end function reflections_utilities_get_Fc
   
   
-  function reflection_utilities_get_SFo(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_SFo(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -381,10 +465,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_SFo
+  end function reflections_utilities_get_SFo
   
   
-  function reflection_utilities_get_S(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_S(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -414,10 +498,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_S
+  end function reflections_utilities_get_S
   
   
-  function reflection_utilities_get_W(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_W(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -447,10 +531,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_W
+  end function reflections_utilities_get_W
   
   
-  function reflection_utilities_get_Phase(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_Phase(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -480,10 +564,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_Phase
+  end function reflections_utilities_get_Phase
   
   
-  function reflection_utilities_get_A(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_A(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -513,10 +597,10 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_A
+  end function reflections_utilities_get_A
   
   
-  function reflection_utilities_get_B(self_ptr, args_ptr) result(r) bind(c)
+  function reflections_utilities_get_B(self_ptr, args_ptr) result(r) bind(c)
         
     type(c_ptr), value :: self_ptr
     type(c_ptr), value :: args_ptr
@@ -546,7 +630,7 @@ contains
     r = retval%get_c_ptr()
     call args%destroy
      
-  end function reflection_utilities_get_B
+  end function reflections_utilities_get_B
   
   
 

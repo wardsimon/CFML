@@ -33,6 +33,10 @@ reflection_list = CFML_api.ReflectionList(cell, space_group, True, job_info)
 
 reflection_list.compute_structure_factors(space_group, atom_list, job_info)
 
+ref = reflection_list[0]
+
+print(ref.hkl, ref.fcalc, ref.stl)
+
 diffraction_pattern = CFML_api.DiffractionPattern(job_info,
                                                   reflection_list, cell.reciprocal_cell_vol)
 
