@@ -56,6 +56,7 @@
 !!----      PSEUDOVOIGT
 !!----      SPLIT_PSEUDOVOIGT
 !!----      TCH_PVOIGT
+!!----      
 !!----
 !!----    Subroutines:
 !!----      BACK_TO_BACK_EXP_DER
@@ -67,6 +68,7 @@
 !!----      PSEUDOVOIGT_DER
 !!----      SPLIT_PSEUDOVOIGT_DER
 !!----      TCH_PVOIGT_DER
+!!----      TCH
 !!----
 !!
  Module CFML_PowderProfiles_CW
@@ -82,7 +84,7 @@
 
     !---- List of Public Subroutines ----!
     public :: Pseudovoigt_Der,Lorentzian_Der,Gaussian_Der,Back_To_Back_Exp_Der, Ikeda_Carpenter_Der, &
-              Exponential_Der, Hat_Der, Split_Pseudovoigt_Der, TCH_pVoigt_Der
+              Exponential_Der, Hat_Der, Split_Pseudovoigt_Der, TCH_pVoigt_Der, TCH
 
 
  Contains
@@ -364,7 +366,9 @@
        pv_val = eta*lor + (1.0_cp - eta)*gauss
 
        return
-    End Function TCH_pVoigt
+     End Function TCH_pVoigt
+
+     
 
     !!----
     !!---- Pure Subroutine Back_To_Back_Exp_Der(X,Par,Bb_Val,Dpar)
@@ -825,6 +829,40 @@
        end if
 
        return
-    End Subroutine TCH_pVoigt_Der
+     End Subroutine TCH_pVoigt_Der
+
+     ! @brief Computes the parameters for the pseudo-voight approximation
+!
+! @details Approximation of the Voigt profile V(x) using a linear
+! combination of a Gaussian curve G(x) and a Lorentzian curve L(x)
+! instead of their convolution.
+!
+! The full width at half maximum (FWHM) of the Voigt profile can be
+! found from the widths of the associated Gaussian (hg) and Lorentzian (hl) widths
+!
+! eta is a function of full width at half maximum (FWHM) parameter.
+! here a simple formula, accurate to 1%, is used
+Pure Subroutine TCH(Hg,Hl,Fwhm,Eta)
+   !---- Arguments ----!
+   real, intent(in)  :: hg
+   real, intent(in)  :: hl
+   real, intent(out) :: fwhm
+   real, intent(out) :: eta
+
+   !---- Variables ----!
+   real, parameter :: o1= 2.69269, o2=2.42843, o3=4.47163, o4= 0.07842
+   real, parameter :: e1= 1.36603, e2=0.47719, e3=0.11116
+   real            :: ctl, tlr
+
+   ! There is no exception handling because it is supposed to be
+   ! perfomed before calling TCH
+   ctl=hg**5.0+o1*hg**4.0*hl+o2*hg**3.0*hl**2.0+o3*hg**2.0*hl**3.0+  &
+       o4*hg*hl**4.0+hl**5.0
+   fwhm=ctl**0.2
+   tlr = hl/fwhm
+   eta = max(1.0e-06, e1*tlr-e2*tlr*tlr+e3*tlr**3.0)  !eta
+
+   Return
+End Subroutine TCH
 
  End Module CFML_PowderProfiles_CW
