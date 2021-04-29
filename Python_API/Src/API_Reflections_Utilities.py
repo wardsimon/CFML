@@ -34,7 +34,7 @@ class ReflectionList(CFML_api.FortranBindedClass):
         return ref
 
     @property
-    def nrefs(self):
+    def nref(self):
         return CFML_api.crysfml_api.reflections_utilities_get_nref(self.get_fortran_address())["nref"]
     
     def compute_structure_factors(self, space_group, atom_list, job):
