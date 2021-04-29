@@ -233,6 +233,13 @@ contains
 
     Job_Info%Phas_nam(1)= Job_info%title
 
+    Job_info%U=0.02
+    Job_info%V=-0.02
+    Job_info%W=0.12
+    Job_info%X=0.0015
+    Job_info%Y= 0.0465
+    Job_info%theta_Step= 0.05
+
   end subroutine Init_Job_info
 
   ! @brief Create an atom list from an array of CIF lines

@@ -108,6 +108,41 @@ contains
     call args%destroy
   end function reflections_utilities_del_reflection_list
 
+  function reflections_utilities_get_nref(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+    type(Reflection_List_type_p) :: hkl_p
+  
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "get_nrefs expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_reflection_list_from_arg(args, hkl_p)
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("nref", hkl_p%p%nref)
+    r = retval%get_c_ptr()
+    call args%destroy
+    
+     
+  end function reflections_utilities_get_nref
+
 
   function reflections_utilities_hkl_uni_reflist(self_ptr, args_ptr) result(r) bind(c)
 

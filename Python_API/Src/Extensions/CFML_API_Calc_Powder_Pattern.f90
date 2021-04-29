@@ -30,7 +30,7 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
    lambda = job_info%Lambda(1)%mina
 
    npts=(Thmax-Thmin)/thstep + 1.02
-   
+
    call Allocate_Diffraction_Pattern(Pat,npts)
    
    Pat%Title=adjustl(Trim(Job_info%title))
@@ -59,7 +59,7 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
       Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
    end do
    
-   Pat%ycalc(:)=Job_info%bkg
+   Pat%bgr(:)=Job_info%bkg
 
    do i=1,hkl%nref
       ss=Lambda*hkl%ref(i)%S !ss = sin(theta)
@@ -72,6 +72,7 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
       HG=sqrt(tt*(Job_info%U*tt + Job_info%V) + Job_info%W)
       HL=Job_info%X*tt + Job_info%Y/cs
       call TCH(hg,hl,fwhm,eta)
+
       Select Case(nint(eta*10.0))
          Case(:2)
             chw=25.0
@@ -85,6 +86,7 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
 
       th1=Bragg-chw*fwhm
       th2=Bragg+chw*fwhm
+      
       i1=Locate(Pat%x,npts,th1)
       i2=Locate(Pat%x,npts,th2)
       i1=max(i1,1)

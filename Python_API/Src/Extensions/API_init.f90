@@ -173,6 +173,7 @@ module API_init
   use API_Reflections_Utilities, only: &
        reflections_utilities_hkl_uni_reflist, &
        reflections_utilities_del_reflection_list, &
+       reflections_utilities_get_nref, &
        reflections_utilities_del_reflection, &
        reflections_utilities_get_item, &
        reflections_utilities_get_H, &
@@ -257,7 +258,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(199)
+    call method_table%init(200)
 
     !--------------------------
     ! Error Messages (1)
@@ -1097,6 +1098,11 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(reflections_utilities_del_reflection_list))  ! address of Fortran function to add
 
+    call method_table%add_method("reflections_utilities_get_nref", &                  ! method name
+         "nref getter", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflections_utilities_get_nref))  ! address of Fortran function to add
+    
     call method_table%add_method("reflections_utilities_del_reflection", &                  ! method name
          "Reflection deallocation", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
