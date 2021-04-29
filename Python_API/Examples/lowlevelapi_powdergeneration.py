@@ -33,7 +33,7 @@ reflection_list = CFML_api.ReflectionList(cell, space_group, True, job_info)
 
 reflection_list.compute_structure_factors(space_group, atom_list, job_info)
 
-print(reflection_list.nrefs)
+print(reflection_list.nref)
 
 ref = reflection_list[0]
 
