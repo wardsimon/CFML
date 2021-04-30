@@ -59,6 +59,7 @@
 !!----       CALC_BVS
 !!----       CALC_MAP_BVEL
 !!----       CALC_MAP_BVS
+!!----       CALC_SITE_ENE
 !!--++       COMPLETE_TABLE                [Private]
 !!----       COST_BVS
 !!----       COST_BVS_COULOMBREP
