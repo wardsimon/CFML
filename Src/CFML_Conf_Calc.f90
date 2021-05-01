@@ -1119,13 +1119,13 @@
 
       !---- Local variables ----!
       character(len=4)                             :: car,atm
-      integer                                      :: i,j,k,n,n1,n2,np,jbvs
+      integer                                      :: i,j,k,n,n1,n2 !,np,jbvs
       integer                                      :: nx1,nx2,ny1,ny2,nz1,nz2
       integer                                      :: i1,j1,k1,sig1,sig2,ncont
-      real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep,p,s,cose
+      real(kind=cp)                                :: rx1,ry1,rz1,qval,q1,q2,rep !,p,s,cose
       real(kind=cp)                                :: sbvs, dd, occ, radius, rho, dmin, d_cutoff, &
                                                       dzero, alpha,c_rep,c_atr
-      real(kind=cp), dimension(3)                  :: pto,pta,step,extend
+      real(kind=cp), dimension(3)                  :: pto,pta,extend !,step
       type (Atom_list_Type)                        :: At1, At2
       logical                                      :: anion,cation
       !Coulomb constant (1/4pie0) to get energies in eV, use electron charges and distances in angstroms
@@ -1221,7 +1221,7 @@
          ny1=int(ry1)
       end if
       ny2=int(pto(2)+extend(2))
-      
+
       rz1=pto(3)-extend(3)
       if (rz1 <= 0.0) then
          nz1=int(rz1)-1
