@@ -109,7 +109,7 @@
 
        !--- Local Variables ----!
        integer :: i,j,npts,i1,i2
-       real    :: step,Intens,Bragg,Hg,Hl, ss,cs,tt,th1,th2,LorentzF, IG,Y,eta,fwhm,chw
+       real    :: Intens,Bragg,Hg,Hl, ss,cs,tt,th1,th2,LorentzF, IG,Y,eta,fwhm,chw
 
        npts=(PPC%Thmax-PPC%Thmin)/PPC%step + 1.02
        call Allocate_Diffraction_Pattern(Pat,npts)
@@ -193,8 +193,8 @@
        !---- Local variables ----!
        integer                                   :: i,j,k,m,n,natoms
        real, dimension(3)                        :: tr,u,ton
-       real,          dimension(:,:),allocatable :: pos
-       integer,       dimension(  :),allocatable :: ptr
+       !real,          dimension(:,:),allocatable :: pos
+       !integer,       dimension(  :),allocatable :: ptr
 
        ! Here we generate all atoms
        natoms=nat*ncells(1)*ncells(2)*ncells(3)
@@ -256,10 +256,10 @@
      !---- Variables ----!
      implicit none
 
-     integer                :: i,j,k,l,m,n,maxnumref,ier,mult,nf
+     integer                :: i,j,m,maxnumref,ier,mult,nf
      integer                :: n1,n2,n3,nat,natoms,lun=1,lp=2
      real, dimension(3)     :: ad,ang,x,fr
-     character(len=1)       :: ans,outa
+     character(len=1)       :: outa
      integer, dimension(3)  :: ncel,h
      real, dimension(3,192) :: orb
      real                   :: stlmax,tini,tfin,sn,sf2,tim,ftim,box

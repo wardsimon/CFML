@@ -254,16 +254,16 @@
      !---- Variables ----!
      implicit none
 
-     integer                :: i,j,k,l,m,n,maxnumref,ier,mult,nf
+     integer                :: i,j,k,maxnumref,ier,mult,nf
      integer                :: lun=1,lp=2
-     real, dimension(3)     :: ad,ang,x,fr
-     character(len=1)       :: ans,outa
-     integer, dimension(3)  :: ncel,h
-     real                   :: stlmax,tini,tfin,sn,sf2,tim,ftim=1.0,box
+     !real, dimension(3)     :: ad,ang,x,fr
+     !character(len=1)       :: ans,outa
+     !integer, dimension(3)  :: ncel,h
+     real                   :: stlmax,tini,tfin,tim,ftim=1.0 
      character(len=132)     :: line,powfile,filcod
      character(len=3)       :: mode
      character(len=8)       :: units="seconds",radiation
-     character(len=4),dimension(:),allocatable :: ch
+     !character(len=4),dimension(:),allocatable :: ch
 
      Type(Crystal_Cell_type)        :: cell
      Type(Space_Group_Type)         :: SpG
@@ -274,7 +274,7 @@
      Type(PowPat_Laue)              :: PPLaue
      Type(file_list_type)           :: fich_cfl
      integer                        :: narg
-     Logical                        :: esta, arggiven=.false., fail
+     Logical                        :: esta, arggiven=.false. !, fail
 
 
      !---- Arguments on the command line ----!

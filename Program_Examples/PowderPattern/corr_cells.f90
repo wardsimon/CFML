@@ -28,7 +28,7 @@ Program correction_cells
     integer                           :: i, j, narg, nzone, instr, im,ip, genpoi, ier, &
                                          linum, nfiles
     integer,          dimension(maxp) :: ncl
-    real                              :: ang, rin,rint1,rint2,det,rinn
+    real                              :: ang, rin,rint1,rint2,det !,rinn
     character(len=60),dimension(maxp) :: argv
     logical :: buffer_given=.false., angles=.false.
 

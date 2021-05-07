@@ -103,7 +103,7 @@
 
        !--- Local Variables ----!
        integer :: i,j,npts,i1,i2
-       real    :: step,Intens,Bragg,Hl,Hg, ss,cs,tt,th1,th2,LorentzF, Y,eta,fwhm,chw
+       real    :: Intens,Bragg,Hl,Hg, ss,cs,tt,th1,th2,LorentzF, Y,eta,fwhm,chw
 
        npts=(PPC%Thmax-PPC%Thmin)/PPC%step + 1.02
        call Allocate_Diffraction_Pattern(Pat,npts)
@@ -177,7 +177,7 @@
 
        integer :: i,j,i_prf
        character(len=*),parameter :: tb=char(9)
-       character (len=50) :: forma1,forma2
+       character (len=50) :: forma1
        real :: ymax,scl
        open(newunit=i_prf,file=trim(fileprf),status="replace",action="write")
 
@@ -249,16 +249,16 @@
      !---- Variables ----!
      implicit none
 
-     integer                :: i,j,k,l,m,n,maxnumref,ier,mult,nf,codini=0
+     integer                :: i,ier,nf,codini=0
      integer                :: lun=1,lp=2
-     real, dimension(3)     :: ad,ang,x,fr,codes=(/11.0,21.0,31.0/)
-     character(len=1)       :: ans,outa
-     integer, dimension(3)  :: ncel,h
-     real                   :: stlmax,tini,tfin,sn,sf2,tim,ftim=1.0,box
+     real, dimension(3)     :: codes=(/11.0,21.0,31.0/)
+     !character(len=1)       :: ans,outa
+     !integer, dimension(3)  :: ncel,h
+     real                   :: stlmax,tini,tfin,tim,ftim=1.0
      character(len=132)     :: line,powfile,filcod,prf_file
      character(len=3)       :: mode
      character(len=8)       :: units="seconds",radiation
-     character(len=4),dimension(:),allocatable :: ch
+     !character(len=4),dimension(:),allocatable :: ch
      logical                :: full=.true.
 
      Type(Crystal_Cell_type)        :: cell
@@ -270,7 +270,7 @@
      Type(PowPat_CW_Conditions)     :: PPC
      Type(file_list_type)           :: fich_cfl
      integer                        :: narg
-     Logical                        :: esta, arggiven=.false., fail
+     Logical                        :: esta, arggiven=.false. !, fail
 
 
      !---- Arguments on the command line ----!
