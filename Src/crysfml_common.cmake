@@ -12,17 +12,17 @@ if(WIN32)
        else()
            set(GLOBAL_DEPS CFML_GlobalDeps_Windows_Intel64.f90)
        endif()
-       set(STRING_UTILS CFML_String_Util.f90)
+       set(STRING_UTILS CFML_String_Utilities.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Windows.f90)
-        set(STRING_UTILS CFML_String_Util.f90)
+        set(STRING_UTILS CFML_String_Utilities_gf.f90)
     endif()
 # MacOS
 elseif(APPLE)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
         set(GLOBAL_DEPS CFML_GlobalDeps_MacOS_Intel.f90)
-        set(STRING_UTILS CFML_String_Util.f90)
+        set(STRING_UTILS CFML_String_Utilities.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_MacOS.f90)
         set(STRING_UTILS CFML_String_Util_gf.f90)
@@ -32,10 +32,10 @@ elseif(UNIX)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux_Intel.f90)
-        set(STRING_UTILS CFML_String_Util.f90)
+        set(STRING_UTILS CFML_String_Utilities.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_Linux.f90)
-        set(STRING_UTILS CFML_String_Util_gf.f90)
+        set(STRING_UTILS CFML_String_Utilities_gf.f90)
     endif()
 endif()
 
@@ -44,51 +44,51 @@ set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
     CFML_EisPack.f90
     CFML_Atom_TypeDef.f90
-    CFML_Bonds_Table.f90
+    CFML_Bond_Table.f90
     CFML_BVSpar.f90
     CFML_Chem_Scatt.f90
-    CFML_Conf_Calc.f90
+    CFML_BVS_Energy_Calc.f90
     CFML_Crystal_Metrics.f90
     CFML_Diffraction_Patterns.f90
     CFML_Export_Vtk.f90
     CFML_Extinction_Correction.f90
-    CFML_FFTs.f90
+    CFML_FFT.f90
     CFML_IO_Formats.f90
-    CFML_Geom_Calc.f90
+    CFML_Geometry_Calc.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
     CFML_Magnetic_Groups.f90
-    CFML_MagSymm.f90
+    CFML_Magnetic_Symmetry.f90
     CFML_Maps.f90
     CFML_Math_3D.f90
-    CFML_Math_Gen.f90
-    CFML_Molecules.f90
-    CFML_Msfac.f90
-    CFML_Optimization.f90
+    CFML_Math_General.f90
+    CFML_Molecular_Crystals.f90
+    CFML_Magnetic_Structure_Factors.f90
+    CFML_Optimization_General.f90
     CFML_Optimization_LSQ.f90
     CFML_Percolation.f90
-    CFML_Polar.f90
-    CFML_Profile_Finger.f90
-    CFML_Profile_Functs.f90
-    CFML_Profile_TOF.f90
-    CFML_Propagk.f90
-    CFML_Random.f90
-    CFML_Refcodes.f90
+    CFML_Polarimetry.f90
+    CFML_PowderProfiles_Finger.f90
+    CFML_PowderProfiles_CW.f90
+    CFML_PowderProfiles_TOF.f90
+    CFML_Propagation_Vectors.f90
+    CFML_Random_Generators.f90
+    CFML_Keywords_Code_Parser.f90
     CFML_Reflections_Utilities.f90
     CFML_Structure_Factors.f90
-    CFML_Spher_Harm.f90
+    CFML_Spherical_Harmonics.f90
     ${STRING_UTILS}
     CFML_EoS_Mod.f90
-    CFML_SXTAL_Geom.f90
+    CFML_Spherical_Harmonics.f90
     CFML_Rational_Arithmetic.f90
     CFML_Crystallographic_Symmetry.f90
-    CFML_Sym_Table.f90)
+    CFML_Symmetry_Tables.f90)
 
 # Set the optimization flags.
 set_source_files_properties(${CRYSFML_COMMON_SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})
 
 # Those files need specific optimization flags.
-set_source_files_properties(CFML_BVSpar.f90 CFML_Bonds_Table.f90 CFML_Chem_Scatt.f90 CFML_Sym_Table.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS0})
+set_source_files_properties(CFML_BVSpar.f90 CFML_Bond_Table.f90 CFML_Scattering_Chemical_Tables.f90 CFML_Symmetry_Tables.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS0})
 set_source_files_properties(CFML_Profile_TOF.f90 PROPERTIES COMPILE_FLAGS ${OPT_FLAGS1})
 
 #################################
