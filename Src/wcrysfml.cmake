@@ -11,7 +11,7 @@ find_package(WINTERACTER REQUIRED)
 
 # The sources files for crysfml library.
 set(SOURCES CFML_IO_MessWin.f90
-            CFML_Optimization_SAn.f90)
+            CFML_Simulated_Annealing.f90)
 
 # Set the optimization flags.
 set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS ${OPT_FLAGS})

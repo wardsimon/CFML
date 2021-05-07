@@ -4,7 +4,7 @@
 
 # The sources files for crysfml library.
 set(SOURCES CFML_IO_Mess.f90
-            CFML_Optimization_SAn.f90)
+            CFML_Simulated_Annealing.f90)
 
 # Add CFML_HDF5 module if USE_HDF5 = ON
 if(USE_HDF)

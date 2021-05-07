@@ -44,9 +44,9 @@ set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
     CFML_EisPack.f90
     CFML_Atom_TypeDef.f90
-    CFML_Bond_Table.f90
+    CFML_Bond_Tables.f90
     CFML_BVSpar.f90
-    CFML_Chem_Scatt.f90
+    CFML_Scattering_Chemical_Tables.f90
     CFML_BVS_Energy_Calc.f90
     CFML_Crystal_Metrics.f90
     CFML_Diffraction_Patterns.f90
@@ -55,11 +55,12 @@ set(CRYSFML_COMMON_SOURCES
     CFML_FFT.f90
     CFML_IO_Formats.f90
     CFML_Geometry_Calc.f90
+    CFML_Geometry_SXTAL.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
     CFML_Magnetic_Groups.f90
     CFML_Magnetic_Symmetry.f90
-    CFML_Maps.f90
+    CFML_Maps_Calculations.f90
     CFML_Math_3D.f90
     CFML_Math_General.f90
     CFML_Molecular_Crystals.f90
