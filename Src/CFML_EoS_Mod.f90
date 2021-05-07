@@ -83,7 +83,7 @@ Module CFML_EoS
              Get_Props_General, Get_Props_Third, Isotropic_Cell,  &
              K_Cal, Kp_Cal, Kpp_Cal, &
              Linear_EoS_Allowed, &
-             Pressure_F, Principal_Eos, Pthermal, &
+             Pressure_F, Principal_Eos, PscaleMGD, Pthermal, &
              Set_XdataTypes, Strain, Strain_EOS, &
              Thermal_Pressure_Eos, Transition_Phase, &
              VscaleMGD
@@ -421,7 +421,7 @@ Contains
       !> Cv is returned in J/mol/K by direct algebra expression, and using R=8.314
       if (eos%Osc_allowed .and. eos%itran == 0) then
          vol=get_volume(p,t,eos)
-         alpha=get_grun_v(vol,eos)*get_cv(p,t,eos)/k_cal(vol,t,eos,p=p)/vol
+         alpha=get_grun_th(p,t,eos)*get_cv(p,t,eos)/k_cal(vol,t,eos,p=p)/vol
 
          !> scaling
          alpha=alpha*EPThermal_factor(eos)
@@ -1865,7 +1865,7 @@ Contains
       if (index(U_case(eos%pscale_name),'KBAR') > 0) k=k*1.0E8
 
       select case(eos%itherm)
-         case(6,7,8)                           !Calculation from Cv, avoiding alpha, which would be recursive
+         case(7,8)                           !Calculation from Cv, avoiding alpha, which would be recursive
             v=get_volume(p,t,eos)
             gamma2=get_grun_th(P,T,Eos)**2.0_cp
             !          gamma2=get_grun_V(V,Eos)**2.0_cp
@@ -1875,7 +1875,7 @@ Contains
 
          case default   !from Cp=(1+alpha.gamma.T)Cv
             al=Alpha_Cal(P,T,eos)
-            gamma=Get_Grun_V(v,eos)
+            gamma=Get_Grun_th(P,T,eos)
             c=(1.0_cp + al*gamma*T)*get_cv(p,t,eos)
       end select
 
@@ -1923,7 +1923,7 @@ Contains
 
 
 
-         case(6,8)  !Einstein: includes Holland-Powell
+         case(8)  !Einstein: 
             x=get_DebyeT(V,Eos)/t
             if (x < 20)     &        !corresponds to 0.05ThetaE where Cv < 0.00002 J/mol/K
                cvpart(0)=3.0_cp*eos%params(13)*8.314_cp * x**2._cp * exp(x)/(exp(x)-1)**2._cp
@@ -1932,7 +1932,7 @@ Contains
          case default    ! Cv = alpha.Kt/gamma/V
             if (abs(eos%params(18)) < tiny(0.)) return          ! gamma=0. therefore Cv undefined
             k=k_cal(v,t,eos,p=p)
-            cv=Alpha_Cal(P,T,eos)*k/Get_Grun_V(v,eos) * v
+            cv=Alpha_Cal(P,T,eos)*k/Get_Grun_th(p,t,eos) * v
             ! scaling when getting Cv from other params
             ! if (index(U_case(eos%pscale_name),'GPA') > 0)  factor=1.0E9
             ! if (index(U_case(eos%pscale_name),'KBAR') > 0) factor=1.0E8
@@ -2470,7 +2470,8 @@ Contains
    !!----
    !!---- FUNCTION  GET_GRUN_V
    !!----
-   !!---- Returns Gruneisen parameter at this volume as gamma0*(V/V0)
+   !!---- Returns Gruneisen parameter at this volume as gamma0*(V/V0) for one mode only
+   !!---- For the thermal Grueneisen parameter use Get_Grun_Th
    !!---- If linear it calculates gamma0*(a/a0)^3
    !!----
    !!---- Date: 18/07/2016
@@ -2503,10 +2504,10 @@ Contains
       if (eos%linear) VV0=VV0**3.0_cp
 
       if (io == 0)then                    !main thermal model
-         if (eos%osc_allowed .and. eos%params(14) > 0.5_cp )then
+
+         if (eos%itherm >= 6 .and. eos%itherm <= 8  .and. eos%params(14) > 0.5_cp )then
             !q-compromise: gamma/V is constant: MGD and Einstein are allowed q-comp, Holland-Powell is always q-comp
             Grun=eos%params(18)*VV0
-
          else
             !Normal
             if (abs(eos%params(19)) > 0.00001_cp) then
@@ -8434,9 +8435,10 @@ Contains
             EoS%TRef        = 298.0_cp
             EoS%TRef_fixed  = .false.
             EoS%params(11)  = 298.0_cp             ! Einstein temperature default
+            EoS%params(13)  = 1.0                   ! Natom
             EoS%params(14)  = 1.0                   ! q-compromise
             EoS%pthermaleos  =.true.
-            EoS%Osc_allowed  =.true.
+            EoS%Osc_allowed  =.false.
 
          case(7,8)                                 ! MGD,  Einstein Osc:
             EoS%factor(10:14)  = 1.0_cp            ! plus gamma0 and q as (18),(19)
@@ -9637,8 +9639,7 @@ Contains
 
       !>Trap Natom=0 in HP thermal pressure model
       if(eos%itherm == 6 .and. eos%params(13) == 0)then
-         warn=.true.
-         Wtext=trim(Wtext)//"  Natom was read as zero. PVT will be correct, but not heat capacities or calculated alpha"
+         eos%params(13)=1.0_cp 
       endif
 
       !>Warn if extra oscillators
@@ -10050,6 +10051,7 @@ Contains
       !---- Local Variables ----!
       real(kind=cp),dimension(N_EOSPAR):: ev           ! local copies of room pressure parameter values
       real(kind=cp)                    :: pfg0,c0,c2   ! variables for APL
+      real(kind=cp)                    :: Cvref, y      ! variables used for HP thermal p 
 
       !> Local copy
       ev= EoS_to_Vec(eos) !  ev contains volume-like parameters
@@ -10112,9 +10114,14 @@ Contains
 
          !> Thermal models
          select case(eos%itherm)
-         case(6)        ! Holland-Powell thermal pressure
-             eos%params(18)=eos%params(1)*eos%params(10)*eos%params(2)/get_cv(eos%pref,eos%tref,eos)
-             eos%params(18)=eos%params(18)/EPthermal_factor(Eos)
+         case(6)        ! Holland-Powell thermal pressure. Set gamma if pscales and vscales appropriate
+             if(pscaleMGD(eos) .and. vscaleMGD(eos))then
+                 !We cannot use get_cv to calculate the CV at this point, because that uses gamma0
+                 y=eos%params(11)/eos%tref  !ThetaE/Tref
+                 Cvref=3.0_cp*eos%params(13)*8.314_cp * y**2._cp * exp(y)/(exp(y)-1)**2._cp
+                 eos%params(18)=eos%params(1)*eos%params(10)*eos%params(2)/Cvref
+                 eos%params(18)=eos%params(18)/EPthermal_factor(Eos)
+             endif
          end select
 
 
@@ -10322,14 +10329,18 @@ Contains
             if (EoS%imodel==0) EoS%iuse(2:4)=2   ! K, Kp refinement is not stable without a pressure model
             EoS%iuse(8:9)=0     ! No dK/dT parameter:
             EoS%iuse(10)=1    ! alpha at Tref
-            EoS%iuse(11)=1    ! Einstein T should be reported
+            EoS%iuse(11)=1    ! Einstein T 
             EoS%iuse(13)=2    ! Natoms per formula unit
             EoS%iuse(14)=0    ! Flag for q-compromise: does not appear to user
-            EoS%iuse(18)=3    ! Grunesien parameter at Pref,Tref. This is implied by alpha0
+            if(PscaleMGD(eos) .and. VscaleMGD(eos))then            
+                EoS%iuse(18)=3    ! Grunesien parameter at Pref,Tref. This is implied by alpha0
+            else
+                EoS%iuse(18)=1    ! If the pscale and vscale are not as required, make free parameter for Ks Kt conversion
+            endif
             EoS%iuse(19)=0    ! Grunesien q power law parameter: this is a q-comp model
             EoS%TRef_fixed   = .false.
             EoS%pthermaleos  =.true.
-            EoS%Osc_allowed  =.true.
+            EoS%Osc_allowed  =.false.
 
          case (7,8)             ! Thermal pressure in MGD or Einstein form,
             if (EoS%imodel==0) EoS%iuse(2:4)=2   ! K, Kp refinement is not stable without a pressure model

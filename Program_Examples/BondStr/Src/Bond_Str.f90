@@ -553,7 +553,6 @@ Program Bond_Str
            write(unit=lun,fmt='(/,2a/)') " => Bond-site energies for species ",trim(atname)
            write(unit=lun,fmt='(4x,3a8,3x,a11)') "x","y","z","Site-energy"
            do i = 1 , Ac%Natoms - 1
-             !write(*,'(2i4,2x,a)') i, Ac%Atom(i)%Ind(1), Ac%Species(Ac%Atom(i)%Ind(1))
              if (Ac%Species(Ac%Atom(i)%Ind(1)) == Ac%Species(Ac%Atom(Ac%Natoms)%Ind(1))) then
                call Calc_Site_Ene(Ac,Spgr,Cell,Ac%Atom(i)%X(1),Ac%Atom(i)%X(2),Ac%Atom(i)%X(3),Ac%Species(Ac%Atom(Ac%Natoms)%Ind(1)),drmax,E_site)
                write(unit=lun,fmt='(4x,3f8.4,3x,f11.4)') Ac%Atom(i)%X,E_site
