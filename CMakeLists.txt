@@ -13,6 +13,7 @@ option(CRYSFML08 "Build CrysFML08" OFF)
 option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)" OFF)
 option(PROG_EX "Build the Program Examples" ON)
 option(PYTHON_API "Build Python API" OFF)
+option(QPARALLEL "qparallel option for Ifort on Windows" ON)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
