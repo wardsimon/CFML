@@ -79,7 +79,7 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Structure_Factors.f90
     CFML_Spherical_Harmonics.f90
     ${STRING_UTILS}
-    CFML_EoS_Mod.f90
+    CFML_EoS.f90
     CFML_Spherical_Harmonics.f90
     CFML_Rational_Arithmetic.f90
     CFML_Crystallographic_Symmetry.f90

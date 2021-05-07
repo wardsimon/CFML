@@ -3,7 +3,7 @@
 #################################
 
 # The sources files for crysfml library.
-set(SOURCES CFML_IO_Mess.f90
+set(SOURCES CFML_IO_Messages.f90
             CFML_Simulated_Annealing.f90)
 
 # Add CFML_HDF5 module if USE_HDF5 = ON
