@@ -43,17 +43,17 @@ endif()
 set(CRYSFML_COMMON_SOURCES
     ${GLOBAL_DEPS}
     CFML_EisPack.f90
-    CFML_Atom_Mod.f90
+    CFML_Atom_TypeDef.f90
     CFML_Bonds_Table.f90
     CFML_BVSpar.f90
     CFML_Chem_Scatt.f90
     CFML_Conf_Calc.f90
-    CFML_Cryst_Types.f90
-    CFML_Diffpatt.f90
+    CFML_Crystal_Metrics.f90
+    CFML_Diffraction_Patterns.f90
     CFML_Export_Vtk.f90
     CFML_Extinction_Correction.f90
     CFML_FFTs.f90
-    CFML_Form_CIF.f90
+    CFML_IO_Formats.f90
     CFML_Geom_Calc.f90
     CFML_ILL_Instrm_Data.f90
     CFML_LSQ_TypeDef.f90
@@ -74,14 +74,14 @@ set(CRYSFML_COMMON_SOURCES
     CFML_Propagk.f90
     CFML_Random.f90
     CFML_Refcodes.f90
-    CFML_Reflct_Util.f90
-    CFML_Sfac.f90
+    CFML_Reflections_Utilities.f90
+    CFML_Structure_Factors.f90
     CFML_Spher_Harm.f90
     ${STRING_UTILS}
     CFML_EoS_Mod.f90
     CFML_SXTAL_Geom.f90
     CFML_Rational_Arithmetic.f90
-    CFML_Symmetry.f90
+    CFML_Crystallographic_Symmetry.f90
     CFML_Sym_Table.f90)
 
 # Set the optimization flags.

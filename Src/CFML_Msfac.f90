@@ -292,7 +292,7 @@
     !!----
     !!---- Update: April - 2005
     !!
-    character(len=150), public :: err_msfac_mess
+    character(len=150), public :: err_msfac_mess=" "
 
     !!----
     !!---- ERR_MSFAC
@@ -302,7 +302,7 @@
     !!----
     !!---- Update: April - 2005
     !!
-    logical, public :: err_msfac
+    logical, public :: err_msfac=.false.
 
     !!--++
     !!--++ HR

@@ -1,4 +1,4 @@
-FROM ci_crysfml_xenial_ifort
+FROM ci_crysfml_xenial_gfortran
 
 SHELL ["/bin/bash", "-c"]
 
@@ -13,4 +13,4 @@ ENV HDF5_LIBRARY_PATH=/hdf5/lib
 COPY ./ /app/
 WORKDIR /app
 
-CMD BuildServer/Unix/build_release.sh ifort && cp -a build_release /artifacts/
+CMD BuildServer/Unix/build_release.sh gfortran && cp -a gfortran /artifacts/

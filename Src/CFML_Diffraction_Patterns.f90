@@ -531,7 +531,7 @@
     !!----    real(kind=cp), optional,        intent(in)     :: Xmax
     !!----
     !!----    Calculate a Background using an iterative process according
-    !!----    to Br�ckner, S. (2000). J. Appl. Cryst., 33, 977-979.
+    !!----    to Bruckner, S. (2000). J. Appl. Cryst., 33, 977-979.
     !!----
     !!----
     !!---- Update: December - 2008
@@ -980,7 +980,7 @@
              call set_background_poly (dif_pat,50.0_cp, bck_p,bck_points )
 
           case ("INT") ! Interpolation
-             call  set_background_inter (dif_pat, bck_v,bck_p, bck_points )
+             call set_background_inter (dif_pat, bck_v,bck_p, bck_points )
 
           case default
              Err_diffpatt=.true.

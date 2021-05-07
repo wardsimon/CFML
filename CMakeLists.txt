@@ -12,6 +12,7 @@ option(ARCH32 "32 or 64 bit architecture" ON)
 option(CRYSFML08 "Build CrysFML08" OFF)
 option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)" OFF)
 option(PROG_EX "Build the Program Examples" ON)
+option(PYTHON_API "Build Python API" OFF)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")
@@ -47,6 +48,19 @@ else()
 endif()
 set (CRYSFML_PREFIX ${CMAKE_INSTALL_PREFIX}/${CRYSFML_PREFIX})
 message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
+
+# Include and library paths for Python. 
+# They must be set by the user.
+if(DEFINED PYTHON_LIBRARY_PATH)
+    set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH} CACHE PATH "Python library path")
+else()
+    set(PYTHON_LIBRARY_PATH "" CACHE PATH "Python library path")
+endif()
+if(DEFINED PYTHON_INTERPRETER_PATH)
+    set(PYTHON_INTERPRETER_PATH ${PYTHON_INTERPRETER_PATH} CACHE PATH "Python interpreter path")
+else()
+    set(PYTHON_INTERPRETER_PATH "" CACHE PATH "Python interpreter path")
+endif()
 
 # Include and library paths for HDF5.
 # They must be set by the user.
@@ -122,4 +136,9 @@ if (PROG_EX)
   if(USE_HDF)
     add_subdirectory(Program_Examples/ReadNeXuS)
   endif()
+endif()
+
+if (PYTHON_API)
+    set(PYTHON_API_PREFIX ${CMAKE_INSTALL_PREFIX}/Python_API)
+    add_subdirectory(Python_API/Src)
 endif()

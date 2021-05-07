@@ -1901,7 +1901,7 @@ Contains
                       b=convert_betas_b(bet,cell)
                       write(unit=iunit,fmt="(T16,a,6f12.6)") "B_ij", b
                    end if
-                else if(ats%atom(i)%thtype == "u_ij") then
+                else if(ats%atom(i)%utype == "u_ij") then
                    u=ats%atom(i)%u(1:6)
                    write(unit=iunit,fmt="(T5,a,t16,a,6f12.6)") ats%atom(i)%lab,ats%atom(i)%utype, u
                    b=convert_u_b(u)
@@ -1910,7 +1910,7 @@ Contains
                       bet=convert_u_betas(u,cell)
                       write(unit=iunit,fmt="(T16,a,6f12.6,a)") "Beta", bet
                    end if
-                else if(ats%atom(i)%thtype == "b_ij") then
+                else if(ats%atom(i)%utype == "b_ij") then
                    b=ats%atom(i)%u(1:6)
                    write(unit=iunit,fmt="(T5,a,t16,a,6f12.6)") ats%atom(i)%lab,ats%atom(i)%utype, b
                    u=convert_b_u(b)
