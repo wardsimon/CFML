@@ -58,11 +58,11 @@ Module CFML_EisPack
   Implicit None
   !Private
   Public
+  integer, parameter :: SP = selected_real_kind(6,30)
+  integer, parameter :: DP = selected_real_kind(14,150)
 
   logical,           public :: ERR_EisPack = .false.
   character(len=150),public :: ERR_EisPack_Mess = " "
-  integer, parameter :: sp = selected_real_kind(6,30)
-  integer, parameter :: dp = selected_real_kind(14,150)
 
   Contains
 
@@ -112,34 +112,38 @@ Module CFML_EisPack
     !!----    to the original matrix, and the eigenvectors
     !!----    cannot be found by this program.
     !!----
-    Subroutine bakvec ( n, t, e, m, z, ierr )
-      integer,                      intent(in)     :: n,m
-      real(kind=dp),dimension(n,3), intent(in)     :: t
-      real(kind=dp),dimension(n),   intent(in out) :: e
-      real(kind=dp),dimension(n,m), intent(in out) :: z
-      !
-      integer:: i,j,ierr
+    Subroutine Bakvec(N, T, E, M, Z, IErr )
+       !---- Arguments ----!
+       integer,                      intent(in)     :: n,m
+       real(kind=dp),dimension(n,3), intent(in)     :: t
+       real(kind=dp),dimension(n),   intent(in out) :: e
+       real(kind=dp),dimension(n,m), intent(in out) :: z
+       integer,                      intent(out)    :: Ierr
 
-      ierr = 0
+       !---- Local Variables ----!
+       integer:: i,j
 
-      if ( m == 0 ) return
-      e(1) = 1.0_dp
-      if ( n == 1 ) return
+       ierr = 0
 
-      do i = 2, n
-        if ( e(i) == 0.0_dp ) then
-          if ( t(i,1) /= 0.0_dp .or. t(i-1,3) /= 0.0_dp ) then
-            ierr = 2 * n + i
-            return
+       if ( m == 0 ) return
+       e(1) = 1.0_dp
+       if ( n == 1 ) return
+
+       do i = 2, n
+          if ( e(i) == 0.0_dp ) then
+             if ( t(i,1) /= 0.0_dp .or. t(i-1,3) /= 0.0_dp ) then
+                ierr = 2 * n + i
+                return
+             end if
+             e(i) = 1.0_dp
+          else
+             e(i) = e(i-1) * e(i) / t(i-1,3)
           end if
-          e(i) = 1.0_dp
-        else
-          e(i) = e(i-1) * e(i) / t(i-1,3)
-        end if
-      end do
-      do j = 1, m
-        z(2:n,j) = z(2:n,j) * e(2:n)
-      end do
+       end do
+
+       do j = 1, m
+          z(2:n,j) = z(2:n,j) * e(2:n)
+       end do
 
     End Subroutine bakvec
 
@@ -188,208 +192,175 @@ Module CFML_EisPack
     !!----    Output, real(kind=dp) scal(N), contains information determining the
     !!----    permutations and scaling factors used.
     !!----
-    Subroutine balanc ( n, a, low, igh, scal )
-      integer,                      intent(in)     :: n
-      real(kind=dp), dimension(n,n),intent(in out) :: a
-      integer,                      intent(out)    :: low, igh
-      real(kind=dp), dimension(n),  intent(out)    :: scal
-      !
-      real(kind=dp) :: b2,c,f,g,r,s,t,radixx
-      logical :: done, noconv, swap
-      integer :: i,j,k,l,m
+    Subroutine Balanc(N, A, Low, Igh, Scal )
+       !---- Arguments ----!
+       integer,                      intent(in)     :: n
+       real(kind=dp), dimension(n,n),intent(in out) :: a
+       integer,                      intent(out)    :: low, igh
+       real(kind=dp), dimension(n),  intent(out)    :: scal
 
-      radixx = 16.0_dp
-      b2 = radixx * radixx
-      j = 0
-      m = 0
-      k = 1
-      l = n
-    !
-    !  Search for rows isolating an eigenvalue and push them down.
-    !
-      done = .false.
+       !---- Local Variables ----!
+       real(kind=dp) :: b2,c,f,g,r,s,t,radixx
+       logical :: done, noconv, swap
+       integer :: i,j,k,l,m
 
-      do while ( .not. done )
+       radixx = 16.0_dp
+       b2 = radixx * radixx
+       j = 0
+       m = 0
+       k = 1
+       l = n
 
-        do j = l, 1, -1
+       !>  Search for rows isolating an eigenvalue and push them down.
+       done = .false.
 
-          swap = .true.
+       do while ( .not. done )
+          do j = l, 1, -1
+             swap = .true.
+             do i = 1, l
+                if ( i /= j ) then
+                   if ( a(j,i) /= 0.0_dp ) then
+                      swap = .false.
+                      exit
+                   end if
+                end if
+             end do
 
-          do i = 1, l
-            if ( i /= j ) then
-              if ( a(j,i) /= 0.0_dp ) then
-                swap = .false.
+             if ( swap ) then
+                m = l
+                scal(m) = j
+                if ( j /= m ) then
+                   do i = 1, l
+                      t      = a(i,j)
+                      a(i,j) = a(i,m)
+                      a(i,m) = t
+                   end do
+
+                   do i = k, n
+                      t      = a(j,i)
+                      a(j,i) = a(m,i)
+                      a(m,i) = t
+                   end do
+                end if
+
+                if ( l == 1 ) then
+                   low = k
+                   igh = l
+                   return
+                end if
+
+                l = l - 1
+                if ( l < 1 ) then
+                   done = .true.
+                end if
                 exit
-              end if
-            end if
-          end do
 
-          if ( swap ) then
-
-            m = l
-            scal(m) = j
-
-            if ( j /= m ) then
-
-              do i = 1, l
-                t      = a(i,j)
-                a(i,j) = a(i,m)
-                a(i,m) = t
-              end do
-
-              do i = k, n
-                t      = a(j,i)
-                a(j,i) = a(m,i)
-                a(m,i) = t
-              end do
-
-            end if
-
-            if ( l == 1 ) then
-              low = k
-              igh = l
-              return
-            end if
-
-            l = l - 1
-            if ( l < 1 ) then
-              done = .true.
-            end if
-            exit
-
-          else if ( j == 1 ) then
-            done = .true.
-            exit
-          end if
-
-        end do
-
-      end do
-      !
-      !  Search for columns isolating an eigenvalue and push them left.
-      !
-      done = .false.
-
-      do while ( .not. done )
-
-        do j = k, l
-
-          swap = .true.
-
-          do i = k, l
-            if ( i /= j ) then
-              if ( a(i,j) /= 0.0_dp ) then
-                swap = .false.
+             else if ( j == 1 ) then
+                done = .true.
                 exit
-              end if
-            end if
+             end if
           end do
+       end do
 
-          if ( swap ) then
+       !>  Search for columns isolating an eigenvalue and push them left.
+       done = .false.
 
-            m = k
-            scal(m) = j
-
-            if ( j /= m ) then
-
-              do i = 1, l
-                t      = a(i,j)
-                a(i,j) = a(i,m)
-                a(i,m) = t
-              end do
-
-              do i = k, n
-                t      = a(j,i)
-                a(j,i) = a(m,i)
-                a(m,i) = t
-              end do
-
-            end if
-
-            k = k + 1
-            if ( l < k ) then
-              done = .true.
-            end if
-            exit
-
-          else
-
-            if ( j == l ) then
-              done = .true.
-              exit
-            end if
-
-          end if
-
-        end do
-
-      end do
-      !
-      !  Balance the submatrix in rows K to L.
-      !
-      scal(k:l) = 1.0_dp
-      !
-      !  Iterative loop for norm reduction.
-      !
-      noconv = .true.
-
-      do while ( noconv )
-
-        noconv = .false.
-
-        do i = k, l
-
-          c = 0.0_dp
-          r = 0.0_dp
-
+       do while ( .not. done )
           do j = k, l
-            if ( j /= i ) then
-              c = c + abs ( a(j,i) )
-              r = r + abs ( a(i,j) )
-            end if
+             swap = .true.
+
+             do i = k, l
+                if ( i /= j ) then
+                   if ( a(i,j) /= 0.0_dp ) then
+                      swap = .false.
+                      exit
+                   end if
+                end if
+             end do
+
+             if ( swap ) then
+                m = k
+                scal(m) = j
+
+                if ( j /= m ) then
+                   do i = 1, l
+                      t      = a(i,j)
+                      a(i,j) = a(i,m)
+                      a(i,m) = t
+                   end do
+
+                   do i = k, n
+                      t      = a(j,i)
+                      a(j,i) = a(m,i)
+                      a(m,i) = t
+                   end do
+                end if
+
+                k = k + 1
+                if ( l < k ) then
+                   done = .true.
+                end if
+                exit
+
+             else
+                if ( j == l ) then
+                   done = .true.
+                   exit
+                end if
+             end if
           end do
-          !
-          !  Guard against zero C or R due to underflow.
-          !
-          if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
+       end do
 
-            g = r / radixx
-            f = 1.0_dp
-            s = c + r
+       !>  Balance the submatrix in rows K to L.
+       scal(k:l) = 1.0_dp
 
-            do while ( c < g )
-              f = f * radixx
-              c = c * b2
-            end do
+       !>  Iterative loop for norm reduction.
+       noconv = .true.
+       do while ( noconv )
+          noconv = .false.
+          do i = k, l
+             c = 0.0_dp
+             r = 0.0_dp
 
-            g = r * radixx
+             do j = k, l
+                if ( j /= i ) then
+                   c = c + abs ( a(j,i) )
+                   r = r + abs ( a(i,j) )
+                end if
+             end do
 
-            do while ( g <= c )
-              f = f / radixx
-              c = c / b2
-            end do
-            !
-            !  Balance.
-            !
-            if ( ( c + r ) / f < 0.95_dp * s ) then
+             !>  Guard against zero C or R due to underflow.
+             if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
+                g = r / radixx
+                f = 1.0_dp
+                s = c + r
 
-              g = 1.0_dp / f
-              scal(i) = scal(i) * f
-              noconv = .true.
+                do while ( c < g )
+                   f = f * radixx
+                   c = c * b2
+                end do
+                g = r * radixx
 
-              a(i,k:n) = a(i,k:n) * g
-              a(1:l,i) = a(1:l,i) * f
+                do while ( g <= c )
+                   f = f / radixx
+                   c = c / b2
+                end do
 
-            end if
+                !>  Balance.
+                if ( ( c + r ) / f < 0.95_dp * s ) then
+                   g = 1.0_dp / f
+                   scal(i) = scal(i) * f
+                   noconv = .true.
 
-          end if
+                   a(i,k:n) = a(i,k:n) * g
+                   a(1:l,i) = a(1:l,i) * f
+                end if
+             end if
+          end do
+       end do
 
-        end do
-
-      end do
-
-      low = k
-      igh = l
+       low = k
+       igh = l
 
     End Subroutine balanc
 
@@ -421,41 +392,42 @@ Module CFML_EisPack
     !!----    Input/output, real(kind=dp) Z(N,M), contains the real and imaginary
     !!----    parts of the eigenvectors, which, on return, have been back-transformed.
     !!----
-    Subroutine balbak ( n, low, igh, scal, m, z )
+    Subroutine Balbak(N, Low, Igh, Scal, M, Z)
+       !---- Arguments ----!
+       integer,                       intent(in) :: n, low, igh,m
+       real(kind=dp), dimension(n),   intent(in) :: scal
+       real(kind=dp), dimension(n,m), intent(out):: z
 
-      integer,                       intent(in) :: n, low, igh,m
-      real(kind=dp), dimension(n),   intent(in) :: scal
-      real(kind=dp), dimension(n,m), intent(out):: z
+       !---- Local Variables ----!
+       integer       :: i,j,k,ii
+       real(kind=dp) :: t
 
-      integer       :: i,j,k,ii
-      real(kind=dp) :: t
+       if ( m <= 0 ) return
 
-      if ( m <= 0 ) return
+       if ( igh /= low ) then
+          do i = low, igh
+             z(i,1:m) = z(i,1:m) * scal(i)
+          end do
+       end if
 
-      if ( igh /= low ) then
-        do i = low, igh
-          z(i,1:m) = z(i,1:m) * scal(i)
-        end do
-      end if
-
-      do ii = 1, n
-        i = ii
-        if ( i < low .or. igh < i ) then
-          if ( i < low ) then
-            i = low - ii
+       do ii = 1, n
+          i = ii
+          if ( i < low .or. igh < i ) then
+             if ( i < low ) then
+                i = low - ii
+             end if
+             k = int ( scal(i) )
+             if ( k /= i ) then
+                do j = 1, m
+                   t      = z(i,j)
+                   z(i,j) = z(k,j)
+                   z(k,j) = t
+                end do
+             end if
           end if
-          k = int ( scal(i) )
-          if ( k /= i ) then
-            do j = 1, m
-              t      = z(i,j)
-              z(i,j) = z(k,j)
-              z(k,j) = t
-            end do
-          end if
-        end if
-      end do
+       end do
 
-    End Subroutine balbak
+    End Subroutine Balbak
 
     !!---- subroutine bandr ( n, mb, a, d, e, e2, matz, z )
     !!----  integer,                        intent(in)     :: n,mb
@@ -511,242 +483,205 @@ Module CFML_EisPack
     !!----   produced in the reduction if MATZ is true.  Otherwise, Z is
     !!----   not referenced.
     !!----
-    Subroutine bandr ( n, mb, a, d, e, e2, matz, z )
-      integer,                        intent(in)     :: n,mb
-      real(kind=dp), dimension(n,mb), intent(in out) :: a
-      real(kind=dp), dimension(n),    intent(out)    :: d, e, e2
-      logical,                        intent(in)     :: matz
-      real(kind=dp), dimension(n,n),  intent(out)    :: z
-      !
-      real(kind=dp) ::  b1,b2,c2,f1,f2,dmin,dminrt,g,s2,u
-      integer :: i1,i2,j,k,j1,j2,kr,l,m1,maxl,maxr,mr,r,ugl
+    Subroutine Bandr(N, Mb, A, D, E, E2, Matz, Z )
+       !---- Arguments ----!
+       integer,                        intent(in)     :: n,mb
+       real(kind=dp), dimension(n,mb), intent(in out) :: a
+       real(kind=dp), dimension(n),    intent(out)    :: d, e, e2
+       logical,                        intent(in)     :: matz
+       real(kind=dp), dimension(n,n),  intent(out)    :: z
 
-      dmin = epsilon ( dmin )
-      dminrt = sqrt ( dmin )
-      !
-      !  Initialize the diagonal scaling matrix.
-      !
-      d(1:n) = 1.0_dp
+       !---- Local Variables ----!
+       real(kind=dp) ::  b1,b2,c2,f1,f2,dmin,dminrt,g,s2,u
+       integer :: i1,i2,j,k,j1,j2,kr,l,m1,maxl,maxr,mr,r,ugl
 
-      if ( matz ) then
-        call r8mat_identity ( n, z )
-      end if
+       dmin = epsilon ( dmin )
+       dminrt = sqrt ( dmin )
 
-      m1 = mb - 1
+       !>  Initialize the diagonal scaling matrix.
+       d(1:n) = 1.0_dp
 
-      if ( m1 < 1 ) then
-        d(1:n) = a(1:n,mb)
-        e(1:n) = 0.0_dp
-        e2(1:n) = 0.0_dp
-        return
-      end if
+       if ( matz ) then
+          call r8mat_identity( n, z )
+       end if
 
-      if ( m1 /= 1 ) then
+       m1 = mb - 1
 
-        do k = 1, n - 2
+       if ( m1 < 1 ) then
+          d(1:n) = a(1:n,mb)
+          e(1:n) = 0.0_dp
+          e2(1:n) = 0.0_dp
+          return
+       end if
 
-          maxr = min ( m1, n - k )
+       if ( m1 /= 1 ) then
+          do k = 1, n - 2
+             maxr = min ( m1, n - k )
 
-          do r = maxr, 2, -1
+             do r = maxr, 2, -1
+                kr = k + r
+                mr = mb - r
+                g = a(kr,mr)
+                a(kr-1,1) = a(kr-1,mr+1)
+                ugl = k
 
-            kr = k + r
-            mr = mb - r
-            g = a(kr,mr)
-            a(kr-1,1) = a(kr-1,mr+1)
-            ugl = k
+                do j = kr, n, m1
+                   j1 = j - 1
+                   j2 = j1 - 1
 
-            do j = kr, n, m1
+                   if ( g == 0.0_dp ) then
+                      exit
+                   end if
 
-              j1 = j - 1
-              j2 = j1 - 1
+                   b1 = a(j1,1) / g
+                   b2 = b1 * d(j1) / d(j)
+                   s2 = 1.0_dp / ( 1.0_dp + b1 * b2 )
 
-              if ( g == 0.0_dp ) then
-                exit
-              end if
+                   if ( s2 < 0.5_dp ) then
+                      b1 = g / a(j1,1)
+                      b2 = b1 * d(j) / d(j1)
+                      c2 = 1.0_dp - s2
+                      d(j1) = c2 * d(j1)
+                      d(j) = c2 * d(j)
+                      f1 = 2.0_dp * a(j,m1)
+                      f2 = b1 * a(j1,mb)
+                      a(j,m1) = - b2 * ( b1 * a(j,m1) - a(j,mb) ) - f2 + a(j,m1)
+                      a(j1,mb) = b2 * ( b2 * a(j,mb) + f1 ) + a(j1,mb)
+                      a(j,mb) = b1 * ( f2 - f1 ) + a(j,mb)
 
-              b1 = a(j1,1) / g
-              b2 = b1 * d(j1) / d(j)
-              s2 = 1.0_dp / ( 1.0_dp + b1 * b2 )
+                      do l = ugl, j2
+                         i2 = mb - j + l
+                         u = a(j1,i2+1) + b2 * a(j,i2)
+                         a(j,i2) = - b1 * a(j1,i2+1) + a(j,i2)
+                         a(j1,i2+1) = u
+                      end do
 
-              if ( s2 < 0.5_dp ) then
+                      ugl = j
+                      a(j1,1) = a(j1,1) + b2 * g
 
-                b1 = g / a(j1,1)
-                b2 = b1 * d(j) / d(j1)
-                c2 = 1.0_dp - s2
-                d(j1) = c2 * d(j1)
-                d(j) = c2 * d(j)
-                f1 = 2.0_dp * a(j,m1)
-                f2 = b1 * a(j1,mb)
-                a(j,m1) = - b2 * ( b1 * a(j,m1) - a(j,mb) ) - f2 + a(j,m1)
-                a(j1,mb) = b2 * ( b2 * a(j,mb) + f1 ) + a(j1,mb)
-                a(j,mb) = b1 * ( f2 - f1 ) + a(j,mb)
+                      if ( j /= n ) then
+                         maxl = min ( m1, n - j1 )
 
-                do l = ugl, j2
-                  i2 = mb - j + l
-                  u = a(j1,i2+1) + b2 * a(j,i2)
-                  a(j,i2) = - b1 * a(j1,i2+1) + a(j,i2)
-                  a(j1,i2+1) = u
+                         do l = 2, maxl
+                            i1 = j1 + l
+                            i2 = mb - l
+                            u = a(i1,i2) + b2 * a(i1,i2+1)
+                            a(i1,i2+1) = - b1 * a(i1,i2) + a(i1,i2+1)
+                            a(i1,i2) = u
+                         end do
+                         i1 = j + m1
+
+                         if ( i1 <= n ) then
+                            g = b2 * a(i1,1)
+                         end if
+                      end if
+
+                      if ( matz ) then
+                         do l = 1, n
+                            u = z(l,j1) + b2 * z(l,j)
+                            z(l,j) = - b1 * z(l,j1) + z(l,j)
+                            z(l,j1) = u
+                         end do
+                      end if
+
+                   else
+                      u = d(j1)
+                      d(j1) = s2 * d(j)
+                      d(j) = s2 * u
+                      f1 = 2.0_dp * a(j,m1)
+                      f2 = b1 * a(j,mb)
+                      u = b1 * ( f2 - f1 ) + a(j1,mb)
+                      a(j,m1) = b2 * ( b1 * a(j,m1) - a(j1,mb) ) + f2 - a(j,m1)
+                      a(j1,mb) = b2 * ( b2 * a(j1,mb) + f1 ) + a(j,mb)
+                      a(j,mb) = u
+
+                      do l = ugl, j2
+                         i2 = mb - j + l
+                         u = b2 * a(j1,i2+1) + a(j,i2)
+                         a(j,i2) = - a(j1,i2+1) + b1 * a(j,i2)
+                         a(j1,i2+1) = u
+                      end do
+
+                      ugl = j
+                      a(j1,1) = b2 * a(j1,1) + g
+
+                      if ( j /= n ) then
+                         maxl = min ( m1, n - j1 )
+                         do l = 2, maxl
+                            i1 = j1 + l
+                            i2 = mb - l
+                            u = b2 * a(i1,i2) + a(i1,i2+1)
+                            a(i1,i2+1) = - a(i1,i2) + b1 * a(i1,i2+1)
+                            a(i1,i2) = u
+                         end do
+                         i1 = j + m1
+
+                         if ( i1 <= n ) then
+                            g = a(i1,1)
+                            a(i1,1) = b1 * a(i1,1)
+                         end if
+                      end if
+
+                      if ( matz ) then
+                         do l = 1, n
+                            u = b2 * z(l,j1) + z(l,j)
+                            z(l,j) = - z(l,j1) + b1 * z(l,j)
+                            z(l,j1) = u
+                         end do
+                      end if
+                   end if
                 end do
+             end do
 
-                ugl = j
-                a(j1,1) = a(j1,1) + b2 * g
+             !>  Rescale to avoid underflow or overflow.
+             if ( mod ( k, 64 ) == 0 ) then
+                do j = k, n
+                   if ( d(j) < dmin ) then
+                      maxl = max ( 1, mb + 1 - j )
+                      a(j,maxl:m1) = dminrt * a(j,maxl:m1)
 
-                if ( j /= n ) then
+                      if ( j /= n ) then
+                         maxl = min ( m1, n - j )
+                         do l = 1, maxl
+                            i1 = j + l
+                            i2 = mb - l
+                            a(i1,i2) = dminrt * a(i1,i2)
+                         end do
+                      end if
 
-                  maxl = min ( m1, n - j1 )
+                      if ( matz ) then
+                         z(1:n,j) = dminrt * z(1:n,j)
+                      end if
 
-                  do l = 2, maxl
-                    i1 = j1 + l
-                    i2 = mb - l
-                    u = a(i1,i2) + b2 * a(i1,i2+1)
-                    a(i1,i2+1) = - b1 * a(i1,i2) + a(i1,i2+1)
-                    a(i1,i2) = u
-                  end do
-
-                  i1 = j + m1
-
-                  if ( i1 <= n ) then
-                    g = b2 * a(i1,1)
-                  end if
-
-                end if
-
-                if ( matz ) then
-
-                  do l = 1, n
-                    u = z(l,j1) + b2 * z(l,j)
-                    z(l,j) = - b1 * z(l,j1) + z(l,j)
-                    z(l,j1) = u
-                  end do
-
-                end if
-
-              else
-
-                u = d(j1)
-                d(j1) = s2 * d(j)
-                d(j) = s2 * u
-                f1 = 2.0_dp * a(j,m1)
-                f2 = b1 * a(j,mb)
-                u = b1 * ( f2 - f1 ) + a(j1,mb)
-                a(j,m1) = b2 * ( b1 * a(j,m1) - a(j1,mb) ) + f2 - a(j,m1)
-                a(j1,mb) = b2 * ( b2 * a(j1,mb) + f1 ) + a(j,mb)
-                a(j,mb) = u
-
-                do l = ugl, j2
-                  i2 = mb - j + l
-                  u = b2 * a(j1,i2+1) + a(j,i2)
-                  a(j,i2) = - a(j1,i2+1) + b1 * a(j,i2)
-                  a(j1,i2+1) = u
+                      a(j,mb) = dmin * a(j,mb)
+                      d(j) = d(j) / dmin
+                   end if
                 end do
-
-                ugl = j
-                a(j1,1) = b2 * a(j1,1) + g
-
-                if ( j /= n ) then
-
-                  maxl = min ( m1, n - j1 )
-
-                  do l = 2, maxl
-                    i1 = j1 + l
-                    i2 = mb - l
-                    u = b2 * a(i1,i2) + a(i1,i2+1)
-                    a(i1,i2+1) = - a(i1,i2) + b1 * a(i1,i2+1)
-                    a(i1,i2) = u
-                  end do
-
-                  i1 = j + m1
-
-                  if ( i1 <= n ) then
-                    g = a(i1,1)
-                    a(i1,1) = b1 * a(i1,1)
-                  end if
-
-                end if
-
-                if ( matz ) then
-
-                  do l = 1, n
-                    u = b2 * z(l,j1) + z(l,j)
-                    z(l,j) = - z(l,j1) + b1 * z(l,j)
-                    z(l,j1) = u
-                  end do
-
-                end if
-
-              end if
-
-            end do
-
+             end if
           end do
-         !
-         !  Rescale to avoid underflow or overflow.
-         !
-          if ( mod ( k, 64 ) == 0 ) then
+       end if
 
-            do j = k, n
+       !>  Form square root of scaling matrix.
+       e(2:n) = sqrt ( d(2:n) )
+       if ( matz ) then
+          do k = 2, n
+             z(1:n,k) = z(1:n,k) * e(k)
+          end do
+       end if
 
-              if ( d(j) < dmin ) then
+       u = 1.0_dp
+       do j = 2, n
+          a(j,m1) = u * e(j) * a(j,m1)
+          u = e(j)
+          e2(j) = a(j,m1) * a(j,m1)
+          a(j,mb) = d(j) * a(j,mb)
+          d(j) = a(j,mb)
+          e(j) = a(j,m1)
+       end do
 
-                maxl = max ( 1, mb + 1 - j )
-
-                a(j,maxl:m1) = dminrt * a(j,maxl:m1)
-
-                if ( j /= n ) then
-
-                  maxl = min ( m1, n - j )
-
-                  do l = 1, maxl
-                    i1 = j + l
-                    i2 = mb - l
-                    a(i1,i2) = dminrt * a(i1,i2)
-                  end do
-
-                end if
-
-                if ( matz ) then
-                  z(1:n,j) = dminrt * z(1:n,j)
-                end if
-
-                a(j,mb) = dmin * a(j,mb)
-                d(j) = d(j) / dmin
-
-              end if
-
-            end do
-
-          end if
-
-        end do
-
-      end if
-      !
-      !  Form square root of scaling matrix.
-      !
-      e(2:n) = sqrt ( d(2:n) )
-
-      if ( matz ) then
-
-        do k = 2, n
-          z(1:n,k) = z(1:n,k) * e(k)
-        end do
-
-      end if
-
-      u = 1.0_dp
-
-      do j = 2, n
-        a(j,m1) = u * e(j) * a(j,m1)
-        u = e(j)
-        e2(j) = a(j,m1) * a(j,m1)
-        a(j,mb) = d(j) * a(j,mb)
-        d(j) = a(j,mb)
-        e(j) = a(j,m1)
-      end do
-
-      d(1) = a(1,mb)
-      e(1) = 0.0_dp
-      e2(1) = 0.0_dp
+       d(1) = a(1,mb)
+       e(1) = 0.0_dp
+       e2(1) = 0.0_dp
 
     End Subroutine bandr
 
@@ -822,325 +757,274 @@ Module CFML_EisPack
     !!----    -R, if the eigenvector corresponding to the R-th eigenvalue fails to
     !!----    converge, or if the R-th system of linear equations is nearly singular.
     !!----
-    Subroutine bandv ( n, mbw, a, e21, m, w, z, ierr )
-      integer,                        intent(in)     :: n, mbw, m
-      real(kind=dp), dimension(n,mbw),intent(in out) :: a
-      real(kind=dp),                  intent(in)     :: e21
-      real(kind=dp), dimension(m),    intent(in)     :: w
-      real(kind=dp), dimension(n,m),  intent(in out) :: z
-      integer,                        intent(out)    :: ierr
-      !
-      real(kind=dp) :: eps2, eps3, eps4, norm, order
-      real(kind=dp) :: t,u,uk,v,x0,x1,xu
-      integer       :: i,j,k,m1,m21,mb, maxj, maxk, group
-      integer       :: ii,ij,ij1,its,jj,kj,kj1,r
+    Subroutine Bandv(N, Mbw, A, E21, M, W, Z, Ierr )
+       !---- Arguments ----!
+       integer,                        intent(in)     :: n, mbw, m
+       real(kind=dp), dimension(n,mbw),intent(in out) :: a
+       real(kind=dp),                  intent(in)     :: e21
+       real(kind=dp), dimension(m),    intent(in)     :: w
+       real(kind=dp), dimension(n,m),  intent(in out) :: z
+       integer,                        intent(out)    :: ierr
 
-      real(kind=dp), dimension(n*(2*mbw-1)) :: rv
-      real(kind=dp), dimension(n)           :: rv6
+       !---- Local Variables ----!
+       real(kind=dp) :: eps2, eps3, eps4, norm, order
+       real(kind=dp) :: t,u,uk,v,x0,x1,xu
+       integer       :: i,j,k,m1,m21,mb, maxj, maxk, group
+       integer       :: ii,ij,ij1,its,jj,kj,kj1,r
 
-      ierr = 0
+       real(kind=dp), dimension(n*(2*mbw-1)) :: rv
+       real(kind=dp), dimension(n)           :: rv6
 
-      if ( m == 0 ) return
+       ierr = 0
+       if ( m == 0 ) return
 
-      rv6(1:n) = 0.0_dp
+       rv6(1:n) = 0.0_dp
+       x0 = 0.0_dp
 
-      x0 = 0.0_dp
+       if ( e21 < 0.0_dp ) then
+          mb = ( mbw + 1 ) / 2
+       else
+          mb = mbw
+       end if
 
-      if ( e21 < 0.0_dp ) then
-        mb = ( mbw + 1 ) / 2
-      else
-        mb = mbw
-      end if
+       m1 = mb - 1
+       m21 = m1 + mb
+       order = 1.0_dp - abs ( e21 )
 
-      m1 = mb - 1
-      m21 = m1 + mb
-      order = 1.0_dp - abs ( e21 )
-      !
-      !  Find vectors by inverse iteration.
-      !
-      do r = 1, m
+       !>  Find vectors by inverse iteration.
+       do r = 1, m
+          its = 1
+          x1 = w(r)
 
-        its = 1
-        x1 = w(r)
-        !
-        !  Compute norm of matrix.
-        !
-        if ( r == 1 ) then
+          !>  Compute norm of matrix.
+          if ( r == 1 ) then
+             norm = 0.0_dp
+             do j = 1, mb
+                jj = mb + 1 - j
+                kj = jj + m1
+                ij = 1
 
-          norm = 0.0_dp
+                v = 0.0_dp
+                do i = mb + 1 - j, n
+                   v = v + abs ( a(i,j) )
+                   if ( e21 < 0.0_dp ) then
+                      v = v + abs ( a(ij,kj) )
+                      ij = ij + 1
+                   end if
+                end do
+                norm = max ( norm, v )
+             end do
 
-          do j = 1, mb
+             if ( e21 < 0.0_dp ) then
+                norm = 0.5_dp * norm
+             end if
 
-            jj = mb + 1 - j
-            kj = jj + m1
-            ij = 1
+             !  EPS2 is the criterion for grouping,
+             !  EPS3 replaces zero pivots and equal roots are modified by eps3,
+             !  EPS4 is taken very small to avoid overflow.
+             if ( norm == 0.0_dp ) then
+                norm = 1.0_dp
+             end if
 
-            v = 0.0_dp
-            do i = mb + 1 - j, n
-              v = v + abs ( a(i,j) )
-              if ( e21 < 0.0_dp ) then
-                v = v + abs ( a(ij,kj) )
-                ij = ij + 1
-              end if
-            end do
+             eps2 = 0.001_dp * norm * abs ( order)
+             eps3 = abs ( norm ) * epsilon ( norm )
+             uk = n
+             uk = sqrt ( uk )
+             eps4 = uk * eps3
+             group = 0
 
-            norm = max ( norm, v )
-
-          end do
-
-          if ( e21 < 0.0_dp ) then
-            norm = 0.5_dp * norm
-          end if
-          !
-          !  EPS2 is the criterion for grouping,
-          !  EPS3 replaces zero pivots and equal roots are modified by eps3,
-          !  EPS4 is taken very small to avoid overflow.
-          !
-          if ( norm == 0.0_dp ) then
-            norm = 1.0_dp
-          end if
-
-          eps2 = 0.001_dp * norm * abs ( order)
-          eps3 = abs ( norm ) * epsilon ( norm )
-          uk = n
-          uk = sqrt ( uk )
-          eps4 = uk * eps3
-          group = 0
-         !
-         !  Look for close or coincident roots.
-         !
-        else
-
-          if ( eps2 <= abs ( x1 - x0 ) ) then
-            group = 0
+             !>  Look for close or coincident roots.
           else
-            group = group + 1
+             if ( eps2 <= abs ( x1 - x0 ) ) then
+                group = 0
 
-            if ( order * ( x1 - x0 ) <= 0.0_dp ) then
-              x1 = x0 + order * eps3
-            end if
+             else
+                group = group + 1
+
+                if ( order * ( x1 - x0 ) <= 0.0_dp ) then
+                   x1 = x0 + order * eps3
+                end if
+             end if
           end if
 
-        end if
-        !
-        !  Expand matrix, subtract eigenvalue, and initialize vector.
-        !
-        do i = 1, n
+          !>  Expand matrix, subtract eigenvalue, and initialize vector.
+          do i = 1, n
+             ij = i + min ( 0, i - m1 ) * n
+             kj = ij + mb * n
+             ij1 = kj + m1 * n
 
-          ij = i + min ( 0, i - m1 ) * n
-          kj = ij + mb * n
-          ij1 = kj + m1 * n
+             do j = 1, m1
+                if ( ij <= m1 ) then
+                   if ( ij <= 0 ) then
+                      rv(ij1) = 0.0_dp
+                      ij1 = ij1 + n
+                   end if
 
-          do j = 1, m1
+                else
+                   rv(ij) = a(i,j)
+                end if
 
-            if ( ij <= m1 ) then
-              if ( ij <= 0 ) then
-                rv(ij1) = 0.0_dp
-                ij1 = ij1 + n
-              end if
-            else
-              rv(ij) = a(i,j)
-            end if
+                ij = ij + n
+                ii = i + j
 
-            ij = ij + n
-            ii = i + j
+                if ( ii <= n ) then
+                   jj = mb - j
+                   if ( e21 < 0.0_dp ) then
+                      ii = i
+                      jj = mb + j
+                   end if
+                   rv(kj) = a(ii,jj)
+                   kj = kj + n
+                end if
+             end do
 
-            if ( ii <= n ) then
-
-              jj = mb - j
-
-              if ( e21 < 0.0_dp ) then
-                ii = i
-                jj = mb + j
-              end if
-
-              rv(kj) = a(ii,jj)
-              kj = kj + n
-
-            end if
-
+             rv(ij) = a(i,mb) - x1
+             rv6(i) = eps4
+             if ( order == 0.0_dp ) then
+                rv6(i) = z(i,r)
+             end if
           end do
 
-          rv(ij) = a(i,mb) - x1
-          rv6(i) = eps4
-          if ( order == 0.0_dp ) then
-            rv6(i) = z(i,r)
-          end if
+          if ( m1 /= 0 ) then
+             !>  Elimination with interchanges.
+             do i = 1, n
+                ii = i + 1
+                maxk = min ( i + m1 - 1, n )
+                maxj = min ( n - i, m21 - 2 ) * n
 
-        end do
+                do k = i, maxk
+                   kj1 = k
+                   j = kj1 + n
+                   jj = j + maxj
 
-        if ( m1 /= 0 ) then
-    !
-    !  Elimination with interchanges.
-    !
-          do i = 1, n
-
-            ii = i + 1
-            maxk = min ( i + m1 - 1, n )
-            maxj = min ( n - i, m21 - 2 ) * n
-
-            do k = i, maxk
-
-              kj1 = k
-              j = kj1 + n
-              jj = j + maxj
-
-              do kj = j, jj, n
-                rv(kj1) = rv(kj)
-                kj1 = kj
-              end do
-
-              rv(kj1) = 0.0_dp
-
-            end do
-
-            if ( i < n ) then
-
-              u = 0.0_dp
-              maxk = min ( i + m1, n )
-              maxj = min ( n - ii, m21 - 2 ) * n
-
-              do j = i, maxk
-                if ( abs ( u ) <= abs ( rv(j) ) ) then
-                  u = rv(j)
-                  k = j
-                end if
-              end do
-
-              j = i + n
-              jj = j + maxj
-
-              if ( k /= i ) then
-
-                kj = k
-
-                do ij = i, jj, n
-                  t      = rv(ij)
-                  rv(ij) = rv(kj)
-                  rv(kj) = t
-                  kj = kj + n
+                   do kj = j, jj, n
+                      rv(kj1) = rv(kj)
+                      kj1 = kj
+                   end do
+                   rv(kj1) = 0.0_dp
                 end do
 
-                if ( order == 0.0_dp ) then
-                  t      = rv6(i)
-                  rv6(i) = rv6(k)
-                  rv6(k) = t
+                if ( i < n ) then
+                   u = 0.0_dp
+                   maxk = min ( i + m1, n )
+                   maxj = min ( n - ii, m21 - 2 ) * n
+
+                   do j = i, maxk
+                      if ( abs ( u ) <= abs ( rv(j) ) ) then
+                         u = rv(j)
+                         k = j
+                      end if
+                   end do
+
+                   j = i + n
+                   jj = j + maxj
+
+                   if ( k /= i ) then
+                      kj = k
+                      do ij = i, jj, n
+                         t      = rv(ij)
+                         rv(ij) = rv(kj)
+                         rv(kj) = t
+                         kj = kj + n
+                      end do
+
+                      if ( order == 0.0_dp ) then
+                         t      = rv6(i)
+                         rv6(i) = rv6(k)
+                         rv6(k) = t
+                      end if
+                   end if
+
+                   if ( u /= 0.0_dp ) then
+                      do k = ii, maxk
+                         v = rv(k) / u
+                         kj = k
+
+                         do ij = j, jj, n
+                            kj = kj + n
+                            rv(kj) = rv(kj) - v * rv(ij)
+                         end do
+
+                         if ( order == 0.0_dp ) then
+                            rv6(k) = rv6(k) - v * rv6(i)
+                         end if
+                      end do
+                   end if
                 end if
 
-              end if
+             end do
+          end if
 
-              if ( u /= 0.0_dp ) then
-
-                do k = ii, maxk
-
-                  v = rv(k) / u
-                  kj = k
+          !>  Back substitution.
+          do
+             do i = n, 1, -1
+                maxj = min ( n + 1 - i, m21 )
+               if ( maxj /= 1 ) then
+                  ij1 = i
+                  j = ij1 + n
+                  jj = j + ( maxj - 2 ) * n
 
                   do ij = j, jj, n
-                    kj = kj + n
-                    rv(kj) = rv(kj) - v * rv(ij)
+                     ij1 = ij1 + 1
+                     rv6(i) = rv6(i) - rv(ij) * rv6(ij1)
                   end do
+               end if
 
+               v = rv(i)
+
+               !>  Error: nearly singular linear system.
+               if ( abs ( v ) < eps3 ) then
                   if ( order == 0.0_dp ) then
-                    rv6(k) = rv6(k) - v * rv6(i)
+                     ierr = - r
                   end if
+                  v = sign ( eps3, v )
+               end if
+               rv6(i) = rv6(i) / v
+             end do
 
+             xu = 1.0_dp
+             if ( order == 0.0_dp ) then
+                z(1:n,r) = rv6(1:n) * xu
+                x0 = x1
+                exit
+             end if
+
+             !>  Orthogonalize with respect to previous members of group.
+             do j = r - group, r - 1
+                xu = dot_product ( rv6(1:n), z(1:n,j) )
+                rv6(1:n) = rv6(1:n) - xu * z(1:n,j)
+             end do
+
+             norm = sum ( abs ( rv6(1:n) ) )
+             !>  Choose a new starting vector.
+             if ( 0.1_dp <= norm ) then
+                u = 0.0_dp
+                do i = 1, n
+                   u = pythag ( u, rv6(i) )
                 end do
+                xu = 1.0_dp / u
+                z(1:n,r) = rv6(1:n) * xu
+                x0 = x1
+                exit
 
-              end if
-
-            end if
-
-          end do
-
-        end if
-        !
-        !  Back substitution.
-        !
-        do
-
-          do i = n, 1, -1
-
-            maxj = min ( n + 1 - i, m21 )
-
-            if ( maxj /= 1 ) then
-
-              ij1 = i
-              j = ij1 + n
-              jj = j + ( maxj - 2 ) * n
-
-              do ij = j, jj, n
-                ij1 = ij1 + 1
-                rv6(i) = rv6(i) - rv(ij) * rv6(ij1)
-              end do
-
-            end if
-
-            v = rv(i)
-            !
-            !  Error: nearly singular linear system.
-            !
-            if ( abs ( v ) < eps3 ) then
-              if ( order == 0.0_dp ) then
+             else if ( n <= its ) then
                 ierr = - r
-              end if
-              v = sign ( eps3, v )
-            end if
+                xu = 0.0_dp
+                z(1:n,r) = rv6(1:n) * xu
+                x0 = x1
+                exit
 
-            rv6(i) = rv6(i) / v
-
+             else
+                its = its + 1
+                xu = eps4 / ( uk + 1.0_dp )
+                rv6(1) = eps4
+                rv6(2:n) = xu
+                rv6(its) = rv6(its) - eps4 * uk
+             end if
           end do
+       end do
 
-          xu = 1.0_dp
-
-          if ( order == 0.0_dp ) then
-            z(1:n,r) = rv6(1:n) * xu
-            x0 = x1
-            exit
-          end if
-          !
-          !  Orthogonalize with respect to previous members of group.
-          !
-          do j = r - group, r - 1
-            xu = dot_product ( rv6(1:n), z(1:n,j) )
-            rv6(1:n) = rv6(1:n) - xu * z(1:n,j)
-          end do
-
-          norm = sum ( abs ( rv6(1:n) ) )
-          !
-          !  Choose a new starting vector.
-          !
-          if ( 0.1_dp <= norm ) then
-            u = 0.0_dp
-            do i = 1, n
-              u = pythag ( u, rv6(i) )
-            end do
-            xu = 1.0_dp / u
-            z(1:n,r) = rv6(1:n) * xu
-            x0 = x1
-            exit
-          else if ( n <= its ) then
-            ierr = - r
-            xu = 0.0_dp
-            z(1:n,r) = rv6(1:n) * xu
-            x0 = x1
-            exit
-          else
-            its = its + 1
-            xu = eps4 / ( uk + 1.0_dp )
-            rv6(1) = eps4
-            rv6(2:n) = xu
-            rv6(its) = rv6(its) - eps4 * uk
-          end if
-
-        end do
-
-      end do
-
-    End Subroutine bandv
-
-
-
+    End Subroutine Bandv
 
     !!---- subroutine bisect ( n, eps1, d, e, e2, t1, t2, mm, m, w, ind, ierr )
     !!---- BISECT computes some eigenvalues of a real symmetric tridiagonal matrix.
@@ -1201,248 +1085,220 @@ Module CFML_EisPack
     !!----   0, for normal return,
     !!----   3*N+1, if M exceeds MM.
     !!----
-    Subroutine bisect ( n, eps1, d, e, e2, t1, t2, mm, m, w, ind, ierr )
-      integer,                     intent(in)     :: n
-      real(kind=dp),               intent(in out) :: eps1
-      real(kind=dp), dimension(n), intent(in out) :: d, e, e2
-      real(kind=dp),               intent(in)     :: t1,t2
-      integer,                     intent(in)     :: mm
-      integer,                     intent (out)   :: m
-      real(kind=dp), dimension(mm),intent(out)    :: w
-      integer,       dimension(mm),intent(out)    :: ind
-      integer,                     intent(out)    :: ierr
-      !
-      integer                    ::i,j,k,l,m1,m2,p,q,r,s,tag
-      real(kind=dp)              :: tst1,tst2,u,ub,v,x0,x1,xu,lb
-      real(kind=dp),dimension(n) :: rv4, rv5
+    Subroutine Bisect(N, Eps1, D, E, E2, T1, T2, Mm, M, W, Ind, Ierr )
+       !---- Arguments ----!
+       integer,                     intent(in)     :: n
+       real(kind=dp),               intent(in out) :: eps1
+       real(kind=dp), dimension(n), intent(in out) :: d, e, e2
+       real(kind=dp),               intent(in)     :: t1,t2
+       integer,                     intent(in)     :: mm
+       integer,                     intent (out)   :: m
+       real(kind=dp), dimension(mm),intent(out)    :: w
+       integer,       dimension(mm),intent(out)    :: ind
+       integer,                     intent(out)    :: ierr
+
+       !---- Local Variables ----!
+       integer                    ::i,j,k,l,m1,m2,p,q,r,s,tag
+       real(kind=dp)              :: tst1,tst2,u,ub,v,x0,x1,xu,lb
+       real(kind=dp),dimension(n) :: rv4, rv5
 
 
-      ierr = 0
-      s = 0
-      tag = 0
-      lb = t1
-      ub = t2
-      !
-      !  Look for small sub-diagonal entries.
-      !
-      e2(1) = 0.0_dp
+       ierr = 0
+       s = 0
+       tag = 0
+       lb = t1
+       ub = t2
 
-      do i = 2, n
+       !>  Look for small sub-diagonal entries.
+       e2(1) = 0.0_dp
 
-        tst1 = abs ( d(i) ) + abs ( d(i-1) )
-        tst2 = tst1 + abs ( e(i) )
+       do i = 2, n
+          tst1 = abs ( d(i) ) + abs ( d(i-1) )
+          tst2 = tst1 + abs ( e(i) )
 
-        if ( tst2 <= tst1 ) then
-          e2(i) = 0.0_dp
-        end if
+          if ( tst2 <= tst1 ) then
+             e2(i) = 0.0_dp
+          end if
+       end do
 
-      end do
-      !
-      !  Determine the number of eigenvalues in the interval.
-      !
-      p = 1
-      q = n
+       !>  Determine the number of eigenvalues in the interval.
+       p = 1
+       q = n
 
-      x1 = ub
-      s = sturm_sequence ( d, e, e2, n, p, q, x1 )
-      m = s
+       x1 = ub
+       s = sturm_sequence ( d, e, e2, n, p, q, x1 )
+       m = s
 
-      x1 = lb
-      s = sturm_sequence ( d, e, e2, n, p, q, x1 )
-      m = m - s
+       x1 = lb
+       s = sturm_sequence ( d, e, e2, n, p, q, x1 )
+       m = m - s
 
-      if ( mm < m ) then
-        ierr = 3 * n + 1
-        return
-      end if
+       if ( mm < m ) then
+          ierr = 3 * n + 1
+          return
+       end if
 
-      q = 0
-      r = 0
-      !
-      !  Establish and process next submatrix, refining
-      !  interval by the Gerschgorin bounds.
-      !
-      do
+       q = 0
+       r = 0
 
-        if ( r == m ) return
+       !>  Establish and process next submatrix, refining
+       !>  interval by the Gerschgorin bounds.
+       do
+          if ( r == m ) return
 
-        tag = tag + 1
-        p = q + 1
-        xu = d(p)
-        x0 = d(p)
-        u = 0.0_dp
-
-        do q = p, n
-
-          x1 = u
+          tag = tag + 1
+          p = q + 1
+          xu = d(p)
+          x0 = d(p)
           u = 0.0_dp
-          v = 0.0_dp
 
-          if ( q < n ) then
-            u = abs ( e(q+1) )
-            v = e2(q+1)
-          end if
+          do q = p, n
+             x1 = u
+             u = 0.0_dp
+             v = 0.0_dp
 
-          xu = min ( d(q) - ( x1 + u ), xu )
-          x0 = max ( d(q) + ( x1 + u ), x0 )
+             if ( q < n ) then
+                u = abs ( e(q+1) )
+                v = e2(q+1)
+             end if
 
-          if ( v == 0.0_dp ) exit
+             xu = min ( d(q) - ( x1 + u ), xu )
+             x0 = max ( d(q) + ( x1 + u ), x0 )
 
-        end do
-
-        x1 = max ( abs ( xu ), abs ( x0 ) ) * epsilon ( x1 )
-        if ( eps1 <= 0.0_dp ) eps1 = - x1
-        !
-        !  Check for an isolated root within interval.
-        !
-        if ( p == q ) then
-
-          if ( d(p) < t1 .or. t2 <= d(p) ) then
-            if ( q < n ) then
-              cycle
-            else
-              return
-            end if
-          end if
-
-          m1 = p
-          m2 = p
-          rv5(p) = d(p)
-
-        else
-
-          x1 = x1 * ( q - p + 1 )
-          lb = max ( t1, xu - x1 )
-          ub = min ( t2, x0 + x1 )
-          x1 = lb
-          s = sturm_sequence ( d, e, e2, n, p, q, x1 )
-          m1 = s + 1
-          x1 = ub
-          s = sturm_sequence ( d, e, e2, n, p, q, x1 )
-          m2 = s
-
-          if ( m2 < m1 ) then
-            if ( q < n ) then
-              cycle
-            else
-              return
-            end if
-          end if
-          !
-          !  Find roots by bisection.
-          !
-          x0 = ub
-          rv5(m1:m2) = ub
-          rv4(m1:m2) = lb
-          !
-          !  Loop for the K-th eigenvalue.
-          !
-          k = m2
-
-          do
-
-            xu = lb
-            do i = k, m1, -1
-              if ( xu < rv4(i) ) then
-                xu = rv4(i)
-                exit
-              end if
-            end do
-
-            x0 = min ( x0, rv5(k) )
-            !
-            !  Next bisection step.
-            !
-            do
-
-              x1 = ( xu + x0 ) * 0.5_dp
-
-              if ( ( x0 - xu ) <= abs ( eps1 ) ) then
-                exit
-              end if
-
-              tst1 = 2.0_dp * ( abs ( xu ) + abs ( x0 ) )
-              tst2 = tst1 + ( x0 - xu )
-              if ( tst2 == tst1 ) then
-                exit
-              end if
-
-              s = sturm_sequence ( d, e, e2, n, p, q, x1 )
-              !
-              !  Refine intervals.
-              !
-              if ( k <= s ) then
-                x0 = x1
-                cycle
-              end if
-
-              xu = x1
-
-              if ( s < m1 ) then
-                rv4(m1) = x1
-                cycle
-              end if
-
-              rv4(s+1) = x1
-
-              if ( x1 < rv5(s) ) then
-                rv5(s) = x1
-              end if
-
-            end do
-            !
-            !  K-th eigenvalue found.
-            !
-            rv5(k) = x1
-            k = k - 1
-
-            if ( k < m1 ) then
-              exit
-            end if
-
+             if ( v == 0.0_dp ) exit
           end do
 
-        end if
-        !
-        !  Order eigenvalues tagged with their submatrix associations.
-        !
-        s = r
-        r = r + m2 - m1 + 1
-        j = 1
-        k = m1
+          x1 = max ( abs ( xu ), abs ( x0 ) ) * epsilon ( x1 )
+          if ( eps1 <= 0.0_dp ) eps1 = - x1
 
-        do l = 1, r
+          !>  Check for an isolated root within interval.
+          if ( p == q ) then
+             if ( d(p) < t1 .or. t2 <= d(p) ) then
+                if ( q < n ) then
+                   cycle
+                else
+                   return
+                end if
+             end if
 
-          if ( j <= s ) then
+             m1 = p
+             m2 = p
+             rv5(p) = d(p)
 
-            if ( m2 < k ) then
-              exit
-            end if
+          else
+             x1 = x1 * ( q - p + 1 )
+             lb = max ( t1, xu - x1 )
+             ub = min ( t2, x0 + x1 )
+             x1 = lb
+             s = sturm_sequence ( d, e, e2, n, p, q, x1 )
+             m1 = s + 1
+             x1 = ub
+             s = sturm_sequence ( d, e, e2, n, p, q, x1 )
+             m2 = s
 
-            if ( w(l) <= rv5(k) ) then
-              j = j + 1
-              cycle
-            end if
+             if ( m2 < m1 ) then
+                if ( q < n ) then
+                   cycle
+                else
+                   return
+                end if
+             end if
 
-            do i = l + s - j, l, -1
-              w(i+1) = w(i)
-              ind(i+1) = ind(i)
-            end do
+             !>  Find roots by bisection.
+             x0 = ub
+             rv5(m1:m2) = ub
+             rv4(m1:m2) = lb
 
+             !>  Loop for the K-th eigenvalue.
+             k = m2
+
+             do
+                xu = lb
+                do i = k, m1, -1
+                   if ( xu < rv4(i) ) then
+                      xu = rv4(i)
+                      exit
+                   end if
+                end do
+                x0 = min ( x0, rv5(k) )
+
+                !>  Next bisection step.
+                do
+                   x1 = ( xu + x0 ) * 0.5_dp
+
+                   if ( ( x0 - xu ) <= abs ( eps1 ) ) then
+                      exit
+                   end if
+
+                   tst1 = 2.0_dp * ( abs ( xu ) + abs ( x0 ) )
+                   tst2 = tst1 + ( x0 - xu )
+                   if ( tst2 == tst1 ) then
+                      exit
+                   end if
+
+                   s = sturm_sequence ( d, e, e2, n, p, q, x1 )
+
+                   !  Refine intervals.
+                   if ( k <= s ) then
+                      x0 = x1
+                      cycle
+                   end if
+                   xu = x1
+
+                   if ( s < m1 ) then
+                      rv4(m1) = x1
+                      cycle
+                   end if
+
+                   rv4(s+1) = x1
+
+                   if ( x1 < rv5(s) ) then
+                      rv5(s) = x1
+                   end if
+                end do
+
+                !>  K-th eigenvalue found.
+                rv5(k) = x1
+                k = k - 1
+
+                if ( k < m1 ) then
+                   exit
+                end if
+             end do
           end if
 
-          w(l) = rv5(k)
-          ind(l) = tag
-          k = k + 1
+          !>  Order eigenvalues tagged with their submatrix associations.
+          s = r
+          r = r + m2 - m1 + 1
+          j = 1
+          k = m1
 
-        end do
+          do l = 1, r
+             if ( j <= s ) then
+                if ( m2 < k ) then
+                   exit
+                end if
 
-        if ( n <= q ) exit
+                if ( w(l) <= rv5(k) ) then
+                   j = j + 1
+                   cycle
+                end if
 
-      end do
+                do i = l + s - j, l, -1
+                   w(i+1) = w(i)
+                   ind(i+1) = ind(i)
+                end do
+             end if
 
-    End Subroutine bisect
+             w(l) = rv5(k)
+             ind(l) = tag
+             k = k + 1
+          end do
 
+          if ( n <= q ) exit
+       end do
+
+    End Subroutine Bisect
 
 
     !!---- Subroutine bqr ( nm, n, mb, a, t, r, ierr )
@@ -1509,313 +1365,263 @@ Module CFML_EisPack
     !!----    0, normal return.
     !!----    N, if the eigenvalue has not been determined after 30 iterations.
     !!----
+    Subroutine Bqr(Nm, N, Mb, A, T, R, Ierr )
+       !---- Arguments ----!
+       integer,                         intent(in)     :: nm, n, mb
+       real(kind=dp), dimension(nm,mb), intent(in out) :: a
+       real(kind=dp),                   intent(in out) :: t, r
+       integer, intent(out) :: ierr
 
-    Subroutine bqr ( nm, n, mb, a, t, r, ierr )
-      integer,                         intent(in)     :: nm, n, mb
-      real(kind=dp), dimension(nm,mb), intent(in out) :: a
-      real(kind=dp),                   intent(in out) :: t, r
-      integer, intent(out) :: ierr
+       !---- Local Variables ----!
+       real(kind=dp) :: f,g,q,s, scal, tst1, tst2
+       integer       :: i ,ii,ik,imult,its,j,jk,jm,k,kj,kj1,kk,km,l,ll,m,m1,m2,&
+                        m21,m3,m31,m4,mk,mn,mz
 
+       real(kind=dp), dimension(2*mb*mb+4*mb-3) :: rv
 
-      real(kind=dp) :: f,g,q,s, scal, tst1, tst2
-      integer       :: i ,ii,ik,imult,its,j,jk,jm,k,kj,kj1,kk,km,l,ll,m,m1,m2,&
-                       m21,m3,m31,m4,mk,mn,mz
-      real(kind=dp), dimension(2*mb*mb+4*mb-3) :: rv
+       ierr = 0
+       m1 = min ( mb, n )
+       m = m1 - 1
+       m2 = m + m
+       m21 = m2 + 1
+       m3 = m21 + m
+       m31 = m3 + 1
+       m4 = m31 + m2
+       mn = m + n
+       mz = mb - m1
+       its = 0
 
-      ierr = 0
-      m1 = min ( mb, n )
-      m = m1 - 1
-      m2 = m + m
-      m21 = m2 + 1
-      m3 = m21 + m
-      m31 = m3 + 1
-      m4 = m31 + m2
-      mn = m + n
-      mz = mb - m1
-      its = 0
-    !
-    !  Test for convergence.
-    !
-      do
-
-        g = a(n,mb)
-
-        if ( m == 0 ) then
-          exit
-        end if
-
-        f = 0.0_dp
-        do k = 1, m
-          mk = k + mz
-          f = f + abs ( a(n,mk) )
-        end do
-
-        if ( its == 0 .and. r < f ) then
-          r = f
-        end if
-
-        tst1 = r
-        tst2 = tst1 + f
-
-        if ( tst2 <= tst1 ) then
-          exit
-        end if
-
-        if ( 30 <= its ) then
-          ierr = n
-          return
-        end if
-
-        its = its + 1
-        !
-        !  Form shift from bottom 2 by 2 minor.
-        !
-        if ( f <= 0.25_dp * r .or. 5 <= its ) then
-
-          f = a(n,mb-1)
-
-          if ( f /= 0.0_dp ) then
-            q = ( a(n-1,mb) - g ) / ( 2.0_dp * f )
-            s = pythag ( q, 1.0_dp )
-            g = g - f / ( q + sign ( s, q ) )
+       !>  Test for convergence.
+       do
+          g = a(n,mb)
+          if ( m == 0 ) then
+             exit
           end if
 
-          t = t + g
-
-          a(1:n,mb) = a(1:n,mb) - g
-
-        end if
-
-        rv(m31:m4) = 0.0_dp
-
-        do_ii: do ii = 1, mn
-
-          i = ii - m
-
-          if ( n < ii .and. i <= 0 ) then
-
-            l = max ( 1, m1 + 1 - i )
-
-          else
-
-            if ( n < ii ) then
-
-              l = max ( 1, m1 + 1 - i )
-            !
-            !  Perform additional steps.
-            !
-              rv(1:m21) = 0.0_dp
-              ll = min ( m1, n - ii + m1 )
-              !
-              !  Get row of triangular factor R.
-              !
-              do kk = 1, ll
-                k = kk - 1
-                km = k + m1
-                ik = i + k
-                mk = mb - k
-                rv(km) = a(ik,mk)
-              end do
-              !
-              !  Post-multiply with Householder reflections.
-              !
-              ll = m1
-              imult = 1
-
-            else
-              !
-              !  Form column of shifted matrix A-G*I.
-              !
-              l = max ( 1, 2 - i )
-
-              rv(1:m3) = 0.0_dp
-
-              do k = l, m1
-                km = k + m
-                mk = k + mz
-                rv(km) = a(ii,mk)
-              end do
-
-              ll = min ( m, n - ii )
-
-              do k = 1, ll
-                km = k + m21
-                ik = ii + k
-                mk = mb - k
-                rv(km) = a(ik,mk)
-              end do
-              !
-              !  Pre-multiply with Householder reflections.
-              !
-              ll = m2
-              imult = 0
-
-            end if
-           !
-           !  Multiplication procedure.
-           !
-
-            do_140: do
-                kj = m4 - m1
-
-                do j = 1, ll
-
-                  kj = kj + m1
-                  jm = j + m3
-
-                  if ( rv(jm) /= 0.0_dp ) then
-
-                    f = 0.0_dp
-                    do k = 1, m1
-                      kj = kj + 1
-                      jk = j + k - 1
-                      f = f + rv(kj) * rv(jk)
-                    end do
-                    f = f / rv(jm)
-
-                    kj = kj - m1
-
-                    do k = 1, m1
-                      kj = kj + 1
-                      jk = j + k - 1
-                      rv(jk) = rv(jk) - rv(kj) * f
-                    end do
-
-                    kj = kj - m1
-
-                  end if
-
-                end do
-
-                if ( imult /= 0 ) then
-
-                  do k = l, m1
-                    mk = k + mz
-                    a(i,mk) = rv(k)
-                  end do
-
-                  if ( 1 < l ) then
-                    l = l - 1
-                  end if
-
-                  kj1 = m4 + l * m1
-
-                  do j = l, m2
-
-                    jm = j + m3
-                    rv(jm) = rv(jm+1)
-
-                    do k = 1, m1
-                      kj1 = kj1 + 1
-                      kj = kj1 - m1
-                      rv(kj) = rv(kj1)
-                    end do
-
-                  end do
-
-                  cycle do_ii
-
-                end if
-                !
-                !  Householder reflection.
-                !
-                f = rv(m21)
-                s = 0.0_dp
-                rv(m4) = 0.0_dp
-                scal = sum ( abs ( rv(m21:m3) ) )
-
-                if ( scal /= 0.0_dp ) then
-
-                  do k = m21, m3
-                    s = s + ( rv(k) / scal )**2
-                  end do
-
-                  s = scal * scal * s
-                  g = - sign ( sqrt ( s ), f )
-                  rv(m21) = g
-                  rv(m4) = s - f * g
-                  kj = m4 + m2 * m1 + 1
-                  rv(kj) = f - g
-
-                  do k = 2, m1
-                    kj = kj + 1
-                    km = k + m2
-                    rv(kj) = rv(km)
-                  end do
-
-                end if
-                !
-                !  Save column of triangular factor R.
-                !
-                do k = l, m1
-                  km = k + m
-                  mk = k + mz
-                  a(ii,mk) = rv(km)
-                end do
-
-                l = max ( 1, m1 + 1 - i )
-
-                if ( 0 < i ) then
-                  !
-                  !  Perform additional steps.
-                  !
-                  rv(1:m21) = 0.0_dp
-                  ll = min ( m1, n - ii + m1 )
-                  !
-                  !  Get row of triangular factor R.
-                  !
-                  do kk = 1, ll
-                    k = kk - 1
-                    km = k + m1
-                    ik = i + k
-                    mk = mb - k
-                    rv(km) = a(ik,mk)
-                  end do
-                  !
-                  !  Post-multiply with Householder reflections.
-                  !
-                  ll = m1
-                  imult = 1
-                  cycle do_140
-                end if
-
-                exit
-
-            end do do_140
-
-          end if
-          !
-          !  Update Householder reflections.
-          !
-          if ( 1 < l ) then
-            l = l - 1
-          end if
-
-          kj1 = m4 + l * m1
-
-          do j = l, m2
-
-            jm = j + m3
-            rv(jm) = rv(jm+1)
-
-            do k = 1, m1
-              kj1 = kj1 + 1
-              kj = kj1 - m1
-              rv(kj) = rv(kj1)
-            end do
-
+          f = 0.0_dp
+          do k = 1, m
+             mk = k + mz
+             f = f + abs ( a(n,mk) )
           end do
 
-        end do do_ii
+          if ( its == 0 .and. r < f ) then
+             r = f
+          end if
 
-      end do
+          tst1 = r
+          tst2 = tst1 + f
 
-      t = t + g
-      a(1:n,mb) = a(1:n,mb) - g
-      do k = 1, m1
-        mk = k + mz
-        a(n,mk) = 0.0_dp
-      end do
+          if ( tst2 <= tst1 ) then
+             exit
+          end if
+
+          if ( 30 <= its ) then
+             ierr = n
+             return
+          end if
+
+          its = its + 1
+          !>  Form shift from bottom 2 by 2 minor.
+          if ( f <= 0.25_dp * r .or. 5 <= its ) then
+             f = a(n,mb-1)
+
+             if ( f /= 0.0_dp ) then
+                q = ( a(n-1,mb) - g ) / ( 2.0_dp * f )
+                s = pythag ( q, 1.0_dp )
+                g = g - f / ( q + sign ( s, q ) )
+             end if
+
+             t = t + g
+             a(1:n,mb) = a(1:n,mb) - g
+          end if
+          rv(m31:m4) = 0.0_dp
+
+          do_ii: do ii = 1, mn
+             i = ii - m
+             if ( n < ii .and. i <= 0 ) then
+                l = max ( 1, m1 + 1 - i )
+
+             else
+                if ( n < ii ) then
+                   l = max ( 1, m1 + 1 - i )
+
+                   !>  Perform additional steps.
+                   rv(1:m21) = 0.0_dp
+                   ll = min ( m1, n - ii + m1 )
+
+                   !>  Get row of triangular factor R.
+                   do kk = 1, ll
+                      k = kk - 1
+                      km = k + m1
+                      ik = i + k
+                      mk = mb - k
+                      rv(km) = a(ik,mk)
+                   end do
+
+                   !>  Post-multiply with Householder reflections.
+                   ll = m1
+                   imult = 1
+
+                else
+                   !>  Form column of shifted matrix A-G*I.
+                   l = max ( 1, 2 - i )
+                   rv(1:m3) = 0.0_dp
+
+                   do k = l, m1
+                      km = k + m
+                      mk = k + mz
+                      rv(km) = a(ii,mk)
+                   end do
+
+                   ll = min ( m, n - ii )
+                   do k = 1, ll
+                      km = k + m21
+                      ik = ii + k
+                      mk = mb - k
+                      rv(km) = a(ik,mk)
+                   end do
+
+                   !>  Pre-multiply with Householder reflections.
+                   ll = m2
+                   imult = 0
+                end if
+
+                !>  Multiplication procedure.
+                do_140: do
+                   kj = m4 - m1
+
+                   do j = 1, ll
+                      kj = kj + m1
+                      jm = j + m3
+
+                      if ( rv(jm) /= 0.0_dp ) then
+                         f = 0.0_dp
+
+                         do k = 1, m1
+                            kj = kj + 1
+                            jk = j + k - 1
+                            f = f + rv(kj) * rv(jk)
+                         end do
+                         f = f / rv(jm)
+
+                         kj = kj - m1
+                         do k = 1, m1
+                            kj = kj + 1
+                            jk = j + k - 1
+                            rv(jk) = rv(jk) - rv(kj) * f
+                         end do
+                         kj = kj - m1
+                      end if
+                   end do
+
+                   if ( imult /= 0 ) then
+                      do k = l, m1
+                         mk = k + mz
+                         a(i,mk) = rv(k)
+                      end do
+
+                      if ( 1 < l ) then
+                         l = l - 1
+                      end if
+
+                      kj1 = m4 + l * m1
+                      do j = l, m2
+                         jm = j + m3
+                         rv(jm) = rv(jm+1)
+
+                         do k = 1, m1
+                            kj1 = kj1 + 1
+                            kj = kj1 - m1
+                            rv(kj) = rv(kj1)
+                         end do
+                      end do
+
+                      cycle do_ii
+                   end if
+
+                   !>  Householder reflection.
+                   f = rv(m21)
+                   s = 0.0_dp
+                   rv(m4) = 0.0_dp
+                   scal = sum ( abs ( rv(m21:m3) ) )
+
+                   if ( scal /= 0.0_dp ) then
+                      do k = m21, m3
+                         s = s + ( rv(k) / scal )**2
+                      end do
+
+                      s = scal * scal * s
+                      g = - sign ( sqrt ( s ), f )
+                      rv(m21) = g
+                      rv(m4) = s - f * g
+                      kj = m4 + m2 * m1 + 1
+                      rv(kj) = f - g
+
+                      do k = 2, m1
+                         kj = kj + 1
+                         km = k + m2
+                         rv(kj) = rv(km)
+                      end do
+                   end if
+
+                   !>  Save column of triangular factor R.
+                   do k = l, m1
+                      km = k + m
+                      mk = k + mz
+                      a(ii,mk) = rv(km)
+                   end do
+                   l = max ( 1, m1 + 1 - i )
+
+                   if ( 0 < i ) then
+                      !>  Perform additional steps.
+                      rv(1:m21) = 0.0_dp
+                      ll = min ( m1, n - ii + m1 )
+
+                      !>  Get row of triangular factor R.
+                      do kk = 1, ll
+                         k = kk - 1
+                         km = k + m1
+                         ik = i + k
+                         mk = mb - k
+                         rv(km) = a(ik,mk)
+                      end do
+
+                      !>  Post-multiply with Householder reflections.
+                      ll = m1
+                      imult = 1
+                      cycle do_140
+                   end if
+
+                   exit
+                end do do_140
+             end if
+
+             !>  Update Householder reflections.
+             if ( 1 < l ) then
+                l = l - 1
+             end if
+
+             kj1 = m4 + l * m1
+
+             do j = l, m2
+                jm = j + m3
+                rv(jm) = rv(jm+1)
+
+                do k = 1, m1
+                   kj1 = kj1 + 1
+                   kj = kj1 - m1
+                   rv(kj) = rv(kj1)
+                end do
+             end do
+          end do do_ii
+       end do
+
+       t = t + g
+       a(1:n,mb) = a(1:n,mb) - g
+       do k = 1, m1
+          mk = k + mz
+          a(n,mk) = 0.0_dp
+       end do
 
     End Subroutine bqr
 
@@ -1851,59 +1657,48 @@ Module CFML_EisPack
     !!----    transformed in their first M columns.  On output, the transformed
     !!----    eigenvectors.
     !!----
-    Subroutine cbabk2 ( n, low, igh, scal, m, zr, zi )
-      integer,                     intent(in)     :: n, low, igh
-      real(kind=dp), dimension(n), intent(in)     :: scal
-      integer,                     intent(in)     :: m
-      real(kind=dp),dimension(n,m),intent(in out) :: zi
-      real(kind=dp),dimension(n,m),intent(in out) :: zr
+    Subroutine Cbabk2(N, Low, Igh, Scal, M, Zr, Zi )
+       !---- Arguments ----!
+       integer,                     intent(in)     :: n, low, igh
+       real(kind=dp), dimension(n), intent(in)     :: scal
+       integer,                     intent(in)     :: m
+       real(kind=dp),dimension(n,m),intent(in out) :: zi
+       real(kind=dp),dimension(n,m),intent(in out) :: zr
 
-      integer ::i,ii,j,k
-      real(kind=dp) :: s, t
+       !---- Local Variables ----!
+       integer ::i,ii,j,k
+       real(kind=dp) :: s, t
 
-      if ( m == 0 ) return
+       if ( m == 0 ) return
 
-      if ( igh /= low ) then
+       if ( igh /= low ) then
+          do i = low, igh
+             s = scal(i)
+             zr(i,1:m) = zr(i,1:m) * s
+             zi(i,1:m) = zi(i,1:m) * s
+          end do
+       end if
 
-        do i = low, igh
+       do ii = 1, n
+          i = ii
+          if ( i < low .or. igh < i ) then
+             if ( i < low ) then
+                i = low - ii
+             end if
 
-          s = scal(i)
-
-          zr(i,1:m) = zr(i,1:m) * s
-          zi(i,1:m) = zi(i,1:m) * s
-
-        end do
-
-      end if
-
-      do ii = 1, n
-
-        i = ii
-
-        if ( i < low .or. igh < i ) then
-
-          if ( i < low ) then
-            i = low - ii
+             k = int ( scal(i) )
+             if ( k /= i ) then
+                do j = 1, m
+                   t       = zr(i,j)
+                   zr(i,j) = zr(k,j)
+                   zr(k,j) = t
+                   t       = zi(i,j)
+                   zi(i,j) = zi(k,j)
+                   zi(k,j) = t
+                end do
+             end if
           end if
-
-          k = int ( scal(i) )
-
-          if ( k /= i ) then
-
-            do j = 1, m
-              t       = zr(i,j)
-              zr(i,j) = zr(k,j)
-              zr(k,j) = t
-              t       = zi(i,j)
-              zi(i,j) = zi(k,j)
-              zi(k,j) = t
-            end do
-
-          end if
-
-        end if
-
-      end do
+       end do
 
     End Subroutine cbabk2
 
@@ -1948,213 +1743,181 @@ Module CFML_EisPack
     !!----    Output, real(kind=dp) scal(N), information determining the
     !!----    permutations and scaling factors used.
     !!----
-    Subroutine cbal ( n, ar, ai, low, igh, scal )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in out) :: ar,ai
-      integer,                       intent(   out) :: low, igh
-      real(kind=dp), dimension(n),   intent(   out) :: scal
-      !
-      real(kind=dp) :: b2,c,f,g,r,radixx,s,t
-      integer :: i,j,k,l,m
-      logical  :: jump,jump2,noconv
+    Subroutine Cbal(N, Ar, Ai, Low, Igh, Scal )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in out) :: ar,ai
+       integer,                       intent(   out) :: low, igh
+       real(kind=dp), dimension(n),   intent(   out) :: scal
 
-      radixx = 16.0_dp
-      j = 0
-      m = 0
+       !---- Local Variables ----!
+       real(kind=dp) :: b2,c,f,g,r,radixx,s,t
+       integer :: i,j,k,l,m
+       logical  :: jump,jump2,noconv
 
-      b2 = radixx * radixx
-      k = 1
-      l = n
+       radixx = 16.0_dp
+       j = 0
+       m = 0
 
-      do
+       b2 = radixx * radixx
+       k = 1
+       l = n
 
-        jump2 = .true.
+       do
+          jump2 = .true.
 
-        do j = l, 1, -1
+          do j = l, 1, -1
+             jump = .true.
+             do i = 1, l
+                if ( i /= j ) then
+                   if ( ar(j,i) /= 0.0_dp .or. ai(j,i) /= 0.0_dp ) then
+                      jump = .false.
+                      exit
+                   end if
+                end if
+             end do
 
-          jump = .true.
-          do i = 1, l
-            if ( i /= j ) then
-              if ( ar(j,i) /= 0.0_dp .or. ai(j,i) /= 0.0_dp ) then
-                jump = .false.
+             if ( jump ) then
+                m = l
+                scal(m) = j
+                if ( j /= m ) then
+                   do i = 1, l
+                      t       = ar(i,j)
+                      ar(i,j) = ar(i,m)
+                      ar(i,m) = t
+                      t       = ai(i,j)
+                      ai(i,j) = ai(i,m)
+                      ai(i,m) = t
+                   end do
+
+                   do i = k, n
+                      t       = ar(j,i)
+                      ar(j,i) = ar(m,i)
+                      ar(m,i) = t
+                      t       = ai(j,i)
+                      ai(j,i) = ai(m,i)
+                      ai(m,i) = t
+                   end do
+                end if
+
+                if ( l == 1 ) then
+                   low = k
+                   igh = l
+                   return
+                end if
+
+                l = l - 1
+                jump2 = .false.
                 exit
-              end if
-            end if
+             end if
           end do
 
-          if ( jump ) then
+          if ( jump2 ) exit
+       end do
 
-            m = l
-
-            scal(m) = j
-
-            if ( j /= m ) then
-
-              do i = 1, l
-                t       = ar(i,j)
-                ar(i,j) = ar(i,m)
-                ar(i,m) = t
-                t       = ai(i,j)
-                ai(i,j) = ai(i,m)
-                ai(i,m) = t
-              end do
-
-              do i = k, n
-                t       = ar(j,i)
-                ar(j,i) = ar(m,i)
-                ar(m,i) = t
-                t       = ai(j,i)
-                ai(j,i) = ai(m,i)
-                ai(m,i) = t
-              end do
-
-            end if
-
-            if ( l == 1 ) then
-              low = k
-              igh = l
-              return
-            end if
-
-            l = l - 1
-
-            jump2 = .false.
-            exit
-
-          end if
-
-        end do
-
-        if ( jump2 ) exit
-
-      end do
-      !
-      !  Search for columns isolating an eigenvalue and push them left.
-      !
-      do
-
-        jump2 = .true.
-
-        do j = k, l
-
-          jump = .true.
-          do i = k, l
-            if ( i /= j ) then
-              if ( ar(i,j) /= 0.0_dp .or. ai(i,j) /= 0.0_dp ) then
-                jump = .false.
-                exit
-              end if
-            end if
-          end do
-
-          if ( jump ) then
-
-            m = k
-
-            scal(m) = j
-
-            if ( j /= m ) then
-
-              do i = 1, l
-                t       = ar(i,j)
-                ar(i,j) = ar(i,m)
-                ar(i,m) = t
-                t       = ai(i,j)
-                ai(i,j) = ai(i,m)
-                ai(i,m) = t
-              end do
-
-              do i = k, n
-                t       = ar(j,i)
-                ar(j,i) = ar(m,i)
-                ar(m,i) = t
-                t       = ai(j,i)
-                ai(j,i) = ai(m,i)
-                ai(m,i) = t
-              end do
-
-            end if
-
-            k = k + 1
-            jump2 = .false.
-            exit
-
-          end if
-
-        end do
-
-        if ( jump2 ) exit
-
-      end do
-      !
-      !  Now balance the submatrix in rows k to l.
-      !
-      scal(k:l) = 1.0_dp
-      !
-      !  Iterative loop for norm reduction.
-      !
-      do
-
-        noconv = .false.
-
-        do i = k, l
-
-          c = 0.0_dp
-          r = 0.0_dp
+       !>  Search for columns isolating an eigenvalue and push them left.
+       do
+          jump2 = .true.
 
           do j = k, l
-            if ( j /= i ) then
-              c = c + abs ( ar(j,i) ) + abs ( ai(j,i) )
-              r = r + abs ( ar(i,j) ) + abs ( ai(i,j) )
-            end if
+             jump = .true.
+             do i = k, l
+                if ( i /= j ) then
+                   if ( ar(i,j) /= 0.0_dp .or. ai(i,j) /= 0.0_dp ) then
+                      jump = .false.
+                      exit
+                   end if
+                end if
+             end do
+
+             if ( jump ) then
+                m = k
+                scal(m) = j
+
+               if ( j /= m ) then
+                  do i = 1, l
+                     t       = ar(i,j)
+                     ar(i,j) = ar(i,m)
+                     ar(i,m) = t
+                     t       = ai(i,j)
+                     ai(i,j) = ai(i,m)
+                     ai(i,m) = t
+                  end do
+
+                  do i = k, n
+                     t       = ar(j,i)
+                     ar(j,i) = ar(m,i)
+                     ar(m,i) = t
+                     t       = ai(j,i)
+                     ai(j,i) = ai(m,i)
+                     ai(m,i) = t
+                  end do
+               end if
+
+               k = k + 1
+               jump2 = .false.
+               exit
+             end if
           end do
-          !
-          !  Guard against zero C or R due to underflow.
-          !
-          if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
 
-            g = r / radixx
-            f = 1.0_dp
-            s = c + r
+          if ( jump2 ) exit
+       end do
 
-            do while ( c < g )
-              f = f * radixx
-              c = c * b2
-            end do
+       !>  Now balance the submatrix in rows k to l.
+       scal(k:l) = 1.0_dp
 
-            g = r * radixx
+       !>  Iterative loop for norm reduction.
+       do
+          noconv = .false.
 
-            do while  ( g <= c )
-              f = f / radixx
-              c = c / b2
-            end do
-            !
-            !  Now balance.
-            !
-            if ( ( c + r ) / f < 0.95_dp * s ) then
+          do i = k, l
+             c = 0.0_dp
+             r = 0.0_dp
 
-              g = 1.0_dp / f
-              scal(i) = scal(i) * f
-              noconv = .true.
+             do j = k, l
+                if ( j /= i ) then
+                   c = c + abs ( ar(j,i) ) + abs ( ai(j,i) )
+                   r = r + abs ( ar(i,j) ) + abs ( ai(i,j) )
+                end if
+             end do
 
-              ar(i,k:n) = ar(i,k:n) * g
-              ai(i,k:n) = ai(i,k:n) * g
+             !>  Guard against zero C or R due to underflow.
+             if ( c /= 0.0_dp .and. r /= 0.0_dp ) then
+                g = r / radixx
+                f = 1.0_dp
+                s = c + r
 
-              ar(1:l,i) = ar(1:l,i) * f
-              ai(1:l,i) = ai(1:l,i) * f
+                do while ( c < g )
+                   f = f * radixx
+                   c = c * b2
+                end do
 
-            end if
+                g = r * radixx
+                do while  ( g <= c )
+                   f = f / radixx
+                   c = c / b2
+                end do
 
-          end if
+                !>  Now balance.
+                if ( ( c + r ) / f < 0.95_dp * s ) then
+                   g = 1.0_dp / f
+                   scal(i) = scal(i) * f
+                   noconv = .true.
 
-        end do
+                   ar(i,k:n) = ar(i,k:n) * g
+                   ai(i,k:n) = ai(i,k:n) * g
 
-        if ( .not. noconv ) exit
+                   ar(1:l,i) = ar(1:l,i) * f
+                   ai(1:l,i) = ai(1:l,i) * f
+                end if
+             end if
+          end do
 
-      end do
+          if ( .not. noconv ) exit
+       end do
 
-      low = k
-      igh = l
+       low = k
+       igh = l
 
     End Subroutine cbal
 
@@ -2183,22 +1946,24 @@ Module CFML_EisPack
     !!----    Output, real(kind=dp) CR, CI, the real and imaginary parts of
     !!----    the result.
     !!----
-    Subroutine cdiv ( ar, ai, br, bi, cr, ci )
-      real(kind=dp), intent(in)  :: ar, ai, br, bi
-      real(kind=dp), intent(out) :: cr, ci
+    Subroutine Cdiv(Ar, Ai, Br, Bi, Cr, Ci )
+       !---- Arguments ----!
+       real(kind=dp), intent(in)  :: ar, ai, br, bi
+       real(kind=dp), intent(out) :: cr, ci
 
-      real(kind=dp) :: ais,ars,bis,brs,s
+       !---- Local Variables ----!
+       real(kind=dp) :: ais,ars,bis,brs,s
 
-      s = abs ( br ) + abs ( bi )
+       s = abs ( br ) + abs ( bi )
 
-      ars = ar / s
-      ais = ai / s
-      brs = br / s
-      bis = bi / s
+       ars = ar / s
+       ais = ai / s
+       brs = br / s
+       bis = bi / s
 
-      s = brs * brs + bis * bis
-      cr = ( ars * brs + ais * bis ) / s
-      ci = ( ais * brs - ars * bis ) / s
+       s = brs * brs + bis * bis
+       cr = ( ars * brs + ais * bis ) / s
+       ci = ( ais * brs - ars * bis ) / s
 
     End Subroutine cdiv
 
@@ -2238,46 +2003,46 @@ Module CFML_EisPack
     !!----    the documentation for COMLR and COMLR2.  The normal completion code
     !!----    is zero.
     !!----
-    Subroutine cg_lr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
-      real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
-      logical,                       intent(in)     :: matz
-      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
-      integer,                       intent(   out) :: ierr
-      !
-      real(kind=dp), dimension(n) :: fv1
-      integer,       dimension(n) :: inter
-      integer ::is1,is2
+    Subroutine Cg_Lr(N, Ar, Ai, Wr, Wi, Matz, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+       real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
+       logical,                       intent(in)     :: matz
+       real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+       integer,                       intent(   out) :: ierr
 
-      call cbal ( n, ar, ai, is1, is2, fv1 )
+       !----Local Variables ----!
+       real(kind=dp), dimension(n) :: fv1
+       integer,       dimension(n) :: inter
+       integer ::is1,is2
 
-      inter(1:n) = 0
-      call comhes ( n, is1, is2, ar, ai, inter )
 
-      if ( .not. matz ) then
+       call cbal( n, ar, ai, is1, is2, fv1 )
 
-        call comlr ( n, is1, is2, ar, ai, wr, wi, ierr )
+       inter(1:n) = 0
+       call comhes( n, is1, is2, ar, ai, inter )
 
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR."
-            return
-        end if
+       if ( .not. matz ) then
+          call comlr( n, is1, is2, ar, ai, wr, wi, ierr )
 
-      else
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR."
+             return
+          end if
 
-        call comlr2 ( n, is1, is2, inter, ar, ai, wr, wi, zr, zi, ierr )
+       else
+          call comlr2( n, is1, is2, inter, ar, ai, wr, wi, zr, zi, ierr )
 
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR2."
-            return
-        end if
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CG_LR - Fatal error!: Nonzero error return from COMLR2."
+             return
+          end if
 
-        call cbabk2 ( n, is1, is2, fv1, n, zr, zi )
-
-      end if
+          call cbabk2( n, is1, is2, fv1, n, zr, zi )
+       end if
 
     End Subroutine cg_lr
 
@@ -2317,47 +2082,44 @@ Module CFML_EisPack
     !!----    the documentation for COMQR and COMQR2.  The normal completion code
     !!----    is zero.
     !!----
-    Subroutine cg_qr ( n, ar, ai, wr, wi, matz, zr, zi, ierr )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
-      real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
-      logical,                       intent(in)     :: matz
-      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
-      integer,                       intent(   out) :: ierr
+    Subroutine Cg_Qr (N, Ar, Ai, Wr, Wi, Matz, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+       real(kind=dp), dimension(n,n), intent(   out) :: wr, wi
+       logical,                       intent(in)     :: matz
+       real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+       integer,                       intent(   out) :: ierr
 
-      real(kind=dp), dimension(n) :: fv1,fv2,fv3
-      integer :: is1, is2
+       !---- Local Variables ----!
+       real(kind=dp), dimension(n) :: fv1,fv2,fv3
+       integer :: is1, is2
 
-      call cbal ( n, ar, ai, is1, is2, fv1 )
+       call cbal( n, ar, ai, is1, is2, fv1 )
+       call corth( n, is1, is2, ar, ai, fv2, fv3 )
 
-      call corth ( n, is1, is2, ar, ai, fv2, fv3 )
+       if ( .not. matz ) then
+          call comqr( n, is1, is2, ar, ai, wr, wi, ierr )
 
-      if ( .not. matz ) then
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR."
+             return
+          end if
 
-        call comqr ( n, is1, is2, ar, ai, wr, wi, ierr )
+       else
+          call comqr2( n, is1, is2, fv2, fv3, ar, ai, wr, wi, zr, zi, ierr )
 
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR."
-            return
-        end if
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR2."
+             return
+          end if
 
-      else
-
-        call comqr2 ( n, is1, is2, fv2, fv3, ar, ai, wr, wi, zr, zi, ierr )
-
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CG_QR - Fatal error!: Nonzero error return from COMQR2."
-            return
-        end if
-
-        call cbabk2 ( n, is1, is2, fv1, n, zr, zi )
-
-      end if
+          call cbabk2( n, is1, is2, fv1, n, zr, zi )
+       end if
 
     End Subroutine cg_qr
-
 
 
     !!----  Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
@@ -2393,46 +2155,43 @@ Module CFML_EisPack
     !!----    Output, integer ::IERR, an error completion code described in
     !!----    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
     !!----
-    Subroutine ch ( n, ar, ai, w, matz, zr, zi, ierr )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
-      real(kind=dp), dimension(n,n), intent(   out) :: w
-      logical,                       intent(in)     :: matz
-      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
-      integer,                       intent(   out) :: ierr
+    Subroutine Ch(N, Ar, Ai, W, Matz, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in out) :: ar, ai
+       real(kind=dp), dimension(n,n), intent(   out) :: w
+       logical,                       intent(in)     :: matz
+       real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+       integer,                       intent(   out) :: ierr
 
-      real(kind=dp), dimension(2,n) :: fm1
-      real(kind=dp), dimension(n)   :: fv1, fv2
+       !---- Local Variables ----!
+       real(kind=dp), dimension(2,n) :: fm1
+       real(kind=dp), dimension(n)   :: fv1, fv2
 
-      call htridi ( n, ar, ai, w, fv1, fv2, fm1 )
+       call htridi( n, ar, ai, w, fv1, fv2, fm1 )
+       if ( .not. matz ) then
+          call tqlrat( n, w, fv2, ierr )
 
-      if ( .not. matz ) then
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQRAT"
+             return
+          end if
 
-        call tqlrat ( n, w, fv2, ierr )
+       else
+          call r8mat_identity( n, zr )
+          call tql2( n, w, fv1, zr, ierr )
 
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQRAT"
-            return
-        end if
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQ2"
+             return
+          end if
 
-      else
+          call htribk ( n, ar, ai, fm1, n, zr, zi )
+       end if
 
-        call r8mat_identity ( n, zr )
-
-        call tql2 ( n, w, fv1, zr, ierr )
-
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CH - Fatal error!: Nonzero error return from TLQ2"
-            return
-        end if
-
-        call htribk ( n, ar, ai, fm1, n, zr, zi )
-
-      end if
-
-    end Subroutine ch
+    End Subroutine ch
 
 
 
@@ -2475,44 +2234,41 @@ Module CFML_EisPack
     !!----    Output, integer ::IERR, an error completion code described in
     !!----    the documentation for TQLRAT and TQL2.  The normal completion code is zero.
     !!----
-    Subroutine ch3 ( n, a, d, matz, zr, zi, ierr )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in out) :: a
-      real(kind=dp), dimension(n),   intent(   out) :: d
-      logical,                       intent(in)     :: matz
-      real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
-      integer,                       intent(   out) :: ierr
+    Subroutine Ch3(N, A, D, Matz, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in out) :: a
+       real(kind=dp), dimension(n),   intent(   out) :: d
+       logical,                       intent(in)     :: matz
+       real(kind=dp), dimension(n,n), intent(   out) :: zr, zi
+       integer,                       intent(   out) :: ierr
 
-      real(kind=dp), dimension(n)   :: e, e2
-      real(kind=dp), dimension(2,n) :: tau
+       !---- Local Variables ----!
+       real(kind=dp), dimension(n)   :: e, e2
+       real(kind=dp), dimension(2,n) :: tau
 
-      call htrid3 ( n, a, d, e, e2, tau )
+       call htrid3( n, a, d, e, e2, tau )
+       if ( .not. matz ) then
+          call tqlrat( n, d, e2, ierr )
 
-      if ( .not. matz ) then
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQLRAT."
+             return
+          end if
 
-        call tqlrat ( n, d, e2, ierr )
+       else
+          call r8mat_identity( n, zr )
+          call tql2( n, d, e, zr, ierr )
 
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQLRAT."
-            return
-        end if
+          if ( ierr /= 0 ) then
+             ERR_EisPack=.true.
+             ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQL2."
+             return
+          end if
 
-      else
-
-        call r8mat_identity ( n, zr )
-
-        call tql2 ( n, d, e, zr, ierr )
-
-        if ( ierr /= 0 ) then
-            ERR_EisPack=.true.
-            ERR_EisPack_Mess=" CH3 - Fatal error!: Nonzero error return from TQL2."
-            return
-        end if
-
-        call htrib3 ( n, a, tau, n, zr, zi )
-
-      end if
+          call htrib3( n, a, tau, n, zr, zi )
+       end if
 
     End Subroutine ch3
 
@@ -2564,255 +2320,227 @@ Module CFML_EisPack
     !!----    -K, if the iteration corresponding to the K-th value fails,
     !!----    -(N+K), if both error situations occur.
     !!----
-    Subroutine cinvit ( n, ar, ai, wr, wi, select, mm, m, zr, zi, ierr )
-      integer,                       intent(in)     :: n
-      real(kind=dp), dimension(n,n), intent(in)     :: ar,ai
-      real(kind=dp), dimension(n),   intent(in out) :: wr,wi
-      logical,       dimension(n),   intent(in)     :: select
-      integer,                       intent(in)     :: mm
-      integer,                       intent(   out) :: m
-      real(kind=dp), dimension(n,mm),intent(   out) :: zr, zi
-      integer,                       intent(   out) :: ierr
-      !
-      real(kind=dp) :: eps3, growto,ilambd,norm,normv,rlambd,t,ukroot,x,y
-      integer       :: s,uk,i,its,j,k,mp
-      logical :: repeat
-      real(kind=dp), dimension(n,n) :: rm1,rm2
-      real(kind=dp), dimension(n)   :: rv1,rv2
+    Subroutine Cinvit(N, Ar, Ai, Wr, Wi, Select, Mm, M, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                       intent(in)     :: n
+       real(kind=dp), dimension(n,n), intent(in)     :: ar,ai
+       real(kind=dp), dimension(n),   intent(in out) :: wr,wi
+       logical,       dimension(n),   intent(in)     :: select
+       integer,                       intent(in)     :: mm
+       integer,                       intent(   out) :: m
+       real(kind=dp), dimension(n,mm),intent(   out) :: zr, zi
+       integer,                       intent(   out) :: ierr
 
-      ierr = 0
-      uk = 0
-      s = 1
+       !----Local Variables ----!
+       real(kind=dp) :: eps3, growto,ilambd,norm,normv,rlambd,t,ukroot,x,y
+       integer       :: s,uk,i,its,j,k,mp
+       logical :: repeat
+       real(kind=dp), dimension(n,n) :: rm1,rm2
+       real(kind=dp), dimension(n)   :: rv1,rv2
 
-      do k = 1, n
+       ierr = 0
+       uk = 0
+       s = 1
 
-        if ( .not. select(k) ) then
-          cycle
-        end if
-
-        if ( mm < s ) then
-          if ( ierr /= 0 ) then
-            ierr = ierr - n
+       do k = 1, n
+          if ( .not. select(k) ) then
+             cycle
           end if
-          if ( ierr == 0 ) then
-            ierr = - ( 2 * n + 1 )
-          end if
-          m = s - 1
-          return
-        end if
 
-        if ( uk < k ) then
-          !
-          !  Check for possible splitting.
-          !
-          do uk = k, n
-            if ( uk == n ) then
-              exit
-            end if
-            if ( ar(uk+1,uk) == 0.0_dp .and. ai(uk+1,uk) == 0.0_dp ) then
-              exit
-            end if
-          end do
-          !
-          !  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
-          !
-          norm = 0.0_dp
+          if ( mm < s ) then
+             if ( ierr /= 0 ) then
+                ierr = ierr - n
+             end if
+
+             if ( ierr == 0 ) then
+                ierr = - ( 2 * n + 1 )
+             end if
+
+             m = s - 1
+             return
+          end if
+
+          if ( uk < k ) then
+             !>  Check for possible splitting.
+             do uk = k, n
+                if ( uk == n ) then
+                   exit
+                end if
+
+                if ( ar(uk+1,uk) == 0.0_dp .and. ai(uk+1,uk) == 0.0_dp ) then
+                   exit
+                end if
+             end do
+
+             !>  Compute infinity norm of leading UK by UK (Hessenberg) matrix.
+             norm = 0.0_dp
+             do i = 1, uk
+                x = 0.0_dp
+                do j = max ( 1, i - 1 ), uk
+                   x = x + pythag ( ar(i,j), ai(i,j) )
+                end do
+                norm = max ( norm, x )
+             end do
+
+             !>  EPS3 replaces zero pivot in decomposition
+             !>  and close roots are modified by EPS3.
+             if ( norm == 0.0_dp ) then
+                norm = 1.0_dp
+             end if
+             eps3 = abs ( norm ) * epsilon ( eps3 )
+
+             !>  GROWTO is the criterion for growth.
+             ukroot = real ( uk, kind = 8 )
+             ukroot = sqrt ( ukroot )
+             growto = 0.1_dp / ukroot
+          end if
+
+          rlambd = wr(k)
+          ilambd = wi(k)
+          !>  Perturb eigenvalue if it is close to any previous eigenvalue.
+          if ( 1 < k ) then
+             do
+                repeat = .false.
+                do i = k - 1, 1, -1
+                   if ( select(i) .and. &
+                      abs ( wr(i) - rlambd ) < eps3 .and. &
+                      abs ( wi(i) - ilambd ) < eps3 ) then
+                      rlambd = rlambd + eps3
+                      repeat = .true.
+                      exit
+                   end if
+                end do
+
+                if ( .not. repeat ) then
+                   wr(k) = rlambd
+                   exit
+                end if
+             end do
+          end if
+
           do i = 1, uk
-            x = 0.0_dp
-            do j = max ( 1, i - 1 ), uk
-              x = x + pythag ( ar(i,j), ai(i,j) )
-            end do
-            norm = max ( norm, x )
+             do j = 1, i - 2
+                rm1(i,j) = 0.0_dp
+                rm2(i,j) = 0.0_dp
+             end do
+
+             do j = max ( i - 1, 1 ), uk
+                rm1(i,j) = ar(i,j)
+                rm2(i,j) = ai(i,j)
+             end do
+
+             rm1(i,i) = rm1(i,i) - rlambd
+             rm2(i,i) = rm2(i,i) - ilambd
+             rv1(i) = eps3
           end do
-          !
-          !  EPS3 replaces zero pivot in decomposition
-          !  and close roots are modified by EPS3.
-          !
-          if ( norm == 0.0_dp ) then
-            norm = 1.0_dp
+
+          !>  Triangular decomposition with interchanges, replacing zero pivots by eps3.
+          do i = 2, uk
+             mp = i - 1
+
+             if ( pythag ( rm1(mp,mp), rm2(mp,mp) ) < &
+                 pythag ( rm1(i,mp), rm2(i,mp) ) ) then
+
+                do j = i - 1, uk
+                   t         = rm1(i,j)
+                   rm1(i,j)  = rm1(mp,j)
+                   rm1(mp,j) = t
+                   t         = rm2(i,j)
+                   rm2(i,j)  = rm2(mp,j)
+                   rm2(mp,j) = t
+                end do
+             end if
+
+             if ( rm1(mp,mp) == 0.0_dp .and. rm2(mp,mp) == 0.0_dp ) then
+                rm1(mp,mp) = eps3
+             end if
+
+             call cdiv( rm1(i,mp), rm2(i,mp), rm1(mp,mp), rm2(mp,mp), x, y )
+
+             if ( x /= 0.0_dp .or. y /= 0.0_dp ) then
+                do j = i, uk
+                   rm1(i,j) = rm1(i,j) - x * rm1(mp,j) + y * rm2(mp,j)
+                   rm2(i,j) = rm2(i,j) - x * rm2(mp,j) - y * rm1(mp,j)
+                end do
+             end if
+          end do
+
+          if ( rm1(uk,uk) == 0.0_dp .and. rm2(uk,uk) == 0.0_dp ) then
+             rm1(uk,uk) = eps3
           end if
 
-          eps3 = abs ( norm ) * epsilon ( eps3 )
-          !
-          !  GROWTO is the criterion for growth.
-          !
-          ukroot = real ( uk, kind = 8 )
-          ukroot = sqrt ( ukroot )
-          growto = 0.1_dp / ukroot
+          its = 0
 
-        end if
-
-        rlambd = wr(k)
-        ilambd = wi(k)
-        !
-        !  Perturb eigenvalue if it is close to any previous eigenvalue.
-        !
-        if ( 1 < k ) then
-
+          !>  Back substitution.
           do
+             do i = uk, 1, -1
+                x = rv1(i)
+                y = 0.0_dp
+                do j = i + 1, uk
+                   x = x - rm1(i,j) * rv1(j) + rm2(i,j) * rv2(j)
+                   y = y - rm1(i,j) * rv2(j) - rm2(i,j) * rv1(j)
+                end do
 
-            repeat = .false.
+                call cdiv( x, y, rm1(i,i), rm2(i,i), rv1(i), rv2(i) )
+             end do
 
-            do i = k - 1, 1, -1
-              if ( select(i) .and. &
-                   abs ( wr(i) - rlambd ) < eps3 .and. &
-                   abs ( wi(i) - ilambd ) < eps3 ) then
-                rlambd = rlambd + eps3
-                repeat = .true.
+             !>  Acceptance test for eigenvector and normalization.
+             its = its + 1
+             norm = 0.0_dp
+             normv = 0.0_dp
+
+             do i = 1, uk
+                x = pythag ( rv1(i), rv2(i) )
+                if ( normv < x ) then
+                   normv = x
+                   j = i
+                end if
+                norm = norm + x
+             end do
+
+             !>  Accept vector.
+             if ( growto <= norm ) then
+                x = rv1(j)
+                y = rv2(j)
+
+                do i = 1, uk
+                   call cdiv( rv1(i), rv2(i), x, y, zr(i,s), zi(i,s) )
+                end do
+
+                if ( uk /= n ) then
+                   j = uk + 1
+                   zr(j:n,s) = 0.0_dp
+                   zi(j:n,s) = 0.0_dp
+                end if
+                s = s + 1
                 exit
-              end if
-            end do
 
-            if ( .not. repeat ) then
-              wr(k) = rlambd
-              exit
-            end if
+                !>  Choose a new starting vector.
+             else if ( its < uk ) then
+                x = ukroot
+                y = eps3 / ( x + 1.0_dp )
 
+                rv1(1) = eps3
+                rv1(2:uk) = y
+
+                j = uk - its + 1
+                rv1(j) = rv1(j) - eps3 * x
+
+                !>  Error: unaccepted eigenvector.
+             else
+                j = 1
+                ierr = - k
+
+                !>  Set remaining vector components to zero.
+                zr(j:n,s) = 0.0_dp
+                zi(j:n,s) = 0.0_dp
+                s = s + 1
+                exit
+             end if
           end do
+       end do
 
-        end if
-
-        do i = 1, uk
-          do j = 1, i - 2
-            rm1(i,j) = 0.0_dp
-            rm2(i,j) = 0.0_dp
-          end do
-          do j = max ( i - 1, 1 ), uk
-            rm1(i,j) = ar(i,j)
-            rm2(i,j) = ai(i,j)
-          end do
-          rm1(i,i) = rm1(i,i) - rlambd
-          rm2(i,i) = rm2(i,i) - ilambd
-          rv1(i) = eps3
-        end do
-        !
-        !  Triangular decomposition with interchanges, replacing zero pivots by eps3.
-        !
-        do i = 2, uk
-
-          mp = i - 1
-
-          if ( pythag ( rm1(mp,mp), rm2(mp,mp) ) < &
-               pythag ( rm1(i,mp), rm2(i,mp) ) ) then
-
-            do j = i - 1, uk
-              t         = rm1(i,j)
-              rm1(i,j)  = rm1(mp,j)
-              rm1(mp,j) = t
-              t         = rm2(i,j)
-              rm2(i,j)  = rm2(mp,j)
-              rm2(mp,j) = t
-            end do
-
-          end if
-
-          if ( rm1(mp,mp) == 0.0_dp .and. rm2(mp,mp) == 0.0_dp ) then
-            rm1(mp,mp) = eps3
-          end if
-
-          call cdiv ( rm1(i,mp), rm2(i,mp), rm1(mp,mp), rm2(mp,mp), x, y )
-
-          if ( x /= 0.0_dp .or. y /= 0.0_dp ) then
-
-            do j = i, uk
-              rm1(i,j) = rm1(i,j) - x * rm1(mp,j) + y * rm2(mp,j)
-              rm2(i,j) = rm2(i,j) - x * rm2(mp,j) - y * rm1(mp,j)
-            end do
-
-          end if
-
-        end do
-
-        if ( rm1(uk,uk) == 0.0_dp .and. rm2(uk,uk) == 0.0_dp ) then
-          rm1(uk,uk) = eps3
-        end if
-
-        its = 0
-        !
-        !  Back substitution.
-        !
-        do
-
-          do i = uk, 1, -1
-
-            x = rv1(i)
-            y = 0.0_dp
-            do j = i + 1, uk
-              x = x - rm1(i,j) * rv1(j) + rm2(i,j) * rv2(j)
-              y = y - rm1(i,j) * rv2(j) - rm2(i,j) * rv1(j)
-            end do
-
-            call cdiv ( x, y, rm1(i,i), rm2(i,i), rv1(i), rv2(i) )
-
-          end do
-          !
-          !  Acceptance test for eigenvector and normalization.
-          !
-          its = its + 1
-          norm = 0.0_dp
-          normv = 0.0_dp
-
-          do i = 1, uk
-            x = pythag ( rv1(i), rv2(i) )
-            if ( normv < x ) then
-              normv = x
-              j = i
-            end if
-            norm = norm + x
-          end do
-          !
-          !  Accept vector.
-          !
-          if ( growto <= norm ) then
-
-            x = rv1(j)
-            y = rv2(j)
-
-            do i = 1, uk
-              call cdiv ( rv1(i), rv2(i), x, y, zr(i,s), zi(i,s) )
-            end do
-
-            if ( uk /= n ) then
-              j = uk + 1
-              zr(j:n,s) = 0.0_dp
-              zi(j:n,s) = 0.0_dp
-            end if
-            s = s + 1
-            exit
-           !
-           !  Choose a new starting vector.
-           !
-          else if ( its < uk ) then
-
-            x = ukroot
-            y = eps3 / ( x + 1.0_dp )
-
-            rv1(1) = eps3
-            rv1(2:uk) = y
-
-            j = uk - its + 1
-            rv1(j) = rv1(j) - eps3 * x
-           !
-           !  Error: unaccepted eigenvector.
-           !
-          else
-
-            j = 1
-            ierr = - k
-           !
-           !  Set remaining vector components to zero.
-           !
-            zr(j:n,s) = 0.0_dp
-            zi(j:n,s) = 0.0_dp
-            s = s + 1
-            exit
-          end if
-
-        end do
-
-      end do
-
-      m = s - 1
+       m = s - 1
 
     End Subroutine cinvit
 
@@ -2854,49 +2582,44 @@ Module CFML_EisPack
     !!----    and imaginary parts of the eigenvectors to be back transformed.  On
     !!----    output, the real and imaginary parts of the transformed eigenvectors.
     !!----
-    Subroutine combak ( n, low, igh, ar, ai, inter, m, zr, zi )
-      integer,                         intent(in)     :: n,low, igh
-      real(kind=dp), dimension(n,igh), intent(in)     :: ar,ai
-      integer,       dimension(igh),   intent(in)     :: inter
-      integer,                         intent(in)     :: m
-      real(kind=dp), dimension(n,m),   intent(in out) :: zr, zi
+    Subroutine Combak(N, Low, Igh, Ar, Ai, Inter, M, Zr, Zi )
+       !---- Arguments ----!
+       integer,                         intent(in)     :: n,low, igh
+       real(kind=dp), dimension(n,igh), intent(in)     :: ar,ai
+       integer,       dimension(igh),   intent(in)     :: inter
+       integer,                         intent(in)     :: m
+       real(kind=dp), dimension(n,m),   intent(in out) :: zr, zi
 
-      integer       :: i,j,mp
-      real(kind=dp) :: t,xi,xr
+       !---- Local Variables ----!
+       integer       :: i,j,mp
+       real(kind=dp) :: t,xi,xr
 
-      if ( m == 0 ) return
-      if ( igh - 1 < low + 1 ) return
+       if ( m == 0 ) return
+       if ( igh - 1 < low + 1 ) return
 
-      do mp = igh - 1, low + 1, -1
+       do mp = igh - 1, low + 1, -1
+          do i = mp + 1, igh
+             xr = ar(i,mp-1)
+             xi = ai(i,mp-1)
 
-        do i = mp + 1, igh
-
-          xr = ar(i,mp-1)
-          xi = ai(i,mp-1)
-
-          if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
-            zr(i,1:m) = zr(i,1:m) + xr * zr(mp,1:m) - xi * zi(mp,1:m)
-            zi(i,1:m) = zi(i,1:m) + xr * zi(mp,1:m) + xi * zr(mp,1:m)
-          end if
-
-        end do
-
-        i = inter(mp)
-
-        if ( i /= mp ) then
-
-          do j = 1, m
-            t        = zr(i,j)
-            zr(i,j)  = zr(mp,j)
-            zr(mp,j) = t
-            t        = zi(i,j)
-            zi(i,j)  = zi(mp,j)
-            zi(mp,j) = t
+             if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
+                zr(i,1:m) = zr(i,1:m) + xr * zr(mp,1:m) - xi * zi(mp,1:m)
+                zi(i,1:m) = zi(i,1:m) + xr * zi(mp,1:m) + xi * zr(mp,1:m)
+             end if
           end do
 
-        end if
-
-      end do
+          i = inter(mp)
+          if ( i /= mp ) then
+             do j = 1, m
+                t        = zr(i,j)
+                zr(i,j)  = zr(mp,j)
+                zr(mp,j) = t
+                t        = zi(i,j)
+                zi(i,j)  = zi(mp,j)
+                zi(mp,j) = t
+             end do
+          end if
+       end do
 
     End Subroutine combak
 
@@ -2931,89 +2654,77 @@ Module CFML_EisPack
     !!----    Output, integer ::INTER(IGH), information on the rows and
     !!----    columns interchanged in the reduction.
     !!----
-    Subroutine comhes ( n, low, igh, ar, ai, inter )
-      integer,                         intent(in)     :: n,low, igh
-      real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
-      integer,       dimension(igh),   intent(out)    :: inter
+    Subroutine Comhes(N, Low, Igh, Ar, Ai, Inter )
+       !---- Arguments ----!
+       integer,                         intent(in)     :: n,low, igh
+       real(kind=dp), dimension(n,n),   intent(in out) :: ar,ai
+       integer,       dimension(igh),   intent(out)    :: inter
 
-      integer :: i,j,m
-      real(kind=dp) :: t,xi,xr,yi,yr
+       !---- Local Variables ----!
+       integer :: i,j,m
+       real(kind=dp) :: t,xi,xr,yi,yr
 
-      do m = low + 1, igh - 1
-    !
-    !  Choose the pivot I.
-    !
-        xr = 0.0_dp
-        xi = 0.0_dp
-        i = m
+       do m = low + 1, igh - 1
+          !>  Choose the pivot I.
+          xr = 0.0_dp
+          xi = 0.0_dp
+          i = m
 
-        do j = m, igh
+          do j = m, igh
+             if ( abs ( xr )        + abs ( xi ) < &
+                abs ( ar(j,m-1) ) + abs ( ai(j,m-1) ) ) then
+                xr = ar(j,m-1)
+                xi = ai(j,m-1)
+                i = j
+             end if
+          end do
 
-          if ( abs ( xr )        + abs ( xi ) < &
-               abs ( ar(j,m-1) ) + abs ( ai(j,m-1) ) ) then
-            xr = ar(j,m-1)
-            xi = ai(j,m-1)
-            i = j
+          inter(m) = i
+
+          !>  Interchange rows and columns of AR and AI.
+          if ( i /= m ) then
+             do j = m - 1, n
+                t       = ar(i,j)
+                ar(i,j) = ar(m,j)
+                ar(m,j) = t
+                t       = ai(i,j)
+                ai(i,j) = ai(m,j)
+                ai(m,j) = t
+             end do
+
+             do j = 1, igh
+                t       = ar(j,i)
+                ar(j,i) = ar(j,m)
+                ar(j,m) = t
+                t       = ai(j,i)
+                ai(j,i) = ai(j,m)
+                ai(j,m) = t
+             end do
           end if
 
-        end do
+          !>  Carry out the transformation.
+          if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
+             do i = m + 1, igh
+                yr = ar(i,m-1)
+                yi = ai(i,m-1)
 
-        inter(m) = i
-    !
-    !  Interchange rows and columns of AR and AI.
-    !
-        if ( i /= m ) then
+                if ( yr /= 0.0_dp .or. yi /= 0.0_dp ) then
+                   call cdiv( yr, yi, xr, xi, yr, yi )
+                   ar(i,m-1) = yr
+                   ai(i,m-1) = yi
 
-          do j = m - 1, n
-            t       = ar(i,j)
-            ar(i,j) = ar(m,j)
-            ar(m,j) = t
-            t       = ai(i,j)
-            ai(i,j) = ai(m,j)
-            ai(m,j) = t
-          end do
+                   do j = m, n
+                      ar(i,j) = ar(i,j) - yr * ar(m,j) + yi * ai(m,j)
+                      ai(i,j) = ai(i,j) - yr * ai(m,j) - yi * ar(m,j)
+                   end do
 
-          do j = 1, igh
-            t       = ar(j,i)
-            ar(j,i) = ar(j,m)
-            ar(j,m) = t
-            t       = ai(j,i)
-            ai(j,i) = ai(j,m)
-            ai(j,m) = t
-          end do
+                   ar(1:igh,m) = ar(1:igh,m) + yr * ar(1:igh,i) - yi * ai(1:igh,i)
+                   ai(1:igh,m) = ai(1:igh,m) + yr * ai(1:igh,i) + yi * ar(1:igh,i)
+                end if
+             end do
+          end if
 
-        end if
-        !
-        !  Carry out the transformation.
-        !
-        if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
-
-          do i = m + 1, igh
-
-            yr = ar(i,m-1)
-            yi = ai(i,m-1)
-
-            if ( yr /= 0.0_dp .or. yi /= 0.0_dp ) then
-
-              call cdiv ( yr, yi, xr, xi, yr, yi )
-              ar(i,m-1) = yr
-              ai(i,m-1) = yi
-
-              do j = m, n
-                ar(i,j) = ar(i,j) - yr * ar(m,j) + yi * ai(m,j)
-                ai(i,j) = ai(i,j) - yr * ai(m,j) - yi * ar(m,j)
-              end do
-
-              ar(1:igh,m) = ar(1:igh,m) + yr * ar(1:igh,i) - yi * ai(1:igh,i)
-              ai(1:igh,m) = ai(1:igh,m) + yr * ai(1:igh,i) + yi * ar(1:igh,i)
-
-            end if
-
-          end do
-
-        end if
-
-      end do
+       end do
 
     End Subroutine comhes
 
@@ -3056,214 +2767,188 @@ Module CFML_EisPack
     !!----    J, if the limit of 30*N iterations is exhausted while the J-th
     !!----      eigenvalue is being sought.
     !!----
-    Subroutine comlr ( n, low, igh, hr, hi, wr, wi, ierr )
-      integer,                         intent(in)     :: n,low, igh
-      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
-      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
-      integer,                         intent(out)    :: ierr
-      !
-      integer :: en,i,itn,its,j,l,m
-      real(kind=dp) :: ai,ar,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
+    Subroutine Comlr(N, Low, Igh, Hr, Hi, Wr, Wi, Ierr )
+       !---- Arguments ----!
+       integer,                         intent(in)     :: n,low, igh
+       real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+       real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+       integer,                         intent(out)    :: ierr
 
-      ierr = 0
-      !
-      !  Store roots isolated by CBAL.
-      !
-      do i = 1, n
-        if ( i < low .or. igh < i ) then
-          wr(i) = hr(i,i)
-          wi(i) = hi(i,i)
-        end if
-      end do
+       !---- Local Variables ----!
+       integer :: en,i,itn,its,j,l,m
+       real(kind=dp) :: ai,ar,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
-      en = igh
-      tr = 0.0_dp
-      ti = 0.0_dp
-      itn = 30 * n
-      !
-      !  Search for next eigenvalue.
-      !
-      if ( en < low ) then
-        return
-      end if
-
-      its = 0
-      !
-      !  Look for single small sub-diagonal element.
-      !
-      do
-
-        do l = en, low, - 1
-
-          if ( l == low ) then
-            exit
+       ierr = 0
+       !>  Store roots isolated by CBAL.
+       do i = 1, n
+          if ( i < low .or. igh < i ) then
+             wr(i) = hr(i,i)
+             wi(i) = hi(i,i)
           end if
+       end do
 
-          tst1 = abs ( hr(l-1,l-1) ) + abs ( hi(l-1,l-1) ) + abs ( hr(l,l) ) &
-            + abs ( hi(l,l) )
-          tst2 = tst1 + abs ( hr(l,l-1) ) + abs ( hi(l,l-1) )
+       en = igh
+       tr = 0.0_dp
+       ti = 0.0_dp
+       itn = 30 * n
 
-          if ( tst2 == tst1 ) then
-            exit
-          end if
-
-        end do
-        !
-        !  A root found.
-        !
-        if ( l == en ) then
-          wr(en) = hr(en,en) + tr
-          wi(en) = hi(en,en) + ti
-          en = en - 1
-          if ( en < low ) then
-            return
-          end if
-          its = 0
-          cycle
-        end if
-
-        if ( itn == 0 ) then
-          ierr = en
+       !>  Search for next eigenvalue.
+       if ( en < low ) then
           return
-        end if
+       end if
 
-        if ( its == 10 .or. its == 20 ) then
-          sr = abs ( hr(en,en-1) ) + abs ( hr(en-1,en-2) )
-          si = abs ( hi(en,en-1) ) + abs ( hi(en-1,en-2) )
-        else
+       its = 0
+       !>  Look for single small sub-diagonal element.
+       do
+          do l = en, low, - 1
+             if ( l == low ) then
+                exit
+             end if
 
-          sr = hr(en,en)
-          si = hi(en,en)
-          xr = hr(en-1,en) * hr(en,en-1) - hi(en-1,en) * hi(en,en-1)
-          xi = hr(en-1,en) * hi(en,en-1) + hi(en-1,en) * hr(en,en-1)
+             tst1 = abs ( hr(l-1,l-1) ) + abs ( hi(l-1,l-1) ) + abs ( hr(l,l) ) &
+                  + abs ( hi(l,l) )
+             tst2 = tst1 + abs ( hr(l,l-1) ) + abs ( hi(l,l-1) )
 
-          if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
+             if ( tst2 == tst1 ) then
+                exit
+             end if
+          end do
 
-            yr = ( hr(en-1,en-1) - sr) / 2.0_dp
-            yi = ( hi(en-1,en-1) - si) / 2.0_dp
-            ar = yr * yr - yi * yi + xr
-            ai = 2.0_dp * yr * yi + xi
-            call csroot ( ar, ai, zzr, zzi )
-
-            if ( yr * zzr + yi * zzi < 0.0_dp ) then
-              zzr = - zzr
-              zzi = - zzi
-            end if
-
-            ar = yr + zzr
-            ai = yi + zzi
-            call cdiv ( xr, xi, ar, ai, xr, xi )
-            sr = sr - xr
-            si = si - xi
-
+          !>  A root found.
+          if ( l == en ) then
+             wr(en) = hr(en,en) + tr
+             wi(en) = hi(en,en) + ti
+             en = en - 1
+             if ( en < low ) then
+                return
+             end if
+             its = 0
+             cycle
           end if
 
-        end if
+          if ( itn == 0 ) then
+             ierr = en
+             return
+          end if
 
-        do i = low, en
-          hr(i,i) = hr(i,i) - sr
-          hi(i,i) = hi(i,i) - si
-        end do
-
-        tr = tr + sr
-        ti = ti + si
-        its = its + 1
-        itn = itn - 1
-        !
-        !  Look for two consecutive small sub-diagonal elements.
-        !
-        xr = abs ( hr(en-1,en-1) ) + abs ( hi(en-1,en-1) )
-        yr = abs ( hr(en,en-1) ) + abs ( hi(en,en-1) )
-        zzr = abs ( hr(en,en) ) + abs ( hi(en,en) )
-
-        do m = en - 1, l, -1
-
-          if ( m == l ) exit
-
-          yi = yr
-          yr = abs ( hr(m,m-1) ) + abs ( hi(m,m-1) )
-          xi = zzr
-          zzr = xr
-          xr = abs ( hr(m-1,m-1) ) + abs ( hi(m-1,m-1) )
-          tst1 = zzr / yi * ( zzr + xr + xi )
-          tst2 = tst1 + yr
-          if ( tst2 == tst1 ) exit
-        end do
-        !
-        !  Triangular decomposition H=L*R.
-        !
-        do i = m + 1, en
-
-          xr = hr(i-1,i-1)
-          xi = hi(i-1,i-1)
-          yr = hr(i,i-1)
-          yi = hi(i,i-1)
-
-          if (  abs ( yr ) + abs ( yi ) <= abs ( xr ) + abs ( xi ) ) then
-
-            call cdiv ( yr, yi, xr, xi, zzr, zzi )
-            wr(i) = - 1.0_dp
+          if ( its == 10 .or. its == 20 ) then
+             sr = abs ( hr(en,en-1) ) + abs ( hr(en-1,en-2) )
+             si = abs ( hi(en,en-1) ) + abs ( hi(en-1,en-2) )
 
           else
-            !
-            !  Interchange rows of HR and HI.
-            !
-            do j = i - 1, en
-              t         = hr(i-1,j)
-              hr(i-1,j) = hr(i,j)
-              hr(i,j)   = t
-              t         = hi(i-1,j)
-              hi(i-1,j) = hi(i,j)
-              hi(i,j)   = t
-            end do
+             sr = hr(en,en)
+             si = hi(en,en)
+             xr = hr(en-1,en) * hr(en,en-1) - hi(en-1,en) * hi(en,en-1)
+             xi = hr(en-1,en) * hi(en,en-1) + hi(en-1,en) * hr(en,en-1)
 
-            call cdiv ( xr, xi, yr, yi, zzr, zzi )
-            wr(i) = 1.0_dp
+             if ( xr /= 0.0_dp .or. xi /= 0.0_dp ) then
+                yr = ( hr(en-1,en-1) - sr) / 2.0_dp
+                yi = ( hi(en-1,en-1) - si) / 2.0_dp
+                ar = yr * yr - yi * yi + xr
+                ai = 2.0_dp * yr * yi + xi
+                call csroot( ar, ai, zzr, zzi )
 
+                if ( yr * zzr + yi * zzi < 0.0_dp ) then
+                   zzr = - zzr
+                   zzi = - zzi
+                end if
+
+                ar = yr + zzr
+                ai = yi + zzi
+                call cdiv( xr, xi, ar, ai, xr, xi )
+                sr = sr - xr
+                si = si - xi
+             end if
           end if
 
-          hr(i,i-1) = zzr
-          hi(i,i-1) = zzi
-
-          do j = i, en
-            hr(i,j) = hr(i,j) - zzr * hr(i-1,j) + zzi * hi(i-1,j)
-            hi(i,j) = hi(i,j) - zzr * hi(i-1,j) - zzi * hr(i-1,j)
+          do i = low, en
+             hr(i,i) = hr(i,i) - sr
+             hi(i,i) = hi(i,i) - si
           end do
 
-        end do
-        !
-        !  Composition R*L=H.
-        !
-        do j = m + 1, en
+          tr = tr + sr
+          ti = ti + si
+          its = its + 1
+          itn = itn - 1
 
-          xr = hr(j,j-1)
-          xi = hi(j,j-1)
-          hr(j,j-1) = 0.0_dp
-          hi(j,j-1) = 0.0_dp
-          !
-          !  Interchange columns of HR and HI, if necessary.
-          !
-          if ( 0.0_dp < wr(j) ) then
+          !>  Look for two consecutive small sub-diagonal elements.
+          xr = abs ( hr(en-1,en-1) ) + abs ( hi(en-1,en-1) )
+          yr = abs ( hr(en,en-1) ) + abs ( hi(en,en-1) )
+          zzr = abs ( hr(en,en) ) + abs ( hi(en,en) )
 
-            do i = l, j
-              t         = hr(i,j-1)
-              hr(i,j-1) = hr(i,j)
-              hr(i,j)   = t
-              t         = hi(i,j-1)
-              hi(i,j-1) = hi(i,j)
-              hi(i,j)   = t
-            end do
+          do m = en - 1, l, -1
+             if ( m == l ) exit
 
-          end if
-
-          do i = l, j
-            hr(i,j-1) = hr(i,j-1) + xr * hr(i,j) - xi * hi(i,j)
-            hi(i,j-1) = hi(i,j-1) + xr * hi(i,j) + xi * hr(i,j)
+             yi = yr
+             yr = abs ( hr(m,m-1) ) + abs ( hi(m,m-1) )
+             xi = zzr
+             zzr = xr
+             xr = abs ( hr(m-1,m-1) ) + abs ( hi(m-1,m-1) )
+             tst1 = zzr / yi * ( zzr + xr + xi )
+             tst2 = tst1 + yr
+             if ( tst2 == tst1 ) exit
           end do
 
-        end do
+          !>  Triangular decomposition H=L*R.
+          do i = m + 1, en
+             xr = hr(i-1,i-1)
+             xi = hi(i-1,i-1)
+             yr = hr(i,i-1)
+             yi = hi(i,i-1)
 
-      end do
+             if (  abs ( yr ) + abs ( yi ) <= abs ( xr ) + abs ( xi ) ) then
+                call cdiv( yr, yi, xr, xi, zzr, zzi )
+                wr(i) = - 1.0_dp
+
+             else
+                !>  Interchange rows of HR and HI.
+                do j = i - 1, en
+                   t         = hr(i-1,j)
+                   hr(i-1,j) = hr(i,j)
+                   hr(i,j)   = t
+                   t         = hi(i-1,j)
+                   hi(i-1,j) = hi(i,j)
+                   hi(i,j)   = t
+                end do
+
+                call cdiv( xr, xi, yr, yi, zzr, zzi )
+                wr(i) = 1.0_dp
+             end if
+
+             hr(i,i-1) = zzr
+             hi(i,i-1) = zzi
+
+             do j = i, en
+                hr(i,j) = hr(i,j) - zzr * hr(i-1,j) + zzi * hi(i-1,j)
+                hi(i,j) = hi(i,j) - zzr * hi(i-1,j) - zzi * hr(i-1,j)
+             end do
+          end do
+
+          !>  Composition R*L=H.
+          do j = m + 1, en
+             xr = hr(j,j-1)
+             xi = hi(j,j-1)
+             hr(j,j-1) = 0.0_dp
+             hi(j,j-1) = 0.0_dp
+
+             !>  Interchange columns of HR and HI, if necessary.
+             if ( 0.0_dp < wr(j) ) then
+                do i = l, j
+                   t         = hr(i,j-1)
+                   hr(i,j-1) = hr(i,j)
+                   hr(i,j)   = t
+                   t         = hi(i,j-1)
+                   hi(i,j-1) = hi(i,j)
+                   hi(i,j)   = t
+                end do
+             end if
+
+             do i = l, j
+                hr(i,j-1) = hr(i,j-1) + xr * hr(i,j) - xi * hi(i,j)
+                hi(i,j-1) = hi(i,j-1) + xr * hi(i,j) + xi * hr(i,j)
+             end do
+          end do
+       end do
 
     End Subroutine comlr
 
@@ -3318,111 +3003,99 @@ Module CFML_EisPack
     !!----    J, if the limit of 30*N iterations is exhausted while the J-th
     !!----      eigenvalue is being sought.
     !!----
-    Subroutine comlr2 ( n, low, igh, inter, hr, hi, wr, wi, zr, zi, ierr )
-      integer,                         intent(in)     :: n,low, igh
-      integer,       dimension(igh),   intent(in)     :: inter
-      real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
-      real(kind=dp), dimension(n),     intent(out)    :: wr,wi
-      real(kind=dp), dimension(n,n),   intent(out)    :: zr,zi
-      integer,                         intent(out)    :: ierr
+    Subroutine Comlr2(N, Low, Igh, Inter, Hr, Hi, Wr, Wi, Zr, Zi, Ierr )
+       !---- Arguments ----!
+       integer,                         intent(in)     :: n,low, igh
+       integer,       dimension(igh),   intent(in)     :: inter
+       real(kind=dp), dimension(n,n),   intent(in out) :: hr,hi
+       real(kind=dp), dimension(n),     intent(out)    :: wr,wi
+       real(kind=dp), dimension(n,n),   intent(out)    :: zr,zi
+       integer,                         intent(out)    :: ierr
 
-      integer       :: en,enm1,i,itn,its,j,k,l,m
-      real(kind=dp) :: norm,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
+       !---- Local Variables ----!
+       integer       :: en,enm1,i,itn,its,j,k,l,m
+       real(kind=dp) :: norm,si,sr,t,ti,tr,tst1,tst2,xi,xr,yi,yr,zzi,zzr
 
-      ierr = 0
-      !
-      !  Initialize the eigenvector matrix.
-      !
-      call r8mat_identity ( n, zr )
+       ierr = 0
 
-      zi(1:n,1:n) = 0.0_dp
-      !
-      !  Form the matrix of accumulated transformations from the information left
-      !  by COMHES.
-      !
-      do i = igh - 1, low + 1, -1
+       !>  Initialize the eigenvector matrix.
+       call r8mat_identity( n, zr )
 
-        do k = i + 1, igh
-          zr(k,i) = hr(k,i-1)
-          zi(k,i) = hi(k,i-1)
-        end do
-
-        j = inter(i)
-
-        if ( i /= j ) then
-
-          do k = i, igh
-            zr(i,k) = zr(j,k)
-            zi(i,k) = zi(j,k)
-            zr(j,k) = 0.0_dp
-            zi(j,k) = 0.0_dp
+       zi(1:n,1:n) = 0.0_dp
+       !>  Form the matrix of accumulated transformations from the information left
+       !>  by COMHES.
+       do i = igh - 1, low + 1, -1
+          do k = i + 1, igh
+             zr(k,i) = hr(k,i-1)
+             zi(k,i) = hi(k,i-1)
           end do
 
-          zr(j,i) = 1.0_dp
+          j = inter(i)
+          if ( i /= j ) then
+             do k = i, igh
+                zr(i,k) = zr(j,k)
+                zi(i,k) = zi(j,k)
+                zr(j,k) = 0.0_dp
+                zi(j,k) = 0.0_dp
+             end do
 
-        end if
+             zr(j,i) = 1.0_dp
+          end if
+       end do
 
-      end do
-      !
-      !  Store roots isolated by CBAL.
-      !
-      do i = 1, n
-        if ( i < low .or. igh < i ) then
-          wr(i) = hr(i,i)
-          wi(i) = hi(i,i)
-        end if
-      end do
+       !>  Store roots isolated by CBAL.
+       do i = 1, n
+          if ( i < low .or. igh < i ) then
+             wr(i) = hr(i,i)
+             wi(i) = hi(i,i)
+          end if
+       end do
 
-      en = igh
-      tr = 0.0_dp
-      ti = 0.0_dp
-      itn = 30 * n
-       !
-       !  Search for next eigenvalue.
-       !
-      its = 0
-      enm1 = en - 1
-      !
-      !  Look for single small sub-diagonal element.
-      !
-      do
+       en = igh
+       tr = 0.0_dp
+       ti = 0.0_dp
+       itn = 30 * n
 
-        do l = en, low, -1
+       !>  Search for next eigenvalue.
+       its = 0
+       enm1 = en - 1
 
-          if ( l == low ) then
-            exit
+       !>  Look for single small sub-diagonal element.
+       do
+          do l = en, low, -1
+             if ( l == low ) then
+                exit
+             end if
+
+             tst1 = abs ( hr(l-1,l-1) ) + abs ( hi(l-1,l-1) ) + abs ( hr(l,l) ) &
+                  + abs ( hi(l,l) )
+             tst2 = tst1 + abs ( hr(l,l-1) ) + abs ( hi(l,l-1) )
+
+             if ( tst2 == tst1 ) then
+                exit
+             end if
+          end do
+
+          !>  A root found.
+          if ( l == en ) then
+             hr(en,en) = hr(en,en) + tr
+             wr(en) = hr(en,en)
+             hi(en,en) = hi(en,en) + ti
+             wi(en) = hi(en,en)
+             en = enm1
+
+             if ( en < low ) then
+                exit
+             end if
+             its = 0
+             enm1 = en - 1
+             cycle
           end if
 
-          tst1 = abs ( hr(l-1,l-1) ) + abs ( hi(l-1,l-1) ) + abs ( hr(l,l) ) &
-            + abs ( hi(l,l) )
-          tst2 = tst1 + abs ( hr(l,l-1) ) + abs ( hi(l,l-1) )
-
-          if ( tst2 == tst1 ) then
-            exit
+          if ( itn == 0 ) then
+             ierr = en
+             return
           end if
-
-        end do
-        !
-        !  A root found.
-        !
-        if ( l == en ) then
-          hr(en,en) = hr(en,en) + tr
-          wr(en) = hr(en,en)
-          hi(en,en) = hi(en,en) + ti
-          wi(en) = hi(en,en)
-          en = enm1
-          if ( en < low ) then
-            exit
-          end if
-          its = 0
-          enm1 = en - 1
-          cycle
-        end if
-
-        if ( itn == 0 ) then
-          ierr = en
-          return
-        end if
         !
         !  Form shift.
         !
