@@ -57,80 +57,80 @@ rem
 rem
    ifort /c CFML_GlobalDeps_Windows_intel.f90         /nologo %OPT1% %OPT2%
 rem
-   ifort /c CFML_math_gen.f90                         /nologo %OPT1% %OPT2%
-rem NEW   
+   ifort /c CFML_Math_General.f90                     /nologo %OPT1% %OPT2%
+rem NEW
    ifort /c CFML_EisPack.f90                          /nologo %OPT1% %OPT2%
 rem NEW
    ifort /c CFML_LSQ_TypeDef.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_spher_harm.f90                       /nologo %OPT1% %OPT2%
-   ifort /c CFML_random.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_ffts.f90                             /nologo %OPT1% %OPT2%
-   ifort /c CFML_string_util.f90                      /nologo %OPT1% %OPT2%
+   ifort /c CFML_Spherical_Harmonics.f90              /nologo %OPT1% %OPT2%
+   ifort /c CFML_Random_Generators.f90                /nologo %OPT1% %OPT2%
+   ifort /c CFML_FFT.f90                              /nologo %OPT1% %OPT2%
+   ifort /c CFML_String_Utilities.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_Rational_Arithmetic.f90              /nologo %OPT1% %OPT2%
    if [%_WINTER%]==[Y] (
-     ifort /c CFML_io_messwin.f90                     /nologo %OPT1% %OPT2% %OPT3%
+     ifort /c CFML_IO_MessagesWin.f90                 /nologo %OPT1% %OPT2% %OPT3%
    ) else (
-     ifort /c CFML_io_mess.f90                        /nologo %OPT1% %OPT2%
+     ifort /c CFML_IO_Messages.f90                    /nologo %OPT1% %OPT2%
    )
-   ifort /c CFML_Profile_TOF.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Finger.f90                   /nologo %OPT1% %OPT2%
-   ifort /c CFML_Profile_Functs.f90                   /nologo %OPT1% %OPT2%
+   ifort /c CFML_PowderProfiles_TOF.f90               /nologo %OPT1% %OPT2%
+   ifort /c CFML_PowderProfiles_Finger.f90            /nologo %OPT1% %OPT2%
+   ifort /c CFML_PowderProfiles_CW.f90                /nologo %OPT1% %OPT2%
 rem
    echo .... Mathematical(II), Optimization, Tables, Patterns
 rem
-   ifort /c CFML_math_3D.f90                          /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization.f90                     /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization_lsq.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_sym_table.f90                        /nologo %OPT0% %OPT2%
-   ifort /c CFML_chem_scatt.f90                       /nologo %OPT0% %OPT2%
+   ifort /c CFML_Math_3D.f90                          /nologo %OPT1% %OPT2%
+   ifort /c CFML_Optimization_General.f90             /nologo %OPT1% %OPT2%
+   ifort /c CFML_Optimization_LSQ.f90                 /nologo %OPT1% %OPT2%
+   ifort /c CFML_Symmetry_Tables.f90                  /nologo %OPT0% %OPT2%
+   ifort /c CFML_Scattering_Chemical_Tables.f90       /nologo %OPT0% %OPT2%
    ifort /c CFML_BVSpar.f90                           /nologo %OPT0% %OPT2%
-   ifort /c CFML_diffpatt.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_Diffraction_Patterns.f90             /nologo %OPT1% %OPT2%
 rem
    echo .... Bonds, Crystal Metrics, Symmetry, ILL_Instr
 rem
-   ifort /c CFML_bonds_table.f90                      /nologo %OPT0% %OPT2%
-   ifort /c CFML_cryst_types.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_symmetry.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_ILL_Instrm_data.f90                  /nologo %OPT1% %OPT2%
+   ifort /c CFML_Bond_Tables.f90                      /nologo %OPT0% %OPT2%
+   ifort /c CFML_Crystal_Metrics.f90                  /nologo %OPT1% %OPT2%
+   ifort /c CFML_Crystallographic_Symmetry.f90        /nologo %OPT1% %OPT2%
+   ifort /c CFML_ILL_Instrm_Data.f90                  /nologo %OPT1% %OPT2%
    ifort /c CFML_Magnetic_Groups.f90                  /nologo %OPT1% %OPT2%
 rem
    echo .... EoS, Reflections, Atoms
 rem
-   ifort /c CFML_Eos_Mod.f90                          /nologo %OPT1% %OPT2%
-   ifort /c CFML_reflct_util.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_atom_mod.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_Eos.f90                              /nologo %OPT1% %OPT2%
+   ifort /c CFML_Reflections_Utilities.f90            /nologo %OPT1% %OPT2%
+   ifort /c CFML_Atom_TypeDef.f90                     /nologo %OPT1% %OPT2%
 rem
    echo .... Formats, Geometry, Molecules
 rem
-   ifort /c CFML_geom_calc.f90                        /nologo %OPT1% %OPT2%
-   ifort /c CFML_molecules.f90                        /nologo %OPT1% %OPT2%
-   ifort /c CFML_form_cif.f90                        /nologo %OPT1% %OPT2%
+   ifort /c CFML_Geometry_Calc.f90                    /nologo %OPT1% %OPT2%
+   ifort /c CFML_Molecular_Crystals.f90               /nologo %OPT1% %OPT2%
+   ifort /c CFML_IO_Formats.f90                       /nologo %OPT1% %OPT2%
 rem
    echo .... Extinction, Structure Factors, SXTAL geometry, Propag Vectors
 rem
    ifort /c CFML_Extinction_Correction.f90           /nologo %OPT1% %OPT2%
-   ifort /c CFML_sfac.f90                            /nologo %OPT1% %OPT2%
-   ifort /c CFML_sxtal_Geom.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_propagk.f90                         /nologo %OPT1% %OPT2%
+   ifort /c CFML_Structure_Factors.f90               /nologo %OPT1% %OPT2%
+   ifort /c CFML_Geometry_SXTAL.f90                  /nologo %OPT1% %OPT2%
+   ifort /c CFML_Propagation_Vectors.f90             /nologo %OPT1% %OPT2%
 rem
    echo .... Maps, BVS, Energy Configurations
 rem
    ifort /c CFML_Export_Vtk.f90                      /nologo %OPT1% %OPT2%
-   ifort /c CFML_maps.f90                            /nologo %OPT1% %OPT2%
-   ifort /c CFML_conf_calc.f90                       /nologo %OPT1% %OPT2%
+   ifort /c CFML_Maps_Calculations.f90               /nologo %OPT1% %OPT2%
+   ifort /c CFML_BVS_Energy_Calc.f90                 /nologo %OPT1% %OPT2%
    ifort /c CFML_Percolation.f90                     /nologo %OPT1% %OPT2%
 rem
    echo .... Magnetic Symmetry, Simulated Annealing, Keywords Parser
 rem
 rem   ifort /c CFML_Magnetic_Groups.f90                 /nologo %OPT1% %OPT2%
-   ifort /c CFML_magsymm.f90                         /nologo %OPT1% %OPT2%
-   ifort /c CFML_optimization_san.f90                /nologo %OPT1% %OPT2% %OPT3%
-   ifort /c CFML_refcodes.f90                        /nologo %OPT1% %OPT2%
+   ifort /c CFML_Magnetic_Symmetry.f90               /nologo %OPT1% %OPT2%
+   ifort /c CFML_Simulated_Annealing.f90             /nologo %OPT1% %OPT2% %OPT3%
+   ifort /c CFML_Keywords_Code_Parser.f90            /nologo %OPT1% %OPT2%
 rem
    echo .... Magnetic Structure Factors, Polarimetry
 rem
-   ifort /c CFML_msfac.f90                           /nologo %OPT1% %OPT2%
-   ifort /c CFML_polar.f90                           /nologo %OPT1% %OPT2%
+   ifort /c CFML_Magnetic_Structure_Factors.f90      /nologo %OPT1% %OPT2%
+   ifort /c CFML_Polarimetry.f90                     /nologo %OPT1% %OPT2%
 rem
 rem
    echo.
