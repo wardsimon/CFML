@@ -261,7 +261,7 @@ Module CFML_EoS
       integer                                   :: ICross=0              ! Index for P-T cross-terms model, =0 for none or Pth
       integer                                   :: IAngle=0              ! Index for angle polynomial and not eos
       integer,dimension(2)                      :: IOsc=0                ! Index for extra oscillator models
-      integer, dimension(N_EOSPAR)              :: Iuse=0                ! Flags for parameters allowed for a given EoS =0 (not), =1 (refineable), =2 (implied non-zero)
+      integer, dimension(N_EOSPAR)              :: Iuse=0                ! Flags for parameters allowed for a given EoS =0 (not), =1 (refineable), =2 (settable) =3 implied, not settable
       real(kind=cp)                             :: PRef=0.0              ! Pressure of Reference
       real(kind=cp)                             :: TRef=298.0            ! Temperature of Reference
       real(kind=cp)                             :: Stoich=0.0            ! Stocihometry factor for multiple-phase calculations
@@ -10335,7 +10335,7 @@ Contains
             if(PscaleMGD(eos) .and. VscaleMGD(eos))then            
                 EoS%iuse(18)=3    ! Grunesien parameter at Pref,Tref. This is implied by alpha0
             else
-                EoS%iuse(18)=1    ! If the pscale and vscale are not as required, make free parameter for Ks Kt conversion
+                EoS%iuse(18)=2    ! If the pscale and vscale are not as required, make free parameter for Ks Kt conversion
             endif
             EoS%iuse(19)=0    ! Grunesien q power law parameter: this is a q-comp model
             EoS%TRef_fixed   = .false.
