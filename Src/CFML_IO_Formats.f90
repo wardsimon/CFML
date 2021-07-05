@@ -767,7 +767,7 @@
              ipt(n_pat)=i
           end if
 
-          if (line(1:7) == "UVWXY") then
+          if (line(1:5) == "UVWXY") then
              !> @todo job_info%Y default value = to_deg*1.54056/1900
              read(unit=line(7:),fmt=*,iostat=ier) Job_info%U,Job_info%V,Job_info%W,Job_info%X, Job_info%Y
              if (ier /= 0) then

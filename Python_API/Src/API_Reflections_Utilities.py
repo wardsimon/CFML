@@ -79,6 +79,7 @@ class ReflectionList(CFML_api.FortranBindedClass):
         print("\n")
         CFML_api.crysfml_api.reflections_utilities_write_reflist_info(self.get_fortran_address())
         
+        
 class Reflection(CFML_api.FortranBindedClass):
     """ Class for a given Reflection in CFML
 

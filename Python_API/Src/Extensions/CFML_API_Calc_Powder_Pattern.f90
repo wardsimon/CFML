@@ -58,7 +58,7 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
    do i=1,npts
       Pat%x(i)=Pat%xmin+real(i-1)*Pat%step
    end do
-   
+      
    Pat%bgr(:)=Job_info%bkg
 
    do i=1,hkl%nref
@@ -67,10 +67,12 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
       tt=ss/cs                                 !tt = tan(theta)
       LorentzF=0.5/(ss*ss*cs)
       Bragg=2.0*asind(ss)                      !Bragg = 2 * theta (in degrees)
-
+            
       !fwhm_G = U*tan^2(theta) + V*tan(theta) + W
       HG=sqrt(tt*(Job_info%U*tt + Job_info%V) + Job_info%W)
       HL=Job_info%X*tt + Job_info%Y/cs
+
+      !write(*,*) hg, hl
       call TCH(hg,hl,fwhm,eta)
 
       Select Case(nint(eta*10.0))
@@ -92,11 +94,17 @@ Subroutine Calc_Powder_Pattern(Job_info,scalef,Hkl,Pat)
       i1=max(i1,1)
       i2=min(i2,npts)
       Intens= LorentzF *hkl%ref(i)%mult * hkl%ref(i)%Fc**2 * Scalef
+
+      !write(*,*) Bragg, fwhm, eta
+      
       do j=i1,i2
+         !write(*,*) Pat%ycalc(j), PseudoVoigt( Pat%x(j)-Bragg, (/fwhm,eta /) ), Intens
          Pat%ycalc(j)=Pat%ycalc(j)+ PseudoVoigt( Pat%x(j)-Bragg, (/fwhm,eta /) ) * Intens
       end do
    end do
 
+
+   
    return
 End Subroutine Calc_Powder_Pattern
 
