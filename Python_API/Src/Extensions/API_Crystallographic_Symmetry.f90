@@ -25,7 +25,8 @@ module API_Crystallographic_Symmetry
        Sym_Oper_Type, &
        Wyckoff_Type, &
        Wyck_Pos_Type, &
-       Get_Multip_Pos
+       Get_Multip_Pos, &
+       Get_Occ_Site
 
   implicit none
 
@@ -1574,5 +1575,56 @@ contains
     
     
   end function crystallographic_symmetry_get_multip_pos_crys
+
+
+  function crystallographic_symmetry_get_occ_site(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Space_Group_type_p) :: spg
+    type(object)                         :: pos_obj
+    type(ndarray)                        :: pos_nd
+    real(kind=cp), dimension(:), pointer :: pos_p
+
+    real(kind=cp) :: occ
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "get_multip_pos_crys expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    ierror = args%getitem(pos_obj, 0)        !pos -> x,y,z
+    ierror = cast(pos_nd, pos_obj)
+    ierror = pos_nd%get_data(pos_p)
+
+    call get_space_group_type_from_arg(args, spg, 1)
+    
+    occ= Get_Occ_site(pos_p, spg%p)
+    !write(*,*) "f90 mult",mult
+
+    ierror = dict_create(retval)
+    ierror = retval%setitem("occ", occ)
+    
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call pos_obj%destroy
+    
+    
+  end function crystallographic_symmetry_get_occ_site
 
 end module API_Crystallographic_Symmetry
