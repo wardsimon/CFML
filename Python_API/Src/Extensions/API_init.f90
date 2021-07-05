@@ -56,7 +56,8 @@ module API_init
        crystallographic_symmetry_get_wyckoff_site, &
        crystallographic_symmetry_get_wyckoff_norb, &
        crystallographic_symmetry_get_wyckoff_str_orig, &
-       crystallographic_symmetry_get_wyckoff_str_orbit
+       crystallographic_symmetry_get_wyckoff_str_orbit, &
+       crystallographic_symmetry_get_multip_pos_crys
        
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure, &
@@ -258,7 +259,7 @@ CONTAINS
     integer :: ierror
     ierror = forpy_initialize()
     
-    call method_table%init(200)
+    call method_table%init(201)
 
     !--------------------------
     ! Error Messages (1)
@@ -487,7 +488,7 @@ CONTAINS
          c_funloc(diffraction_patterns_get_nd))  ! address of Fortran function to add
 
     !--------------------------
-    ! Crystallographic Symmetry (37)
+    ! Crystallographic Symmetry (38)
     !--------------------------
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
@@ -673,6 +674,11 @@ CONTAINS
          "Wyckoff Orbit str_orbit getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_wyckoff_str_orbit))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_multip_pos_crys", &                  ! method name
+         "Mutiplicity of an x,y,z point for a given Space Group", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_multip_pos_crys))  ! address of Fortran function to add
 
 
     !--------------------------

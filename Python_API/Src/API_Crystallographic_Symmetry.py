@@ -308,3 +308,21 @@ class WyckoffOrbit(CFML_api.FortranBindedClass):
         for k in range(48):
             ret.append(CFML_api.crysfml_api.crystallographic_symmetry_get_wyckoff_str_orbit(self.get_fortran_address(), k+1)["str_orbit"])
         return ret
+
+
+
+def multiplicity_pos(pos, spg: SpaceGroup):
+    """
+    Return the multiplicity of a real space point given the Shubnikov/space group.
+    ...
+   Parameters
+    ----------
+    pos : np.array[dtype=float]
+       x,y,z coordinates 
+    spg : SpaceGroup
+
+    Returns:
+    int: Multiplicity of the point
+
+    """
+    return CFML_api.crysfml_api.crystallographic_symmetry_get_multip_pos_crys(pos, spg.get_fortran_address())["mult"]
