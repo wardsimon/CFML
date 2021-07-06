@@ -105,8 +105,8 @@ See http://hdf-forum.184993.n3.nabble.com/HDF5-and-MinGW-td3393676.html
 Example for SXTALSOFT on Windows
 ================================
 Assure that CRYSMFL_LIB and WCRYSMFL_LIB are both set to the proper platform (64 bits or 32 bits), only 64 bits will be developed from now.
-cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows ..\.
-cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\SXtalSoft\DistSXT\Windows\debug ..\..\.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\ILL_Git\SXtalSoft\DistSXT\Windows ..\..\.
+cmake -G "NMake Makefiles"  -D CMAKE_Fortran_COMPILER=ifort -D CMAKE_BUILD_TYPE=Debug  -D GUI=ON -D ARCH32=OFF -D CMAKE_INSTALL_PREFIX=C:\ILL_Git\SXtalSoft\DistSXT\Windows\debug ..\..\.
 
 WARNING: When you get in troubles you have to remove completely all files and directories created by cmake in c:\CrysFML\Build\ifort_XXXX
          and repeat the command(s) above.
