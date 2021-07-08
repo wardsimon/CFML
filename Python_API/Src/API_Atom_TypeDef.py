@@ -42,7 +42,7 @@ class Atom(CFML_api.FortranBindedClass):
         
     def __str__(self):
         xyz = self.xyz
-        return 'ATOM %s %s %s %s %s %s %s'%(self.label, self.chemical_symbol, str(xyz[0]), str(xyz[1]), str(xyz[2]), self.biso, self.site_multiplicity)
+        return 'ATOM %s %s %s %s %s %s %s %s %s'%(self.label, self.chemical_symbol, str(xyz[0]), str(xyz[1]), str(xyz[2]), str(self.biso), str(self.occ), str(self.moment), str(self.formal_charge))
     
     @property
     def label(self):
