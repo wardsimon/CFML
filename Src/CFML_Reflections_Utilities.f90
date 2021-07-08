@@ -4926,7 +4926,7 @@
           End Select
 
        else
-          write(unit=lun,fmt="(a)")   "    LIST OF REFLECTIONS AND STRUCTURE FACTORS(X-RAYS)"
+          write(unit=lun,fmt="(a)")   "    LIST OF REFLECTIONS AND STRUCTURE FACTORS"
           write(unit=lun,fmt="(a)")   "    ================================================="
        end if
 

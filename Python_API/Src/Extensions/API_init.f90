@@ -56,7 +56,9 @@ module API_init
        crystallographic_symmetry_get_wyckoff_site, &
        crystallographic_symmetry_get_wyckoff_norb, &
        crystallographic_symmetry_get_wyckoff_str_orig, &
-       crystallographic_symmetry_get_wyckoff_str_orbit
+       crystallographic_symmetry_get_wyckoff_str_orbit, &
+       crystallographic_symmetry_get_multip_pos_crys, &
+       crystallographic_symmetry_get_occ_site
        
   use API_IO_Formats, only: &
        IO_formats_readn_set_xtal_structure, &
@@ -174,6 +176,7 @@ module API_init
        reflections_utilities_hkl_uni_reflist, &
        reflections_utilities_del_reflection_list, &
        reflections_utilities_get_nref, &
+       reflections_utilities_write_reflist_info, &
        reflections_utilities_del_reflection, &
        reflections_utilities_get_item, &
        reflections_utilities_get_H, &
@@ -257,9 +260,17 @@ CONTAINS
     type(c_ptr) :: m
     integer :: ierror
     ierror = forpy_initialize()
-    
-    call method_table%init(200)
 
+
+
+    !--------------------------
+    !Total number of method in the binding
+    !--------------------------
+    call method_table%init(203)
+
+
+
+    
     !--------------------------
     ! Error Messages (1)
     !--------------------------
@@ -268,9 +279,13 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(error_messages))  ! address of Fortran function to add
 
+
+
+    
     !--------------------------
     ! Diffraction Patterns (43)
     !--------------------------
+    
     call method_table%add_method("diffraction_patterns_compute_powder_pattern", &                  ! method name
          "compute the powder diffraction pattern from some experimental conditions and a set of reflections", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
@@ -486,9 +501,12 @@ CONTAINS
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(diffraction_patterns_get_nd))  ! address of Fortran function to add
 
+
+    
     !--------------------------
-    ! Crystallographic Symmetry (37)
+    ! Crystallographic Symmetry (39)
     !--------------------------
+    
     call method_table%add_method("crystallographic_symmetry_set_spacegroup", &                  ! method name
          "Creates the space group", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
@@ -673,6 +691,15 @@ CONTAINS
          "Wyckoff Orbit str_orbit getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystallographic_symmetry_get_wyckoff_str_orbit))  ! address of Fortran function to add
+
+    call method_table%add_method("crystallographic_symmetry_get_multip_pos_crys", &                  ! method name
+         "Mutiplicity of an x,y,z point for a given Space Group", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_multip_pos_crys))  ! address of Fortran function to add
+    call method_table%add_method("crystallographic_symmetry_get_occ_site", &                  ! method name
+         "Occupancy factor of an x,y,z point for a given Space Group", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystallographic_symmetry_get_occ_site))  ! address of Fortran function to add
 
 
     !--------------------------
@@ -1085,8 +1112,11 @@ CONTAINS
          "Lm_xyz getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(atom_typedef_get_Lm_xyz))  ! address of Fortran function to add
+
+
+    
     !--------------------------
-    ! Reflection Utilities (13)
+    ! Reflection Utilities (14)
     !--------------------------
     call method_table%add_method("reflections_utilities_hkl_uni_reflist", &                  ! method name
          "Return the list of reflections", &  !doc-string
@@ -1102,6 +1132,11 @@ CONTAINS
          "nref getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(reflections_utilities_get_nref))  ! address of Fortran function to add
+
+    call method_table%add_method("reflections_utilities_write_reflist_info", &                  ! method name
+         "print reflist info", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(reflections_utilities_write_reflist_info))  ! address of Fortran function to add
     
     call method_table%add_method("reflections_utilities_del_reflection", &                  ! method name
          "Reflection deallocation", &  !doc-string

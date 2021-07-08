@@ -25,7 +25,7 @@ elseif(APPLE)
         set(STRING_UTILS CFML_String_Utilities.f90)
     else()
         set(GLOBAL_DEPS CFML_GlobalDeps_MacOS.f90)
-        set(STRING_UTILS CFML_String_Util_gf.f90)
+        set(STRING_UTILS CFML_String_Utilities_gf.f90)
     endif()
 # Unix
 elseif(UNIX)

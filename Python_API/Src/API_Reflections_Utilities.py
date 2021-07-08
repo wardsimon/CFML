@@ -16,6 +16,26 @@ import CFML_api.crysfml_api
 import CFML_api.FortranBindedClass
 
 class ReflectionList(CFML_api.FortranBindedClass):
+    """ 
+    A class used to describe the reflection list type(Reflection_List_Type) in CFML.
+
+    ... 
+    Attributes
+    ----------
+    cell : CMFL_api.crysfml_api.Cell
+    spg : CMFL_api.crysfml_api.SpaceGroup
+    lfriedel : boolean
+    job : CMFL_api.crysfml_api.JobInfo
+
+    Methods
+    -------
+    print_description
+        Prints the reflection lsit
+    compute_structure_factors
+        Compute the structure factor for each reflection of the list
+    
+    """
+    
     def __init__(self, cell, spg, lfriedel, job):
         CFML_api.FortranBindedClass.__init__(self)
         (stlmin, stlmax) = job.range_stl
@@ -38,12 +58,28 @@ class ReflectionList(CFML_api.FortranBindedClass):
         return CFML_api.crysfml_api.reflections_utilities_get_nref(self.get_fortran_address())["nref"]
     
     def compute_structure_factors(self, space_group, atom_list, job):
-                            
+        """
+        Compute all structure factors 
+        ...
+        Parameters
+        ----------
+        space_group : CMFL_api.crysfml_api.SpaceGroup
+        atom_list :  CMFL_api.crysfml_api.AtomList
+        job : CMFL_api.crysfml_api.JobInfo
+        """
         CFML_api.crysfml_api.structure_factors_structure_factors(
             atom_list.get_fortran_address(), space_group.get_fortran_address(),
             self.get_fortran_address(), job.get_fortran_address())
-        
 
+        
+    def print_description(self):
+        """
+        Write the list of reflections and structure factors
+        """
+        print("\n")
+        CFML_api.crysfml_api.reflections_utilities_write_reflist_info(self.get_fortran_address())
+        
+        
 class Reflection(CFML_api.FortranBindedClass):
     """ Class for a given Reflection in CFML
 

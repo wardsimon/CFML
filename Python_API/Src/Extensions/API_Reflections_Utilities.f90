@@ -24,7 +24,8 @@ module API_Reflections_Utilities
        Reflection_Type, &
        Reflection_List_Type, &
        Hkl_uni, &
-       get_maxnumref
+       get_maxnumref, &
+       Write_RefList_Info
   
   use API_Crystallographic_Symmetry, only: &
        Space_Group_Type_p, &
@@ -142,6 +143,42 @@ contains
     
      
   end function reflections_utilities_get_nref
+
+   ! @brief Print the list of reflections and structure factors to standard output
+  function reflections_utilities_write_reflist_info(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    
+    type(tuple) :: args
+    type(dict)  :: retval
+    integer     :: num_args
+    integer     :: ierror
+
+    type(Reflection_List_Type_p)   :: reflist_p
+
+    r = C_NULL_PTR      
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    
+    ierror = args%len(num_args)
+    
+    if (num_args /= 1) then
+       call raise_exception(TypeError, "write_reflist_info expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    call get_reflection_list_from_arg(args, reflist_p)
+
+    call Write_RefList_Info(reflist_p%p)
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+
+  end function reflections_utilities_write_reflist_info
 
 
   function reflections_utilities_hkl_uni_reflist(self_ptr, args_ptr) result(r) bind(c)
@@ -666,7 +703,8 @@ contains
     call args%destroy
      
   end function reflections_utilities_get_B
-  
+
+ 
   
 
 end module API_Reflections_Utilities
