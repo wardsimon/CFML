@@ -4,6 +4,8 @@ module API_Atom_TypeDef
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env
 
+  use CFML_GlobalDeps, only : cp, eps
+
   use CFML_Atom_TypeDef, only: &
        Atom_List_type, &
        Atoms_Cell_type, &
@@ -13,8 +15,22 @@ module API_Atom_TypeDef
        Write_Atom_list, &
        Atom_type
 
+  Use CFML_Crystallographic_Symmetry, only: &
+       Get_Multip_Pos
+
+  use CFML_Crystal_Metrics, only: &
+       Convert_U_Betas, Convert_B_Betas
+
   use CFML_IO_Formats, only: &
        Read_Atom, Read_Cif_Atom
+
+  use API_Crystallographic_Symmetry, only: &
+       Space_Group_type_p, &
+       get_space_group_type_from_arg
+
+  use API_Crystal_Metrics, only: &
+       Crystal_Cell_type_p, &
+       get_cell_from_arg
 
   implicit none
 
@@ -177,6 +193,118 @@ contains
 
   end function atom_typedef_atomlist_from_CIF_string_array
 
+
+  !---- Modify occupation factors and set multiplicity of atoms
+  !---- in order to be in agreement with the definitions of Sfac in CrysFML
+  function atom_typedef_atomlist_reset_occ_cif(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Atom_List_Type_p) :: a_p
+    type(Space_Group_type_p) :: spg
+
+    real(kind=cp),dimension(6):: pos
+    integer :: i
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "update_occ_cif expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_atom_list_type_from_arg(args, a_p, 0)
+    call get_space_group_type_from_arg(args, spg, 1)
+
+    do i=1,a_p%p%natoms
+       pos(1:3)=a_p%p%atom(i)%x
+       a_p%p%atom(i)%Mult = Get_Multip_Pos(pos(1:3),SpG%p)
+       ! This step is needed for CIF file only as the convention is different!
+       a_p%p%atom(i)%Occ = a_p%p%atom(i)%Occ*real(a_p%p%atom(i)%Mult)/max(1.0,real(SpG%p%Multip))
+       if(a_p%p%atom(i)%occ < eps) a_p%p%atom(i)%occ=real(a_p%p%atom(i)%Mult)/max(1.0,real(SpG%p%Multip))
+    enddo
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    
+    
+  end function atom_typedef_atomlist_reset_occ_cif
+
+
+  function atom_typedef_atomlist_set_all_adp_cif(self_ptr, args_ptr) result(r) bind(c)
+        
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Atom_List_Type_p) :: a_p
+    type(Crystal_Cell_type_p) :: cell
+
+    integer :: i
+    
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "update_occ_cif expects exactly 1 argument")
+       call args%destroy
+       return
+    endif
+    
+    ! Doing boring stuff
+    call get_atom_list_type_from_arg(args, a_p, 0)
+    call get_cell_from_arg(args, cell, 1)
+
+    do i=1,a_p%p%natoms
+       select case (A_p%p%atom(i)%thtype)
+             case ("isotr")
+                A_p%p%atom(i)%biso= A_p%p%atom(i)%ueq*78.95683521
+
+             case ("aniso")
+                select case (A_p%p%atom(i)%Utype)
+                   case ("u_ij")
+                      A_p%p%atom(i)%u(1:6) =  Convert_U_Betas(A_p%p%atom(i)%u(1:6),Cell%p)
+                   case ("b_ij")
+                      A_p%p%atom(i)%u(1:6) = Convert_B_Betas(A_p%p%atom(i)%u(1:6),Cell%p)
+                end select
+                A_p%p%atom(i)%Utype="beta"
+
+             case default
+                A_p%p%atom(i)%biso = A_p%p%atom(i)%ueq*78.95683521
+                A_p%p%atom(i)%thtype = "isotr"
+          end select
+    enddo
+
+    ierror = dict_create(retval)
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    
+    
+  end function atom_typedef_atomlist_set_all_adp_cif
+
+  
 
   function atom_typedef_set_item(self_ptr, args_ptr) result(r) bind(c)
 
@@ -1762,6 +1890,7 @@ contains
     type(dict) :: retval
     integer :: num_args
     integer :: ierror
+    
     type(Atom_Type_p) :: atom_type_pointer
   
     type(ndarray) :: Lm_xyz
@@ -1787,4 +1916,7 @@ contains
     call args%destroy
     
   end function atom_typedef_get_Lm_xyz
+
+
+  
 end module API_Atom_TypeDef

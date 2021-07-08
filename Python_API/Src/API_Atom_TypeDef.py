@@ -343,7 +343,12 @@ class AtomList(CFML_api.FortranBindedClass):
     """
     def __init__(self, string_array=None):
         CFML_api.FortranBindedClass.__init__(self)
+        self._mult = True
+        self._adp = True
         if string_array:
+            self._mult = False 
+            self._adp = False
+            
             dict = CFML_api.crysfml_api.atom_typedef_atomlist_from_CIF_string_array(string_array)
             self._set_fortran_address(dict["AtomList"])
               
@@ -366,7 +371,7 @@ class AtomList(CFML_api.FortranBindedClass):
     @property
     def natoms(self):
         """
-        total number of atoms in the list
+        Total number of atoms in the list
         """
         return CFML_api.crysfml_api.atom_typedef_get_natoms(self.get_fortran_address())["natoms"]
     
@@ -374,3 +379,29 @@ class AtomList(CFML_api.FortranBindedClass):
         """ Print the list of atoms. """
         
         CFML_api.crysfml_api.atom_typedef_write_atom_list(self.get_fortran_address())
+
+
+    def set_mult_occ_cif(self,spg):
+        """
+        Update the multiplicity and modify the occupancy when reading from a CIF array,
+        in order to be in agreement with the definitions of Sfac in CrysFML
+        This needs to be run when the AtomList is initialised from a CIF-like stringarray
+        rather than from the class CIFFile
+        """
+        if (self._mult == False):
+            CFML_api.crysfml_api.atom_typedef_atomlist_reset_occ_cif(self.get_fortran_address(),spg.get_fortran_address())
+            self._mult = True
+        else:
+            print("Warning: multiplicity and occupancy have already been set")
+
+    def set_all_anisotropic_displacement_parameters_cif(self,cell):
+        """
+        Update all Atom fields for Us, Bs and betas
+        This needs to be run when the AtomList is initialised from a CIF-like stringarray
+        rather than from the class CIFFile
+        """
+        if (self._adp == False):
+            CFML_api.crysfml_api.atom_typedef_atomlist_set_all_adp_cif(self.get_fortran_address(),cell.get_fortran_address())
+            self._adp = True
+        else:
+            print("Warning: Anisotropic Displacement Parameters have already been set")
