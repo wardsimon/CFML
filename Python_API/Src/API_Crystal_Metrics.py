@@ -170,3 +170,72 @@ class Cell(CFML_api.FortranBindedClass):
         return CFML_api.crysfml_api.crystal_metrics_get_CartType(self.get_fortran_address())["CartType"]
 
 
+def k_to_cart_vector(code, vector, cell):
+    """ 
+    Convert a vector in crystal space to cartesian components
+    The value of code has been extended to use also the Busing-Levy
+    Cartesian system as reference also for direct and reciprocal space.
+    Codes:
+    The Cartesian frame is that defined by the setting of the Cell object
+    D: The components are given with respect to basis (a,b,c)
+    R: The components are given with respect to basis (a*,b*,c*)
+    BL: The components are given with respect to basis (a*,b*,c*) but
+    the Cartesian frame is that defined by Busing and Levy
+    BLD: The components are given with respect to basis (a,b,c) but
+    the Cartesian frame is that defined by Busing and Levy
+    ...
+    Parameters
+    ----------
+    code : str
+       Cartesian frame 
+    vector : np.array[dtype='float32', ndim=1]
+       kx,ky,kz coordinates 
+    cell : CMFL_api.crysfml_api.Cell
+
+    Returns:
+    np.array[dtype='float32', ndim=1] : coordinates in the chosen cartesian frame
+
+    """
+    return CFML_api.crysfml_api.crystal_metrics_cart_vector(code, vector, cell.get_fortran_address())["cart_vec"]
+
+def k_to_cart_unitary_vector(code, vector, cell):
+    """
+    Convert a vector in crystal space to unitary cartesian components
+    The value of code has been extended to use also the Busing-Levy
+    Cartesian system as reference also for direct and reciprocal space.
+    Codes:
+    The Cartesian frame is that defined by the setting of the Cell object
+    D: The components are given with respect to basis (a,b,c)
+    R: The components are given with respect to basis (a*,b*,c*)
+    BL: The components are given with respect to basis (a*,b*,c*) but
+    the Cartesian frame is that defined by Busing and Levy
+    BLD: The components are given with respect to basis (a,b,c) but
+    the Cartesian frame is that defined by Busing and Levy
+    ...
+    Parameters
+    ----------
+    code : str
+       Cartesian frame 
+    vector : np.array[dtype='float32', ndim=1]
+       kx,ky,kz coordinates 
+    cell : CMFL_api.crysfml_api.Cell
+
+    Returns:
+    np.array[dtype='float32', ndim=1] : coordinates in the chosen cartesian frame
+
+    """
+    return CFML_api.crysfml_api.crystal_metrics_cart_u_vector(code, vector, cell.get_fortran_address())["cart_vec"]
+
+def betas_from_biso(biso, cell):
+    """
+    Get Betas from Biso 
+    ...
+    Parameters
+    ----------
+    biso : float32
+    cell : CMFL_api.crysfml_api.Cell
+
+    Returns
+    np.array[dtype='float32', ndim=1] : betas[0:5] b11, b22, b33, b12, b13, b23
+    """
+    return CFML_api.crysfml_api.crystal_metrics_get_betas_from_biso(cell.get_fortran_address(),biso)["betas"]

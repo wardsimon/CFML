@@ -122,7 +122,10 @@ module API_init
        crystal_metrics_get_cellvol, &
        crystal_metrics_get_rcellvol, &
        crystal_metrics_get_stdvol, &
-       crystal_metrics_get_CartType
+       crystal_metrics_get_CartType, &
+       crystal_metrics_cart_vector, &
+       crystal_metrics_cart_u_vector, &
+       crystal_metrics_get_betas_from_biso
 
   use API_Atom_TypeDef, only: &
        atom_typedef_del_atom_list, &
@@ -266,7 +269,7 @@ CONTAINS
     !--------------------------
     !Total number of method in the binding
     !--------------------------
-    call method_table%init(203)
+    call method_table%init(206)
 
 
 
@@ -1215,7 +1218,7 @@ CONTAINS
 
     
     !--------------------------
-    ! Crystal Metrics (21)
+    ! Crystal Metrics (24)
     !--------------------------
     call method_table%add_method("crystal_metrics_set_crystal_cell", &                  ! method name
          "Creates the crystal cell", &  !doc-string
@@ -1321,6 +1324,25 @@ CONTAINS
          "CartType getter", &  !doc-string
          METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
          c_funloc(crystal_metrics_get_CartType))  ! address of Fortran function to add
+
+    call method_table%add_method("crystal_metrics_cart_vector", &                  ! method name
+         "Convert a vector in crystal space to cartesian components", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_cart_vector))  ! address of Fortran function to add
+
+    call method_table%add_method("crystal_metrics_cart_u_vector", &                  ! method name
+         "Convert a vector in crystal space to unitary cartesian components", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_cart_u_vector))  ! address of Fortran function to add
+
+    call method_table%add_method("crystal_metrics_get_betas_from_biso", &                  ! method name
+         "Convert a vector in crystal space to cartesian components", &  !doc-string
+         METH_VARARGS, &                  ! this method takes arguments but no keyword arguments
+         c_funloc(crystal_metrics_get_betas_from_biso))  ! address of Fortran function to add
+
+
+
+    
     
     m = mod_def%init("crysfml_symmetry", "A Python extension for crysFML symmetry", method_table)
   end function init

@@ -21,7 +21,7 @@ except ImportError as e:
 from CFML_api.FortranBindedClass import FortranBindedClass
 from CFML_api.API_Atom_TypeDef import AtomList
 from CFML_api.API_Atom_TypeDef import Atom
-from CFML_api.API_Crystal_Metrics import Cell
+from CFML_api.API_Crystal_Metrics import Cell, k_to_cart_vector, k_to_cart_unitary_vector, betas_from_biso
 from CFML_api.API_Crystallographic_Symmetry import SpaceGroup, multiplicity_pos, occupancy_site
 from CFML_api.API_Diffraction_Patterns import DiffractionPattern
 from CFML_api.API_IO_Formats import CIFFile, JobInfo

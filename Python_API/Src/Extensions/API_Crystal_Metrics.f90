@@ -22,7 +22,10 @@ module API_Crystal_Metrics
   use CFML_Crystal_Metrics,  only: &
        Crystal_Cell_Type, &
        Write_Crystal_Cell, &
-       Set_Crystal_Cell 
+       Set_Crystal_Cell, &
+       Cart_Vector, &
+       Cart_U_Vector, &
+       Get_Betas_from_Biso
   
   implicit none
 
@@ -886,6 +889,174 @@ contains
     call args%destroy
 
   end function crystal_metrics_get_CartType
+
+
   
+  function crystal_metrics_cart_vector(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Crystal_Cell_type_p) :: cell_p
+
+    type(object)                         :: vec_obj
+    type(ndarray)                        :: vec_nd
+    real(kind=cp), dimension(:), pointer :: vec_p
+
+    real(kind=cp), dimension(3)          :: cart_vec
+    type(ndarray)                        :: cart_vec_nd
+
+    character(len=:), allocatable :: code
+    type(object)     :: code_obj
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 3) then
+       call raise_exception(TypeError, "k_to_cart_vector expects exactly 3 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    ierror = args%getitem(code_obj, 0)        !code
+    ierror = cast_nonstrict(code, code_obj)
+
+    ierror = args%getitem(vec_obj, 1)        !vec -> kx,ky,kz
+    ierror = cast(vec_nd, vec_obj)
+    ierror = vec_nd%get_data(vec_p)
+
+    call get_cell_from_arg(args, cell_p, 2)
+
+    cart_vec = Cart_Vector(code, vec_p, cell_p%p)
+
+    ierror = ndarray_create(cart_vec_nd, cart_vec)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("cart_vec", cart_vec_nd)
+
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call vec_obj%destroy
+    call code_obj%destroy
+
+  end function crystal_metrics_cart_vector
+
+  function crystal_metrics_cart_u_vector(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Crystal_Cell_type_p) :: cell_p
+
+    type(object)                         :: vec_obj
+    type(ndarray)                        :: vec_nd
+    real(kind=cp), dimension(:), pointer :: vec_p
+
+    real(kind=cp), dimension(3)          :: cart_vec
+    type(ndarray)                        :: cart_vec_nd
+
+    character(len=:), allocatable :: code
+    type(object)     :: code_obj
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 3) then
+       call raise_exception(TypeError, "k_to_cart_vector expects exactly 3 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    ierror = args%getitem(code_obj, 0)        !code
+    ierror = cast_nonstrict(code, code_obj)
+
+    ierror = args%getitem(vec_obj, 1)        !vec -> kx,ky,kz
+    ierror = cast(vec_nd, vec_obj)
+    ierror = vec_nd%get_data(vec_p)
+
+    call get_cell_from_arg(args, cell_p, 2)
+
+    cart_vec = Cart_U_Vector(code, vec_p, cell_p%p)
+
+    ierror = ndarray_create(cart_vec_nd, cart_vec)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("cart_vec", cart_vec_nd)
+
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call vec_obj%destroy
+    call code_obj%destroy
+
+  end function crystal_metrics_cart_u_vector
+
+
+
+  function crystal_metrics_get_betas_from_biso(self_ptr, args_ptr) result(r) bind(c)
+
+    type(c_ptr), value :: self_ptr
+    type(c_ptr), value :: args_ptr
+    type(c_ptr) :: r
+    type(tuple) :: args
+    type(dict) :: retval
+    integer :: num_args
+    integer :: ierror
+
+    type(Crystal_Cell_type_p) :: cell_p
+
+    type(object)                         :: biso_obj
+    real(kind=cp)                        :: biso
+
+    real(kind=cp), dimension(6)          :: betas
+    type(ndarray)                        :: betas_nd
+
+    r = C_NULL_PTR   ! in case of an exception return C_NULL_PTR
+    ! use unsafe_cast_from_c_ptr to cast from c_ptr to tuple
+    call unsafe_cast_from_c_ptr(args, args_ptr)
+    ! Check if the arguments are OK
+    ierror = args%len(num_args)
+    ! we should also check ierror, but this example does not do complete error checking for simplicity
+    if (num_args /= 2) then
+       call raise_exception(TypeError, "betas_grom_biso expects exactly 2 arguments")
+       call args%destroy
+       return
+    endif
+
+    ! Doing boring stuff
+    ierror = args%getitem(biso_obj, 0)        !code
+    ierror = cast_nonstrict(biso, biso_obj)
+
+    call get_cell_from_arg(args, cell_p, 1)
+
+    betas = Get_Betas_from_Biso(Biso, cell_p%p)
+
+    ierror = ndarray_create(betas_nd, betas)
+    ierror = dict_create(retval)
+    ierror = retval%setitem("betas", betas_nd)
+
+    r = retval%get_c_ptr()
+
+    call args%destroy
+    call biso_obj%destroy
   
+  end function crystal_metrics_get_betas_from_biso
+
 end module API_Crystal_Metrics
