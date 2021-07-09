@@ -62,6 +62,24 @@ message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 # else()
 #     set(PYTHON_INTERPRETER_PATH "" CACHE PATH "Python interpreter path")
 # endif()
+# Use CMake v3.12+ FindPython3 to find the system-compatible interpreter *and* libraries at once
+# This solves a potential issue on convoluted Windows build systems which have multiple
+# python interpreters, some of which do not have build-system compatibility (I'm looking at you, msys2 python)
+# In such a case FindPythonInterp might point to the wrong python interpreter and then further configuration
+# steps will fail to find any (or any compatible) libraries which match the interpreter.
+# find_package(Python3 COMPONENTS Interpreter Development)
+# # Since FindPython3 and FindPythonInterp set different variables, fake the FindPythonInterp result
+# # to prevent it running if called by, e.g., FindPybind11
+# if(Python3_FOUND)
+#   set(PYTHONINTERP_FOUND ON)
+#   set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+#   message(STATUS "USING PYTHON: " ${PYTHON_EXECUTABLE})
+# #   set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
+#   set(PYTHON_VERSION_STRING "${Python3_VERSION}")
+#   set(PYTHON_VERSION_MAJOR ${Python3_VERSION_MAJOR})
+#   set(PYTHON_VERSION_MINOR ${Python3_VERSION_MINOR})
+#   set(PYTHON_VERSION_PATCH ${Python3_VERSION_PATCH})
+# endif()
 
 # Include and library paths for HDF5.
 # They must be set by the user.

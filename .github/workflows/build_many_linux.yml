@@ -28,7 +28,7 @@ jobs:
         build-requirements: 'cmake'
         system-packages: ''
         package-path: ''
-        pip-wheel-args: '--no-deps'
+        pip-wheel-args: '-w ./dist'
     - uses: actions/upload-artifact@v2
       with:
         name: CrysFML

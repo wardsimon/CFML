@@ -68,11 +68,11 @@ class CMakeBuild(build_ext):
         cfg = "Debug" if self.debug else "Release"
 
         cmake_args = [
-            "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+            "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
             "-DPython_ROOT_DIR={}/".format(sys.base_prefix),
+            "-DPYTHON_INTERPRETER_PATH={}".format(sys.executable),
             "-DPYTHON_INCLUDE_DIR={}".format(get_python_inc()),
             "-DPYTHON_LIBRARY ={}".format(sysconfig.get_config_var('LIBDIR')),
-            "-DPYTHON_LIBRARIES ={}".format(sysconfig.get_config_var('LIBDIR')),
             "-DARCH32=OFF",
             "-DCMAKE_Fortran_COMPILER=gfortran",
             "-DPYTHON_API=ON",

@@ -40,3 +40,7 @@ Build
 
 .idea/
 build/
+
+CFML.egg-info/
+
+dist/
