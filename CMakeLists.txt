@@ -52,16 +52,16 @@ message(STATUS "CrysFML installation path set to ${CRYSFML_PREFIX}")
 
 # Include and library paths for Python. 
 # They must be set by the user.
-if(DEFINED PYTHON_LIBRARY_PATH)
-    set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH} CACHE PATH "Python library path")
-else()
-    set(PYTHON_LIBRARY_PATH "" CACHE PATH "Python library path")
-endif()
-if(DEFINED PYTHON_INTERPRETER_PATH)
-    set(PYTHON_INTERPRETER_PATH ${PYTHON_INTERPRETER_PATH} CACHE PATH "Python interpreter path")
-else()
-    set(PYTHON_INTERPRETER_PATH "" CACHE PATH "Python interpreter path")
-endif()
+# if(DEFINED PYTHON_LIBRARY_PATH)
+#     set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH} CACHE PATH "Python library path")
+# else()
+#     set(PYTHON_LIBRARY_PATH "" CACHE PATH "Python library path")
+# endif()
+# if(DEFINED PYTHON_INTERPRETER_PATH)
+#     set(PYTHON_INTERPRETER_PATH ${PYTHON_INTERPRETER_PATH} CACHE PATH "Python interpreter path")
+# else()
+#     set(PYTHON_INTERPRETER_PATH "" CACHE PATH "Python interpreter path")
+# endif()
 
 # Include and library paths for HDF5.
 # They must be set by the user.

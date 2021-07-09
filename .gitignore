@@ -37,3 +37,6 @@
 
 # Directories
 Build
+
+.idea/
+build/
