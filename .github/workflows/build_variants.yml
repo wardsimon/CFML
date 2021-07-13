@@ -24,7 +24,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
         os: [macos-10.15, macos-11.0, windows-latest]
         gcc_v: [ 10 ] # Version of GFortran we want to use.
         exclude:
@@ -47,22 +47,29 @@ jobs:
       with:
         python-version: ${{matrix.python-version}}
 
-#    - name: Set Compiler (OSX)
-#      run: |
-#        echo "FC=gfortran-${{ matrix.gcc_v }}" >> $GITHUB_ENV
-#        echo "CC=gcc-${{ matrix.gcc_v }}" >> $GITHUB_ENV
-
     - name: Install cmake
-      run: pip3 install cmake delocate
+      run: pip3 install cmake
 
-    - name: Build CFML
-      run: pip wheel ./ --no-deps -w ./dist/
+    - name: Build CFML (Windows)
+      if: contains(matrix.os, 'windows')
+      env:
+        FC: gfortran
+        CC: gcc
+      run: pip3 wheel ./ --no-deps -w ./dist/
 
-    - name: Fix Wheel
+    - name: Build CFML (OSX)
       if: contains(matrix.os, 'macos')
-      run: delocate-wheel -w fixed_wheels -v ./dist/*.whl
+      env:
+        FC: gfortran-${{ matrix.gcc_v }}
+        CC: gcc-${{ matrix.gcc_v }}
+      run: |
+        pip3 wheel ./ --no-deps -w ./dist/
+        pip3 install delocate
+        delocate-wheel -w fixed_wheels -v ./dist/*.whl
+        mv ./dist ./old
+        mv ./fixed_wheels ./dist
 
     - uses: actions/upload-artifact@v2
       with:
         name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python-version }}
-        path: ./fixed_wheels/*.whl
+        path: ./dist/*.whl

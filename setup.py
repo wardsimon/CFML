@@ -14,17 +14,10 @@ import shutil
 BITS = struct.calcsize("P") * 8
 PACKAGE_NAME = "crysfml_api"
 SOURCE_DIR = '.'
-
-def cmd_exists(cmd):
-    return shutil.which(cmd) is not None
-
 COMPILER = 'gfortran'
-if not cmd_exists(COMPILER):
-    versions = [10, 9, 8]
-    for version in versions:
-        COMPILER = f'gfortran-{version}'
-        if cmd_exists(COMPILER):
-            break
+if os.environ.get('FC', False):
+    COMPILER = os.environ.get('FC')
+print(f'Compiler set to: {COMPILER}')
 
 # We can use cmake provided from pip which (normally) gets installed at /bin
 # Except that in the manylinux builds it's placed at /opt/python/[version]/bin/
