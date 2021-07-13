@@ -10,12 +10,21 @@ import pathlib
 import os
 import sys
 import shutil
+from sys import platform as _platform
 
 BITS = struct.calcsize("P") * 8
 PACKAGE_NAME = "crysfml_api"
 SOURCE_DIR = '.'
 COMPILER = 'gfortran'
-
+# if _platform == "linux" or _platform == "linux2":
+    # linux
+if _platform == "darwin":
+    # MAC OS X
+    COMPILER = 'gfortran-10'
+# elif _platform == "win32":
+#     # Windows
+# elif _platform == "win64":
+#     # Windows 64-bit
 # We can use cmake provided from pip which (normally) gets installed at /bin
 # Except that in the manylinux builds it's placed at /opt/python/[version]/bin/
 # (as a symlink at least) which is *not* on the path.

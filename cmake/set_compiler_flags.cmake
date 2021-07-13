@@ -102,7 +102,7 @@ macro(set_compiler_flags)
             endif()
         endif()
 
-    elseif(COMPILER_NAME STREQUAL gfortran)
+    elseif(COMPILER_NAME MATCHES "^gfortran")
 
         if(WIN32)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
