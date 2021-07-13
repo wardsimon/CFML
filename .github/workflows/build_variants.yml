@@ -46,7 +46,7 @@ jobs:
         python-version: ${{matrix.python-version}}
 
     - name: Install cmake
-      run: pip3 install cmake delocate
+      run: pip3 install cmake delocate wheel
 
     - name: Build CFML (OSX)
       env:
@@ -79,7 +79,7 @@ jobs:
 #          python-version: ${{matrix.python-version}}
 #
 #      - name: Install cmake
-#        run: pip3 install cmake
+#        run: pip3 install cmake wheel
 #
 #      - name: Build CFML (Windows)
 #        if: contains(matrix.os, 'windows')
