@@ -62,5 +62,5 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: CrysFML - OSX
-        path: ${{ github.workspace }}/dist/**/*.whl
+        name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python_version }}
+        path: ./fixed_wheels/*.whl
