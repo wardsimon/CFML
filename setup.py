@@ -4,6 +4,8 @@ import pkgutil
 import shutil
 import struct
 import sys
+import setuptools
+from distutils.core import setup
 from distutils.command.install_data import install_data
 from subprocess import CalledProcessError, check_output, check_call
 
@@ -282,5 +284,6 @@ setup(name="CFML",
           'install_data':    InstallCMakeLibsData,
           'install_lib':     InstallCMakeLibs,
           'install_scripts': InstallCMakeScripts
-      }
+      },
+      setup_requires=['wheel']
       )
