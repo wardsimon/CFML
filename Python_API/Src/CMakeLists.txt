@@ -31,7 +31,7 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
-set(COMPATIBLE_VERSIONS 3.8 3.7 3.6 3.5)
+set(COMPATIBLE_VERSIONS 3.10 3.9 3.8 3.7 3.6)
 if (NOT PYTHON_INTERPRETER_PATH)
   set(Python_ADDITIONAL_VERSIONS ${COMPATIBLE_VERSIONS})
   find_package(PythonInterp REQUIRED)

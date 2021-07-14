@@ -1,15 +1,16 @@
+import os
+import pathlib
+import pkgutil
+import shutil
+import struct
+import sys
 from distutils.command.install_data import install_data
+from subprocess import CalledProcessError, check_output, check_call
+
 from setuptools import find_packages, setup, Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install_lib import install_lib
 from setuptools.command.install_scripts import install_scripts
-from subprocess import CalledProcessError, check_output, check_call
-import struct
-import pkgutil
-import pathlib
-import os
-import sys
-import shutil
 
 BITS = struct.calcsize("P") * 8
 PACKAGE_NAME = "crysfml_api"
@@ -25,12 +26,15 @@ print(f'Compiler set to: {COMPILER}')
 # If cmake is a known module, import it and use it tell us its binary directory
 if pkgutil.find_loader('cmake') is not None:
     import cmake
+
     CMAKE_BIN = cmake.CMAKE_BIN_DIR + os.path.sep + 'cmake'
 else:
     CMAKE_BIN = 'cmake'
 
+
 def get_cmake():
     return CMAKE_BIN
+
 
 class CMakeExtension(Extension):
     """
@@ -41,8 +45,8 @@ class CMakeExtension(Extension):
     """
 
     def __init__(self, name, sources=[]):
+        super().__init__(name=name, sources=sources)
 
-        super().__init__(name = name, sources = sources)
 
 class InstallCMakeLibsData(install_data):
     """
@@ -55,16 +59,15 @@ class InstallCMakeLibsData(install_data):
 
     def run(self):
         """
-        Outfiles are the libraries that were built using cmake
+        Out files are the libraries that were built using cmake
         """
-
         # There seems to be no other way to do this; I tried listing the
         # libraries during the execution of the InstallCMakeLibs.run() but
         # setuptools never tracked them, seems like setuptools wants to
         # track the libraries through package data more than anything...
-        # help would be appriciated
 
         self.outfiles = self.distribution.data_files
+
 
 class InstallCMakeLibs(install_lib):
     """
@@ -80,24 +83,20 @@ class InstallCMakeLibs(install_lib):
         """
 
         self.announce("Moving library files", level=3)
-
         # We have already built the libraries in the previous build_ext step
-
         self.skip_build = True
-
-        # bin_dir = self.distribution.bin_dir
 
         # Depending on the files that are generated from your cmake
         # build chain, you may need to change the below code, such that
         # your files are moved to the appropriate location when the installation
         # is run
 
+        # bin_dir = self.distribution.bin_dir
         bin_dir = os.path.abspath(os.path.join(self.distribution.bin_dir, '..'))
 
         libs = [os.path.join(bin_dir, _dir) for _dir in
-                        os.listdir(bin_dir) if
-                        os.path.isdir(os.path.join(bin_dir, _dir))]
-
+                os.listdir(bin_dir) if
+                os.path.isdir(os.path.join(bin_dir, _dir))]
 
         for lib in libs:
             shutil.move(lib, os.path.join(self.build_dir,
@@ -139,6 +138,7 @@ class InstallCMakeLibs(install_lib):
 
         super().run()
 
+
 class InstallCMakeScripts(install_scripts):
     """
     Install the scripts in the build dir
@@ -176,6 +176,7 @@ class InstallCMakeScripts(install_scripts):
 
         super().run()
 
+
 class BuildCMakeExt(build_ext):
     """
     Builds using cmake instead of the python setuptools implicit build
@@ -187,7 +188,7 @@ class BuildCMakeExt(build_ext):
         """
 
         for extension in self.extensions:
-                self.build_cmake(extension)
+            self.build_cmake(extension)
         super().run()
 
     def build_cmake(self, extension: Extension):
@@ -233,9 +234,9 @@ class BuildCMakeExt(build_ext):
         check_call(
             [get_cmake(), "--build", ".", '--target', 'install'] + build_args, cwd=self.build_temp
         )
+
         # Build finished, now copy the files into the copy directory
         # The copy directory is the parent directory of the extension (.pyd)
-
         self.announce("Moving built python module", level=3)
 
         bin_dir = os.path.join(os.getcwd(), COMPILER, 'Python_API', 'CFML_api')
@@ -248,7 +249,6 @@ class BuildCMakeExt(build_ext):
                     os.path.splitext(_pyd)[1] in [".pyd", ".so"]][0]
 
         shutil.move(pyd_path, extension_path)
-
         # After build_ext is run, the following commands will run:
         #
         # install_lib
@@ -259,27 +259,28 @@ class BuildCMakeExt(build_ext):
         # wants to build those libs and scripts as well or move them to a
         # different place. See comments above for additional information
 
+
 setup(name="CFML",
       version="0.0.1",
       author="Simon Ward",
       author_email="simon.ward@ess.eu",
-      description="ManyLinux test of CrysFML",
-      ext_modules=[CMakeExtension(name="crysfml_api")],
+      description="The Crystallographic Fortran Modules Library (CrysFML) is a set of modules containing "
+                  "procedures of interest in Crystallographic applications.",
+      ext_modules=[CMakeExtension(name=PACKAGE_NAME)],
       long_description=open("./README", 'r').read(),
       long_description_content_type="text/markdown",
-      keywords="crystolography, physics, neutron, diffraction",
+      keywords="crystallography, physics, neutron, diffraction",
       classifiers=["Intended Audience :: Developers",
                    "License :: OSI Approved :: "
                    "GNU Lesser General Public License v3 (LGPLv3)",
                    "Natural Language :: English",
-                   "Programming Language :: C",
-                   "Programming Language :: C++",
+                   "Programming Language :: Fortran",
                    "Programming Language :: Python"],
-      license='GPL-3.0',
+      license='LGPL',
       cmdclass={
-          'build_ext': BuildCMakeExt,
-          'install_data': InstallCMakeLibsData,
-          'install_lib': InstallCMakeLibs,
+          'build_ext':       BuildCMakeExt,
+          'install_data':    InstallCMakeLibsData,
+          'install_lib':     InstallCMakeLibs,
           'install_scripts': InstallCMakeScripts
-          }
-    )
+      }
+      )
