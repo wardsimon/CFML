@@ -14,6 +14,7 @@ option(HEAP_ARRAYS "Put arrays in heap instead of stack (only for Windows ifort)
 option(PROG_EX "Build the Program Examples" ON)
 option(PYTHON_API "Build Python API" OFF)
 option(QPARALLEL "qparallel option for Ifort on Windows" ON)
+option(PYSETUP "Building from setup.py" OFF)
 
 if(DEFINED CMAKE_Fortran_COMPILER)
     set(CMAKE_Fortran_COMPILER ${CMAKE_Fortran_COMPILER} CACHE STRING "The Fortran compiler. One of 'ifort', 'g95' or 'gfortran'.")

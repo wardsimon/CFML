@@ -224,6 +224,7 @@ class BuildCMakeExt(build_ext):
             "-DUSE_HDF=OFF",
             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(os.path.join(build_dir), 'Release'),
+            "-DPYSETUP=ON"
         ]
         build_args = []
 

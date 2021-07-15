@@ -58,6 +58,28 @@ endif()
 #   set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY_PATH})
 # endif()
 
+# Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
+# Set include and linking
+include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
+target_link_libraries(${LIBRARY_NAME} crysfml_common)
+# Fix a problem on Mac OS X when building shared libraries
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+endif()
+
+# target_link_libraries(${LIBRARY_NAME} Python3_LIB)
+
+# Set library extension
+set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
+set(LIBRARY_FILENAME "crysfml_api.so")
+if(APPLE)
+    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".so")
+    set(LIBRARY_FILENAME "crysfml_api.so")
+elseif(WIN32)
+    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
+    set(LIBRARY_FILENAME "crysfml_api.pyd")
+endif()
+
 #################################
 # Documentation
 #################################
@@ -106,34 +128,18 @@ add_custom_target(Python_Files ALL
         ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/../Tests/CFML_api
+        )
 
+add_dependencies(Python_Files ${LIBRARY_NAME})
+
+if(NOT PYSETUP)
+    add_custom_target(Python_SO_Files ALL
         COMMAND
         ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_FILENAME}
         ${CMAKE_CURRENT_BINARY_DIR}/../Tests/CFML_api
         )
-add_dependencies(Python_Files ${LIBRARY_NAME})
-
-# Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
-# Set include and linking
-include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
-target_link_libraries(${LIBRARY_NAME} crysfml_common)
-# Fix a problem on Mac OS X when building shared libraries
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
-endif()
-
-# target_link_libraries(${LIBRARY_NAME} Python3_LIB)
-
-# Set library extension
-set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
-set(LIBRARY_FILENAME "crysfml_api.so")
-if(APPLE)
-    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".so")
-    set(LIBRARY_FILENAME "crysfml_api.so")
-elseif(WIN32)
-    set_target_properties(${LIBRARY_NAME} PROPERTIES SUFFIX ".pyd")
-    set(LIBRARY_FILENAME "crysfml_api.pyd")
+    add_dependencies(Python_SO_Files ${LIBRARY_NAME})
 endif()
 
 #################################
