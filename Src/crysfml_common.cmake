@@ -4,7 +4,7 @@
 
 # The CFML_GlobalDeps module is OS and compiler dependent.
 # WINDOWS
-if(WIN32)
+if(WIN32 OR MSYS)
     # Intel Fortran compiler
     if(${COMPILER_NAME} STREQUAL ifort)
        if(ARCH32)

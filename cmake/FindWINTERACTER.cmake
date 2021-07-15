@@ -7,7 +7,7 @@ set(WINTER "$ENV{WINTER}")
 set(WINT "$ENV{WINT}")
 
 
-if (WIN32)
+if (WIN32 OR MSYS)
    # Windows 
 
     string(REGEX REPLACE "\\\\" "/" WINTERACTER "${WINTERACTER}")

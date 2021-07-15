@@ -6,7 +6,7 @@ macro(set_compiler_flags_08)
 
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
 
-    if(WIN32)
+    if(WIN32 OR MSYS)
         if(COMPILER_NAME STREQUAL ifort)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(OPT_FLAGS "/nologo")

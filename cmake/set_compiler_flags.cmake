@@ -7,7 +7,7 @@ macro(set_compiler_flags)
 
     if(COMPILER_NAME STREQUAL ifort)
 
-        if(WIN32)
+        if(WIN32 OR MSYS)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 if (HEAP_ARRAYS)
                     set(CMAKE_Fortran_FLAGS_DEBUG "/debug:full /traceback /nologo /fpp /Qopt-report=0 /heap-arrays")
@@ -68,7 +68,7 @@ macro(set_compiler_flags)
 
     elseif(COMPILER_NAME STREQUAL g95)
 
-        if(WIN32)
+        if(WIN32 OR MSYS)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(CMAKE_Fortran_FLAGS_DEBUG "-ftrace=full -std=f2003")
                 set(OPT_FLAGS "-O0")
@@ -104,7 +104,7 @@ macro(set_compiler_flags)
 
     elseif(COMPILER_NAME MATCHES "^gfortran")
 
-        if(WIN32)
+        if(WIN32 OR MSYS)
             if(CMAKE_BUILD_TYPE STREQUAL Debug)
                 set(CMAKE_Fortran_FLAGS_DEBUG "-fbacktrace -ffree-line-length-none")
                 set(OPT_FLAGS0 "-O0")

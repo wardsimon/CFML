@@ -20,7 +20,7 @@ target_link_libraries(read_nexus crysfml)
 link_directories(${HDF5_LIBRARY_DIR})
 target_link_libraries(read_nexus ${HDF5_LIBRARIES})
 
-if(WIN32)
+if(WIN32 OR MSYS)
     get_filename_component(COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME_WE)
     if(COMPILER_NAME STREQUAL ifort)
 # Copy hdf5.dll hdf5_f90cstub.dll hdf5_fortran.dll
