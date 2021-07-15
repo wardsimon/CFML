@@ -82,8 +82,9 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MSYS
-          install: msys2-devel base-devel binutils mingw-w64-x86_64-toolchain
+          install: cmake mingw-w64-x86_64-toolchain
           update: true
+          path-type: inherit
 
       - name: Build CFML
         shell: msys2 {0}
