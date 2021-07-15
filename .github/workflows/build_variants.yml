@@ -51,19 +51,19 @@ jobs:
         FC: gfortran-${{ matrix.gcc_v }}
         CC: gcc-${{ matrix.gcc_v }}
       run: |
-        pip3 wheel ./ --no-deps -w ./dist/
-        delocate-wheel -w fixed_wheels -v ./dist/*.whl
+        pip3 wheel ./ --no-deps -w ./old/
+        delocate-wheel -w dist -v ./old/*.whl
 
     - uses: actions/upload-artifact@v2
       with:
         name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python-version }}
-        path: ./fixed_wheels/*.whl
+        path: ./dist/*.whl
 
   create-Windows:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ '3.6', '3.7', '3.8']
         os: [ windows-latest ]
 
     runs-on: ${{ matrix.os }}
@@ -97,3 +97,23 @@ jobs:
         with:
           name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python-version }}
           path: ./dist/*.whl
+
+  Upload_Artifacts:
+    runs-on: ubuntu-latest
+    needs: [create-Linux, create-OSX, create-Windows]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+    - name: Upload Artifacts GitHub releases
+#      if: github.event_name == 'push'
+      uses: ncipollo/release-action@v1
+      with:
+        draft: falase
+        prerelease: true
+        allowUpdates: true
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "./dist/*.whl"
+        tag: ${{ env.BRANCH_NAME }}
+        commit: ${{ env.BRANCH_NAME }}
+        bodyFile: "RELEASE.md"
