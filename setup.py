@@ -111,7 +111,7 @@ class InstallCMakeLibs(install_lib):
                     os.listdir(bin_dir) if
                     os.path.isfile(os.path.join(bin_dir, _pyd)) and
                     os.path.splitext(_pyd)[0].startswith(PACKAGE_NAME) and
-                    os.path.splitext(_pyd)[1] in [".pyd", ".so"]][0]
+                    os.path.splitext(_pyd)[1] in [".pyd", ".so", '.dll']][0]
         shutil.move(pyd_path, os.path.join(os.path.split(pyd_path)[0], 'CFML_api', os.path.split(pyd_path)[1]))
 
         # Mark the libs for installation, adding them to
@@ -219,8 +219,8 @@ class BuildCMakeExt(build_ext):
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
-            "-DPYTHON_LIBRARY={}".format(sysconfig.get_config_var('LIBDIR')),
-            "-DPYTHON_INCLUDE_DIR={}".format(sysconfig.get_python_inc()),
+            # "-DPYTHON_LIBRARY={}".format(sysconfig.get_config_var('LIBDIR')),
+            # "-DPYTHON_INCLUDE_DIR={}".format(sysconfig.get_python_inc()),
             "-DARCH32=OFF",
             "-DCMAKE_Fortran_COMPILER={}".format(COMPILER),
             "-DPYTHON_API=ON",
@@ -252,7 +252,7 @@ class BuildCMakeExt(build_ext):
                     os.listdir(bin_dir) if
                     os.path.isfile(os.path.join(bin_dir, _pyd)) and
                     os.path.splitext(_pyd)[0].startswith(PACKAGE_NAME) and
-                    os.path.splitext(_pyd)[1] in [".pyd", ".so"]][0]
+                    os.path.splitext(_pyd)[1] in [".pyd", ".so", '.dll']][0]
 
         shutil.move(pyd_path, extension_path)
         # After build_ext is run, the following commands will run:
