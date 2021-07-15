@@ -37,12 +37,10 @@ set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
     FIND_PACKAGE(PythonLibs REQUIRED)
-#     FIND_PACKAGE(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
+    set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARIES})
+    message(STATUS ${PYTHON_LIBRARY_PATH})
     add_library(Python3_LIB STATIC IMPORTED)
-    set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY})
-    message(STATUS "Linking Python extension with PYTHON_LIBRARY variable: " ${PYTHON_LIBRARY})
-elseif()
-    message(STATUS "Not linking Python extension with PYTHON_LIBRARY variable")
+    set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY_PATH})
 endif()
 
 # Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
@@ -55,8 +53,6 @@ if(APPLE)
 elseif(WIN32 OR MSYS)
     target_link_libraries(${LIBRARY_NAME} Python3_LIB)
 endif()
-
-# target_link_libraries(${LIBRARY_NAME} Python3_LIB)
 
 # Set library extension
 set_target_properties(${LIBRARY_NAME} PROPERTIES PREFIX "" OUTPUT_NAME ${LIBRARY_NAME})
