@@ -62,8 +62,8 @@ endif()
 # Set include and linking
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 target_link_libraries(${LIBRARY_NAME} crysfml_common)
-# Fix a problem on Mac OS X when building shared libraries
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+# Fix a problem on Mac OS X/Win when building shared libraries
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
 endif()
 
