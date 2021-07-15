@@ -219,8 +219,6 @@ class BuildCMakeExt(build_ext):
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
-            "-DPYTHON_LIBRARY={}".format(os.path.join(os.path.split(sys.executable)[0], 'lib')),
-            "-DPYTHON_INCLUDE_DIR={}".format(os.path.join(os.path.split(sys.executable)[0], 'include')),
             "-DARCH32=OFF",
             "-DCMAKE_Fortran_COMPILER={}".format(COMPILER),
             "-DPYTHON_API=ON",
