@@ -5,6 +5,7 @@ import shutil
 import struct
 import sys
 import setuptools
+import distutils.sysconfig as sysconfig
 from distutils.core import setup
 from distutils.command.install_data import install_data
 from subprocess import CalledProcessError, check_output, check_call
@@ -218,6 +219,8 @@ class BuildCMakeExt(build_ext):
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
             "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
+            "-DPYTHON_LIBRARY={}".format(sysconfig.get_config_var('LIBDIR')),
+            "-DPYTHON_INCLUDE_DIR={}".format(sysconfig.get_python_inc()),
             "-DARCH32=OFF",
             "-DCMAKE_Fortran_COMPILER={}".format(COMPILER),
             "-DPYTHON_API=ON",

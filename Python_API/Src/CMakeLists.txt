@@ -29,6 +29,7 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 # Dependencies section
 #################################
 # Add a dependency to crysfml_common to keep sure that the crysfml_common library will be built first.
+# See https://gitlab.kitware.com/cmake/cmake/-/issues/19226 for linking
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 set(COMPATIBLE_VERSIONS 3.10 3.9 3.8 3.7 3.6)
@@ -40,31 +41,29 @@ if (NOT PYTHON_INTERPRETER_PATH)
 else()
   message(STATUS "using Python interpreter provided with PYTHON_INTERPRETER_PATH variable: " ${PYTHON_INTERPRETER_PATH})
 endif()
-#
-# if (NOT PYTHON_LIBRARY_PATH)
-#   set(Python_ADDITIONAL_VERSIONS ${COMPATIBLE_VERSIONS})
-#   find_package(PythonLibs REQUIRED)
-#   set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY})
-#   message(STATUS ${PYTHON_LIBRARY_PATH})
-# else()
-#   message(STATUS "Linking Python extension with provided PYTHON_LIBRARY_PATH variable: " ${PYTHON_LIBRARY_PATH})
-# endif()
 
-# if (UNIX)
-#   add_library(Python3_LIB SHARED IMPORTED)
-#   set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY_PATH})
-# elseif(WIN32)
-#   add_library(Python3_LIB STATIC IMPORTED)
-#   set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY_PATH})
-# endif()
+if(WIN32)
+    if (NOT PYTHON_LIBRARY_PATH)
+      set(Python_ADDITIONAL_VERSIONS ${COMPATIBLE_VERSIONS})
+      find_package(PythonLibs REQUIRED)
+      set(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY})
+      message(STATUS ${PYTHON_LIBRARY_PATH})
+    else()
+      message(STATUS "Linking Python extension with provided PYTHON_LIBRARY_PATH variable: " ${PYTHON_LIBRARY_PATH})
+    endif()
+    add_library(Python3_LIB STATIC IMPORTED)
+    set_property(TARGET Python3_LIB PROPERTY IMPORTED_LOCATION ${PYTHON_LIBRARY_PATH})
+endif()
 
 # Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
 # Set include and linking
 include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
 target_link_libraries(${LIBRARY_NAME} crysfml_common)
-# Fix a problem on Mac OS X/Win when building shared libraries
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+# Fix a problem on Mac OS X when building shared libraries
+if(APPLE)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+elseif(WIN32)
+    target_link_libraries(${LIBRARY_NAME} Python3_LIB)
 endif()
 
 # target_link_libraries(${LIBRARY_NAME} Python3_LIB)
