@@ -69,7 +69,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-
       - uses: actions/checkout@v2
 
       - name: Setup python
@@ -78,20 +77,20 @@ jobs:
           python-version: ${{matrix.python-version}}
 
       - name: Install wheel
-        run: |
-          echo "C:\msys64\usr\bin" >> $GITHUB_PATH
-          pip install wheel
+        run: pip install wheel
 
-#      - uses: msys2/setup-msys2@v2
-#        with:
-#          msystem: MSYS
-#          install: cmake mingw-w64-x86_64-toolchain
-#          update: true
-#          path-type: inherit
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          install: mingw-w64-x86_64-toolchain
+          update: true
+          path-type: inherit
 
       - name: Build CFML
         shell: msys2 {0}
-        run: pip wheel ./ --no-deps -w ./dist/
+        id: build
+        run: |
+          pip wheel ./ --no-deps -w ./dist/
         env:
           MINGW_ARCH: MINGW64
 
