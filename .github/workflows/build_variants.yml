@@ -69,9 +69,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: switch git-bash shell to msys2 shell by adding msys2 path to PATH front
-        run: echo "C:\msys64\usr\bin" >> $GITHUB_PATH
-        shell: bash
 
       - uses: actions/checkout@v2
 
@@ -81,7 +78,9 @@ jobs:
           python-version: ${{matrix.python-version}}
 
       - name: Install wheel
-        run: pip install wheel
+        run: |
+          echo "C:\msys64\usr\bin" >> $GITHUB_PATH
+          pip install wheel
 
 #      - uses: msys2/setup-msys2@v2
 #        with:
@@ -91,8 +90,7 @@ jobs:
 #          path-type: inherit
 
       - name: Build CFML
-#        shell: msys2 {0}
-#        id: build
+        shell: msys2 {0}
         run: pip wheel ./ --no-deps -w ./dist/
         env:
           MINGW_ARCH: MINGW64
