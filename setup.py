@@ -7,6 +7,7 @@ import sys
 import setuptools
 import distutils.sysconfig as sysconfig
 from distutils.core import setup
+import distutils.command.build
 from distutils.command.install_data import install_data
 from subprocess import CalledProcessError, check_output, check_call
 
@@ -70,6 +71,7 @@ class InstallCMakeLibsData(install_data):
         # track the libraries through package data more than anything...
 
         self.outfiles = self.distribution.data_files
+
 
 
 class InstallCMakeLibs(install_lib):
@@ -141,6 +143,8 @@ class InstallCMakeLibs(install_lib):
 
         super().run()
 
+        pass
+
 
 class InstallCMakeScripts(install_scripts):
     """
@@ -192,7 +196,8 @@ class BuildCMakeExt(build_ext):
 
         for extension in self.extensions:
             self.build_cmake(extension)
-        super().run()
+        # super().run()
+        pass
 
     def build_cmake(self, extension: Extension):
         """
@@ -203,10 +208,17 @@ class BuildCMakeExt(build_ext):
 
         build_dir = pathlib.Path(self.build_temp)
 
-        extension_path = pathlib.Path(self.get_ext_fullpath(extension.name))
+        # don't store the abi3 info in filename
+        extension._file_name = extension._full_name
+
+        ext_path = pathlib.Path(self.get_ext_fullpath(extension.name))
+
+        ext_ext = os.path.splitext(ext_path)[1]
+        filename = extension._file_name + ext_ext
+        extension_path = os.path.join(ext_path.parent, filename)
 
         os.makedirs(build_dir, exist_ok=True)
-        os.makedirs(extension_path.parent.absolute(), exist_ok=True)
+        os.makedirs(ext_path.parent.absolute(), exist_ok=True)
 
         # Now that the necessary directories are created, build
 
@@ -264,6 +276,34 @@ class BuildCMakeExt(build_ext):
         # different place. See comments above for additional information
 
 
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    # this overrides standard naming of the wheel to not include
+    # architecture or python dot version number
+
+    class Bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+
+        def get_tag(self):
+            python, abi, plat = _bdist_wheel.get_tag(self)
+            python, abi = 'py3', 'none'
+            return python, abi, plat
+except ImportError:
+    Bdist_wheel = None
+
+
+class BuildCommand(distutils.command.build.build):
+
+    def initialize_options(self):
+        # this overrides the directory names for
+        # build/lib and build/temp
+        distutils.command.build.build.initialize_options(self)
+        self.build_platlib = 'build/lib'
+        self.build_temp = 'build/temp'
+
+
 setup(name="CFML",
       version="0.0.1",
       author="Simon Ward",
@@ -281,11 +321,14 @@ setup(name="CFML",
                    "Programming Language :: Fortran",
                    "Programming Language :: Python"],
       license='LGPL',
+      cpython_tags=None,
       cmdclass={
+          'build':           BuildCommand,
           'build_ext':       BuildCMakeExt,
           'install_data':    InstallCMakeLibsData,
           'install_lib':     InstallCMakeLibs,
-          'install_scripts': InstallCMakeScripts
+          'install_scripts': InstallCMakeScripts,
+          'bdist_wheel':     Bdist_wheel
       },
       setup_requires=['wheel']
       )
