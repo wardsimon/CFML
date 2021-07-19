@@ -82,8 +82,7 @@ jobs:
         run: |
           conda config --env --set always_yes true
           conda install -c conda-forge fortran-compiler cmake wheel
-      - name: Build CFML
-        run: python setup.py bdist_wheel
+          python setup.py bdist_wheel
       
       - uses: actions/upload-artifact@v2
         with:
