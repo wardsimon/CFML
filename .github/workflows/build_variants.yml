@@ -81,7 +81,7 @@ jobs:
       - name: Install required
         run: |
           conda config --env --set always_yes true
-          conda install -c conda-forge gfortran cmake wheel
+          conda install -c conda-forge fortran-compiler cmake wheel
       - name: Build CFML
         run: python setup.py bdist_wheel
       
