@@ -70,13 +70,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup python
-        uses: actions/setup-python@v1
+      - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{matrix.python-version}}
-
-      - name: Install wheel
-        run: pip install wheel
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: true
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -88,7 +86,7 @@ jobs:
       - name: Build CFML
         shell: msys2 {0}
         id: build
-        run: pip wheel ./ --no-deps -w ./dist/
+        run: python setup.py bdist_wheel
         env:
           MINGW_ARCH: MINGW64
 
