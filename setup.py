@@ -1,3 +1,4 @@
+
 import os
 import pathlib
 import pkgutil
@@ -7,6 +8,7 @@ import sys
 import setuptools
 import distutils.sysconfig as sysconfig
 from distutils.core import setup
+import distutils.command.build
 from distutils.command.install_data import install_data
 from subprocess import CalledProcessError, check_output, check_call
 
@@ -14,6 +16,23 @@ from setuptools import find_packages, setup, Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install_lib import install_lib
 from setuptools.command.install_scripts import install_scripts
+
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    # this overrides standard naming of the wheel to not include
+    # architecture or python dot version number
+
+    class Bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+
+        def get_tag(self):
+            python, abi, plat = _bdist_wheel.get_tag(self)
+            python, abi = 'py3', 'none'
+            return python, abi, plat
+except ImportError:
+    Bdist_wheel = None
 
 BITS = struct.calcsize("P") * 8
 PACKAGE_NAME = "crysfml_api"
@@ -42,7 +61,6 @@ def get_cmake():
 class CMakeExtension(Extension):
     """
     An extension to run the cmake build
-
     This simply overrides the base extension class so that setuptools
     doesn't try to build your sources for you
     """
@@ -54,7 +72,6 @@ class CMakeExtension(Extension):
 class InstallCMakeLibsData(install_data):
     """
     Just a wrapper to get the install data into the egg-info
-
     Listing the installed files in the egg-info guarantees that
     all of the package files will be uninstalled when the user
     uninstalls your package through pip
@@ -72,10 +89,10 @@ class InstallCMakeLibsData(install_data):
         self.outfiles = self.distribution.data_files
 
 
+
 class InstallCMakeLibs(install_lib):
     """
     Get the libraries from the parent distribution, use those as the outfiles
-
     Skip building anything; everything is already built, forward libraries to
     the installation step
     """
@@ -141,6 +158,8 @@ class InstallCMakeLibs(install_lib):
 
         super().run()
 
+        pass
+
 
 class InstallCMakeScripts(install_scripts):
     """
@@ -192,7 +211,8 @@ class BuildCMakeExt(build_ext):
 
         for extension in self.extensions:
             self.build_cmake(extension)
-        super().run()
+        # super().run()
+        pass
 
     def build_cmake(self, extension: Extension):
         """
@@ -203,10 +223,17 @@ class BuildCMakeExt(build_ext):
 
         build_dir = pathlib.Path(self.build_temp)
 
-        extension_path = pathlib.Path(self.get_ext_fullpath(extension.name))
+        # don't store the abi3 info in filename
+        extension._file_name = extension._full_name
+
+        ext_path = pathlib.Path(self.get_ext_fullpath(extension.name))
+
+        ext_ext = os.path.splitext(ext_path)[1]
+        filename = extension._file_name + ext_ext
+        extension_path = os.path.join(ext_path.parent, filename)
 
         os.makedirs(build_dir, exist_ok=True)
-        os.makedirs(extension_path.parent.absolute(), exist_ok=True)
+        os.makedirs(ext_path.parent.absolute(), exist_ok=True)
 
         # Now that the necessary directories are created, build
 
@@ -264,6 +291,16 @@ class BuildCMakeExt(build_ext):
         # different place. See comments above for additional information
 
 
+class BuildCommand(distutils.command.build.build):
+
+    def initialize_options(self):
+        # this overrides the directory names for
+        # build/lib and build/temp
+        distutils.command.build.build.initialize_options(self)
+        self.build_platlib = 'build/lib'
+        self.build_temp = 'build/temp'
+
+
 setup(name="CFML",
       version="0.0.1",
       author="Simon Ward",
@@ -281,11 +318,14 @@ setup(name="CFML",
                    "Programming Language :: Fortran",
                    "Programming Language :: Python"],
       license='LGPL',
+      cpython_tags=None,
       cmdclass={
+          'build':           BuildCommand,
           'build_ext':       BuildCMakeExt,
           'install_data':    InstallCMakeLibsData,
           'install_lib':     InstallCMakeLibs,
-          'install_scripts': InstallCMakeScripts
+          'install_scripts': InstallCMakeScripts,
+          'bdist_wheel':     Bdist_wheel
       },
       setup_requires=['wheel']
       )

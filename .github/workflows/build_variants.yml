@@ -1,63 +1,88 @@
-# Adapted from https://github.com/RalfG/python-wheels-manylinux-build/blob/master/full_workflow_example.yml
-name: Build CFML wheels on various systems
+name: Python libs
 
 on:
   push:
-    branches: [ simon ]
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+#  schedule:
+#    # Every day at 1am
+#    - cron: '0 1 * * *'
 
 jobs:
-#  create-Linux:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#
-#    - name: Build manylinux wheels
-#      run:  docker run -e PLAT=manylinux2010_x86_64 -v `pwd`:/io quay.io/pypa/manylinux2010_x86_64 /io/Scripts/buildscript.sh
-#
-#    - uses: actions/upload-artifact@v2
-#      with:
-#        name: CrysFML - Linux
-#        path: ${{ github.workspace }}/dist/*.whl
-#
-#  create-OSX:
-#    strategy:
-#      max-parallel: 4
-#      matrix:
-#        python-version: ['3.6', '3.7', '3.8', '3.9']
-#        os: [macos-10.15]
-#        gcc_v: [ 10 ] # Version of GFortran we want to use.
-##        exclude: # Currently only python > 3.8 is supported on macos-11.0 and > 3.6 on macos-10.15
-##          - os: macos-11.0
-##            python-version: '3.7'
-##          - os: macos-11.0
-##            python-version: '3.8'
-#
-#    runs-on: ${{ matrix.os }}
-#
-#    steps:
-#    - uses: actions/checkout@v2
-#
-#    - name: Setup python
-#      uses: actions/setup-python@v1
-#      with:
-#        python-version: ${{matrix.python-version}}
-#
-#    - name: Install cmake
-#      run: pip3 install cmake delocate wheel
-#
-#    - name: Build CFML (OSX)
-#      env:
-#        FC: gfortran-${{ matrix.gcc_v }}
-#        CC: gcc-${{ matrix.gcc_v }}
-#      run: |
-#        pip3 wheel ./ --no-deps -w ./old/
-#        delocate-wheel -w dist -v ./old/*.whl
-#
-#    - uses: actions/upload-artifact@v2
-#      with:
-#        name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python-version }}
-#        path: ./dist/*.whl
+
+  get_Latest:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+
+    steps:
+    - name: Checkout ILL repo
+      run: |
+        git clone https://code.ill.fr/scientific-software/crysfml/ ./
+        git checkout feature-python_api-build_wheels
+        rm -rf ./.git ./Html
+    - uses: actions/upload-artifact@v2
+      with:
+        name: CrysFML_SRC
+        path: ${{ github.workspace }}
+        retention-days: 1
+
+
+  create-Linux:
+    runs-on: ubuntu-latest
+
+    needs: get_Latest
+
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: CrysFML_SRC
+
+    - name: Build manylinux wheels
+      run:  |
+        chmod +x ./Scripts/buildscript.sh
+        docker run -e PLAT=manylinux2010_x86_64 -v ${{ github.workspace }}:/io quay.io/pypa/manylinux2010_x86_64 /io/Scripts/buildscript.sh
+    - uses: actions/upload-artifact@v2
+      with:
+        name: CrysFML - Linux
+        path: ${{ github.workspace }}/dist/*.whl
+
+  create-OSX:
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.8']
+        os: [macos-10.15]
+        gcc_v: [ 10 ] # Version of GFortran we want to use.
+
+    runs-on: ${{ matrix.os }}
+
+    needs: get_Latest
+
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: CrysFML_SRC
+
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{matrix.python-version}}
+
+    - name: Install cmake
+      run: pip3 install cmake delocate wheel
+
+    - name: Build CFML (OSX)
+      env:
+        FC: gfortran-${{ matrix.gcc_v }}
+        CC: gcc-${{ matrix.gcc_v }}
+      run: |
+        pip3 wheel ./ --no-deps -w ./old/
+        delocate-wheel -w dist -v ./old/*.whl
+    - uses: actions/upload-artifact@v2
+      with:
+        name: CrysFML - MacOS
+        path: ./dist/*.whl
 
   create-Windows:
     strategy:
@@ -92,25 +117,25 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: CrysFML - ${{ matrix.os }} - Python ${{ matrix.python-version }}
+          name: CrysFML - Windows
           path: ./dist/*.whl
 
-#  Upload_Artifacts:
-#    runs-on: ubuntu-latest
-#    needs: [create-Linux, create-OSX, create-Windows]
-#    steps:
-#    - uses: actions/checkout@v2
-#    - uses: actions/download-artifact@v2
-#    - name: Upload Artifacts GitHub releases
-##      if: github.event_name == 'push'
-#      uses: ncipollo/release-action@v1
-#      with:
-#        draft: falase
-#        prerelease: true
-#        allowUpdates: true
-#        replacesArtifacts: true
-#        token: ${{ secrets.GITHUB_TOKEN }}
-#        artifacts: "./dist/*.whl"
-##        tag: ${{ env.BRANCH_NAME }}
-##        commit: ${{ env.BRANCH_NAME }}
-#        bodyFile: "RELEASE.md"
+  Upload_Artifacts:
+    runs-on: ubuntu-latest
+    needs: [create-Linux, create-OSX]
+    steps:
+    - uses: actions/download-artifact@v2
+    - name: What is downloaded
+      run: |
+        ls -al
+    - name: Upload Artifacts GitHub releases
+      uses: ncipollo/release-action@v1
+      with:
+        draft: false
+        prerelease: true
+        allowUpdates: true
+        replacesArtifacts: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: "./**/*.whl"
+        tag: "CurrentBuild"
+        body: "This is a build of the CFML libraries."

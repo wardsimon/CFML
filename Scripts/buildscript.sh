@@ -17,11 +17,11 @@ function repair_wheel {
 
 
 # Compile wheels
-for PYBIN in /opt/python/*/bin; do
-#    "${PYBIN}/pip" install -r /io/dev-requirements.txt
-    "${PYBIN}/pip" wheel /io/ --no-deps --use-feature=in-tree-build -w /io/dist/
-    rm -rf /io/build/
-done
+#for PYBIN in /opt/python/*/bin; do
+export PYBIN=/opt/python/cp38-cp38/bin
+"${PYBIN}/pip" wheel /io/ --no-deps --use-feature=in-tree-build -w /io/dist/
+rm -rf /io/build/
+#done
 
 # Bundle external shared libraries into the wheels
 for whl in /io/dist/*.whl; do
@@ -29,7 +29,6 @@ for whl in /io/dist/*.whl; do
 done
 
 # Install packages and test
-for PYBIN in /opt/python/*/bin/; do
-    "${PYBIN}/pip" install CFML --no-index -f /io/dist
-#    (cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
-done
+#for PYBIN in /opt/python/*/bin/; do
+"${PYBIN}/pip" install CFML --no-index -f /io/dist
+#done
