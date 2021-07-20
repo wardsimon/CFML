@@ -37,9 +37,10 @@ find_package(Python3 COMPONENTS Interpreter)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
-    set(Python3_USE_STATIC_LIBS, TRUE)
+    # set(Python3_USE_STATIC_LIBS, TRUE)
+    set (Python3_FIND_ABI "ANY" "ANY" "ANY")
     find_package(Python3 REQUIRED COMPONENTS Development)
-    target_link_libraries(${LIBRARY_NAME} PRIVATE Python3::Python)
+    target_link_libraries(${LIBRARY_NAME} Python3::Python)
 endif()
 
 # Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
