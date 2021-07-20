@@ -115,4 +115,4 @@ jobs:
         artifacts: "./dist/*.whl"
         tag: "CurrentBuild"
         commit: ${{ env.BRANCH_NAME }}
-        bodyFile: "RELEASE.md"
+        body: "This is a build of the CFML libraries."
