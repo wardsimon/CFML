@@ -113,6 +113,6 @@ jobs:
         replacesArtifacts: true
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: "./dist/*.whl"
-        tag: ${{ env.BRANCH_NAME }}
+        tag: "CurrentBuild"
         commit: ${{ env.BRANCH_NAME }}
         bodyFile: "RELEASE.md"
