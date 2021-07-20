@@ -37,7 +37,7 @@ if(PYSETUP)
     set(Python3_FIND_ABI "ON" "ON" "ON")
     set(Python3_FIND_VIRTUALENV, "FIRST")
 endif()
-find_package(Python3 COMPONENTS Interpreter Development)
+find_package(Python3 "3.7.10" COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
