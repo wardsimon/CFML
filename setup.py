@@ -245,7 +245,7 @@ class BuildCMakeExt(build_ext):
         cmake_args = [
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
-            "-DPYTHON_EXECUTABLE:FILEPATH={}".format(sys.executable),
+            "-DPython3_ROOT_DIR={}".format(os.path.abspath(os.path.join(sys.executable, '..', '..'))),
             "-DARCH32=OFF",
             "-DCMAKE_Fortran_COMPILER={}".format(COMPILER),
             "-DPYTHON_API=ON",
