@@ -88,8 +88,9 @@ jobs:
         shell: msys2 {0}
         id: build
         run: |
-          C:\Windows\system32\cmd.exe /D /S /C "C:\Miniconda\condabin\conda.bat activate test
+          C:\Miniconda\condabin\conda.bat activate test
           which python
+          which pip
           pip install wheel delvewheel
           pip wheel ./ --no-deps -w ./old/
           delvewheel show ./old/*.whl
