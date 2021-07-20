@@ -37,7 +37,7 @@ find_package(Python3 COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
-    target_link_libraries(${LIBRARY_NAME} STATIC Python3::Python)
+    add_library(${LIBRARY_NAME} OBJECT Python3::Python)
 endif()
 
 # Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
