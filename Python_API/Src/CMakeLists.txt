@@ -32,11 +32,13 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 # See https://gitlab.kitware.com/cmake/cmake/-/issues/19226 for linking
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
-set(Python3_USE_STATIC_LIBS, ON)
-find_package(Python3 COMPONENTS Interpreter Development)
+
+find_package(Python3 COMPONENTS Interpreter)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
+    set(Python3_USE_STATIC_LIBS, TRUE)
+    find_package(Python3 REQUIRED COMPONENTS Development)
     target_link_libraries(${LIBRARY_NAME} PRIVATE Python3::Python)
 endif()
 
