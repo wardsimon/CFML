@@ -33,13 +33,15 @@ set_source_files_properties(forpy_mod.f90 PROPERTIES COMPILE_FLAG "-cpp")
 add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 
-find_package(Python3 COMPONENTS Interpreter)
+if(PYSETUP)
+    set(Python3_FIND_ABI "ANY" "ANY" "ANY")
+    set(Python3_FIND_VIRTUALENV, FIRST)
+endif()
+find_package(Python3 COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
     # set(Python3_USE_STATIC_LIBS, TRUE)
-    set (Python3_FIND_ABI "ANY" "ANY" "ANY")
-    find_package(Python3 REQUIRED COMPONENTS Development)
     target_link_libraries(${LIBRARY_NAME} Python3::Python)
 endif()
 
