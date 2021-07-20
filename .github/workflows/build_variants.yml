@@ -92,11 +92,14 @@ jobs:
         os: [ windows-latest ]
 
     runs-on: ${{ matrix.os }}
+
+    needs: get_Latest
+
     steps:
 
-    - uses: actions/download-artifact@v2
-      with:
-        name: CrysFML_SRC
+      - uses: actions/download-artifact@v2
+        with:
+          name: CrysFML_SRC
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
