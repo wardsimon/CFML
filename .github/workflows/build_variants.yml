@@ -69,13 +69,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v2
-
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          auto-activate-base: true
-
+      
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MSYS
@@ -91,7 +85,6 @@ jobs:
           pip wheel ./ --no-deps -w ./old/
           delvewheel show ./old/*.whl
           delvewheel repair --no-mangle-all -w dist -v ./old/*.whl
-
         env:
           MINGW_ARCH: MINGW64
 
