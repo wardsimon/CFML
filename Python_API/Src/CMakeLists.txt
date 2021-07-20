@@ -47,7 +47,7 @@ if(WIN32 OR MSYS)
     # set(Python3_USE_STATIC_LIBS, TRUE)
     target_compile_definitions(${LIBRARY_NAME} PRIVATE Py_LIMITED_API)
     target_include_directories(${LIBRARY_NAME} PRIVATE ${Python3_INCLUDE_DIRS})
-    target_link_libraries(${LIBRARY_NAME} PRIVATE Python3:Module crysfml_common)
+    target_link_libraries(${LIBRARY_NAME} PRIVATE Python3::Module crysfml_common)
 else()
 	# Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
 # Set include and linking
