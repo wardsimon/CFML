@@ -2,9 +2,9 @@ name: Python libs
 
 on:
   push:
-    branches: [ master ]
+    branches: [ simon ]
   pull_request:
-    branches: [ master ]
+    branches: [ simon ]
 #  schedule:
 #    # Every day at 1am
 #    - cron: '0 1 * * *'
@@ -88,12 +88,15 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        python-version: [ '3.6', '3.7']
+        python-version: ['3.7']
         os: [ windows-latest ]
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: CrysFML_SRC
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -111,7 +114,12 @@ jobs:
       - name: Build CFML
         shell: msys2 {0}
         id: build
-        run: python setup.py bdist_wheel
+        run: |
+          pip install wheel delvewheel
+          pip wheel ./ --no-deps -w ./old/
+          delvewheel show ./old/*.whl
+          delvewheel repair --no-mangle-all -w dist -v ./old/*.whl
+
         env:
           MINGW_ARCH: MINGW64
 
