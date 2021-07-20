@@ -90,9 +90,9 @@ jobs:
         run: |
           C:\\Miniconda\\condabin\\conda.bat activate test
           which python
-          which pip
-          pip install wheel delvewheel
-          pip wheel ./ --no-deps -w ./old/
+          python -V
+          python setup.py bdist_wheel
+          mv .dist/ ./old
           delvewheel show ./old/*.whl
           delvewheel repair --no-mangle-all -w dist -v ./old/*.whl
         env:
