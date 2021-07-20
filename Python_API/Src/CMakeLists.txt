@@ -34,15 +34,16 @@ add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 
 if(PYSETUP)
-    set(Python3_FIND_ABI "ON" "ON" "ON")
+    set(Python3_FIND_STRATEGY, "VERSION")
     set(Python3_FIND_VIRTUALENV, "FIRST")
+    set(Python3_FIND_REGISTRY, "LAST")
 endif()
-find_package(Python3 "3.7.10" COMPONENTS Interpreter Development)
+find_package(Python3 ${PYTHON_VERSION} COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
 if(WIN32 OR MSYS)
     # set(Python3_USE_STATIC_LIBS, TRUE)
-    target_link_libraries(${LIBRARY_NAME} Python3::Python)
+    target_link_libraries(${LIBRARY_NAME} Python3::Module)
 endif()
 
 # Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
