@@ -41,17 +41,19 @@ endif()
 find_package(Python3 ${PYTHON_VERSION} COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
 
+include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
+
 if(WIN32 OR MSYS)
     # set(Python3_USE_STATIC_LIBS, TRUE)
     target_compile_definitions(${LIBRARY_NAME} PRIVATE Py_LIMITED_API)
     target_include_directories(${LIBRARY_NAME} PRIVATE ${Python3_INCLUDE_DIRS})
-    target_link_libraries(${LIBRARY_NAME} PRIVATE ${Python3_LIBRARIES})
+    target_link_libraries(${LIBRARY_NAME} PRIVATE Python3:Module crysfml_common)
+else()
+	# Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
+# Set include and linking
+    target_link_libraries(${LIBRARY_NAME} crysfml_common)
 endif()
 
-# Set -Wl,-undefined,dynamic_lookup to OTHER_LDFLAGS
-# Set include and linking
-include_directories(${CRYSFML_COMMON_MODULE_DIRECTORY})
-target_link_libraries(${LIBRARY_NAME} crysfml_common)
 # Fix a problem on Mac OS X when building shared libraries
 if(APPLE)
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
