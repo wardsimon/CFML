@@ -245,7 +245,7 @@ class BuildCMakeExt(build_ext):
         cmake_args = [
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
-            f"-DPYTHON_VERSION={sys.version.split(' ')[0]}"
+            f"-DPYTHON_VERSION={sys.version.split(' ')[0]}",
             "-DARCH32=OFF",
             f"-DCMAKE_Fortran_COMPILER={COMPILER}",
             "-DPYTHON_API=ON",
