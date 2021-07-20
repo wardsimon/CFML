@@ -34,8 +34,8 @@ add_dependencies(${LIBRARY_NAME} crysfml_common)
 
 
 if(PYSETUP)
-    set(Python3_FIND_ABI "ANY" "ANY" "ANY")
-    set(Python3_FIND_VIRTUALENV, FIRST)
+    set(Python3_FIND_ABI "ON" "ON" "ON")
+    set(Python3_FIND_VIRTUALENV, "FIRST")
 endif()
 find_package(Python3 COMPONENTS Interpreter Development)
 set(PYTHON_INTERPRETER_PATH ${Python3_EXECUTABLE})
