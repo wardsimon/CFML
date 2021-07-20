@@ -10,33 +10,11 @@ on:
 #    - cron: '0 1 * * *'
 
 jobs:
-
-  get_Latest:
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
-
-    steps:
-    - name: Checkout ILL repo
-      run: |
-        git clone https://code.ill.fr/scientific-software/crysfml/ ./
-        git checkout feature-python_api-build_wheels
-        rm -rf ./.git ./Html
-    - uses: actions/upload-artifact@v2
-      with:
-        name: CrysFML_SRC
-        path: ${{ github.workspace }}
-        retention-days: 1
-
-
   create-Linux:
     runs-on: ubuntu-latest
 
-    needs: get_Latest
-
     steps:
-    - uses: actions/download-artifact@v2
-      with:
-        name: CrysFML_SRC
+    - uses: actions/checkout@v2
 
     - name: Build manylinux wheels
       run:  |
@@ -56,13 +34,8 @@ jobs:
         gcc_v: [ 10 ] # Version of GFortran we want to use.
 
     runs-on: ${{ matrix.os }}
-
-    needs: get_Latest
-
     steps:
-    - uses: actions/download-artifact@v2
-      with:
-        name: CrysFML_SRC
+    - uses: actions/checkout@v2
 
     - name: Setup python
       uses: actions/setup-python@v1
@@ -93,13 +66,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    needs: get_Latest
-
     steps:
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: CrysFML_SRC
+      - uses: actions/checkout@v2
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
