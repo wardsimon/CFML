@@ -245,13 +245,13 @@ class BuildCMakeExt(build_ext):
         cmake_args = [
             '-H' + SOURCE_DIR,
             '-B' + self.build_temp,
-            "-DPython3_ROOT_DIR={}".format(os.path.abspath(os.path.join(sys.executable, '..', '..'))),
+            f"-DPYTHON_VERSION={sys.version.split(' ')[0]}"
             "-DARCH32=OFF",
-            "-DCMAKE_Fortran_COMPILER={}".format(COMPILER),
+            f"-DCMAKE_Fortran_COMPILER={COMPILER}",
             "-DPYTHON_API=ON",
             "-DUSE_HDF=OFF",
-            "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
-            "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(os.path.join(build_dir), 'Release'),
+            f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={os.path.join(build_dir), 'Release'}",
             "-DPYSETUP=ON"
         ]
         build_args = []
